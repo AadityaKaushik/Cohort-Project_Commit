@@ -1,0 +1,51 @@
+# --- Java / Maven (api/) ---
+api/target/
+api/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- Node / React (frontend/) ---
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/coverage/
+frontend/*.local
+
+# --- Python (fl-service/) ---
+fl-service/__pycache__/
+fl-service/**/__pycache__/
+fl-service/.venv/
+fl-service/venv/
+fl-service/*.egg-info/
+fl-service/.pytest_cache/
+fl-service/.coverage
+fl-service/htmlcov/
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Uploaded/generated content (never committed) ---
+uploads/
+storage/
+*.pdf
+!docs/**/*.pdf
+
+# --- Docker ---
+docker-compose.override.yml
