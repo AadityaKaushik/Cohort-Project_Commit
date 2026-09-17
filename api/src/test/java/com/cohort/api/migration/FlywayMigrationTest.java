@@ -2,37 +2,25 @@ package com.cohort.api.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.cohort.api.AbstractIntegrationTest;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.context.annotation.Import;
 
 /**
  * Proves the migrations in db/migration apply cleanly to a genuinely empty
  * Postgres 16 instance and produce the expected tables — not just that the
  * SQL parses.
  */
-@Testcontainers
 @SpringBootTest
-class FlywayMigrationTest {
-
-    @TestConfiguration(proxyBeanMethods = false)
-    static class ContainerConfig {
-
-        @Bean
-        @ServiceConnection
-        PostgreSQLContainer<?> postgresContainer() {
-            return new PostgreSQLContainer<>("postgres:16-alpine");
-        }
-    }
+@Import(AbstractIntegrationTest.ContainerConfig.class)
+class FlywayMigrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private DataSource dataSource;
@@ -53,7 +41,7 @@ class FlywayMigrationTest {
              var statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(
                      "SELECT version, success FROM flyway_schema_history ORDER BY installed_rank")) {
-            var versions = new java.util.ArrayList<String>();
+            var versions = new ArrayList<String>();
             while (rs.next()) {
                 assertThat(rs.getBoolean("success")).isTrue();
                 versions.add(rs.getString("version"));
