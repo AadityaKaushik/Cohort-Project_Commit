@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: cohort-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:cohort}}
+    username: ${POSTGRES_USER:cohort_app}
+    password: ${POSTGRES_PASSWORD:change_me}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway owns the schema; Hibernate only ever checks it matches.
+      ddl-auto: validate
 
 app:
   cors:
