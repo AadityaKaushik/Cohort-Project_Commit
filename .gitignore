@@ -42,8 +42,13 @@ Thumbs.db
 logs/
 
 # --- Uploaded/generated content (never committed) ---
-uploads/
-storage/
+# Anchored to the repo root (not bare `uploads/`/`storage/`) so these never
+# accidentally match a source package of the same name, e.g.
+# api/src/main/java/com/cohort/api/service/resume/storage/ (the
+# FileStorageStrategy Strategy-pattern package, US-21).
+/uploads/
+/storage/
+api/data/
 *.pdf
 !docs/**/*.pdf
 

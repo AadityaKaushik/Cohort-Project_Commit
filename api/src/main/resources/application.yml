@@ -29,3 +29,7 @@ app:
     login-rate-limit:
       max-attempts: 10
       window-minutes: 15
+  resume-storage:
+    # Local disk today (Strategy pattern, US-21); an S3-backed implementation
+    # is a drop-in swap behind FileStorageStrategy without touching callers.
+    base-dir: ${RESUME_STORAGE_DIR:./data/resumes}
