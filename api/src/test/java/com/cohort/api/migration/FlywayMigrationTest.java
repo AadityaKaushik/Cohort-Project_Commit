@@ -35,6 +35,8 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(tableExists(connection, "application_status_history")).isTrue();
             assertThat(tableExists(connection, "tags")).isTrue();
             assertThat(tableExists(connection, "application_tags")).isTrue();
+            assertThat(tableExists(connection, "resumes")).isTrue();
+            assertThat(tableExists(connection, "resume_sections")).isTrue();
             assertThat(columnExists(connection, "users", "email")).isTrue();
             assertThat(columnExists(connection, "refresh_tokens", "token_hash")).isTrue();
             assertThat(columnExists(connection, "companies", "normalized_name")).isTrue();
@@ -42,6 +44,10 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(columnExists(connection, "applications", "stage_entered_at")).isTrue();
             assertThat(columnExists(connection, "application_status_history", "to_status")).isTrue();
             assertThat(columnExists(connection, "tags", "name")).isTrue();
+            assertThat(columnExists(connection, "resumes", "parent_resume_id")).isTrue();
+            assertThat(columnExists(connection, "resumes", "is_default")).isTrue();
+            assertThat(columnExists(connection, "resume_sections", "section_type")).isTrue();
+            assertThat(columnExists(connection, "resume_sections", "metadata")).isTrue();
         }
     }
 
@@ -56,7 +62,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
                 assertThat(rs.getBoolean("success")).isTrue();
                 versions.add(rs.getString("version"));
             }
-            assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6");
+            assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
         }
     }
 

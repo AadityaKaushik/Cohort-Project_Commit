@@ -6,6 +6,8 @@ dependency, each versioned migration in `../migration/` has a corresponding hand
 rollback script here, applied manually and in **reverse** version order:
 
 ```
+psql "$DATABASE_URL" -f U8__drop_resume_sections_table.sql
+psql "$DATABASE_URL" -f U7__drop_resumes_table.sql
 psql "$DATABASE_URL" -f U6__drop_tags_tables.sql
 psql "$DATABASE_URL" -f U5__drop_application_status_history_table.sql
 psql "$DATABASE_URL" -f U4__drop_applications_table.sql
