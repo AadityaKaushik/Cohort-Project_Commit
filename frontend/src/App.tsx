@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import {
   BarChart3,
-  Briefcase,
   FileText,
   LayoutDashboard,
   MessagesSquare,
@@ -12,6 +11,9 @@ import {
 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
+import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
+import { ApplicationFormPage } from '@/pages/applications/ApplicationFormPage'
+import { ApplicationsListPage } from '@/pages/applications/ApplicationsListPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -34,16 +36,12 @@ function App() {
               />
             }
           />
-          <Route
-            path="applications"
-            element={
-              <ComingSoonPage
-                icon={Briefcase}
-                title="Application tracking is coming soon"
-                description="Track every application from Applied through Offer or Rejected, with a full status timeline."
-              />
-            }
-          />
+          <Route path="applications">
+            <Route index element={<ApplicationsListPage />} />
+            <Route path="new" element={<ApplicationFormPage />} />
+            <Route path=":id" element={<ApplicationDetailPage />} />
+            <Route path=":id/edit" element={<ApplicationFormPage />} />
+          </Route>
           <Route
             path="resumes"
             element={
