@@ -23,5 +23,17 @@ public enum ApplicationStatus {
     REJECTED,
     WITHDRAWN,
     ACCEPTED,
-    DECLINED
+    DECLINED;
+
+    private static final java.util.Set<ApplicationStatus> TERMINAL = java.util.Set.of(
+            REJECTED, WITHDRAWN, ACCEPTED, DECLINED);
+
+    /**
+     * Whether this status is a terminal outcome (§17.5). This is a static
+     * classification fact about the domain, not a transition rule — unlike
+     * "is X -> Y legal," which stays owned entirely by the State pattern.
+     */
+    public boolean isTerminal() {
+        return TERMINAL.contains(this);
+    }
 }

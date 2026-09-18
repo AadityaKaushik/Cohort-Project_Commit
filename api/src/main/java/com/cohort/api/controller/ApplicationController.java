@@ -1,0 +1,86 @@
+package com.cohort.api.controller;
+
+import com.cohort.api.dto.ApplicationDetailResponse;
+import com.cohort.api.dto.ApplicationStatusHistoryResponse;
+import com.cohort.api.dto.ApplicationSummary;
+import com.cohort.api.dto.ChangeStatusRequest;
+import com.cohort.api.dto.CreateApplicationRequest;
+import com.cohort.api.dto.PagedResponse;
+import com.cohort.api.dto.UpdateApplicationRequest;
+import com.cohort.api.service.ApplicationService;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+/** Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2): every method delegates straight to ApplicationService. */
+@RestController
+@RequestMapping("/api/v1/applications")
+public class ApplicationController {
+
+    private final ApplicationService applicationService;
+
+    public ApplicationController(ApplicationService applicationService) {
+        this.applicationService = applicationService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApplicationDetailResponse create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CreateApplicationRequest request) {
+        return applicationService.create(userId(jwt), request);
+    }
+
+    @GetMapping
+    public PagedResponse<ApplicationSummary> list(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(defaultValue = "date_applied") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
+        return applicationService.list(userId(jwt), page, size, sort, direction);
+    }
+
+    @GetMapping("/{id}")
+    public ApplicationDetailResponse get(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        return applicationService.getById(userId(jwt), id);
+    }
+
+    @PatchMapping("/{id}")
+    public ApplicationDetailResponse update(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @Valid @RequestBody UpdateApplicationRequest request) {
+        return applicationService.update(userId(jwt), id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        applicationService.delete(userId(jwt), id);
+    }
+
+    @PostMapping("/{id}/status")
+    public ApplicationDetailResponse changeStatus(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @Valid @RequestBody ChangeStatusRequest request) {
+        return applicationService.changeStatus(userId(jwt), id, request);
+    }
+
+    @GetMapping("/{id}/history")
+    public List<ApplicationStatusHistoryResponse> history(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        return applicationService.history(userId(jwt), id);
+    }
+
+    private UUID userId(Jwt jwt) {
+        return UUID.fromString(jwt.getSubject());
+    }
+}
