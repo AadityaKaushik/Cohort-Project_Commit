@@ -96,6 +96,21 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- Testcontainers against rootless Podman's API socket has been
+               observed to break ("Broken pipe") the second time a container
+               is started from a JVM that already started one, when Surefire
+               reuses that fork across test classes with different Spring
+               contexts. Forking fresh per test class avoids reusing the
+               same docker-java client connection and has proven reliable
+               locally; it costs some JVM startup time, which is acceptable
+               at this suite size (NFR-52's 3-minute budget). -->
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
