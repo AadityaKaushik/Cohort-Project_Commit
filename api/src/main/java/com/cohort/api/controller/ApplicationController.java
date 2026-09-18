@@ -1,14 +1,18 @@
 package com.cohort.api.controller;
 
 import com.cohort.api.dto.ApplicationDetailResponse;
+import com.cohort.api.dto.ApplicationSearchCriteria;
 import com.cohort.api.dto.ApplicationStatusHistoryResponse;
 import com.cohort.api.dto.ApplicationSummary;
 import com.cohort.api.dto.ChangeStatusRequest;
 import com.cohort.api.dto.CreateApplicationRequest;
 import com.cohort.api.dto.PagedResponse;
 import com.cohort.api.dto.UpdateApplicationRequest;
+import com.cohort.api.entity.Application;
+import com.cohort.api.entity.ApplicationStatus;
 import com.cohort.api.service.ApplicationService;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -48,8 +52,18 @@ public class ApplicationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size,
             @RequestParam(defaultValue = "date_applied") String sort,
-            @RequestParam(defaultValue = "desc") String direction) {
-        return applicationService.list(userId(jwt), page, size, sort, direction);
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(required = false) ApplicationStatus status,
+            @RequestParam(required = false) ApplicationStatus stage,
+            @RequestParam(required = false) Application.Priority priority,
+            @RequestParam(name = "work_mode", required = false) Application.WorkMode workMode,
+            @RequestParam(required = false) String tag,
+            @RequestParam(name = "date_from", required = false) LocalDate dateFrom,
+            @RequestParam(name = "date_to", required = false) LocalDate dateTo,
+            @RequestParam(required = false) String q) {
+        ApplicationSearchCriteria criteria =
+                new ApplicationSearchCriteria(status, stage, priority, workMode, tag, dateFrom, dateTo, q);
+        return applicationService.list(userId(jwt), criteria, page, size, sort, direction);
     }
 
     @GetMapping("/{id}")
