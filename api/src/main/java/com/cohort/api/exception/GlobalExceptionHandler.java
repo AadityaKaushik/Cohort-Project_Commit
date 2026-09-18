@@ -73,4 +73,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiError.of("VALIDATION_ERROR", "The request body is missing or contains an invalid value."));
     }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiError> handleInvalidFile(InvalidFileException ex) {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(ApiError.of("INVALID_FILE", ex.getMessage()));
+    }
+
+    @ExceptionHandler(FileTooLargeException.class)
+    public ResponseEntity<ApiError> handleFileTooLarge(FileTooLargeException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiError.of("FILE_TOO_LARGE", ex.getMessage()));
+    }
 }
