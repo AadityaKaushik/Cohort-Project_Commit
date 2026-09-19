@@ -99,6 +99,30 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("RESUME_FILE_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(InterviewNotFoundException.class)
+    public ResponseEntity<ApiError> handleInterviewNotFound(InterviewNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("INTERVIEW_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InterviewQuestionNotFoundException.class)
+    public ResponseEntity<ApiError> handleInterviewQuestionNotFound(InterviewQuestionNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("INTERVIEW_QUESTION_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InterviewFeedbackNotFoundException.class)
+    public ResponseEntity<ApiError> handleInterviewFeedbackNotFound(InterviewFeedbackNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("INTERVIEW_FEEDBACK_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateRoundNumberException.class)
+    public ResponseEntity<ApiError> handleDuplicateRoundNumber(DuplicateRoundNumberException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of("DUPLICATE_ROUND_NUMBER", ex.getMessage()));
+    }
+
     /** A request whose multipart body exceeds Spring's own servlet-level cap (application.yml), above the 5 MB business rule. */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {

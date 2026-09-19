@@ -1,12 +1,14 @@
 package com.cohort.api.mapper;
 
 import com.cohort.api.dto.ApplicationDetailResponse;
+import com.cohort.api.dto.ApplicationInterviewSummary;
 import com.cohort.api.dto.ApplicationStatusHistoryResponse;
 import com.cohort.api.dto.ApplicationSummary;
 import com.cohort.api.dto.CompanySummary;
 import com.cohort.api.entity.Application;
 import com.cohort.api.entity.ApplicationStatusHistory;
 import com.cohort.api.entity.Company;
+import com.cohort.api.entity.Interview;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -36,9 +38,14 @@ public class ApplicationMapper {
     }
 
     public ApplicationDetailResponse toDetail(
-            Application application, Company company, List<ApplicationStatusHistory> history) {
+            Application application,
+            Company company,
+            List<ApplicationStatusHistory> history,
+            List<Interview> interviews) {
         List<ApplicationStatusHistoryResponse> historyResponse =
                 history.stream().map(ApplicationStatusHistoryResponse::from).toList();
+        List<ApplicationInterviewSummary> interviewSummaries =
+                interviews.stream().map(ApplicationInterviewSummary::from).toList();
 
         return new ApplicationDetailResponse(
                 application.getId(),
@@ -69,7 +76,8 @@ public class ApplicationMapper {
                 application.getStageEnteredAt(),
                 application.getCreatedAt(),
                 application.getUpdatedAt(),
-                historyResponse);
+                historyResponse,
+                interviewSummaries);
     }
 
     private long daysInStage(Application application) {

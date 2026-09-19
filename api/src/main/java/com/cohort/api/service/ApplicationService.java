@@ -12,6 +12,7 @@ import com.cohort.api.entity.Application;
 import com.cohort.api.entity.ApplicationStatus;
 import com.cohort.api.entity.ApplicationStatusHistory;
 import com.cohort.api.entity.Company;
+import com.cohort.api.entity.Interview;
 import com.cohort.api.exception.ApplicationNotFoundException;
 import com.cohort.api.exception.InvalidStatusTransitionException;
 import com.cohort.api.exception.ResumeNotFoundException;
@@ -19,6 +20,7 @@ import com.cohort.api.mapper.ApplicationMapper;
 import com.cohort.api.repository.ApplicationRepository;
 import com.cohort.api.repository.ApplicationStatusHistoryRepository;
 import com.cohort.api.repository.CompanyRepository;
+import com.cohort.api.repository.InterviewRepository;
 import com.cohort.api.repository.ResumeRepository;
 import com.cohort.api.repository.specification.ApplicationSpecifications;
 import com.cohort.api.service.application.state.ApplicationStatusStateRegistry;
@@ -43,6 +45,7 @@ public class ApplicationService {
     private final ApplicationStatusHistoryRepository historyRepository;
     private final ApplicationStatusStateRegistry stateRegistry;
     private final ResumeRepository resumeRepository;
+    private final InterviewRepository interviewRepository;
     private final ApplicationMapper mapper;
 
     public ApplicationService(
@@ -51,12 +54,14 @@ public class ApplicationService {
             ApplicationStatusHistoryRepository historyRepository,
             ApplicationStatusStateRegistry stateRegistry,
             ResumeRepository resumeRepository,
+            InterviewRepository interviewRepository,
             ApplicationMapper mapper) {
         this.applicationRepository = applicationRepository;
         this.companyRepository = companyRepository;
         this.historyRepository = historyRepository;
         this.stateRegistry = stateRegistry;
         this.resumeRepository = resumeRepository;
+        this.interviewRepository = interviewRepository;
         this.mapper = mapper;
     }
 
@@ -72,7 +77,7 @@ public class ApplicationService {
         ApplicationStatusHistory createdEntry =
                 historyRepository.save(new ApplicationStatusHistory(application.getId(), null, application.getStatus(), null));
 
-        return mapper.toDetail(application, company, List.of(createdEntry));
+        return mapper.toDetail(application, company, List.of(createdEntry), List.of());
     }
 
     @Transactional(readOnly = true)
@@ -95,7 +100,8 @@ public class ApplicationService {
         Application application = requireOwned(userId, applicationId);
         Company company = requireCompany(userId, application.getCompanyId());
         List<ApplicationStatusHistory> history = historyRepository.findByApplicationIdOrderByChangedAtDesc(applicationId);
-        return mapper.toDetail(application, company, history);
+        List<Interview> interviews = interviewRepository.findAllByUserIdAndApplicationIdOrderByRoundNumberAsc(userId, applicationId);
+        return mapper.toDetail(application, company, history, interviews);
     }
 
     @Transactional
@@ -162,7 +168,8 @@ public class ApplicationService {
 
         Company company = requireCompany(userId, application.getCompanyId());
         List<ApplicationStatusHistory> history = historyRepository.findByApplicationIdOrderByChangedAtDesc(applicationId);
-        return mapper.toDetail(application, company, history);
+        List<Interview> interviews = interviewRepository.findAllByUserIdAndApplicationIdOrderByRoundNumberAsc(userId, applicationId);
+        return mapper.toDetail(application, company, history, interviews);
     }
 
     @Transactional
@@ -187,7 +194,8 @@ public class ApplicationService {
 
         Company company = requireCompany(userId, application.getCompanyId());
         List<ApplicationStatusHistory> history = historyRepository.findByApplicationIdOrderByChangedAtDesc(applicationId);
-        return mapper.toDetail(application, company, history);
+        List<Interview> interviews = interviewRepository.findAllByUserIdAndApplicationIdOrderByRoundNumberAsc(userId, applicationId);
+        return mapper.toDetail(application, company, history, interviews);
     }
 
     /**
@@ -209,7 +217,8 @@ public class ApplicationService {
 
         Company company = requireCompany(userId, application.getCompanyId());
         List<ApplicationStatusHistory> history = historyRepository.findByApplicationIdOrderByChangedAtDesc(applicationId);
-        return mapper.toDetail(application, company, history);
+        List<Interview> interviews = interviewRepository.findAllByUserIdAndApplicationIdOrderByRoundNumberAsc(userId, applicationId);
+        return mapper.toDetail(application, company, history, interviews);
     }
 
     @Transactional(readOnly = true)
