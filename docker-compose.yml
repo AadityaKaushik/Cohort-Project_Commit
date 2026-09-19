@@ -27,6 +27,10 @@ services:
       - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      # dev by default so `docker compose up` alone loads the seed dataset
+      # (US-72, P26); override to a non-`dev` value in .env for anything
+      # resembling a production deploy, which must never seed demo data.
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
     ports:
       - "${API_PORT:-8080}:8080"
 
