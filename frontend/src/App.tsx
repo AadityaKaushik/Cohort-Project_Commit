@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import {
   BarChart3,
-  FileText,
   LayoutDashboard,
   MessagesSquare,
   PencilLine,
@@ -14,6 +13,9 @@ import { AppShell } from '@/components/layout/AppShell'
 import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
 import { ApplicationFormPage } from '@/pages/applications/ApplicationFormPage'
 import { ApplicationsListPage } from '@/pages/applications/ApplicationsListPage'
+import { ResumeDetailPage } from '@/pages/resumes/ResumeDetailPage'
+import { ResumeFormPage } from '@/pages/resumes/ResumeFormPage'
+import { ResumesListPage } from '@/pages/resumes/ResumesListPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -42,16 +44,12 @@ function App() {
             <Route path=":id" element={<ApplicationDetailPage />} />
             <Route path=":id/edit" element={<ApplicationFormPage />} />
           </Route>
-          <Route
-            path="resumes"
-            element={
-              <ComingSoonPage
-                icon={FileText}
-                title="Resume management is coming soon"
-                description="Keep multiple tailored resume versions and see which one is actually landing interviews."
-              />
-            }
-          />
+          <Route path="resumes">
+            <Route index element={<ResumesListPage />} />
+            <Route path="new" element={<ResumeFormPage />} />
+            <Route path=":id" element={<ResumeDetailPage />} />
+            <Route path=":id/edit" element={<ResumeFormPage />} />
+          </Route>
           <Route
             path="interviews"
             element={

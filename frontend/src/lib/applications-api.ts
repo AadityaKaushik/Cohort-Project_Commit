@@ -146,3 +146,11 @@ export function changeApplicationStatus(id: string, input: { to_status: Applicat
 export function getApplicationHistory(id: string) {
   return apiFetch<ApplicationStatusHistoryEntry[]>(`/applications/${id}/history`)
 }
+
+/** POST /applications/{id}/resume (US-24): `resumeId: null` clears the association. */
+export function attachResumeToApplication(id: string, resumeId: string | null) {
+  return apiFetch<ApplicationDetail>(`/applications/${id}/resume`, {
+    method: 'POST',
+    body: { resume_id: resumeId },
+  })
+}

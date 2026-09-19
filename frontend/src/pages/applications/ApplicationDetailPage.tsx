@@ -3,7 +3,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { AlertTriangleIcon, PencilIcon, Trash2Icon } from 'lucide-react'
-import { changeApplicationStatus, deleteApplication, getApplication, type ApplicationStatusValue } from '@/lib/applications-api'
+import {
+  attachResumeToApplication,
+  changeApplicationStatus,
+  deleteApplication,
+  getApplication,
+  type ApplicationStatusValue,
+} from '@/lib/applications-api'
+import { listResumes } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -72,6 +79,18 @@ export function ApplicationDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] })
       navigate('/applications')
+    },
+  })
+
+  const resumesQuery = useQuery({
+    queryKey: ['resumes', 'for-attach'],
+    queryFn: () => listResumes({ size: 100 }),
+  })
+
+  const attachResumeMutation = useMutation({
+    mutationFn: (resumeId: string | null) => attachResumeToApplication(id!, resumeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['application', id] })
     },
   })
 
@@ -214,6 +233,37 @@ export function ApplicationDetailPage() {
             <Button className="w-full" disabled={!nextStatus || statusMutation.isPending} onClick={() => statusMutation.mutate()}>
               {statusMutation.isPending ? 'Updating…' : 'Update status'}
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Resume</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Select
+              value={data.resume_id ?? 'none'}
+              onValueChange={(value) => attachResumeMutation.mutate(value === 'none' ? null : value)}
+              disabled={attachResumeMutation.isPending || resumesQuery.isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="No resume attached" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No resume attached</SelectItem>
+                {resumesQuery.data?.items.map((resume) => (
+                  <SelectItem key={resume.id} value={resume.id}>
+                    {resume.name}
+                    {resume.version_label ? ` (${resume.version_label})` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {data.resume_id && (
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link to={`/resumes/${data.resume_id}`}>View resume</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
