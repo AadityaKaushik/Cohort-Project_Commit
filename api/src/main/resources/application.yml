@@ -17,6 +17,14 @@ spring:
     hibernate:
       # Flyway owns the schema; Hibernate only ever checks it matches.
       ddl-auto: validate
+  servlet:
+    multipart:
+      # Above the 5 MB resume cap (FR-30) so an oversized upload reaches
+      # ValidatingFileStorage's own check and its FILE_TOO_LARGE error
+      # envelope, instead of being rejected earlier by Spring's own (default
+      # 1 MB) multipart limit with a generic error.
+      max-file-size: 6MB
+      max-request-size: 7MB
 
 app:
   cors:

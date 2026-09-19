@@ -118,7 +118,15 @@
              running `mvn verify` gets the gate enforced. -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.12</version>
+        <!-- Bumped from 0.8.12 (env fix, not a Sprint 2 feature change):
+             0.8.12's bundled ASM cannot parse class file major version 69
+             (JDK 25) bytecode, which this environment's JVM emits for
+             runtime-generated classes (Hibernate proxies, Mockito's
+             ByteBuddy agent) even though the project still targets/compiles
+             to Java 21 — the agent instruments the running JVM's classes,
+             not just this module's own compiled output. 0.8.15 adds
+             support for newer class file versions. -->
+        <version>0.8.15</version>
         <executions>
           <execution>
             <id>prepare-agent</id>

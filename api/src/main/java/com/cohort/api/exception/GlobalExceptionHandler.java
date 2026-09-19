@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /** Maps every exception type the API throws onto the standard error envelope (PROJECT_PLAN.md §18). */
 @RestControllerAdvice
@@ -84,5 +85,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleFileTooLarge(FileTooLargeException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .body(ApiError.of("FILE_TOO_LARGE", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ResumeNotFoundException.class)
+    public ResponseEntity<ApiError> handleResumeNotFound(ResumeNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("RESUME_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ResumeFileNotFoundException.class)
+    public ResponseEntity<ApiError> handleResumeFileNotFound(ResumeFileNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("RESUME_FILE_NOT_FOUND", ex.getMessage()));
+    }
+
+    /** A request whose multipart body exceeds Spring's own servlet-level cap (application.yml), above the 5 MB business rule. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiError.of("FILE_TOO_LARGE", "Uploaded file is too large."));
     }
 }
