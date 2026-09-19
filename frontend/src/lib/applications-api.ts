@@ -44,6 +44,16 @@ export interface ApplicationStatusHistoryEntry {
   changed_at: string
 }
 
+/** Mirrors com.cohort.api.dto.ApplicationInterviewSummary — the small slice embedded in ApplicationDetail (FR-17). */
+export interface ApplicationInterviewEntry {
+  id: string
+  round_number: number
+  round_type: string
+  scheduled_at: string | null
+  completed_at: string | null
+  outcome: 'passed' | 'failed' | 'pending' | 'unknown'
+}
+
 export interface ApplicationDetail {
   id: string
   company: CompanySummary
@@ -74,6 +84,7 @@ export interface ApplicationDetail {
   created_at: string
   updated_at: string
   history: ApplicationStatusHistoryEntry[]
+  interviews: ApplicationInterviewEntry[]
 }
 
 export interface PagedResponse<T> {

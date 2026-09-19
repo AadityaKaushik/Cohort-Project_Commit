@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { AlertTriangleIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import { AlertTriangleIcon, CalendarPlusIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 import {
   attachResumeToApplication,
   changeApplicationStatus,
@@ -12,6 +12,7 @@ import {
 } from '@/lib/applications-api'
 import { listResumes } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -267,6 +268,39 @@ export function ApplicationDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle>Interviews</CardTitle>
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/interviews/new?application_id=${data.id}`}>
+              <CalendarPlusIcon className="h-4 w-4" />
+              Add interview
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {data.interviews.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No interviews recorded for this application yet.</p>
+          ) : (
+            <ul className="space-y-2">
+              {data.interviews.map((interview) => (
+                <li key={interview.id}>
+                  <Link
+                    to={`/interviews/${interview.id}`}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm hover:bg-accent"
+                  >
+                    <span>
+                      Round {interview.round_number} — {interview.round_type.replace('_', ' ')}
+                    </span>
+                    <Badge variant="outline">{interview.outcome}</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

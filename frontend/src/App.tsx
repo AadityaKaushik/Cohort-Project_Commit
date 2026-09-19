@@ -2,7 +2,6 @@ import { Route, Routes } from 'react-router-dom'
 import {
   BarChart3,
   LayoutDashboard,
-  MessagesSquare,
   PencilLine,
   ShieldCheck,
   Sparkles,
@@ -16,6 +15,10 @@ import { ApplicationsListPage } from '@/pages/applications/ApplicationsListPage'
 import { ResumeDetailPage } from '@/pages/resumes/ResumeDetailPage'
 import { ResumeFormPage } from '@/pages/resumes/ResumeFormPage'
 import { ResumesListPage } from '@/pages/resumes/ResumesListPage'
+import { InterviewDebriefPage } from '@/pages/interviews/InterviewDebriefPage'
+import { InterviewDetailPage } from '@/pages/interviews/InterviewDetailPage'
+import { InterviewFormPage } from '@/pages/interviews/InterviewFormPage'
+import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -50,16 +53,13 @@ function App() {
             <Route path=":id" element={<ResumeDetailPage />} />
             <Route path=":id/edit" element={<ResumeFormPage />} />
           </Route>
-          <Route
-            path="interviews"
-            element={
-              <ComingSoonPage
-                icon={MessagesSquare}
-                title="Interview tracking is coming soon"
-                description="Capture questions, feedback, and a guided debrief for every round."
-              />
-            }
-          />
+          <Route path="interviews">
+            <Route index element={<InterviewsListPage />} />
+            <Route path="new" element={<InterviewFormPage />} />
+            <Route path=":id" element={<InterviewDetailPage />} />
+            <Route path=":id/edit" element={<InterviewFormPage />} />
+            <Route path=":id/debrief" element={<InterviewDebriefPage />} />
+          </Route>
           <Route
             path="prep"
             element={
