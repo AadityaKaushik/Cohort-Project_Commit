@@ -6,15 +6,19 @@ import com.cohort.api.dto.ResumeDetailResponse;
 import com.cohort.api.dto.ResumeSummary;
 import com.cohort.api.dto.UpdateResumeRequest;
 import com.cohort.api.entity.Resume;
+import com.cohort.api.entity.ResumeSection;
 import com.cohort.api.exception.ResumeFileNotFoundException;
 import com.cohort.api.exception.ResumeNotFoundException;
 import com.cohort.api.mapper.ResumeMapper;
 import com.cohort.api.repository.ResumeRepository;
+import com.cohort.api.repository.ResumeSectionRepository;
 import com.cohort.api.service.resume.storage.FileStorageStrategy;
 import com.cohort.api.service.resume.storage.FileUpload;
 import com.cohort.api.service.resume.storage.StoredFile;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,12 +45,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ResumeService {
 
+    private static final Pattern VERSION_LABEL_PATTERN = Pattern.compile("(?i)^v(\\d+)$");
+
     private final ResumeRepository resumeRepository;
+    private final ResumeSectionRepository resumeSectionRepository;
     private final FileStorageStrategy fileStorage;
     private final ResumeMapper mapper;
 
-    public ResumeService(ResumeRepository resumeRepository, FileStorageStrategy fileStorage, ResumeMapper mapper) {
+    public ResumeService(
+            ResumeRepository resumeRepository,
+            ResumeSectionRepository resumeSectionRepository,
+            FileStorageStrategy fileStorage,
+            ResumeMapper mapper) {
         this.resumeRepository = resumeRepository;
+        this.resumeSectionRepository = resumeSectionRepository;
         this.fileStorage = fileStorage;
         this.mapper = mapper;
     }
@@ -143,6 +155,59 @@ public class ResumeService {
         }
         byte[] content = fileStorage.load(resume.getFilePath());
         return new DownloadableFile(content, resume.getFileOriginalName(), resume.getFileMime());
+    }
+
+    /**
+     * US-25/FR-35: duplicates a resume's structured content and metadata as
+     * a new version, recording lineage via {@code parent_resume_id}. The
+     * file is deliberately <em>not</em> copied — cloning is for tailoring
+     * content into a new version, not for duplicating the uploaded document
+     * — and the clone never inherits the {@code is_default} flag, so
+     * cloning a resume can never silently change which resume is default.
+     */
+    @Transactional
+    public ResumeDetailResponse clone(UUID userId, UUID resumeId) {
+        Resume source = requireOwned(userId, resumeId);
+
+        Resume clone = new Resume(userId, source.getName());
+        clone.setVersionLabel(nextVersionLabel(source.getVersionLabel()));
+        clone.setTargetRole(source.getTargetRole());
+        clone.setSummary(source.getSummary());
+        clone.setParentResumeId(source.getId());
+        clone = resumeRepository.save(clone);
+
+        List<ResumeSection> sourceSections = resumeSectionRepository.findByResumeIdOrderBySortOrder(source.getId());
+        for (ResumeSection section : sourceSections) {
+            ResumeSection copy = new ResumeSection(clone.getId(), section.getSectionType());
+            copy.setTitle(section.getTitle());
+            copy.setOrganisation(section.getOrganisation());
+            copy.setStartDate(section.getStartDate());
+            copy.setEndDate(section.getEndDate());
+            copy.setDescription(section.getDescription());
+            copy.setSortOrder(section.getSortOrder());
+            copy.setMetadata(section.getMetadata());
+            resumeSectionRepository.save(copy);
+        }
+
+        return mapper.toDetail(clone);
+    }
+
+    /**
+     * "Version label auto-increments" (US-25): {@code "v1"} (any case) ->
+     * {@code "v2"}, and so on. A label that doesn't follow that convention
+     * — including none at all — gets a {@code " copy"} suffix instead of a
+     * guessed number, since there is nothing to increment.
+     */
+    private String nextVersionLabel(String currentLabel) {
+        if (currentLabel == null || currentLabel.isBlank()) {
+            return "v2";
+        }
+        Matcher matcher = VERSION_LABEL_PATTERN.matcher(currentLabel.trim());
+        if (matcher.matches()) {
+            int next = Integer.parseInt(matcher.group(1)) + 1;
+            return "v" + next;
+        }
+        return currentLabel + " copy";
     }
 
     private Resume requireOwned(UUID userId, UUID resumeId) {

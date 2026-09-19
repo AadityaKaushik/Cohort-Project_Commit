@@ -86,6 +86,12 @@ public class ResumeController {
         }
     }
 
+    @PostMapping("/{id}/clone")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResumeDetailResponse clone(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        return resumeService.clone(userId(jwt), id);
+    }
+
     @GetMapping("/{id}/file")
     public ResponseEntity<byte[]> downloadFile(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         ResumeService.DownloadableFile file = resumeService.downloadFile(userId(jwt), id);

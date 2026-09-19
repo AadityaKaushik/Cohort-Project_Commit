@@ -14,10 +14,12 @@ import com.cohort.api.entity.ApplicationStatusHistory;
 import com.cohort.api.entity.Company;
 import com.cohort.api.exception.ApplicationNotFoundException;
 import com.cohort.api.exception.InvalidStatusTransitionException;
+import com.cohort.api.exception.ResumeNotFoundException;
 import com.cohort.api.mapper.ApplicationMapper;
 import com.cohort.api.repository.ApplicationRepository;
 import com.cohort.api.repository.ApplicationStatusHistoryRepository;
 import com.cohort.api.repository.CompanyRepository;
+import com.cohort.api.repository.ResumeRepository;
 import com.cohort.api.repository.specification.ApplicationSpecifications;
 import com.cohort.api.service.application.state.ApplicationStatusStateRegistry;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ public class ApplicationService {
     private final CompanyRepository companyRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final ApplicationStatusStateRegistry stateRegistry;
+    private final ResumeRepository resumeRepository;
     private final ApplicationMapper mapper;
 
     public ApplicationService(
@@ -47,11 +50,13 @@ public class ApplicationService {
             CompanyRepository companyRepository,
             ApplicationStatusHistoryRepository historyRepository,
             ApplicationStatusStateRegistry stateRegistry,
+            ResumeRepository resumeRepository,
             ApplicationMapper mapper) {
         this.applicationRepository = applicationRepository;
         this.companyRepository = companyRepository;
         this.historyRepository = historyRepository;
         this.stateRegistry = stateRegistry;
+        this.resumeRepository = resumeRepository;
         this.mapper = mapper;
     }
 
@@ -179,6 +184,28 @@ public class ApplicationService {
 
         application.applyStatusChange(to);
         historyRepository.save(new ApplicationStatusHistory(applicationId, from, to, request.note()));
+
+        Company company = requireCompany(userId, application.getCompanyId());
+        List<ApplicationStatusHistory> history = historyRepository.findByApplicationIdOrderByChangedAtDesc(applicationId);
+        return mapper.toDetail(application, company, history);
+    }
+
+    /**
+     * US-24/FR-34: sets, changes, or (given {@code resumeId == null}) clears
+     * the one resume associated with this application. A foreign or missing
+     * {@code resumeId} is rejected with the same {@code ResumeNotFoundException}
+     * a direct resume lookup would throw (FR-95: 404, never 403, and never a
+     * signal that lets one user probe whether a given resume ID belongs to
+     * someone else). {@code updated_at} bumps automatically via
+     * {@code @UpdateTimestamp} once the managed entity's field changes.
+     */
+    @Transactional
+    public ApplicationDetailResponse attachResume(UUID userId, UUID applicationId, UUID resumeId) {
+        Application application = requireOwned(userId, applicationId);
+        if (resumeId != null) {
+            resumeRepository.findByIdAndUserId(resumeId, userId).orElseThrow(ResumeNotFoundException::new);
+        }
+        application.setResumeId(resumeId);
 
         Company company = requireCompany(userId, application.getCompanyId());
         List<ApplicationStatusHistory> history = historyRepository.findByApplicationIdOrderByChangedAtDesc(applicationId);

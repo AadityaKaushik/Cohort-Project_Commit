@@ -4,6 +4,7 @@ import com.cohort.api.dto.ApplicationDetailResponse;
 import com.cohort.api.dto.ApplicationSearchCriteria;
 import com.cohort.api.dto.ApplicationStatusHistoryResponse;
 import com.cohort.api.dto.ApplicationSummary;
+import com.cohort.api.dto.AttachResumeRequest;
 import com.cohort.api.dto.ChangeStatusRequest;
 import com.cohort.api.dto.CreateApplicationRequest;
 import com.cohort.api.dto.PagedResponse;
@@ -87,6 +88,12 @@ public class ApplicationController {
     public ApplicationDetailResponse changeStatus(
             @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @Valid @RequestBody ChangeStatusRequest request) {
         return applicationService.changeStatus(userId(jwt), id, request);
+    }
+
+    @PostMapping("/{id}/resume")
+    public ApplicationDetailResponse attachResume(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @RequestBody AttachResumeRequest request) {
+        return applicationService.attachResume(userId(jwt), id, request.resumeId());
     }
 
     @GetMapping("/{id}/history")
