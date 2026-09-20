@@ -8,10 +8,12 @@ import com.cohort.api.dto.AttachResumeRequest;
 import com.cohort.api.dto.ChangeStatusRequest;
 import com.cohort.api.dto.CreateApplicationRequest;
 import com.cohort.api.dto.PagedResponse;
+import com.cohort.api.dto.StalledApplicationResponse;
 import com.cohort.api.dto.UpdateApplicationRequest;
 import com.cohort.api.entity.Application;
 import com.cohort.api.entity.ApplicationStatus;
 import com.cohort.api.service.ApplicationService;
+import com.cohort.api.service.application.StallDetectionService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,9 +38,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
+    private final StallDetectionService stallDetectionService;
 
-    public ApplicationController(ApplicationService applicationService) {
+    public ApplicationController(ApplicationService applicationService, StallDetectionService stallDetectionService) {
         this.applicationService = applicationService;
+        this.stallDetectionService = stallDetectionService;
     }
 
     @PostMapping
@@ -99,6 +103,14 @@ public class ApplicationController {
     @GetMapping("/{id}/history")
     public List<ApplicationStatusHistoryResponse> history(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return applicationService.history(userId(jwt), id);
+    }
+
+    /** US-18: every currently-stalled application, for the dashboard action queue (P37) and anywhere else a "follow up on these" list is useful. */
+    @GetMapping("/stalled")
+    public List<StalledApplicationResponse> stalled(@AuthenticationPrincipal Jwt jwt) {
+        return stallDetectionService.detectStalled(userId(jwt)).stream()
+                .map(StalledApplicationResponse::from)
+                .toList();
     }
 
     private UUID userId(Jwt jwt) {

@@ -8,10 +8,8 @@ import com.cohort.api.dto.RejectionDistributionResponse;
 import com.cohort.api.dto.TimelineResponse;
 import com.cohort.api.entity.Application;
 import com.cohort.api.entity.ApplicationStatus;
-import com.cohort.api.entity.ApplicationStatusHistory;
 import com.cohort.api.entity.Interview;
 import com.cohort.api.repository.ApplicationRepository;
-import com.cohort.api.repository.ApplicationStatusHistoryRepository;
 import com.cohort.api.repository.InterviewRepository;
 import com.cohort.api.service.preparation.analytics.AnalyticsResult;
 import java.time.Instant;
@@ -21,7 +19,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +42,7 @@ public class AnalyticsService {
     private static final long NO_RESPONSE_THRESHOLD_DAYS = 60;
 
     private final ApplicationRepository applicationRepository;
-    private final ApplicationStatusHistoryRepository historyRepository;
+    private final ApplicationSnapshotLoader snapshotLoader;
     private final InterviewRepository interviewRepository;
     private final FunnelMetric funnelMetric = new FunnelMetric();
     private final ConversionRateMetric conversionRateMetric = new ConversionRateMetric();
@@ -55,16 +52,16 @@ public class AnalyticsService {
 
     public AnalyticsService(
             ApplicationRepository applicationRepository,
-            ApplicationStatusHistoryRepository historyRepository,
+            ApplicationSnapshotLoader snapshotLoader,
             InterviewRepository interviewRepository) {
         this.applicationRepository = applicationRepository;
-        this.historyRepository = historyRepository;
+        this.snapshotLoader = snapshotLoader;
         this.interviewRepository = interviewRepository;
     }
 
     @Transactional(readOnly = true)
     public FunnelResponse funnel(UUID userId) {
-        List<ApplicationSnapshot> snapshots = loadSnapshots(userId);
+        List<ApplicationSnapshot> snapshots = snapshotLoader.load(userId);
         AnalyticsResult<FunnelMetric.FunnelCounts> result = funnelMetric.evaluate(snapshots);
         FunnelMetric.FunnelCounts counts = result.value();
         return new FunnelResponse(
@@ -74,7 +71,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public ConversionRatesResponse conversions(UUID userId) {
-        List<ApplicationSnapshot> snapshots = loadSnapshots(userId);
+        List<ApplicationSnapshot> snapshots = snapshotLoader.load(userId);
 
         long appliedResolved = resolvedAtStage(snapshots, ApplicationStatus.APPLIED);
         long reachedOaResolved = resolvedAtStage(snapshots, ApplicationStatus.OA);
@@ -116,7 +113,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public RejectionDistributionResponse rejectionDistribution(UUID userId) {
-        List<ApplicationSnapshot> snapshots = loadSnapshots(userId);
+        List<ApplicationSnapshot> snapshots = snapshotLoader.load(userId);
 
         List<ApplicationStatus> lastStages = snapshots.stream()
                 .filter(s -> s.status() == ApplicationStatus.REJECTED)
@@ -134,7 +131,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public DwellTimesResponse dwellTimes(UUID userId) {
-        List<ApplicationSnapshot> snapshots = loadSnapshots(userId);
+        List<ApplicationSnapshot> snapshots = snapshotLoader.load(userId);
         StageDwellCalculator.DwellData dwellData = StageDwellCalculator.compute(snapshots);
 
         Map<ApplicationStatus, DwellTimesResponse.DwellView> byStage = new EnumMap<>(ApplicationStatus.class);
@@ -148,26 +145,6 @@ public class AnalyticsService {
                     result.sampleSize(), censoredCount, result.sufficientData()));
         }
         return new DwellTimesResponse(byStage);
-    }
-
-    /** Loads every one of this user's applications plus its full status history, scoped end to end by {@code userId}. */
-    List<ApplicationSnapshot> loadSnapshots(UUID userId) {
-        List<Application> applications = applicationRepository.findAllByUserId(userId);
-        List<UUID> applicationIds = applications.stream().map(Application::getId).toList();
-
-        Map<UUID, List<ApplicationStatusHistory>> historyByApplication = applicationIds.isEmpty()
-                ? Map.of()
-                : historyRepository.findByApplicationIdIn(applicationIds).stream()
-                        .collect(Collectors.groupingBy(ApplicationStatusHistory::getApplicationId));
-
-        return applications.stream()
-                .map(application -> new ApplicationSnapshot(
-                        application.getId(),
-                        application.getStatus(),
-                        application.getCurrentStage(),
-                        application.getStageEnteredAt(),
-                        historyByApplication.getOrDefault(application.getId(), List.of())))
-                .toList();
     }
 
     private long reachedCount(List<ApplicationSnapshot> snapshots, ApplicationStatus stage) {
