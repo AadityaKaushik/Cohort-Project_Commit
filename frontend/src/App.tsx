@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
 import {
-  BarChart3,
   LayoutDashboard,
   ShieldCheck,
   Sparkles,
@@ -19,6 +18,7 @@ import { InterviewDetailPage } from '@/pages/interviews/InterviewDetailPage'
 import { InterviewFormPage } from '@/pages/interviews/InterviewFormPage'
 import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
 import { PrepPage } from '@/pages/prep/PrepPage'
+import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -61,16 +61,7 @@ function App() {
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
           </Route>
           <Route path="prep" element={<PrepPage />} />
-          <Route
-            path="analytics"
-            element={
-              <ComingSoonPage
-                icon={BarChart3}
-                title="Analytics is coming soon"
-                description="A funnel and conversion rates that always show their own sample size."
-              />
-            }
-          />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route
             path="recommendations"
             element={
