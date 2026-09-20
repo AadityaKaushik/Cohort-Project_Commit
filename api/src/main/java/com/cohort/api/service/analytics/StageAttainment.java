@@ -46,4 +46,9 @@ public final class StageAttainment {
                 .filter(PIPELINE_STAGES::contains)
                 .anyMatch(reachedStatus -> reachedStatus.ordinal() >= stage.ordinal());
     }
+
+    /** The six non-terminal statuses, in pipeline order -- the only statuses a dwell time or "reached" check is meaningful for. */
+    public static Set<ApplicationStatus> pipelineStages() {
+        return PIPELINE_STAGES;
+    }
 }

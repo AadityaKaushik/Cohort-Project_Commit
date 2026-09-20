@@ -109,6 +109,52 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void rejectionDistributionSeparatesStagesAndNeverCountsStillOpenApplications() throws Exception {
+        String token = registerAndGetAccessToken("analytics-rejection@example.com", "Owner");
+        LocalDate today = LocalDate.now();
+
+        // Rejected after reaching OA only.
+        String appRejectedAtOa = createApplication(token, "Acme", today);
+        changeStatus(token, appRejectedAtOa, "OA", null);
+        changeStatus(token, appRejectedAtOa, "REJECTED", null);
+
+        // Rejected after reaching Interview.
+        String appRejectedAtInterview = createApplication(token, "Globex", today);
+        changeStatus(token, appRejectedAtInterview, "OA", null);
+        changeStatus(token, appRejectedAtInterview, "INTERVIEW", null);
+        changeStatus(token, appRejectedAtInterview, "REJECTED", null);
+
+        // Still open at Applied -- must never show up as a rejection.
+        createApplication(token, "Initech", today);
+
+        mockMvc.perform(get("/api/v1/analytics/rejections").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.by_stage.OA", is(1)))
+                .andExpect(jsonPath("$.by_stage.INTERVIEW", is(1)))
+                .andExpect(jsonPath("$.by_stage.FINAL_ROUND").doesNotExist())
+                .andExpect(jsonPath("$.no_response_count", is(0)))
+                .andExpect(jsonPath("$.sample_size", is(2)))
+                .andExpect(jsonPath("$.sufficient_data", is(false)));
+    }
+
+    @Test
+    void dwellTimesReportsCompletedTransitionsAndCensoredCountsSeparately() throws Exception {
+        String token = registerAndGetAccessToken("analytics-dwell@example.com", "Owner");
+        LocalDate today = LocalDate.now();
+
+        // One completed Applied->OA transition (a real, if tiny, duration), then still sitting at OA (censored).
+        String app = createApplication(token, "Acme", today);
+        changeStatus(token, app, "OA", null);
+
+        mockMvc.perform(get("/api/v1/analytics/dwell-times").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.by_stage.APPLIED.completed_count", is(1)))
+                .andExpect(jsonPath("$.by_stage.APPLIED.sufficient_data", is(false)))
+                .andExpect(jsonPath("$.by_stage.OA.censored_count", is(1)))
+                .andExpect(jsonPath("$.by_stage.OA.completed_count", is(0)));
+    }
+
+    @Test
     void aSecondUserSeesOnlyItsOwnEmptyAnalytics() throws Exception {
         String ownerToken = registerAndGetAccessToken("analytics-owner@example.com", "Owner");
         createApplication(ownerToken, "Acme", LocalDate.now());
@@ -126,6 +172,16 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.application_to_oa.numerator", is(0)))
                 .andExpect(jsonPath("$.application_to_oa.denominator", is(0)));
+
+        mockMvc.perform(get("/api/v1/analytics/rejections").header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sample_size", is(0)))
+                .andExpect(jsonPath("$.no_response_count", is(0)));
+
+        mockMvc.perform(get("/api/v1/analytics/dwell-times").header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.by_stage.OA.completed_count", is(0)))
+                .andExpect(jsonPath("$.by_stage.OA.censored_count", is(0)));
     }
 
     private String createApplication(String token, String companyName, LocalDate dateApplied) throws Exception {

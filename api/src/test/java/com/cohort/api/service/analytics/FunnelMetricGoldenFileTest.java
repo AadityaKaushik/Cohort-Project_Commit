@@ -53,7 +53,7 @@ class FunnelMetricGoldenFileTest {
                 history.add(new ApplicationStatusHistory(applicationId, previous, toStatus, null));
                 previous = toStatus;
             }
-            snapshots.add(new ApplicationSnapshot(applicationId, status, currentStage, history));
+            snapshots.add(new ApplicationSnapshot(applicationId, status, currentStage, java.time.Instant.now(), history));
         }
 
         AnalyticsResult<FunnelMetric.FunnelCounts> result = metric.evaluate(snapshots);
