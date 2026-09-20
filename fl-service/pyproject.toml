@@ -1,0 +1,16 @@
+[project]
+name = "cohort-fl-service"
+version = "0.0.0"
+description = "Cohort's federated-learning service (Flower + scikit-learn). Sprint 3 P32 is a throwaway risk-reduction spike only, in spike/ — the real client/server implementation lands in Sprint 4 (P43+)."
+requires-python = ">=3.11"
+dependencies = [
+    "flwr>=1.37,<2",
+    "scikit-learn>=1.9,<2",
+    "numpy>=2.5,<3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools]
+packages = []
