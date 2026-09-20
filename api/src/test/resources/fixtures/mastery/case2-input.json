@@ -1,0 +1,15 @@
+{
+  "asOf": "2026-06-01T00:00:00Z",
+  "difficulty": "easy",
+  "practiceAttempts": [
+    {
+      "confidence": 5,
+      "attemptedAt": "2026-05-25T00:00:00Z"
+    },
+    {
+      "confidence": 3,
+      "attemptedAt": "2026-04-01T00:00:00Z"
+    }
+  ],
+  "interviewRatings": []
+}
