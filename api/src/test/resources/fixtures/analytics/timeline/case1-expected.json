@@ -1,0 +1,8 @@
+{
+  "sampleSize": 7,
+  "sufficientData": true,
+  "buckets": [
+    {"weekStart": "2026-01-05", "applications": 3, "interviews": 1},
+    {"weekStart": "2026-01-12", "applications": 1, "interviews": 2}
+  ]
+}

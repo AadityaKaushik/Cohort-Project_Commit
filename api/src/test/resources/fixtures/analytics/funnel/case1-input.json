@@ -1,0 +1,10 @@
+{
+  "applications": [
+    {"status": "SAVED", "currentStage": "SAVED", "history": ["SAVED"]},
+    {"status": "APPLIED", "currentStage": "APPLIED", "history": ["APPLIED"]},
+    {"status": "REJECTED", "currentStage": "OA", "history": ["APPLIED", "OA", "REJECTED"]},
+    {"status": "INTERVIEW", "currentStage": "INTERVIEW", "history": ["APPLIED", "OA", "INTERVIEW"]},
+    {"status": "ACCEPTED", "currentStage": "OFFER", "history": ["APPLIED", "OA", "INTERVIEW", "FINAL_ROUND", "OFFER", "ACCEPTED"]},
+    {"status": "WITHDRAWN", "currentStage": "FINAL_ROUND", "history": ["APPLIED", "OA", "INTERVIEW", "FINAL_ROUND", "WITHDRAWN"]}
+  ]
+}
