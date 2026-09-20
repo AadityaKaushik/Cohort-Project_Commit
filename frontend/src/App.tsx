@@ -2,7 +2,6 @@ import { Route, Routes } from 'react-router-dom'
 import {
   BarChart3,
   LayoutDashboard,
-  PencilLine,
   ShieldCheck,
   Sparkles,
   UserRound,
@@ -19,6 +18,7 @@ import { InterviewDebriefPage } from '@/pages/interviews/InterviewDebriefPage'
 import { InterviewDetailPage } from '@/pages/interviews/InterviewDetailPage'
 import { InterviewFormPage } from '@/pages/interviews/InterviewFormPage'
 import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
+import { PrepPage } from '@/pages/prep/PrepPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -60,16 +60,7 @@ function App() {
             <Route path=":id/edit" element={<InterviewFormPage />} />
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
           </Route>
-          <Route
-            path="prep"
-            element={
-              <ComingSoonPage
-                icon={PencilLine}
-                title="Interview prep is coming soon"
-                description="Practice tracking and topic mastery scores that fade over time, just like real skill does."
-              />
-            }
-          />
+          <Route path="prep" element={<PrepPage />} />
           <Route
             path="analytics"
             element={

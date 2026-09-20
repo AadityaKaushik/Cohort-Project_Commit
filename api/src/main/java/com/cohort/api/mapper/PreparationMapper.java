@@ -1,9 +1,11 @@
 package com.cohort.api.mapper;
 
 import com.cohort.api.dto.PracticeAttemptResponse;
+import com.cohort.api.dto.PreparationTaskResponse;
 import com.cohort.api.dto.QuestionResponse;
 import com.cohort.api.dto.TopicResponse;
 import com.cohort.api.entity.PracticeAttempt;
+import com.cohort.api.entity.PreparationTask;
 import com.cohort.api.entity.Question;
 import com.cohort.api.entity.Topic;
 import org.springframework.stereotype.Component;
@@ -40,6 +42,21 @@ public class PreparationMapper {
                 question.getSourceQuestionId(),
                 question.getCreatedAt(),
                 question.getUpdatedAt());
+    }
+
+    public PreparationTaskResponse toResponse(PreparationTask task, String topicName) {
+        return new PreparationTaskResponse(
+                task.getId(),
+                task.getTopicId(),
+                topicName,
+                task.getTitle(),
+                task.getDescription(),
+                task.getDueDate(),
+                task.getEstimatedEffortMinutes(),
+                task.getStatus(),
+                task.getCompletedAt(),
+                task.getCreatedAt(),
+                task.getUpdatedAt());
     }
 
     public PracticeAttemptResponse toResponse(PracticeAttempt attempt) {

@@ -13,4 +13,13 @@ import java.util.UUID;
 public interface InterviewQuestionRepository extends UserScopedRepository<InterviewQuestion> {
 
     List<InterviewQuestion> findAllByUserIdAndInterviewIdOrderByCreatedAtAsc(UUID userId, UUID interviewId);
+
+    /**
+     * US-39: every rated, topic-tagged question this user has ever
+     * recorded, across every interview — the interview half of {@link
+     * com.cohort.api.service.preparation.MasteryEngine}'s evidence. Only
+     * rows with both a topic and a self-rating are useful evidence; the
+     * service still has to group by topic itself.
+     */
+    List<InterviewQuestion> findAllByUserIdAndTopicIdIsNotNullAndSelfRatingIsNotNull(UUID userId);
 }

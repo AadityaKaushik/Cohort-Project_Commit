@@ -133,6 +133,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("QUESTION_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(PreparationTaskNotFoundException.class)
+    public ResponseEntity<ApiError> handlePreparationTaskNotFound(PreparationTaskNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("PREPARATION_TASK_NOT_FOUND", ex.getMessage()));
+    }
+
     /** A request whose multipart body exceeds Spring's own servlet-level cap (application.yml), above the 5 MB business rule. */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
