@@ -1,12 +1,12 @@
 import { Route, Routes } from 'react-router-dom'
 import {
-  LayoutDashboard,
   ShieldCheck,
   Sparkles,
   UserRound,
 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
+import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
 import { ApplicationFormPage } from '@/pages/applications/ApplicationFormPage'
 import { ApplicationsListPage } from '@/pages/applications/ApplicationsListPage'
@@ -31,16 +31,7 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
-          <Route
-            index
-            element={
-              <ComingSoonPage
-                icon={LayoutDashboard}
-                title="Your dashboard is on its way"
-                description="Once applications and interviews start rolling in, this is where you'll see today's action queue and pipeline overview."
-              />
-            }
-          />
+          <Route index element={<DashboardPage />} />
           <Route path="applications">
             <Route index element={<ApplicationsListPage />} />
             <Route path="new" element={<ApplicationFormPage />} />

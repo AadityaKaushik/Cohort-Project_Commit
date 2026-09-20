@@ -1,0 +1,38 @@
+import { Link } from 'react-router-dom'
+import type { ApplicationStatusValue, ApplicationSummary } from '@/lib/applications-api'
+
+const PIPELINE_STAGES: { status: ApplicationStatusValue; label: string }[] = [
+  { status: 'SAVED', label: 'Saved' },
+  { status: 'APPLIED', label: 'Applied' },
+  { status: 'OA', label: 'OA' },
+  { status: 'INTERVIEW', label: 'Interview' },
+  { status: 'FINAL_ROUND', label: 'Final Round' },
+  { status: 'OFFER', label: 'Offer' },
+]
+
+/**
+ * US-49: "a compact pipeline strip with live counts" -- how many
+ * applications are sitting at each non-terminal status *right now*
+ * (current status, not "ever reached" like the funnel on the analytics
+ * page). Each tile links to the applications list (status filtering on
+ * that list is not yet built -- see ApplicationsListPage -- so the link
+ * targets the list itself rather than a filter query param that would
+ * silently do nothing).
+ */
+export function PipelineStrip({ applications }: { applications: ApplicationSummary[] }) {
+  const countsByStatus = new Map<ApplicationStatusValue, number>()
+  for (const application of applications) {
+    countsByStatus.set(application.status, (countsByStatus.get(application.status) ?? 0) + 1)
+  }
+
+  return (
+    <div data-testid="pipeline-strip" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      {PIPELINE_STAGES.map(({ status, label }) => (
+        <Link key={status} to="/applications" className="rounded-lg border p-3 text-center transition-colors hover:bg-accent">
+          <p className="text-2xl font-semibold">{countsByStatus.get(status) ?? 0}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
+        </Link>
+      ))}
+    </div>
+  )
+}

@@ -165,3 +165,19 @@ export function attachResumeToApplication(id: string, resumeId: string | null) {
     body: { resume_id: resumeId },
   })
 }
+
+/** Mirrors com.cohort.api.dto.StalledApplicationResponse (US-18). */
+export interface StalledApplication {
+  application_id: string
+  company_name: string
+  job_title: string
+  current_stage: ApplicationStatusValue
+  days_in_stage: number
+  threshold_days: number
+  basis: 'personal' | 'system_default'
+  sample_size: number
+}
+
+export function listStalledApplications() {
+  return apiFetch<StalledApplication[]>('/applications/stalled')
+}
