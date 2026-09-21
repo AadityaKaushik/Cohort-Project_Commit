@@ -48,3 +48,14 @@ app:
     # Local disk today (Strategy pattern, US-21); an S3-backed implementation
     # is a drop-in swap behind FileStorageStrategy without touching callers.
     base-dir: ${RESUME_STORAGE_DIR:./data/resumes}
+  fl:
+    # P51/P52: where fl-service's REST contract lives. In docker-compose.fl.yml
+    # this is overridden to http://fl-service:8000 (container-to-container DNS).
+    service-base-url: ${APP_FL_SERVICE_BASE_URL:http://localhost:8000}
+    connect-timeout-ms: ${APP_FL_CONNECT_TIMEOUT_MS:2000}
+    read-timeout-ms: ${APP_FL_READ_TIMEOUT_MS:3000}
+    export:
+      # US-58: how often the sanitised feature export job (FlFeatureExportJob)
+      # runs. Every 6 hours by default -- coarse enough that it never fires
+      # within a test run's lifetime, so no test needs to disable it explicitly.
+      cron: ${APP_FL_EXPORT_CRON:0 0 */6 * * *}
