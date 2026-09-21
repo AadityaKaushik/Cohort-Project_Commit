@@ -29,5 +29,9 @@ public record RecommendationResponse(
         Instant snoozedUntil,
         String dismissedReason,
         UUID acceptedTaskId,
-        Instant generatedAt) {
+        Instant generatedAt,
+        // P53/US-65: whether a federated model signal was actually folded into `score` for this
+        // response -- always false on the plain (non-federated, or fl-service-unavailable) path,
+        // which is exactly the local-only fallback the circuit breaker (P53) degrades to.
+        boolean federatedApplied) {
 }

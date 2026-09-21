@@ -62,6 +62,22 @@
       <artifactId>bcprov-jdk18on</artifactId>
       <version>1.80</version>
     </dependency>
+    <dependency>
+      <!-- P53: Circuit Breaker pattern around FlowerServiceAdapter
+           (ARCHITECTURE_REVISION_JAVA.md, section 4.1), used programmatically
+           (CircuitBreakerRegistry + CircuitBreaker.decorateSupplier) rather
+           than via @CircuitBreaker annotations, so the fallback-to-local-only
+           behaviour is explicit, readable in one place, and testable without
+           relying on Spring AOP self-invocation proxying. -->
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-circuitbreaker</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.resilience4j</groupId>
+      <artifactId>resilience4j-spring-boot3</artifactId>
+      <version>2.4.0</version>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>

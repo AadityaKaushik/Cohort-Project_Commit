@@ -59,3 +59,20 @@ app:
       # runs. Every 6 hours by default -- coarse enough that it never fires
       # within a test run's lifetime, so no test needs to disable it explicitly.
       cron: ${APP_FL_EXPORT_CRON:0 0 */6 * * *}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      flService:
+        # P53: small window so a handful of real failures (fl-service down
+        # or mid-deploy) trips the breaker quickly rather than waiting for
+        # a large sample -- this is an MVP-scale service, not a
+        # high-throughput one, per the same "smallest commits, real
+        # numbers" spirit as US-61's min-cohort default.
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        record-exceptions:
+          - com.cohort.api.service.fl.FlServiceUnavailableException

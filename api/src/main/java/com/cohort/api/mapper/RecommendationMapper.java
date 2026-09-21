@@ -22,16 +22,21 @@ import org.springframework.stereotype.Component;
 public class RecommendationMapper {
 
     public RecommendationResponse toResponse(Recommendation entity, List<EvidenceItem> evidence) {
-        return build(entity, evidence.stream().map(e -> new EvidenceItemResponse(e.label(), e.detail(), e.occurredAt())).toList());
+        return toResponse(entity, evidence, false);
+    }
+
+    /** {@code federatedApplied}: P53/US-65 -- true only when a federated model signal was actually folded into this response's score (see RecommendationFacade#generateRecommendations). */
+    public RecommendationResponse toResponse(Recommendation entity, List<EvidenceItem> evidence, boolean federatedApplied) {
+        return build(entity, evidence.stream().map(e -> new EvidenceItemResponse(e.label(), e.detail(), e.occurredAt())).toList(), federatedApplied);
     }
 
     public RecommendationResponse toResponseFromPersistedEvidence(Recommendation entity, List<RecommendationEvidence> evidence) {
         return build(entity, evidence.stream()
                 .map(e -> new EvidenceItemResponse(e.getLabel(), e.getDetail(), e.getOccurredAt()))
-                .toList());
+                .toList(), false);
     }
 
-    private RecommendationResponse build(Recommendation entity, List<EvidenceItemResponse> evidence) {
+    private RecommendationResponse build(Recommendation entity, List<EvidenceItemResponse> evidence, boolean federatedApplied) {
         return new RecommendationResponse(
                 entity.getId(),
                 entity.getType(),
@@ -47,6 +52,7 @@ public class RecommendationMapper {
                 entity.getSnoozedUntil(),
                 entity.getDismissedReason(),
                 entity.getAcceptedTaskId(),
-                entity.getGeneratedAt());
+                entity.getGeneratedAt(),
+                federatedApplied);
     }
 }

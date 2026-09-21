@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -31,9 +32,11 @@ public class RecommendationController {
         this.facade = facade;
     }
 
+    /** {@code federated}: US-65's toggle -- see RecommendationFacade#generateRecommendations(UUID, boolean) for what it does and how P53's circuit breaker keeps it from ever turning into a 500. */
     @GetMapping
-    public List<RecommendationResponse> list(@AuthenticationPrincipal Jwt jwt) {
-        return facade.generateRecommendations(userId(jwt));
+    public List<RecommendationResponse> list(
+            @AuthenticationPrincipal Jwt jwt, @RequestParam(defaultValue = "false") boolean federated) {
+        return facade.generateRecommendations(userId(jwt), federated);
     }
 
     @PostMapping("/{id}/accept")

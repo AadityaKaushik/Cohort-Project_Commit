@@ -12,6 +12,7 @@ import com.cohort.api.repository.RecommendationEvidenceRepository;
 import com.cohort.api.repository.RecommendationRepository;
 import com.cohort.api.repository.TopicRepository;
 import com.cohort.api.service.application.StallDetectionService;
+import com.cohort.api.service.fl.FlCircuitBreakerGateway;
 import com.cohort.api.service.recommendation.generator.BaselineGenerator;
 import com.cohort.api.service.recommendation.generator.DecayGenerator;
 import com.cohort.api.service.recommendation.generator.RecommendationGenerator;
@@ -68,6 +69,7 @@ public class RecommendationFacade {
     private final RecommendationEvidenceRepository evidenceRepository;
     private final PreparationTaskRepository preparationTaskRepository;
     private final RecommendationMapper mapper;
+    private final FlCircuitBreakerGateway flGateway;
 
     public RecommendationFacade(
             TopicMasteryLoader topicMasteryLoader,
@@ -84,7 +86,8 @@ public class RecommendationFacade {
             RecommendationRepository recommendationRepository,
             RecommendationEvidenceRepository evidenceRepository,
             PreparationTaskRepository preparationTaskRepository,
-            RecommendationMapper mapper) {
+            RecommendationMapper mapper,
+            FlCircuitBreakerGateway flGateway) {
         this.topicMasteryLoader = topicMasteryLoader;
         this.topicRepository = topicRepository;
         this.stallDetectionService = stallDetectionService;
@@ -99,6 +102,7 @@ public class RecommendationFacade {
         this.evidenceRepository = evidenceRepository;
         this.preparationTaskRepository = preparationTaskRepository;
         this.mapper = mapper;
+        this.flGateway = flGateway;
     }
 
     /**
@@ -109,6 +113,23 @@ public class RecommendationFacade {
      */
     @Transactional
     public List<RecommendationResponse> generateRecommendations(UUID userId) {
+        return generateRecommendations(userId, false);
+    }
+
+    /**
+     * {@code federated}: US-65's toggle. When true, this method attempts to
+     * fetch the current global model through {@link FlCircuitBreakerGateway}
+     * (P53's circuit breaker) -- on success every response in this batch is
+     * marked {@code federatedApplied = true} (P57 layers the actual
+     * bounded score adjustment and rank delta on top of that flag); on
+     * <em>any</em> failure (fl-service down, slow, breaker open), the
+     * gateway returns empty and this method silently proceeds with the
+     * exact same local-only ranking {@code federated=false} would have
+     * produced -- the 200-not-500 guarantee P53's fault-injection test
+     * checks.
+     */
+    @Transactional
+    public List<RecommendationResponse> generateRecommendations(UUID userId, boolean federated) {
         Instant asOf = Instant.now();
         RecommendationContext context = buildContext(userId, asOf);
 
@@ -121,6 +142,8 @@ public class RecommendationFacade {
 
         List<RecommendationScorer.ScoredCandidate> ranked = rankAndCap(candidates, asOf);
 
+        boolean federatedApplied = federated && flGateway.fetchCurrentModelSafely().isPresent();
+
         List<RecommendationCard> cards = ranked.stream()
                 .map(scored -> RecommendationCard.builder()
                         .forUser(userId)
@@ -131,7 +154,7 @@ public class RecommendationFacade {
                 .toList();
 
         recommendationRepository.deleteAllByUserIdAndStatus(userId, RecommendationStatus.active);
-        return cards.stream().map(this::persistAndRespond).toList();
+        return cards.stream().map(card -> persistAndRespond(card, federatedApplied)).toList();
     }
 
     @Transactional
@@ -261,7 +284,7 @@ public class RecommendationFacade {
                 .toList();
     }
 
-    private RecommendationResponse persistAndRespond(RecommendationCard card) {
+    private RecommendationResponse persistAndRespond(RecommendationCard card, boolean federatedApplied) {
         RecommendationCandidate candidate = card.candidate();
         Recommendation entity = new Recommendation(
                 card.userId(), candidate.type(), card.tier(), candidate.targetTopicId(), candidate.targetApplicationId(),
@@ -270,7 +293,7 @@ public class RecommendationFacade {
         for (EvidenceItem item : candidate.evidence()) {
             evidenceRepository.save(new RecommendationEvidence(entity.getId(), item.label(), item.detail(), item.occurredAt()));
         }
-        return mapper.toResponse(entity, candidate.evidence());
+        return mapper.toResponse(entity, candidate.evidence(), federatedApplied);
     }
 
     private RecommendationResponse respond(Recommendation recommendation) {
