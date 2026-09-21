@@ -72,6 +72,7 @@ class RoundResult:
     parameters: list[np.ndarray]  # the active global model after this round
     reason: str | None
     participant_count: int
+    filtered_count: int = 0  # how many participants' updates were dropped as anomalous (P48)
 
 
 def run_round(
@@ -97,6 +98,7 @@ def run_round(
             parameters=previous_parameters,
             reason=metrics.get("reason"),
             participant_count=int(metrics.get("participant_count", len(client_updates))),
+            filtered_count=int(metrics.get("filtered_count", 0)),
         )
 
     return RoundResult(
@@ -104,4 +106,5 @@ def run_round(
         parameters=parameters_to_ndarrays(aggregated_parameters),
         reason=None,
         participant_count=int(metrics.get("participant_count", len(client_updates))),
+        filtered_count=int(metrics.get("filtered_count", 0)),
     )

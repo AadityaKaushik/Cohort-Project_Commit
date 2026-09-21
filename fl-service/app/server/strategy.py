@@ -30,6 +30,16 @@ Two things this strategy deliberately does differently from vanilla
    `(None, metrics)` from `aggregate_fit` means the caller keeps the
    previous global parameters active. No partial aggregation ever happens
    on a too-small cohort.
+3. **It filters anomalously large updates before aggregating (US-84, P48,
+   §22.4 step 3b).** After clipping (`app/client/privacy.py`), an honest
+   client's transmitted delta can never exceed norm `S`; a delta with norm
+   greater than `S * poisoning_norm_multiplier` (tau, default 3) is
+   evidence of a malicious or malfunctioning client bypassing its own
+   clipping step, and is dropped -- logged, never averaged in -- before the
+   uniform mean is computed. The min-cohort check still runs against the
+   *original* participant count (§22.4's ordering: 3a before 3b), but if
+   filtering leaves zero survivors the round is refused too, since there is
+   nothing left to aggregate.
 """
 
 from __future__ import annotations
@@ -43,6 +53,7 @@ from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy import Strategy
 
+from app.client.privacy import DEFAULT_CLIP_NORM
 from app.common.parameters import flatten, unflatten
 
 logger = logging.getLogger(__name__)
@@ -51,6 +62,10 @@ logger = logging.getLogger(__name__)
 # all (§22.4). Production would use 50+; the MVP uses 3, and the report
 # says so (§22.5).
 DEFAULT_MIN_COHORT = 3
+
+# tau: rejects updates more than 3x the clipping norm S, which after
+# honest clipping should be impossible to exceed (§22.4).
+DEFAULT_POISONING_NORM_MULTIPLIER = 3.0
 
 
 class MinCohortFedAvg(Strategy):
@@ -65,8 +80,15 @@ class MinCohortFedAvg(Strategy):
     `app/server/round_runner.py` for the thin loop that does this.
     """
 
-    def __init__(self, min_cohort: int = DEFAULT_MIN_COHORT) -> None:
+    def __init__(
+        self,
+        min_cohort: int = DEFAULT_MIN_COHORT,
+        clip_norm: float = DEFAULT_CLIP_NORM,
+        poisoning_norm_multiplier: float = DEFAULT_POISONING_NORM_MULTIPLIER,
+    ) -> None:
         self.min_cohort = min_cohort
+        self.clip_norm = clip_norm
+        self.poisoning_norm_multiplier = poisoning_norm_multiplier
         self.previous_parameters: list[np.ndarray] | None = None
 
     # -- Strategy's abstract interface --------------------------------
@@ -126,10 +148,42 @@ class MinCohortFedAvg(Strategy):
                 "participant_count": participant_count,
             }
 
-        deltas = [flatten(parameters_to_ndarrays(fit_res.parameters)) for _, fit_res in results]
+        threshold = self.clip_norm * self.poisoning_norm_multiplier
+        deltas: list[np.ndarray] = []
+        for client_proxy, fit_res in results:
+            delta = flatten(parameters_to_ndarrays(fit_res.parameters))
+            norm = float(np.linalg.norm(delta))
+            if norm > threshold:
+                logger.warning(
+                    "round %d: dropping client %s's update: norm %.4f exceeds poisoning "
+                    "threshold %.4f (S=%.4f * tau=%.4f) -- an honestly clipped update "
+                    "should never exceed S",
+                    server_round,
+                    client_proxy.cid,
+                    norm,
+                    threshold,
+                    self.clip_norm,
+                    self.poisoning_norm_multiplier,
+                )
+                continue
+            deltas.append(delta)
 
-        # Uniform weighting -- deliberately NOT weighted by num_examples
-        # (§22.4's rationale: that would leak each client's sample count).
+        if not deltas:
+            reason = (
+                f"round {server_round} refused: all {participant_count} participant update(s) "
+                f"were filtered as anomalous (norm above {threshold:.4f}) -- nothing left to aggregate"
+            )
+            logger.warning(reason)
+            return None, {
+                "refused": True,
+                "reason": reason,
+                "participant_count": participant_count,
+                "filtered_count": participant_count,
+            }
+
+        # Uniform weighting over the *surviving* deltas -- deliberately NOT
+        # weighted by num_examples (§22.4's rationale: that would leak each
+        # client's sample count).
         mean_delta = np.mean(deltas, axis=0)
 
         previous_flat = flatten(self.previous_parameters)
@@ -139,4 +193,6 @@ class MinCohortFedAvg(Strategy):
         return ndarrays_to_parameters(new_global_parameters), {
             "refused": False,
             "participant_count": participant_count,
+            "aggregated_count": len(deltas),
+            "filtered_count": participant_count - len(deltas),
         }

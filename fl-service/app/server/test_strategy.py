@@ -56,7 +56,11 @@ def test_one_client_round_is_refused_too() -> None:
 def test_round_with_exactly_min_cohort_participants_is_accepted() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     previous = zero_parameters()
-    deltas = [np.full(25, 0.3), np.full(25, 0.6), np.full(25, 0.9)]
+    # Per-dimension magnitudes kept small enough that each delta's L2 norm
+    # (sqrt(25) * value) stays well under an honestly clipped update's norm
+    # bound -- see app/server/test_poisoning_filter.py for the norm-based
+    # filter itself; this test is purely about the averaging arithmetic.
+    deltas = [np.full(25, 0.03), np.full(25, 0.06), np.full(25, 0.09)]
     client_updates = [(f"client-{i}", d, 10) for i, d in enumerate(deltas)]
 
     result = run_round(strategy, 1, previous, client_updates)
@@ -92,7 +96,7 @@ def test_aggregation_is_uniform_weighted_ignoring_num_examples() -> None:
 def test_aggregation_adds_the_mean_delta_to_the_previous_parameters() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     previous = [np.full((1, 24), 0.5), np.array([0.1])]
-    deltas = [np.full(25, 0.2), np.full(25, 0.4), np.full(25, 0.6)]
+    deltas = [np.full(25, 0.02), np.full(25, 0.04), np.full(25, 0.06)]
     client_updates = [(f"c{i}", d, 5) for i, d in enumerate(deltas)]
 
     result = run_round(strategy, 1, previous, client_updates)
