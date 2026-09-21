@@ -45,6 +45,8 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(tableExists(connection, "questions")).isTrue();
             assertThat(tableExists(connection, "practice_attempts")).isTrue();
             assertThat(tableExists(connection, "preparation_tasks")).isTrue();
+            assertThat(tableExists(connection, "recommendations")).isTrue();
+            assertThat(tableExists(connection, "recommendation_evidence")).isTrue();
             assertThat(columnExists(connection, "users", "email")).isTrue();
             assertThat(columnExists(connection, "refresh_tokens", "token_hash")).isTrue();
             assertThat(columnExists(connection, "companies", "normalized_name")).isTrue();
@@ -66,6 +68,9 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(columnExists(connection, "questions", "is_system")).isTrue();
             assertThat(columnExists(connection, "practice_attempts", "attempted_at")).isTrue();
             assertThat(columnExists(connection, "preparation_tasks", "estimated_effort_minutes")).isTrue();
+            assertThat(columnExists(connection, "recommendations", "evidence_tier")).isTrue();
+            assertThat(columnExists(connection, "recommendations", "status")).isTrue();
+            assertThat(columnExists(connection, "recommendation_evidence", "label")).isTrue();
         }
     }
 
@@ -82,7 +87,8 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             }
             assertThat(versions)
                     .containsExactly(
-                            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16");
+                            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                            "17", "18");
         }
     }
 
