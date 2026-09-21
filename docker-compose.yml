@@ -49,18 +49,13 @@ services:
       - ./frontend:/app
       - /app/node_modules
 
-  # fl-service (Python + Flower + scikit-learn) is deliberately stubbed until
-  # Sprint 4 (see docs/plan/BUILD_PHASES_JAVA.md, P50) — there's no code to
-  # build yet, and wiring it in early would just be a container that fails
-  # to start. Uncomment once fl-service/ has a real app.
-  # fl-service:
-  #   build:
-  #     context: ./fl-service
-  #   container_name: cohort-fl-service
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - "${FL_SERVICE_PORT:-8000}:8000"
+  # fl-service (Python + Flower + scikit-learn) now has a real app (Sprint
+  # 4, P43-P57) but is deliberately kept out of the base compose file --
+  # it lives in the separate `fl` profile, docker-compose.fl.yml, so that
+  # its isolated Postgres role/schema (V19) and DB-credential-absence CI
+  # check (P50, scripts/verify-fl-db-isolation.sh) stay easy to reason
+  # about as one additive layer. Run both files together:
+  #   docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d
 
 volumes:
   cohort_db_data:

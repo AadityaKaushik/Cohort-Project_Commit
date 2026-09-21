@@ -17,6 +17,13 @@ spring:
     hibernate:
       # Flyway owns the schema; Hibernate only ever checks it matches.
       ddl-auto: validate
+  flyway:
+    placeholders:
+      # V19: the password the isolated `cohort_fl` Postgres role is created
+      # with (P50). Sourced from the same FL_POSTGRES_PASSWORD env var
+      # docker-compose.fl.yml and .env.example already declare, never a
+      # literal secret in the migration file itself.
+      flPassword: ${FL_POSTGRES_PASSWORD:change_me_too}
   servlet:
     multipart:
       # Above the 5 MB resume cap (FR-30) so an oversized upload reaches
