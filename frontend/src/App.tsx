@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import {
   ShieldCheck,
-  Sparkles,
   UserRound,
 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -19,6 +18,7 @@ import { InterviewFormPage } from '@/pages/interviews/InterviewFormPage'
 import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
 import { PrepPage } from '@/pages/prep/PrepPage'
 import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
+import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -53,16 +53,7 @@ function App() {
           </Route>
           <Route path="prep" element={<PrepPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
-          <Route
-            path="recommendations"
-            element={
-              <ComingSoonPage
-                icon={Sparkles}
-                title="Recommendations are coming soon"
-                description="Ranked suggestions for what to work on next, with the evidence behind every one."
-              />
-            }
-          />
+          <Route path="recommendations" element={<RecommendationsPage />} />
           <Route
             path="privacy"
             element={

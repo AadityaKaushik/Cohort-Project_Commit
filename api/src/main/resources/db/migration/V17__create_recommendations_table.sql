@@ -25,7 +25,7 @@ CREATE TABLE recommendations (
     evidence_tier          CHAR(1) NOT NULL CHECK (evidence_tier IN ('A', 'B', 'C', 'D')),
     target_topic_id        UUID REFERENCES topics (id),
     target_application_id  UUID REFERENCES applications (id) ON DELETE CASCADE,
-    score                  NUMERIC(6, 4) NOT NULL,
+    score                  DOUBLE PRECISION NOT NULL,
     headline               TEXT NOT NULL,
     explanation            TEXT NOT NULL,
     observation_count      INTEGER NOT NULL DEFAULT 0,
