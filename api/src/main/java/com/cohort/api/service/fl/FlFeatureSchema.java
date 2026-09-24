@@ -35,6 +35,11 @@ public final class FlFeatureSchema {
 
     public static final List<String> FEATURE_NAMES = List.copyOf(FEATURE_BOUNDS.keySet());
 
+    /** Shown on the opt-in consent screen (US-57) alongside the allow-list itself; mirrors fl-service's {@code /fl/schema} "not_collected" list. */
+    public static final List<String> NOT_COLLECTED = List.of(
+            "free text", "names", "company names", "job titles", "dates/timestamps",
+            "interviewer names", "resume content", "question text", "salary", "location");
+
     private FlFeatureSchema() {
     }
 

@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
 import {
-  ShieldCheck,
   UserRound,
 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -19,6 +18,7 @@ import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
 import { PrepPage } from '@/pages/prep/PrepPage'
 import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
 import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
+import { PrivacyPage } from '@/pages/privacy/PrivacyPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -54,16 +54,7 @@ function App() {
           <Route path="prep" element={<PrepPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="recommendations" element={<RecommendationsPage />} />
-          <Route
-            path="privacy"
-            element={
-              <ComingSoonPage
-                icon={ShieldCheck}
-                title="Privacy & Federated Learning controls are coming soon"
-                description="See exactly what your device has ever sent — a privacy log, not just a policy."
-              />
-            }
-          />
+          <Route path="privacy" element={<PrivacyPage />} />
           <Route
             path="profile"
             element={

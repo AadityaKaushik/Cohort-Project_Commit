@@ -1,11 +1,14 @@
-"""Thin FastAPI control wrapper (US-62, P49; extended P51).
+"""Thin FastAPI control wrapper (US-62, P49; extended P51/P54).
 
 Deliberately small, per `fl-service/README.md`'s own framing ("Spring Boot
 owns the whole application, and this directory exists only for the Flower
 client/server processes and their scikit-learn training code"): a
-distribution endpoint for the current global model (P49) and a receiving
-endpoint for Java's sanitised feature export (P51). No opt-in/opt-out, no
-privacy ledger, no `/fl/schema` -- those are P54+/P55+ scope.
+distribution endpoint for the current global model (P49), a receiving
+endpoint for Java's sanitised feature export (P51), and the feature schema
+itself (P54) so both sides read the allow-list from one HTTP-reachable
+place. No opt-in/opt-out here -- that is a user-account concept and lives
+Java-side (P54), gating whether `FlFeatureExportJob` ever calls
+`PUT /fl/client-features` for a given user in the first place.
 """
 
 from __future__ import annotations
@@ -14,7 +17,7 @@ import numpy as np
 from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
-from app.common.schema import FEATURE_COUNT
+from app.common.schema import FEATURE_BOUNDS, FEATURE_COUNT
 from app.control.client_store import ClientFeatureStore
 from app.server.model_registry import ModelRegistry
 
@@ -53,6 +56,23 @@ def create_app(registry: ModelRegistry, client_store: ClientFeatureStore | None 
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
         return _serialise(model_version)
+
+    @app.get("/fl/schema")
+    def get_schema() -> dict:
+        """US-58/US-57: the exact allow-list shown on the opt-in consent
+        screen, published verbatim rather than described in prose."""
+        return {
+            "schema_version": 1,
+            "feature_count": FEATURE_COUNT,
+            "features": [
+                {"name": name, "lower_bound": bounds[0], "upper_bound": bounds[1]}
+                for name, bounds in FEATURE_BOUNDS.items()
+            ],
+            "not_collected": [
+                "free text", "names", "company names", "job titles", "dates/timestamps",
+                "interviewer names", "resume content", "question text", "salary", "location",
+            ],
+        }
 
     @app.put("/fl/client-features/{client_id}")
     def put_client_features(client_id: str, payload: ClientFeaturesPayload = Body(...)) -> dict:

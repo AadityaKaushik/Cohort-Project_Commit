@@ -147,6 +147,11 @@ public class User {
         return flOptIn;
     }
 
+    /** US-57/US-64: opt-in/opt-out, default off. Takes effect from the next export cycle (P51's job re-reads this every run, never caches it). */
+    public void setFlOptIn(boolean flOptIn) {
+        this.flOptIn = flOptIn;
+    }
+
     public FlPrivacyPosture getFlPrivacyPosture() {
         return flPrivacyPosture;
     }
