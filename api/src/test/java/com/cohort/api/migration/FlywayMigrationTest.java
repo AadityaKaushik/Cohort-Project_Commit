@@ -47,6 +47,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(tableExists(connection, "preparation_tasks")).isTrue();
             assertThat(tableExists(connection, "recommendations")).isTrue();
             assertThat(tableExists(connection, "recommendation_evidence")).isTrue();
+            assertThat(tableExists(connection, "notifications")).isTrue();
             assertThat(columnExists(connection, "users", "email")).isTrue();
             assertThat(columnExists(connection, "refresh_tokens", "token_hash")).isTrue();
             assertThat(columnExists(connection, "companies", "normalized_name")).isTrue();
@@ -71,6 +72,9 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(columnExists(connection, "recommendations", "evidence_tier")).isTrue();
             assertThat(columnExists(connection, "recommendations", "status")).isTrue();
             assertThat(columnExists(connection, "recommendation_evidence", "label")).isTrue();
+            assertThat(columnExists(connection, "notifications", "related_entity_id")).isTrue();
+            assertThat(columnExists(connection, "notifications", "dedupe_key")).isTrue();
+            assertThat(columnExists(connection, "notifications", "is_read")).isTrue();
         }
     }
 
@@ -88,7 +92,34 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(versions)
                     .containsExactly(
                             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                            "17", "18", "19");
+                            "17", "18", "19", "20");
+        }
+    }
+
+    /**
+     * V20 (FR-99..101): the partial unique index on (user_id, dedupe_key) is
+     * what makes repeated detection runs idempotent -- a second row for the
+     * same occurrence must be rejected, while rows without a dedupe key (and
+     * the same key for a different user) are unaffected.
+     */
+    @Test
+    void notificationsDedupeKeyIsUniquePerUser() throws Exception {
+        try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+            statement.execute("INSERT INTO users (email, password_hash) VALUES ('v20-a@example.com', 'x'), ('v20-b@example.com', 'x')");
+            String insert = "INSERT INTO notifications (user_id, type, title, body, dedupe_key) "
+                    + "SELECT id, 'stalled_application', 't', 'b', %s FROM users WHERE email = '%s' ON CONFLICT DO NOTHING";
+
+            assertThat(statement.executeUpdate(insert.formatted("'stall:1'", "v20-a@example.com"))).isEqualTo(1);
+            assertThat(statement.executeUpdate(insert.formatted("'stall:1'", "v20-a@example.com"))).isZero();
+            assertThat(statement.executeUpdate(insert.formatted("'stall:1'", "v20-b@example.com"))).isEqualTo(1);
+            assertThat(statement.executeUpdate(insert.formatted("NULL", "v20-a@example.com"))).isEqualTo(1);
+            assertThat(statement.executeUpdate(insert.formatted("NULL", "v20-a@example.com"))).isEqualTo(1);
+
+            statement.execute("DELETE FROM users WHERE email IN ('v20-a@example.com', 'v20-b@example.com')");
+            try (ResultSet rs = statement.executeQuery("SELECT count(*) FROM notifications WHERE title = 't'")) {
+                rs.next();
+                assertThat(rs.getLong(1)).as("notifications cascade with their owner").isZero();
+            }
         }
     }
 
