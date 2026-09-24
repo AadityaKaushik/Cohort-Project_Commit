@@ -4,7 +4,15 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PrivacyPage } from '@/pages/privacy/PrivacyPage'
-import { getFlConsent, getFlSchema, optInFl, optOutFl, type FlConsent, type FlSchema } from '@/lib/fl-api'
+import {
+  getFlConsent,
+  getFlSchema,
+  listPrivacyLedger,
+  optInFl,
+  optOutFl,
+  type FlConsent,
+  type FlSchema,
+} from '@/lib/fl-api'
 
 vi.mock('@/lib/fl-api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/fl-api')>('@/lib/fl-api')
@@ -12,6 +20,7 @@ vi.mock('@/lib/fl-api', async () => {
     ...actual,
     getFlConsent: vi.fn(),
     getFlSchema: vi.fn(),
+    listPrivacyLedger: vi.fn(),
     optInFl: vi.fn(),
     optOutFl: vi.fn(),
   }
@@ -46,7 +55,9 @@ describe('PrivacyPage', () => {
     vi.mocked(getFlSchema).mockReset()
     vi.mocked(optInFl).mockReset()
     vi.mocked(optOutFl).mockReset()
+    vi.mocked(listPrivacyLedger).mockReset()
     vi.mocked(getFlSchema).mockResolvedValue(sampleSchema())
+    vi.mocked(listPrivacyLedger).mockResolvedValue([])
   })
 
   it('shows opted-out state and the opt-in action by default', async () => {
@@ -90,5 +101,50 @@ describe('PrivacyPage', () => {
 
     await waitFor(() => expect(optInFl).toHaveBeenCalledTimes(1))
     expect(await screen.findByText('Opted in')).toBeInTheDocument()
+  })
+
+  it('says nothing has been sent when the ledger is empty', async () => {
+    vi.mocked(getFlConsent).mockResolvedValue({ opted_in: false })
+
+    renderPage()
+
+    expect(await screen.findByText('Nothing has been sent yet.')).toBeInTheDocument()
+  })
+
+  it('shows ledger rows and inspects a transmitted vector with schema feature names', async () => {
+    vi.mocked(getFlConsent).mockResolvedValue({ opted_in: true })
+    vi.mocked(listPrivacyLedger).mockResolvedValue([
+      {
+        id: 'entry-1',
+        round_number: 2,
+        schema_version: 1,
+        pre_clip_norm: 1.5,
+        post_clip_norm: 1,
+        noise_multiplier: 1,
+        cohort_size: 4,
+        epsilon: 1,
+        transmitted_vector: [0.25, -0.75],
+        created_at: '2026-01-10T00:00:00Z',
+      },
+    ])
+    const user = userEvent.setup()
+
+    renderPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Expand vector for round 2' }))
+
+    expect(screen.getByText('0.250000')).toBeInTheDocument()
+    expect(screen.getByText('-0.750000')).toBeInTheDocument()
+    // mastery_mean appears in the schema list and again as the inspector's label.
+    expect(screen.getAllByText('mastery_mean')).toHaveLength(2)
+  })
+
+  it('shows an error when the ledger cannot be loaded', async () => {
+    vi.mocked(getFlConsent).mockResolvedValue({ opted_in: false })
+    vi.mocked(listPrivacyLedger).mockRejectedValue(new Error('boom'))
+
+    renderPage()
+
+    expect(await screen.findByText(/couldn.t load the privacy ledger/i)).toBeInTheDocument()
   })
 })

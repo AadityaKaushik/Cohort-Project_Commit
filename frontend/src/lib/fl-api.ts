@@ -35,3 +35,22 @@ export function optInFl() {
 export function optOutFl() {
   return apiFetch<FlConsent>('/fl/opt-out', { method: 'POST' })
 }
+
+/** Mirrors com.cohort.api.dto.PrivacyLedgerEntryResponse (US-63): one immutable row per round this client took part in. */
+export interface PrivacyLedgerEntry {
+  id: string
+  round_number: number
+  schema_version: number
+  pre_clip_norm: number
+  post_clip_norm: number
+  noise_multiplier: number
+  cohort_size: number
+  epsilon: number
+  /** The real post-clip, post-noise vector fl-service transmitted, never a placeholder. */
+  transmitted_vector: number[]
+  created_at: string
+}
+
+export function listPrivacyLedger() {
+  return apiFetch<PrivacyLedgerEntry[]>('/fl/privacy-ledger')
+}

@@ -1,6 +1,7 @@
 import { ShieldCheckIcon, ShieldOffIcon } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getFlConsent, getFlSchema, optInFl, optOutFl } from '@/lib/fl-api'
+import { getFlConsent, getFlSchema, listPrivacyLedger, optInFl, optOutFl } from '@/lib/fl-api'
+import { PrivacyLedgerTable } from '@/components/privacy/PrivacyLedgerTable'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,12 +15,16 @@ import { Skeleton } from '@/components/ui/skeleton'
  * Default is off — {@code opted_in: false} until the user explicitly
  * flips this toggle (enforced at the DB level too, V1's
  * {@code fl_opt_in NOT NULL DEFAULT false}).
+ *
+ * US-63: below that, the Privacy Ledger. Every round this account took
+ * part in, with the exact vector that left it.
  */
 export function PrivacyPage() {
   const queryClient = useQueryClient()
 
   const consentQuery = useQuery({ queryKey: ['fl-consent'], queryFn: getFlConsent })
   const schemaQuery = useQuery({ queryKey: ['fl-schema'], queryFn: getFlSchema })
+  const ledgerQuery = useQuery({ queryKey: ['fl-privacy-ledger'], queryFn: listPrivacyLedger })
 
   function invalidateConsent() {
     queryClient.invalidateQueries({ queryKey: ['fl-consent'] })
@@ -124,6 +129,38 @@ export function PrivacyPage() {
                 </ul>
               </div>
             </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium">Privacy Ledger</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Everything this account has ever sent to the shared model, one row per round. Expand a row to see the exact
+            vector that was transmitted after clipping and noise.
+          </p>
+
+          {ledgerQuery.isLoading && <Skeleton className="h-24 w-full" />}
+
+          {ledgerQuery.isError && (
+            <Alert variant="destructive">
+              <AlertTitle>Couldn&apos;t load the Privacy Ledger</AlertTitle>
+              <AlertDescription>Something went wrong talking to the server.</AlertDescription>
+            </Alert>
+          )}
+
+          {ledgerQuery.data && ledgerQuery.data.length === 0 && (
+            <p className="text-sm text-muted-foreground">Nothing has been sent yet.</p>
+          )}
+
+          {ledgerQuery.data && ledgerQuery.data.length > 0 && (
+            <PrivacyLedgerTable
+              entries={ledgerQuery.data}
+              featureNames={schemaQuery.data?.features.map((feature) => feature.name)}
+            />
           )}
         </CardContent>
       </Card>
