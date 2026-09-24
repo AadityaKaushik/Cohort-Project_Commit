@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { AlertCircleIcon, SparklesIcon } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -10,12 +11,17 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { RecommendationCard } from '@/components/recommendations/RecommendationCard'
+import { FederatedLiftToggle } from '@/components/recommendations/FederatedLiftToggle'
 
-/** US-51..56,77: the ranked recommendations list, each card carrying its own evidence tier and accept/snooze/dismiss actions. */
+/** US-51..56,77,65: the ranked recommendations list, each card carrying its own evidence tier and accept/snooze/dismiss actions, plus the Federated Lift toggle (US-65). */
 export function RecommendationsPage() {
   const queryClient = useQueryClient()
+  const [federated, setFederated] = useState(false)
 
-  const recommendationsQuery = useQuery({ queryKey: ['recommendations'], queryFn: listRecommendations })
+  const recommendationsQuery = useQuery({
+    queryKey: ['recommendations', federated],
+    queryFn: () => listRecommendations(federated),
+  })
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: ['recommendations'] })
@@ -32,11 +38,14 @@ export function RecommendationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Recommendations</h2>
-        <p className="text-sm text-muted-foreground">
-          Ranked suggestions for what to work on next, each with the evidence behind it and how confident it is.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Recommendations</h2>
+          <p className="text-sm text-muted-foreground">
+            Ranked suggestions for what to work on next, each with the evidence behind it and how confident it is.
+          </p>
+        </div>
+        <FederatedLiftToggle federated={federated} onChange={setFederated} disabled={recommendationsQuery.isFetching} />
       </div>
 
       {recommendationsQuery.isLoading && (
@@ -63,6 +72,17 @@ export function RecommendationsPage() {
         />
       )}
 
+      {federated &&
+        recommendationsQuery.data &&
+        recommendationsQuery.data.length > 0 &&
+        !recommendationsQuery.data[0].federated_applied && (
+          <Alert>
+            <AlertCircleIcon className="h-4 w-4" />
+            <AlertTitle>Shared model unavailable</AlertTitle>
+            <AlertDescription>Showing your local-only ranking instead. Nothing about your data changed.</AlertDescription>
+          </Alert>
+        )}
+
       {recommendationsQuery.data && recommendationsQuery.data.length > 0 && (
         <div className="space-y-4">
           {recommendationsQuery.data.map((recommendation) => (
@@ -70,6 +90,7 @@ export function RecommendationsPage() {
               key={recommendation.id}
               recommendation={recommendation}
               isBusy={isBusy}
+              showRankDelta={federated}
               onAccept={(id) => acceptMutation.mutate(id)}
               onSnooze={(id) => snoozeMutation.mutate(id)}
               onDismiss={(id, reason) => dismissMutation.mutate({ id, reason })}

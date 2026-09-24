@@ -22,21 +22,27 @@ import org.springframework.stereotype.Component;
 public class RecommendationMapper {
 
     public RecommendationResponse toResponse(Recommendation entity, List<EvidenceItem> evidence) {
-        return toResponse(entity, evidence, false);
+        return toResponse(entity, evidence, false, 0);
     }
 
-    /** {@code federatedApplied}: P53/US-65 -- true only when a federated model signal was actually folded into this response's score (see RecommendationFacade#generateRecommendations). */
-    public RecommendationResponse toResponse(Recommendation entity, List<EvidenceItem> evidence, boolean federatedApplied) {
-        return build(entity, evidence.stream().map(e -> new EvidenceItemResponse(e.label(), e.detail(), e.occurredAt())).toList(), federatedApplied);
+    /**
+     * {@code federatedApplied}: P53/US-65 -- true only when a federated
+     * model signal was actually folded into this response's ranking (see
+     * RecommendationFacade#generateRecommendations). {@code rankDelta}:
+     * P57/US-65 -- this recommendation's position change vs. the
+     * local-only order; always 0 when {@code federatedApplied} is false.
+     */
+    public RecommendationResponse toResponse(Recommendation entity, List<EvidenceItem> evidence, boolean federatedApplied, int rankDelta) {
+        return build(entity, evidence.stream().map(e -> new EvidenceItemResponse(e.label(), e.detail(), e.occurredAt())).toList(), federatedApplied, rankDelta);
     }
 
     public RecommendationResponse toResponseFromPersistedEvidence(Recommendation entity, List<RecommendationEvidence> evidence) {
         return build(entity, evidence.stream()
                 .map(e -> new EvidenceItemResponse(e.getLabel(), e.getDetail(), e.getOccurredAt()))
-                .toList(), false);
+                .toList(), false, 0);
     }
 
-    private RecommendationResponse build(Recommendation entity, List<EvidenceItemResponse> evidence, boolean federatedApplied) {
+    private RecommendationResponse build(Recommendation entity, List<EvidenceItemResponse> evidence, boolean federatedApplied, int rankDelta) {
         return new RecommendationResponse(
                 entity.getId(),
                 entity.getType(),
@@ -53,6 +59,7 @@ public class RecommendationMapper {
                 entity.getDismissedReason(),
                 entity.getAcceptedTaskId(),
                 entity.getGeneratedAt(),
-                federatedApplied);
+                federatedApplied,
+                rankDelta);
     }
 }

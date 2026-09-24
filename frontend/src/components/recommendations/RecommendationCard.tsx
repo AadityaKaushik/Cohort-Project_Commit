@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { CheckIcon, ClockIcon, XIcon } from 'lucide-react'
+import { CheckIcon, ClockIcon, TrendingDownIcon, TrendingUpIcon, XIcon } from 'lucide-react'
 import type { Recommendation } from '@/lib/recommendations-api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,10 +27,19 @@ interface RecommendationCardProps {
   onSnooze: (id: string) => void
   onDismiss: (id: string, reason: string) => void
   isBusy?: boolean
+  /** US-65: shows this recommendation's rank_delta badge when the Federated Lift toggle is on. */
+  showRankDelta?: boolean
 }
 
-/** US-51..56: one recommendation, its evidence tier, the observations behind it, and the accept/snooze/dismiss actions. */
-export function RecommendationCard({ recommendation, onAccept, onSnooze, onDismiss, isBusy = false }: RecommendationCardProps) {
+/** US-51..56,65: one recommendation, its evidence tier, the observations behind it, the accept/snooze/dismiss actions, and (when toggled) its federated rank delta. */
+export function RecommendationCard({
+  recommendation,
+  onAccept,
+  onSnooze,
+  onDismiss,
+  isBusy = false,
+  showRankDelta = false,
+}: RecommendationCardProps) {
   const [dismissing, setDismissing] = useState(false)
   const [reason, setReason] = useState('')
 
@@ -48,9 +57,25 @@ export function RecommendationCard({ recommendation, onAccept, onSnooze, onDismi
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
         <CardTitle className="text-base font-medium">{recommendation.headline}</CardTitle>
-        <Badge variant={TIER_BADGE_VARIANT[recommendation.tier]} title={TIER_LABEL[recommendation.tier]}>
-          {TIER_LABEL[recommendation.tier]}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {showRankDelta && recommendation.rank_delta !== 0 && (
+            <Badge
+              variant="outline"
+              className={recommendation.rank_delta > 0 ? 'text-emerald-600' : 'text-amber-600'}
+              title="Position change vs. local-only ranking"
+            >
+              {recommendation.rank_delta > 0 ? (
+                <TrendingUpIcon className="h-3 w-3" />
+              ) : (
+                <TrendingDownIcon className="h-3 w-3" />
+              )}
+              {recommendation.rank_delta > 0 ? `+${recommendation.rank_delta}` : recommendation.rank_delta}
+            </Badge>
+          )}
+          <Badge variant={TIER_BADGE_VARIANT[recommendation.tier]} title={TIER_LABEL[recommendation.tier]}>
+            {TIER_LABEL[recommendation.tier]}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">{recommendation.explanation}</p>

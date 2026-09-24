@@ -51,6 +51,8 @@ function sampleRecommendation(overrides: Partial<Recommendation> = {}): Recommen
     dismissed_reason: null,
     accepted_task_id: null,
     generated_at: '2026-01-10T00:00:00Z',
+    federated_applied: false,
+    rank_delta: 0,
     ...overrides,
   }
 }
@@ -128,5 +130,58 @@ describe('RecommendationsPage', () => {
     await waitFor(() =>
       expect(dismissRecommendation).toHaveBeenCalledWith('rec-1', 'Not relevant right now'),
     )
+  })
+
+  it('defaults to the local-only ranking', async () => {
+    vi.mocked(listRecommendations).mockResolvedValue([sampleRecommendation()])
+
+    renderPage()
+
+    await screen.findByText('Practice Graphs')
+    expect(listRecommendations).toHaveBeenCalledWith(false)
+  })
+
+  it('switching to Federated lift re-fetches with federated=true and shows the rank delta', async () => {
+    vi.mocked(listRecommendations)
+      .mockResolvedValueOnce([sampleRecommendation()])
+      .mockResolvedValueOnce([sampleRecommendation({ federated_applied: true, rank_delta: 2 })])
+    const user = userEvent.setup()
+
+    renderPage()
+    await screen.findByText('Practice Graphs')
+
+    await user.click(screen.getByRole('button', { name: /federated lift/i }))
+
+    await waitFor(() => expect(listRecommendations).toHaveBeenCalledWith(true))
+    expect(await screen.findByText('+2')).toBeInTheDocument()
+  })
+
+  it('a zero rank delta shows no badge even in federated mode', async () => {
+    vi.mocked(listRecommendations)
+      .mockResolvedValueOnce([sampleRecommendation()])
+      .mockResolvedValueOnce([sampleRecommendation({ federated_applied: true, rank_delta: 0 })])
+    const user = userEvent.setup()
+
+    renderPage()
+    await screen.findByText('Practice Graphs')
+    await user.click(screen.getByRole('button', { name: /federated lift/i }))
+
+    await waitFor(() => expect(listRecommendations).toHaveBeenCalledWith(true))
+    expect(screen.queryByTitle(/position change vs\. local-only ranking/i)).not.toBeInTheDocument()
+  })
+
+  it('says so when federated mode falls back to the local-only ranking', async () => {
+    vi.mocked(listRecommendations)
+      .mockResolvedValueOnce([sampleRecommendation()])
+      .mockResolvedValueOnce([sampleRecommendation({ federated_applied: false, rank_delta: 0 })])
+    const user = userEvent.setup()
+
+    renderPage()
+    await screen.findByText('Practice Graphs')
+    expect(screen.queryByText('Shared model unavailable')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /federated lift/i }))
+
+    expect(await screen.findByText('Shared model unavailable')).toBeInTheDocument()
   })
 })

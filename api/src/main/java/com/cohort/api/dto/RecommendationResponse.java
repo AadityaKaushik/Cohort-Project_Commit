@@ -33,5 +33,11 @@ public record RecommendationResponse(
         // P53/US-65: whether a federated model signal was actually folded into `score` for this
         // response -- always false on the plain (non-federated, or fl-service-unavailable) path,
         // which is exactly the local-only fallback the circuit breaker (P53) degrades to.
-        boolean federatedApplied) {
+        boolean federatedApplied,
+        // P57/US-65: how many positions this recommendation moved between the local-only
+        // ranking and the federated one (positive = moved up/earlier). Always 0 when
+        // federatedApplied is false -- the Federated Lift viewer's whole point is comparing
+        // this against the local-only order, which is why it must be exactly 0, not omitted,
+        // on the fallback path.
+        int rankDelta) {
 }

@@ -16,7 +16,7 @@ export interface EvidenceItem {
   occurred_at: string | null
 }
 
-/** Mirrors com.cohort.api.dto.RecommendationResponse (US-51..56). */
+/** Mirrors com.cohort.api.dto.RecommendationResponse (US-51..56, US-65). */
 export interface Recommendation {
   id: string
   type: RecommendationType
@@ -33,10 +33,15 @@ export interface Recommendation {
   dismissed_reason: string | null
   accepted_task_id: string | null
   generated_at: string
+  /** US-65: whether a federated model signal was actually folded into this ranking (P53's circuit breaker falls back to false, never an error). */
+  federated_applied: boolean
+  /** US-65: position change vs. the local-only order; always 0 when federated_applied is false. */
+  rank_delta: number
 }
 
-export function listRecommendations() {
-  return apiFetch<Recommendation[]>('/recommendations')
+/** {@code federated}: US-65's Federated Lift toggle -- true re-ranks by the current global model (bounded to a ±25% nudge per candidate), false is always the local-only ranking. */
+export function listRecommendations(federated = false) {
+  return apiFetch<Recommendation[]>(`/recommendations?federated=${federated}`)
 }
 
 export function acceptRecommendation(id: string) {
