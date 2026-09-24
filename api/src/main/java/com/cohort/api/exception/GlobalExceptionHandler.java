@@ -87,6 +87,12 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("FILE_TOO_LARGE", ex.getMessage()));
     }
 
+    @ExceptionHandler(PrivacyLedgerEntryNotFoundException.class)
+    public ResponseEntity<ApiError> handlePrivacyLedgerEntryNotFound(PrivacyLedgerEntryNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("PRIVACY_LEDGER_ENTRY_NOT_FOUND", ex.getMessage()));
+    }
+
     @ExceptionHandler(ResumeNotFoundException.class)
     public ResponseEntity<ApiError> handleResumeNotFound(ResumeNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -59,6 +59,10 @@ app:
       # runs. Every 6 hours by default -- coarse enough that it never fires
       # within a test run's lifetime, so no test needs to disable it explicitly.
       cron: ${APP_FL_EXPORT_CRON:0 0 */6 * * *}
+    round:
+      # US-61/US-63: offset 30 minutes after the export cron so a round
+      # always runs against freshly-exported features, not a race with them.
+      cron: ${APP_FL_ROUND_CRON:0 30 */6 * * *}
 
 resilience4j:
   circuitbreaker:
