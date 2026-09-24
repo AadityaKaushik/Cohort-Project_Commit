@@ -59,8 +59,18 @@ public class StallDetectionService {
     public record StallEvaluation(boolean stalled, double daysInStage, double thresholdDays, String basis, int personalSampleSize) {
     }
 
+    /**
+     * {@code stageEnteredAt} identifies <em>which</em> stay in the current
+     * stage is stalled -- P59's {@code StalledApplicationEvent} uses it so
+     * one stall is reported once, not once per detection run.
+     */
     public record StalledApplication(
-            UUID applicationId, String companyName, String jobTitle, ApplicationStatus currentStage, StallEvaluation evaluation) {
+            UUID applicationId,
+            String companyName,
+            String jobTitle,
+            ApplicationStatus currentStage,
+            StallEvaluation evaluation,
+            Instant stageEnteredAt) {
     }
 
     private final ApplicationRepository applicationRepository;
@@ -139,7 +149,8 @@ public class StallDetectionService {
                 application.getCompanyId(), id -> companyRepository.findByIdAndUserId(id, userId).orElse(null));
         String companyName = company == null ? "Unknown" : company.getName();
 
-        return new StalledApplication(application.getId(), companyName, application.getJobTitle(), stage, evaluation);
+        return new StalledApplication(
+                application.getId(), companyName, application.getJobTitle(), stage, evaluation, application.getStageEnteredAt());
     }
 
     private Map<ApplicationStatus, AnalyticsResult<StageDwellTimeMetric.DwellStats>> personalMedianByStage(

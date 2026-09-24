@@ -29,7 +29,8 @@ class RecommendationGeneratorChainTest {
         TopicMasterySnapshot weakTopic = new TopicMasterySnapshot(weakTopicId, "Graphs", 0.35, 0.3, 4, true, Instant.now());
         StallDetectionService.StalledApplication stalled = new StallDetectionService.StalledApplication(
                 UUID.randomUUID(), "Acme Corp", "Backend Engineer", ApplicationStatus.APPLIED,
-                new StallDetectionService.StallEvaluation(true, 20.0, 14.0, StallDetectionService.BASIS_SYSTEM_DEFAULT, 0));
+                new StallDetectionService.StallEvaluation(true, 20.0, 14.0, StallDetectionService.BASIS_SYSTEM_DEFAULT, 0),
+                Instant.now());
 
         RecommendationContext context = new RecommendationContext(
                 UUID.randomUUID(), Instant.now(), List.of(weakTopic), Map.of(weakTopicId, weakTopic), Map.of(),

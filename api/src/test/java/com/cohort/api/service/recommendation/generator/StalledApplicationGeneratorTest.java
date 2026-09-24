@@ -23,7 +23,7 @@ class StalledApplicationGeneratorTest {
         StallDetectionService.StallEvaluation evaluation =
                 new StallDetectionService.StallEvaluation(true, 20.0, 14.0, StallDetectionService.BASIS_SYSTEM_DEFAULT, 0);
         StallDetectionService.StalledApplication stalled = new StallDetectionService.StalledApplication(
-                applicationId, "Acme Corp", "Backend Engineer", ApplicationStatus.APPLIED, evaluation);
+                applicationId, "Acme Corp", "Backend Engineer", ApplicationStatus.APPLIED, evaluation, Instant.now());
 
         List<RecommendationCandidate> result = generator.handle(contextWith(stalled), List.of());
 
