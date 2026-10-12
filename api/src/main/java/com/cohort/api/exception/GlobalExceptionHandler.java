@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("INVALID_REFRESH_TOKEN", ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidAuthTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidAuthToken(InvalidAuthTokenException ex) {
+        return ResponseEntity.badRequest().body(ApiError.of("INVALID_TOKEN", ex.getMessage()));
+    }
+
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ApiError> handleEmailConflict(EmailAlreadyRegisteredException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

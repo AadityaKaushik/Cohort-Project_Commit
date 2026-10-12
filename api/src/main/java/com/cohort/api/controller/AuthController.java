@@ -1,10 +1,15 @@
 package com.cohort.api.controller;
 
 import com.cohort.api.dto.AuthResponse;
+import com.cohort.api.dto.EmailVerificationConfirmRequest;
+import com.cohort.api.dto.EmailVerificationRequest;
 import com.cohort.api.dto.LoginRequest;
+import com.cohort.api.dto.PasswordResetConfirmRequest;
+import com.cohort.api.dto.PasswordResetRequest;
 import com.cohort.api.dto.RefreshRequest;
 import com.cohort.api.dto.RegisterRequest;
 import com.cohort.api.dto.TokenPairResponse;
+import com.cohort.api.service.AccountRecoveryService;
 import com.cohort.api.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final AccountRecoveryService accountRecoveryService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, AccountRecoveryService accountRecoveryService) {
         this.authService = authService;
+        this.accountRecoveryService = accountRecoveryService;
     }
 
     @PostMapping("/register")
@@ -44,5 +51,29 @@ public class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@Valid @RequestBody RefreshRequest request) {
         authService.logout(request.refreshToken());
+    }
+
+    @PostMapping("/password-reset/request")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        accountRecoveryService.requestPasswordReset(request.email());
+    }
+
+    @PostMapping("/password-reset/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        accountRecoveryService.confirmPasswordReset(request.token(), request.newPassword());
+    }
+
+    @PostMapping("/email-verification/request")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void requestEmailVerification(@Valid @RequestBody EmailVerificationRequest request) {
+        accountRecoveryService.requestVerification(request.email());
+    }
+
+    @PostMapping("/email-verification/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmEmailVerification(@Valid @RequestBody EmailVerificationConfirmRequest request) {
+        accountRecoveryService.confirmVerification(request.token());
     }
 }

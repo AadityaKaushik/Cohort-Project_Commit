@@ -45,7 +45,8 @@ class AuthServiceTest {
         when(tokenService.issueRefreshToken(any())).thenReturn("refresh-token");
 
         authService = new AuthService(
-                userRepository, passwordEncoder, passwordPolicyValidator, tokenService, loginRateLimiter);
+                userRepository, passwordEncoder, passwordPolicyValidator, tokenService, loginRateLimiter,
+                mock(AccountRecoveryService.class));
     }
 
     @Test

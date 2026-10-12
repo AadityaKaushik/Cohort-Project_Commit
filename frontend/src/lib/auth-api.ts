@@ -27,3 +27,19 @@ export function logoutRequest(refreshToken: string) {
     skipAuth: true,
   })
 }
+
+export function requestPasswordReset(email: string) {
+  return apiFetch<void>('/auth/password-reset/request', { method: 'POST', body: { email }, skipAuth: true })
+}
+
+export function confirmPasswordReset(input: { token: string; new_password: string }) {
+  return apiFetch<void>('/auth/password-reset/confirm', { method: 'POST', body: input, skipAuth: true })
+}
+
+export function confirmEmailVerification(token: string) {
+  return apiFetch<void>('/auth/email-verification/confirm', {
+    method: 'POST',
+    body: { token },
+    skipAuth: true,
+  })
+}

@@ -28,6 +28,7 @@ public class AuthService {
     private final PasswordPolicyValidator passwordPolicyValidator;
     private final TokenService tokenService;
     private final LoginRateLimiter loginRateLimiter;
+    private final AccountRecoveryService accountRecoveryService;
 
     /**
      * Computed once at startup so a login attempt against a non-existent
@@ -39,12 +40,14 @@ public class AuthService {
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                         PasswordPolicyValidator passwordPolicyValidator, TokenService tokenService,
-                        LoginRateLimiter loginRateLimiter) {
+                        LoginRateLimiter loginRateLimiter,
+                        AccountRecoveryService accountRecoveryService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.passwordPolicyValidator = passwordPolicyValidator;
         this.tokenService = tokenService;
         this.loginRateLimiter = loginRateLimiter;
+        this.accountRecoveryService = accountRecoveryService;
         this.dummyHashForTimingSafety = passwordEncoder.encode(UUID.randomUUID().toString());
     }
 
@@ -62,6 +65,7 @@ public class AuthService {
         } catch (DataIntegrityViolationException raceOnUniqueEmail) {
             throw new EmailAlreadyRegisteredException();
         }
+        accountRecoveryService.sendVerification(user);
         return issueAuthResponse(user);
     }
 

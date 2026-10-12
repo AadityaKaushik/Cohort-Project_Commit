@@ -32,6 +32,9 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Column(name = "email_verified_at")
+    private Instant emailVerifiedAt;
+
     @Column(name = "display_name")
     private String displayName;
 
@@ -89,6 +92,19 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+        this.emailVerifiedAt = null;
+    }
+
+    public Instant getEmailVerifiedAt() {
+        return emailVerifiedAt;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerifiedAt != null;
+    }
+
+    public void markEmailVerified() {
+        this.emailVerifiedAt = Instant.now();
     }
 
     public String getPasswordHash() {

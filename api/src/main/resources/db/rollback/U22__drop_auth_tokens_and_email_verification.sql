@@ -1,0 +1,2 @@
+ALTER TABLE users DROP COLUMN IF EXISTS email_verified_at;
+DROP TABLE IF EXISTS auth_tokens;

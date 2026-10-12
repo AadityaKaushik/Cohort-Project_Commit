@@ -40,7 +40,12 @@ app:
     secret: ${JWT_SECRET:dev-only-secret-change-me-before-any-real-use-00000}
     access-token-ttl-minutes: ${JWT_ACCESS_TOKEN_TTL_MINUTES:15}
     refresh-token-ttl-days: ${JWT_REFRESH_TOKEN_TTL_DAYS:7}
+  frontend-base-url: ${APP_FRONTEND_BASE_URL:http://localhost:5173}
+  mail:
+    sender: ${APP_MAIL_SENDER:log}
   auth:
+    password-reset-ttl-minutes: 60
+    email-verification-ttl-hours: 24
     login-rate-limit:
       max-attempts: 10
       window-minutes: 15
