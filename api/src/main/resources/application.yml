@@ -39,7 +39,7 @@ app:
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-me-before-any-real-use-00000}
     access-token-ttl-minutes: ${JWT_ACCESS_TOKEN_TTL_MINUTES:15}
-    refresh-token-ttl-days: ${JWT_REFRESH_TOKEN_TTL_DAYS:30}
+    refresh-token-ttl-days: ${JWT_REFRESH_TOKEN_TTL_DAYS:7}
   auth:
     login-rate-limit:
       max-attempts: 10

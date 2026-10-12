@@ -132,4 +132,18 @@ class AuthServiceTest {
         }
         throw new AssertionError("Expected InvalidCredentialsException to be thrown");
     }
+
+    @Test
+    void loginRehashesPasswordWhenEncoderReportsOutdatedParameters() {
+        User user = new User("rehash@example.com", "old-hash", "Rehash");
+        when(userRepository.findByEmail("rehash@example.com")).thenReturn(java.util.Optional.of(user));
+        when(passwordEncoder.matches("a-fine-password", "old-hash")).thenReturn(true);
+        when(passwordEncoder.upgradeEncoding("old-hash")).thenReturn(true);
+        when(passwordEncoder.encode("a-fine-password")).thenReturn("new-hash");
+
+        authService.login(new com.cohort.api.dto.LoginRequest("rehash@example.com", "a-fine-password"));
+
+        org.assertj.core.api.Assertions.assertThat(user.getPasswordHash()).isEqualTo("new-hash");
+        org.mockito.Mockito.verify(userRepository).save(user);
+    }
 }

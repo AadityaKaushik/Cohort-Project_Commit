@@ -31,6 +31,8 @@ public class TokenService {
 
     private final JwtEncoder jwtEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+    public static final long MAX_REFRESH_TOKEN_TTL_DAYS = 7;
+
     private final Duration accessTokenTtl;
     private final Duration refreshTokenTtl;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -43,7 +45,7 @@ public class TokenService {
         this.jwtEncoder = jwtEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
         this.accessTokenTtl = Duration.ofMinutes(accessTokenTtlMinutes);
-        this.refreshTokenTtl = Duration.ofDays(refreshTokenTtlDays);
+        this.refreshTokenTtl = Duration.ofDays(Math.min(refreshTokenTtlDays, MAX_REFRESH_TOKEN_TTL_DAYS));
     }
 
     public String issueAccessToken(User user) {

@@ -83,7 +83,12 @@ public class AuthService {
         }
 
         loginRateLimiter.recordSuccess(request.email());
-        return issueAuthResponse(maybeUser.get());
+        User user = maybeUser.get();
+        if (passwordEncoder.upgradeEncoding(user.getPasswordHash())) {
+            user.setPasswordHash(passwordEncoder.encode(request.password()));
+            userRepository.save(user);
+        }
+        return issueAuthResponse(user);
     }
 
     @Transactional

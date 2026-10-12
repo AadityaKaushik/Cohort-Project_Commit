@@ -8,9 +8,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class PasswordEncoderConfig {
 
-    /** Argon2id with Spring Security's current recommended defaults (FR-04). */
+    public static final int SALT_LENGTH = 16;
+    public static final int HASH_LENGTH = 32;
+    public static final int PARALLELISM = 1;
+    public static final int MEMORY_KIB = 65_536;
+    public static final int ITERATIONS = 3;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+        return new Argon2PasswordEncoder(SALT_LENGTH, HASH_LENGTH, PARALLELISM, MEMORY_KIB, ITERATIONS);
     }
 }
