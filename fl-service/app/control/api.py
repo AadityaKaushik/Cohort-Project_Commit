@@ -19,7 +19,7 @@ verbatim into the Privacy Ledger.
 from __future__ import annotations
 
 import numpy as np
-from fastapi import Body, FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field, field_validator
 
 from app.common.schema import FEATURE_BOUNDS, FEATURE_COUNT
@@ -115,6 +115,14 @@ def create_app(
             "schema_version": record.schema_version,
             "features": record.features.tolist(),
         }
+
+    @app.delete("/fl/client-features/{client_id}", status_code=204)
+    def delete_client_features(client_id: str) -> Response:
+        """US-08 (P65): account deletion removes this client's exported
+        state. Idempotent -- deleting a client that never exported, or was
+        already deleted, is still a 204, so Java can call it unconditionally."""
+        store.delete(client_id)
+        return Response(status_code=204)
 
     @app.post("/fl/round")
     def run_round(request: RoundRequest = Body(...)) -> dict:

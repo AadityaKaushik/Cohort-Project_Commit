@@ -68,3 +68,23 @@ def test_client_feature_store_all_reflects_every_put() -> None:
     store.put("a", 1, np.zeros(FEATURE_COUNT))
     store.put("b", 1, np.ones(FEATURE_COUNT))
     assert set(store.all().keys()) == {"a", "b"}
+
+
+def test_delete_client_features_forgets_the_client_and_is_idempotent() -> None:
+    client = _client()
+    client.put("/fl/client-features/user-1", json={"schema_version": 1, "features": [0.1] * FEATURE_COUNT})
+    client.put("/fl/client-features/user-2", json={"schema_version": 1, "features": [0.2] * FEATURE_COUNT})
+
+    assert client.delete("/fl/client-features/user-1").status_code == 204
+    assert client.get("/fl/client-features/user-1").status_code == 404
+    assert client.get("/fl/client-features/user-2").status_code == 200
+    assert client.delete("/fl/client-features/user-1").status_code == 204
+    assert client.delete("/fl/client-features/never-exported").status_code == 204
+
+
+def test_a_deleted_client_is_excluded_from_the_next_round() -> None:
+    store = ClientFeatureStore()
+    store.put("gone", 1, np.zeros(FEATURE_COUNT))
+    assert store.delete("gone") is True
+    assert store.delete("gone") is False
+    assert "gone" not in store.all()

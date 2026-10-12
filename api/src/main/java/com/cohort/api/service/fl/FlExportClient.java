@@ -34,6 +34,15 @@ public class FlExportClient {
                 .toBodilessEntity();
     }
 
+    /** US-08: forgets this client's exported vector. Idempotent on the fl-service side. */
+    public void delete(UUID userId) {
+        flServiceRestClient
+                .delete()
+                .uri("/fl/client-features/{clientId}", userId)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
     /** Field names are camelCase on purpose -- the app-wide SNAKE_CASE Jackson naming strategy (application.yml) already turns this into the {@code {"schema_version": 1, "features": [...]}} wire shape fl-service's pydantic model expects, matching every other DTO in this codebase. */
     private record ExportRequest(int schemaVersion, double[] features) {
     }

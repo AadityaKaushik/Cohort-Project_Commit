@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api-client'
+import { apiFetch, apiFetchBlob } from '@/lib/api-client'
 
 export interface UserProfile {
   id: string
@@ -18,4 +18,16 @@ export function getMyProfile() {
 
 export function updateMyProfile(input: Partial<Pick<UserProfile, 'email' | 'display_name' | 'target_role' | 'timezone'>> & { graduation_year?: number | null }) {
   return apiFetch<UserProfile>('/users/me', { method: 'PATCH', body: input })
+}
+
+export function changeMyPassword(input: { current_password: string; new_password: string }) {
+  return apiFetch<void>('/users/me/password', { method: 'POST', body: input })
+}
+
+export function exportMyData() {
+  return apiFetchBlob('/users/me/export')
+}
+
+export function deleteMyAccount(confirmation: string) {
+  return apiFetch<void>('/users/me', { method: 'DELETE', body: { confirmation } })
 }

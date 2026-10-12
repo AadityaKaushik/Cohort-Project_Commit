@@ -1,7 +1,4 @@
 import { Route, Routes } from 'react-router-dom'
-import {
-  UserRound,
-} from 'lucide-react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
@@ -19,9 +16,9 @@ import { PrepPage } from '@/pages/prep/PrepPage'
 import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
 import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
 import { PrivacyPage } from '@/pages/privacy/PrivacyPage'
+import { AccountPage } from '@/pages/account/AccountPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
-import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
@@ -59,16 +56,7 @@ function App() {
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
-          <Route
-            path="profile"
-            element={
-              <ComingSoonPage
-                icon={UserRound}
-                title="Profile settings are coming soon"
-                description="Update your details, change your password, or export your data."
-              />
-            }
-          />
+          <Route path="profile" element={<AccountPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />

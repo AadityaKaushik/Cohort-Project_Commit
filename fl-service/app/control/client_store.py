@@ -2,7 +2,7 @@
 
 Java's sanitised export job (`api/.../service/fl/FlFeatureExportJob.java`)
 PUTs one already-sanitised, allow-listed 24-float vector per opted-in user
-here (`POST /fl/client-features/{user_id}`, `app/control/api.py`); the
+here (`PUT /fl/client-features/{user_id}`, `app/control/api.py`); the
 round endpoint (P55) reads from this store rather than requiring every
 `/fl/round` call to re-carry every client's vector.
 
@@ -39,6 +39,10 @@ class ClientFeatureStore:
 
     def get(self, client_id: str) -> ClientFeatures | None:
         return self._by_client.get(client_id)
+
+    def delete(self, client_id: str) -> bool:
+        """US-08: forget a client entirely. Returns whether anything was stored."""
+        return self._by_client.pop(client_id, None) is not None
 
     def all(self) -> dict[str, ClientFeatures]:
         return dict(self._by_client)
