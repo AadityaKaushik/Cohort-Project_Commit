@@ -19,6 +19,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { formatLabel } from '@/lib/labels'
+import { hasErrors, positiveInteger, required, validate } from '@/lib/validation'
 
 const ROUND_TYPES: InterviewRoundType[] = ['OA', 'PHONE_SCREEN', 'TECHNICAL', 'SYSTEM_DESIGN', 'BEHAVIOURAL', 'HR', 'FINAL']
 const MODES: InterviewMode[] = ['onsite', 'video', 'phone']
@@ -106,7 +108,18 @@ export function InterviewFormPage() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
-    setFieldErrors({})
+    const problems = validate(
+      { applicationId: isEditing ? 'existing' : applicationId, roundNumber, durationMinutes },
+      {
+        applicationId: [required('Application')],
+        roundNumber: [required('Round number'), positiveInteger('Round number')],
+        durationMinutes: [positiveInteger('Duration')],
+      },
+    )
+    setFieldErrors(problems)
+    if (hasErrors(problems)) {
+      return
+    }
     mutation.mutate()
   }
 
@@ -176,7 +189,7 @@ export function InterviewFormPage() {
                 <SelectContent>
                   {ROUND_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {type.replace('_', ' ')}
+                      {formatLabel(type)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -200,7 +213,7 @@ export function InterviewFormPage() {
                 <SelectContent>
                   {MODES.map((m) => (
                     <SelectItem key={m} value={m}>
-                      {m}
+                      {formatLabel(m)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -215,6 +228,7 @@ export function InterviewFormPage() {
                 value={durationMinutes}
                 onChange={(event) => setDurationMinutes(event.target.value)}
               />
+              {fieldErrors.durationMinutes && <p className="text-sm text-destructive">{fieldErrors.durationMinutes}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="interviewerName">Interviewer name</Label>
@@ -234,7 +248,7 @@ export function InterviewFormPage() {
             <Button type="button" variant="outline" onClick={() => navigate(-1)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={mutation.isPending || (!isEditing && !applicationId)}>
+            <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Record interview'}
             </Button>
           </div>

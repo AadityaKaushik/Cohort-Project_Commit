@@ -10,12 +10,12 @@ import { Badge } from '@/components/ui/badge'
  */
 function band(score: number): { label: string; className: string } {
   if (score >= 0.7) {
-    return { label: 'Strong', className: 'bg-emerald-100 text-emerald-800 border-transparent dark:bg-emerald-950 dark:text-emerald-300' }
+    return { label: 'Strong', className: 'border-transparent bg-success/10 text-success' }
   }
   if (score >= 0.4) {
-    return { label: 'Developing', className: 'bg-amber-100 text-amber-800 border-transparent dark:bg-amber-950 dark:text-amber-300' }
+    return { label: 'Developing', className: 'border-transparent bg-warning/10 text-warning' }
   }
-  return { label: 'Needs work', className: 'bg-red-100 text-red-800 border-transparent dark:bg-red-950 dark:text-red-300' }
+  return { label: 'Needs work', className: 'border-transparent bg-destructive/10 text-destructive' }
 }
 
 interface MasteryBadgeProps {

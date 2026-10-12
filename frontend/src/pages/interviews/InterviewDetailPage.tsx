@@ -29,6 +29,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { formatLabel } from '@/lib/labels'
 import { EmptyState } from '@/components/shared/EmptyState'
 
 const OUTCOMES: InterviewOutcome[] = ['pending', 'passed', 'failed', 'unknown']
@@ -119,7 +120,7 @@ export function InterviewDetailPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold">
-            {data.company.name} — Round {data.round_number} ({data.round_type.replace('_', ' ')})
+            {data.company.name} — Round {data.round_number} ({formatLabel(data.round_type)})
           </h2>
           <p className="text-sm text-muted-foreground">
             <Link to={`/applications/${data.application_id}`} className="underline-offset-4 hover:underline">
@@ -181,7 +182,7 @@ export function InterviewDetailPage() {
               label="Scheduled"
               value={data.scheduled_at ? format(new Date(data.scheduled_at), 'MMM d, yyyy p') : 'Not scheduled'}
             />
-            <Detail label="Mode" value={data.mode ?? '—'} />
+            <Detail label="Mode" value={formatLabel(data.mode)} />
             <Detail label="Duration" value={data.duration_minutes ? `${data.duration_minutes} min` : '—'} />
             <Detail label="Interviewer" value={data.interviewer_name ?? '—'} />
             {data.notes && (
@@ -205,7 +206,7 @@ export function InterviewDetailPage() {
               <SelectContent>
                 {OUTCOMES.map((outcome) => (
                   <SelectItem key={outcome} value={outcome}>
-                    {outcome}
+                    {formatLabel(outcome)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -235,7 +236,7 @@ export function InterviewDetailPage() {
                 <SelectContent>
                   {CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c.replace('_', ' ')}
+                      {formatLabel(c)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -247,7 +248,7 @@ export function InterviewDetailPage() {
                 <SelectContent>
                   {DIFFICULTIES.map((d) => (
                     <SelectItem key={d} value={d}>
-                      {d}
+                      {formatLabel(d)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -266,8 +267,8 @@ export function InterviewDetailPage() {
                   <div>
                     <p>{question.question_text}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {question.category.replace('_', ' ')}
-                      {question.difficulty ? ` · ${question.difficulty}` : ''}
+                      {formatLabel(question.category)}
+                      {question.difficulty ? ` · ${formatLabel(question.difficulty)}` : ''}
                       {question.self_rating ? ` · self-rating ${question.self_rating}/5` : ''}
                     </p>
                   </div>

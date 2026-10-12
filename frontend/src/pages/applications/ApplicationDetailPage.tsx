@@ -12,6 +12,8 @@ import {
 } from '@/lib/applications-api'
 import { listResumes } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
+import { formatLabel } from '@/lib/labels'
+import { useToast } from '@/hooks/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -48,6 +50,7 @@ export function ApplicationDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { toast } = useToast()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['application', id],
@@ -69,6 +72,7 @@ export function ApplicationDetailPage() {
       setNextStatus(undefined)
       setNote('')
       setStatusError(null)
+      toast({ title: 'Status updated' })
     },
     onError: (mutationError: unknown) => {
       setStatusError(mutationError instanceof ApiError ? mutationError.message : 'Could not change status.')
@@ -79,7 +83,11 @@ export function ApplicationDetailPage() {
     mutationFn: () => deleteApplication(id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] })
+      toast({ title: 'Application deleted' })
       navigate('/applications')
+    },
+    onError: () => {
+      toast({ title: 'Could not delete the application', variant: 'error' })
     },
   })
 
@@ -92,6 +100,10 @@ export function ApplicationDetailPage() {
     mutationFn: (resumeId: string | null) => attachResumeToApplication(id!, resumeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['application', id] })
+      toast({ title: 'Resume updated' })
+    },
+    onError: () => {
+      toast({ title: 'Could not update the resume', variant: 'error' })
     },
   })
 
@@ -121,7 +133,9 @@ export function ApplicationDetailPage() {
 
   const timelineEntries = data.history.map((entry) => ({
     id: entry.id,
-    title: entry.from_status ? `${entry.from_status} → ${entry.to_status}` : `Created as ${entry.to_status}`,
+    title: entry.from_status
+      ? `${formatLabel(entry.from_status)} → ${formatLabel(entry.to_status)}`
+      : `Created as ${formatLabel(entry.to_status)}`,
     description: entry.note,
     timestamp: entry.changed_at,
   }))
@@ -176,11 +190,11 @@ export function ApplicationDetailPage() {
           </CardHeader>
           <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
             <Detail label="Date applied" value={format(new Date(data.date_applied), 'MMM d, yyyy')} />
-            <Detail label="Current stage" value={data.current_stage} />
+            <Detail label="Current stage" value={formatLabel(data.current_stage)} />
             <Detail label="Days in stage" value={String(data.days_in_stage)} />
-            <Detail label="Priority" value={data.priority ?? '—'} />
+            <Detail label="Priority" value={formatLabel(data.priority)} />
             <Detail label="Location" value={data.location ?? '—'} />
-            <Detail label="Work mode" value={data.work_mode ?? '—'} />
+            <Detail label="Work mode" value={formatLabel(data.work_mode)} />
             {data.job_url && (
               <div className="sm:col-span-2">
                 <p className="text-muted-foreground">Job posting</p>
@@ -215,7 +229,7 @@ export function ApplicationDetailPage() {
               <SelectContent>
                 {ALL_STATUSES.filter((option) => option !== data.status).map((option) => (
                   <SelectItem key={option} value={option}>
-                    {option}
+                    {formatLabel(option)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -291,9 +305,9 @@ export function ApplicationDetailPage() {
                     className="flex items-center justify-between rounded-md border p-3 text-sm hover:bg-accent"
                   >
                     <span>
-                      Round {interview.round_number} — {interview.round_type.replace('_', ' ')}
+                      Round {interview.round_number} — {formatLabel(interview.round_type)}
                     </span>
-                    <Badge variant="outline">{interview.outcome}</Badge>
+                    <Badge variant="outline">{formatLabel(interview.outcome)}</Badge>
                   </Link>
                 </li>
               ))}

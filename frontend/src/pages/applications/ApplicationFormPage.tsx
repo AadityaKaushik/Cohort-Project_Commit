@@ -10,6 +10,9 @@ import {
   type ApplicationStatusValue,
 } from '@/lib/applications-api'
 import { ApiError } from '@/lib/api-client'
+import { formatLabel } from '@/lib/labels'
+import { hasErrors, required, url, validate } from '@/lib/validation'
+import { useToast } from '@/hooks/use-toast'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,6 +29,7 @@ export function ApplicationFormPage() {
   const isEditing = Boolean(id)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { toast } = useToast()
 
   const detailQuery = useQuery({
     queryKey: ['application', id],
@@ -59,6 +63,7 @@ export function ApplicationFormPage() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['applications'] })
       queryClient.invalidateQueries({ queryKey: ['application', result.id] })
+      toast({ title: isEditing ? 'Application updated' : 'Application created' })
       navigate(`/applications/${result.id}`)
     },
     onError: (mutationError: unknown) => {
@@ -74,7 +79,19 @@ export function ApplicationFormPage() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
-    setFieldErrors({})
+    const problems = validate(
+      { companyName, jobTitle, dateApplied, jobUrl },
+      {
+        companyName: [required('Company')],
+        jobTitle: [required('Job title')],
+        dateApplied: [required('Date applied')],
+        jobUrl: [url],
+      },
+    )
+    setFieldErrors(problems)
+    if (hasErrors(problems)) {
+      return
+    }
     mutation.mutate({
       company_name: companyName,
       job_title: jobTitle,
@@ -144,7 +161,7 @@ export function ApplicationFormPage() {
                   <SelectContent>
                     {CREATE_STATUS_OPTIONS.map((option) => (
                       <SelectItem key={option} value={option}>
-                        {option}
+                        {formatLabel(option)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -158,6 +175,7 @@ export function ApplicationFormPage() {
             <div className="space-y-2">
               <Label htmlFor="jobUrl">Job URL</Label>
               <Input id="jobUrl" type="url" value={jobUrl} onChange={(event) => setJobUrl(event.target.value)} />
+              {fieldErrors.jobUrl && <p className="text-sm text-destructive">{fieldErrors.jobUrl}</p>}
             </div>
           </div>
           <div className="space-y-2">

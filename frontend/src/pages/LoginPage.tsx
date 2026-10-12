@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate, type Location } from 'react-r
 import { AlertCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
+import { email as emailRule, hasErrors, required, validate } from '@/lib/validation'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,6 +29,14 @@ export function LoginPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
+    const problems = validate(
+      { email, password },
+      { email: [required('Email'), emailRule], password: [required('Password')] },
+    )
+    if (hasErrors(problems)) {
+      setError(problems.email ?? problems.password ?? null)
+      return
+    }
     setIsSubmitting(true)
     try {
       await login(email, password)

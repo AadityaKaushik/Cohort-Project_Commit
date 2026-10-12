@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
+import { email as emailRule, hasErrors, minLength, required, validate } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthFrame } from '@/components/layout/AuthFrame'
@@ -26,7 +27,18 @@ export function RegisterPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
-    setFieldErrors({})
+    const problems = validate(
+      { displayName, email, password },
+      {
+        displayName: [required('Display name')],
+        email: [required('Email'), emailRule],
+        password: [required('Password'), minLength('Password', 10)],
+      },
+    )
+    setFieldErrors(problems)
+    if (hasErrors(problems)) {
+      return
+    }
     setIsSubmitting(true)
     try {
       await register(email, password, displayName)

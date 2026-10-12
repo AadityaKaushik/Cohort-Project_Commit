@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AlertCircleIcon } from 'lucide-react'
 import { createResume, getResume, updateResume, type ResumeFormInput } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
+import { hasErrors, required, validate } from '@/lib/validation'
+import { useToast } from '@/hooks/use-toast'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +19,7 @@ export function ResumeFormPage() {
   const isEditing = Boolean(id)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { toast } = useToast()
 
   const detailQuery = useQuery({
     queryKey: ['resume', id],
@@ -47,6 +50,7 @@ export function ResumeFormPage() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['resumes'] })
       queryClient.invalidateQueries({ queryKey: ['resume', result.id] })
+      toast({ title: isEditing ? 'Resume updated' : 'Resume created' })
       navigate(`/resumes/${result.id}`)
     },
     onError: (mutationError: unknown) => {
@@ -62,7 +66,11 @@ export function ResumeFormPage() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
-    setFieldErrors({})
+    const problems = validate({ name }, { name: [required('Name')] })
+    setFieldErrors(problems)
+    if (hasErrors(problems)) {
+      return
+    }
     mutation.mutate({
       name,
       version_label: versionLabel || null,

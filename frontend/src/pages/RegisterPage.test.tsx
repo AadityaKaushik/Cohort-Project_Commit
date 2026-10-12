@@ -50,9 +50,21 @@ describe('RegisterPage', () => {
   it('maps server field errors onto the offending inputs', async () => {
     register.mockRejectedValueOnce(
       new ApiError(400, 'One or more fields are invalid.', 'VALIDATION_ERROR', {
-        password: 'must be at least 10 characters',
+        password: 'is too common to be used as a password',
       }),
     )
+    const user = userEvent.setup()
+    renderRegisterPage()
+
+    await user.type(screen.getByLabelText(/display name/i), 'Jane Doe')
+    await user.type(screen.getByLabelText(/email/i), 'jane@example.com')
+    await user.type(screen.getByLabelText(/^password/i), 'passwordpassword')
+    await user.click(screen.getByRole('button', { name: /create account/i }))
+
+    expect(await screen.findByText('is too common to be used as a password')).toBeInTheDocument()
+  })
+
+  it('blocks a too-short password before calling the API', async () => {
     const user = userEvent.setup()
     renderRegisterPage()
 
@@ -61,7 +73,8 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText(/^password/i), 'short')
     await user.click(screen.getByRole('button', { name: /create account/i }))
 
-    expect(await screen.findByText('must be at least 10 characters')).toBeInTheDocument()
+    expect(await screen.findByText(/needs at least 10 characters/i)).toBeInTheDocument()
+    expect(register).not.toHaveBeenCalled()
   })
 
   it('shows a generic conflict message without confirming the email is registered', async () => {
