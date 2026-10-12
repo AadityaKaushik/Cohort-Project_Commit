@@ -48,6 +48,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(tableExists(connection, "recommendations")).isTrue();
             assertThat(tableExists(connection, "recommendation_evidence")).isTrue();
             assertThat(tableExists(connection, "notifications")).isTrue();
+            assertThat(tableExists(connection, "report_exports")).isTrue();
             assertThat(columnExists(connection, "users", "email")).isTrue();
             assertThat(columnExists(connection, "refresh_tokens", "token_hash")).isTrue();
             assertThat(columnExists(connection, "companies", "normalized_name")).isTrue();
@@ -75,6 +76,9 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(columnExists(connection, "notifications", "related_entity_id")).isTrue();
             assertThat(columnExists(connection, "notifications", "dedupe_key")).isTrue();
             assertThat(columnExists(connection, "notifications", "is_read")).isTrue();
+            assertThat(columnExists(connection, "report_exports", "file_path")).isTrue();
+            assertThat(columnExists(connection, "report_exports", "date_range_from")).isTrue();
+            assertThat(columnExists(connection, "report_exports", "expires_at")).isTrue();
         }
     }
 
@@ -92,7 +96,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(versions)
                     .containsExactly(
                             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                            "17", "18", "19", "20");
+                            "17", "18", "19", "20", "21");
         }
     }
 
@@ -121,6 +125,39 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
                 assertThat(rs.getLong(1)).as("notifications cascade with their owner").isZero();
             }
         }
+    }
+
+    /**
+     * V21 (FR-102..104): a progress report is PDF-only, a date range can't be
+     * inverted, and exports cascade with their owner (US-08).
+     */
+    @Test
+    void reportExportsConstraintsHold() throws Exception {
+        try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+            statement.execute("INSERT INTO users (email, password_hash) VALUES ('v21@example.com', 'x')");
+            String insert = "INSERT INTO report_exports (user_id, report_type, format, date_range_from, date_range_to, "
+                    + "file_path, file_name, content_type, file_size_bytes, expires_at) "
+                    + "SELECT id, '%s', '%s', %s, %s, 'k', 'f', 'application/pdf', 10, now() + interval '1 day' "
+                    + "FROM users WHERE email = 'v21@example.com'";
+
+            assertThat(statement.executeUpdate(insert.formatted("applications", "csv", "'2026-01-01'", "'2026-02-01'"))).isEqualTo(1);
+            assertThat(statement.executeUpdate(insert.formatted("progress_report", "pdf", "NULL", "NULL"))).isEqualTo(1);
+            assertViolates(statement, insert.formatted("progress_report", "csv", "NULL", "NULL"));
+            assertViolates(statement, insert.formatted("applications", "pdf", "'2026-03-01'", "'2026-02-01'"));
+            assertViolates(statement, insert.formatted("applications", "docx", "NULL", "NULL"));
+
+            statement.execute("DELETE FROM users WHERE email = 'v21@example.com'");
+            try (ResultSet rs = statement.executeQuery("SELECT count(*) FROM report_exports WHERE file_path = 'k'")) {
+                rs.next();
+                assertThat(rs.getLong(1)).as("report exports cascade with their owner").isZero();
+            }
+        }
+    }
+
+    private void assertViolates(java.sql.Statement statement, String sql) {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> statement.executeUpdate(sql))
+                .isInstanceOf(java.sql.SQLException.class)
+                .hasMessageContaining("violates check constraint");
     }
 
     private boolean tableExists(Connection connection, String tableName) throws Exception {
