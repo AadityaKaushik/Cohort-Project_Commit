@@ -5,6 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cohort</title>
+    <script>
+      try {
+        var stored = localStorage.getItem('cohort-theme')
+        var dark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', dark)
+      } catch (e) {}
+    </script>
     <meta name="description" content="Track applications, interviews, and preparation in one place." />
   </head>
   <body>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { requestPasswordReset } from '@/lib/auth-api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AuthFrame } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -27,7 +28,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+    <AuthFrame>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Reset your password</CardTitle>
@@ -68,6 +69,6 @@ export function ForgotPasswordPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </AuthFrame>
   )
 }

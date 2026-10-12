@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { confirmEmailVerification } from '@/lib/auth-api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AuthFrame } from '@/components/layout/AuthFrame'
 
 type State = 'working' | 'verified' | 'failed'
 
@@ -24,7 +25,7 @@ export function VerifyEmailPage() {
   }, [token])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+    <AuthFrame>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Email verification</CardTitle>
@@ -38,6 +39,6 @@ export function VerifyEmailPage() {
           </Link>
         </CardContent>
       </Card>
-    </div>
+    </AuthFrame>
   )
 }

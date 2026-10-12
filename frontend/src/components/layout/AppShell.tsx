@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { AppSidebar } from '@/components/layout/AppSidebar'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { primaryNavItems, secondaryNavItems } from '@/lib/navigation'
 
@@ -27,6 +28,7 @@ export function AppShell() {
           <Separator orientation="vertical" className="h-4" />
           <h1 className="text-sm font-medium">{currentPageTitle(pathname)}</h1>
           <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle className="hidden sm:inline-flex" />
             <NotificationBell />
           </div>
         </header>

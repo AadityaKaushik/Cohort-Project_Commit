@@ -6,6 +6,7 @@ import { ApiError } from '@/lib/api-client'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AuthFrame } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -39,7 +40,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+    <AuthFrame>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Log in to Cohort</CardTitle>
@@ -98,6 +99,6 @@ export function LoginPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </AuthFrame>
   )
 }
