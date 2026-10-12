@@ -2,6 +2,7 @@ import {
   BarChart3,
   Briefcase,
   FileText,
+  FileDown,
   LayoutDashboard,
   MessagesSquare,
   PencilLine,
@@ -29,6 +30,7 @@ export const primaryNavItems: NavItem[] = [
   { label: 'Interview Prep', path: '/prep', icon: PencilLine },
   { label: 'Analytics', path: '/analytics', icon: BarChart3 },
   { label: 'Recommendations', path: '/recommendations', icon: Sparkles },
+  { label: 'Reports', path: '/reports', icon: FileDown },
   { label: 'Privacy / FL', path: '/privacy', icon: ShieldCheck },
 ]
 

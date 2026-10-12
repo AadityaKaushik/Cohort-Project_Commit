@@ -48,6 +48,17 @@ app:
     # Local disk today (Strategy pattern, US-21); an S3-backed implementation
     # is a drop-in swap behind FileStorageStrategy without touching callers.
     base-dir: ${RESUME_STORAGE_DIR:./data/resumes}
+  report-storage:
+    # US-80 / FR-104: generated PDF/CSV exports. Same storage strategy and
+    # rules as resumes, separate root so the two never share a namespace.
+    base-dir: ${REPORT_STORAGE_DIR:./data/reports}
+  reports:
+    # FR-104 "expiring": how long a generated export stays downloadable
+    # before ReportExpiryJob deletes it (row and file).
+    ttl: ${APP_REPORTS_TTL:P7D}
+    # Oldest exports beyond this many per user are pruned on each new export.
+    max-per-user: ${APP_REPORTS_MAX_PER_USER:20}
+    cleanup-interval: ${APP_REPORTS_CLEANUP_INTERVAL:PT1H}
   notifications:
     # NFR-53 (Strategy): which NotificationChannel implementations deliver
     # notifications, by id, in order. Only `in_app` exists today; an email or

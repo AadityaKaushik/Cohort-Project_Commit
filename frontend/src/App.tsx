@@ -19,6 +19,7 @@ import { PrepPage } from '@/pages/prep/PrepPage'
 import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
 import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
 import { PrivacyPage } from '@/pages/privacy/PrivacyPage'
+import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
 import { LoginPage } from '@/pages/LoginPage'
@@ -56,6 +57,7 @@ function App() {
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="recommendations" element={<RecommendationsPage />} />
           <Route path="privacy" element={<PrivacyPage />} />
+          <Route path="reports" element={<ReportsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route
             path="profile"
