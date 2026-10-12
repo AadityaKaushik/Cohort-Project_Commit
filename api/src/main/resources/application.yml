@@ -48,6 +48,18 @@ app:
     # Local disk today (Strategy pattern, US-21); an S3-backed implementation
     # is a drop-in swap behind FileStorageStrategy without touching callers.
     base-dir: ${RESUME_STORAGE_DIR:./data/resumes}
+  notifications:
+    # NFR-53 (Strategy): which NotificationChannel implementations deliver
+    # notifications, by id, in order. Only `in_app` exists today; an email or
+    # push channel is a new NotificationChannel bean plus an entry here.
+    channels: ${APP_NOTIFICATION_CHANNELS:in_app}
+    detection:
+      # US-76..78: how often NotificationDetectionJob scans every active user
+      # for stalled applications, interviews in the next 24h, and missing
+      # debriefs. Re-runs are idempotent (dedupe key per occurrence), so the
+      # interval only trades reminder latency against DB load.
+      initial-delay: ${APP_NOTIFICATION_DETECTION_INITIAL_DELAY:PT1M}
+      interval: ${APP_NOTIFICATION_DETECTION_INTERVAL:PT15M}
   fl:
     # P51/P52: where fl-service's REST contract lives. In docker-compose.fl.yml
     # this is overridden to http://fl-service:8000 (container-to-container DNS).

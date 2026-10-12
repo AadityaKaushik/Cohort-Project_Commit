@@ -16,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     /** US-57/US-58: the export job's cohort -- re-read every run so an opt-out takes effect from the very next cycle (US-64). */
     List<User> findAllByFlOptInTrue();
+
+    /** US-76..78: whose data the scheduled notification detection job scans. */
+    List<User> findAllByIsActiveTrue();
 }
