@@ -43,6 +43,10 @@ function ConversionCard({ label, rate }: { label: string; rate: ConversionRate }
           </span>
           <SampleSizeBadge sampleSize={rate.denominator} sufficientData={rate.sufficient_data} />
         </div>
+        <p className="text-xs text-muted-foreground">
+          {rate.numerator} moved on, {rate.denominator - rate.numerator} did not
+          {rate.still_open > 0 ? `, ${rate.still_open} still waiting` : ''}
+        </p>
       </CardContent>
     </Card>
   )

@@ -42,23 +42,28 @@ public class AnalyticsSummaryCalculator {
                 counts.reachedFinal(), counts.reachedOffer(), result.sampleSize());
     }
 
+    /** The applied population is the funnel's own definition (status other than saved), so every card reconciles with the funnel counts. */
     public ConversionRatesResponse conversions(List<ApplicationSnapshot> snapshots) {
-        long appliedResolved = resolvedAtStage(snapshots, ApplicationStatus.APPLIED);
-        long reachedOaResolved = resolvedAtStage(snapshots, ApplicationStatus.OA);
-        long reachedInterviewResolved = resolvedAtStage(snapshots, ApplicationStatus.INTERVIEW);
-        long reachedFinalResolved = resolvedAtStage(snapshots, ApplicationStatus.FINAL_ROUND);
-
+        long reachedApplied = snapshots.stream().filter(s -> s.status() != ApplicationStatus.SAVED).count();
         long reachedOa = reachedCount(snapshots, ApplicationStatus.OA);
         long reachedInterview = reachedCount(snapshots, ApplicationStatus.INTERVIEW);
         long reachedFinal = reachedCount(snapshots, ApplicationStatus.FINAL_ROUND);
         long reachedOffer = reachedCount(snapshots, ApplicationStatus.OFFER);
 
+        long appliedResolved = snapshots.stream()
+                .filter(s -> s.status() != ApplicationStatus.SAVED)
+                .filter(s -> !(s.currentStage() == ApplicationStatus.APPLIED && !s.status().isTerminal()))
+                .count();
+        long oaResolved = resolvedAtStage(snapshots, ApplicationStatus.OA);
+        long interviewResolved = resolvedAtStage(snapshots, ApplicationStatus.INTERVIEW);
+        long finalResolved = resolvedAtStage(snapshots, ApplicationStatus.FINAL_ROUND);
+
         return new ConversionRatesResponse(
-                rate(reachedOa, appliedResolved),
-                rate(reachedInterview, reachedOaResolved),
-                rate(reachedFinal, reachedInterviewResolved),
-                rate(reachedOffer, reachedFinalResolved),
-                rate(reachedOffer, appliedResolved));
+                rate(reachedOa, appliedResolved, reachedApplied - appliedResolved),
+                rate(reachedInterview, oaResolved, reachedOa - oaResolved),
+                rate(reachedFinal, interviewResolved, reachedInterview - interviewResolved),
+                rate(reachedOffer, finalResolved, reachedFinal - finalResolved),
+                rate(reachedOffer, appliedResolved, reachedApplied - appliedResolved));
     }
 
     public RejectionDistributionResponse rejectionDistribution(List<ApplicationSnapshot> snapshots, Instant now) {
@@ -100,8 +105,8 @@ public class AnalyticsSummaryCalculator {
         return snapshots.stream().filter(s -> s.isResolvedAtStage(stage)).count();
     }
 
-    private ConversionRateView rate(long numerator, long denominator) {
+    private ConversionRateView rate(long numerator, long denominator, long stillOpen) {
         AnalyticsResult<Double> result = conversionRateMetric.evaluate(new ConversionRateMetric.Input(numerator, denominator));
-        return ConversionRateView.from(result, numerator, denominator);
+        return ConversionRateView.from(result, numerator, denominator, stillOpen);
     }
 }

@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, LabelList, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { FunnelIcon } from 'lucide-react'
 import type { Funnel } from '@/lib/analytics-api'
 
@@ -35,11 +35,12 @@ export function FunnelChart({ funnel }: { funnel: Funnel }) {
 
   return (
     <div data-testid="funnel-chart">
-      <div className="h-[260px] w-full overflow-x-auto">
-        <BarChart width={640} height={260} data={data} layout="vertical" margin={{ left: 16, right: 24 }}>
+      <div className="h-[260px] w-full">
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height: 260 }}>
+        <BarChart data={data} layout="vertical" margin={{ left: 8, right: 28 }}>
           <CartesianGrid horizontal={false} stroke="var(--color-border)" />
           <XAxis type="number" allowDecimals={false} stroke="var(--color-muted-foreground)" fontSize={12} />
-          <YAxis type="category" dataKey="stage" width={90} stroke="var(--color-muted-foreground)" fontSize={12} />
+          <YAxis type="category" dataKey="stage" width={84} stroke="var(--color-muted-foreground)" fontSize={12} />
           <Tooltip
             cursor={{ fill: 'var(--color-muted)' }}
             contentStyle={{ background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: 8 }}
@@ -49,11 +50,12 @@ export function FunnelChart({ funnel }: { funnel: Funnel }) {
             <LabelList dataKey="count" position="right" fill="var(--color-foreground)" fontSize={12} />
           </Bar>
         </BarChart>
+        </ResponsiveContainer>
       </div>
       {/* A plain-text equivalent of the chart above -- never colour- or
           hover-only, and robust for screen readers/low vision the same way
           MasteryBadge's plain-language labels are (US-41's own precedent). */}
-      <dl data-testid="funnel-summary" className="mt-3 grid grid-cols-5 gap-2 text-center text-xs">
+      <dl data-testid="funnel-summary" className="mt-3 grid grid-cols-3 gap-2 text-center text-xs sm:grid-cols-5">
         {data.map((point) => (
           <div key={point.stage}>
             <dt className="text-muted-foreground">{point.stage}</dt>

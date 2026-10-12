@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export interface DataTableColumn<T> {
@@ -36,6 +37,32 @@ export function DataTable<T>({
   direction,
   onSortChange,
 }: DataTableProps<T>) {
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <ul className="space-y-2" data-testid="data-cards">
+        {data.map((row) => (
+          <li
+            key={getRowId(row)}
+            className={cn('rounded-lg border bg-card p-3 text-sm', onRowClick && 'cursor-pointer active:bg-muted')}
+            onClick={() => onRowClick?.(row)}
+          >
+            <div className="font-medium">{columns[0].render(row)}</div>
+            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2">
+              {columns.slice(1).map((column) => (
+                <div key={column.key} className="min-w-0">
+                  <dt className="text-xs text-muted-foreground">{column.header}</dt>
+                  <dd className="truncate">{column.render(row)}</dd>
+                </div>
+              ))}
+            </dl>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
   return (
     <div className="overflow-hidden rounded-md border">
       <Table>

@@ -16,6 +16,8 @@ export interface ConversionRate {
   formatted: string
   numerator: number
   denominator: number
+  /** Reached the source stage and still waiting there: in neither numerator nor denominator. */
+  still_open: number
   sufficient_data: boolean
 }
 

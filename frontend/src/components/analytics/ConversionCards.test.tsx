@@ -5,11 +5,11 @@ import type { ConversionRates } from '@/lib/analytics-api'
 
 function sampleRates(overrides: Partial<ConversionRates> = {}): ConversionRates {
   return {
-    application_to_oa: { value: 0.6, formatted: '60.0%', numerator: 6, denominator: 10, sufficient_data: true },
-    oa_to_interview: { value: 0.5, formatted: '50.0%', numerator: 3, denominator: 6, sufficient_data: true },
-    interview_to_final: { value: 0.5, formatted: 'insufficient data', numerator: 1, denominator: 2, sufficient_data: false },
-    final_to_offer: { value: 1.0, formatted: 'insufficient data', numerator: 1, denominator: 1, sufficient_data: false },
-    overall_success: { value: 0.1, formatted: '10.0%', numerator: 1, denominator: 10, sufficient_data: true },
+    application_to_oa: { value: 0.6, formatted: '60.0%', numerator: 6, denominator: 10, still_open: 0, sufficient_data: true },
+    oa_to_interview: { value: 0.5, formatted: '50.0%', numerator: 3, denominator: 6, still_open: 0, sufficient_data: true },
+    interview_to_final: { value: 0.5, formatted: 'insufficient data', numerator: 1, denominator: 2, still_open: 0, sufficient_data: false },
+    final_to_offer: { value: 1.0, formatted: 'insufficient data', numerator: 1, denominator: 1, still_open: 0, sufficient_data: false },
+    overall_success: { value: 0.1, formatted: '10.0%', numerator: 1, denominator: 10, still_open: 0, sufficient_data: true },
     ...overrides,
   }
 }

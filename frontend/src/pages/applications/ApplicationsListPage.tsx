@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { AlertCircleIcon, BriefcaseIcon, PlusIcon } from 'lucide-react'
+import { formatLabel } from '@/lib/labels'
 import { listApplications, type ApplicationSummary } from '@/lib/applications-api'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -11,15 +12,6 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 
 const PAGE_SIZE = 25
-
-const STAGE_LABELS: Record<string, string> = {
-  SAVED: 'Saved',
-  APPLIED: 'Applied',
-  OA: 'OA',
-  INTERVIEW: 'Interview',
-  FINAL_ROUND: 'Final Round',
-  OFFER: 'Offer',
-}
 
 type SortKey = 'date_applied' | 'status' | 'priority' | 'days_in_stage'
 
@@ -64,7 +56,7 @@ export function ApplicationsListPage() {
     {
       key: 'current_stage',
       header: 'Stage',
-      render: (row) => STAGE_LABELS[row.current_stage] ?? row.current_stage,
+      render: (row) => formatLabel(row.current_stage),
     },
     {
       key: 'days_in_stage',
@@ -82,7 +74,7 @@ export function ApplicationsListPage() {
       key: 'priority',
       header: 'Priority',
       sortKey: 'priority',
-      render: (row) => row.priority ?? '—',
+      render: (row) => formatLabel(row.priority),
     },
   ]
 

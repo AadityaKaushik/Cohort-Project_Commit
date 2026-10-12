@@ -8,6 +8,21 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
+const PLAIN_LANGUAGE_POINTS = [
+  {
+    title: 'What leaves your account',
+    body: 'A short list of bounded numbers that describe how your preparation is going, such as an average mastery score. Never your resumes, notes, company names or anything you typed.',
+  },
+  {
+    title: 'How it is protected',
+    body: 'Before anything is sent, the numbers are capped to a fixed size and blurred with random noise, so no single person can be picked out of the shared result.',
+  },
+  {
+    title: 'What you get back',
+    body: 'Benchmarks learned from the whole cohort, used to improve recommendations. You can switch this off at any time, and the ledger below shows everything that was ever sent.',
+  },
+]
+
 /**
  * US-57/US-64: the opt-in consent screen. Shows the exact feature schema
  * (not a paraphrase of it) so "what is sent" is verifiable, not just
@@ -45,6 +60,22 @@ export function PrivacyPage() {
           reversible at any time.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium">In plain language</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid gap-4 sm:grid-cols-3">
+            {PLAIN_LANGUAGE_POINTS.map((point) => (
+              <div key={point.title}>
+                <dt className="text-sm font-medium">{point.title}</dt>
+                <dd className="mt-1 text-sm text-muted-foreground">{point.body}</dd>
+              </div>
+            ))}
+          </dl>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">

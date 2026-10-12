@@ -30,7 +30,7 @@ function sampleFunnel(): Funnel {
 }
 
 function sampleRates(): ConversionRates {
-  const rate = { value: 0.5, formatted: '50.0%', numerator: 5, denominator: 10, sufficient_data: true }
+  const rate = { value: 0.5, formatted: '50.0%', numerator: 5, denominator: 10, still_open: 0, sufficient_data: true }
   return {
     application_to_oa: rate,
     oa_to_interview: rate,

@@ -1,4 +1,4 @@
-import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ActivityIcon } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import type { Timeline } from '@/lib/analytics-api'
@@ -28,8 +28,9 @@ export function ActivityTimelineChart({ timeline }: { timeline: Timeline }) {
   }))
 
   return (
-    <div data-testid="activity-timeline-chart" className="h-[240px] w-full overflow-x-auto">
-      <LineChart width={640} height={240} data={data} margin={{ left: 8, right: 16, top: 8 }}>
+    <div data-testid="activity-timeline-chart" className="h-[280px] w-full">
+      <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height: 280 }}>
+      <LineChart data={data} margin={{ left: 0, right: 16, top: 8 }}>
         <CartesianGrid vertical={false} stroke="var(--color-border)" />
         <XAxis dataKey="week" stroke="var(--color-muted-foreground)" fontSize={12} />
         <YAxis allowDecimals={false} stroke="var(--color-muted-foreground)" fontSize={12} />
@@ -37,19 +38,11 @@ export function ActivityTimelineChart({ timeline }: { timeline: Timeline }) {
           contentStyle={{ background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: 8 }}
           labelStyle={{ color: 'var(--color-foreground)' }}
         />
+        <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
         <Line type="monotone" dataKey="applications" name="Applications" stroke="var(--color-chart-1)" strokeWidth={2} dot={false} />
         <Line type="monotone" dataKey="interviews" name="Interviews" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} />
       </LineChart>
-      <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--color-chart-1)' }} />
-          Applications
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--color-chart-2)' }} />
-          Interviews
-        </span>
-      </div>
+      </ResponsiveContainer>
     </div>
   )
 }

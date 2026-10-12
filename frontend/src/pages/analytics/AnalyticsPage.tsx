@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { AlertCircleIcon } from 'lucide-react'
 import { getConversionRates, getFunnel, getRejectionDistribution, getTimeline, type RejectionDistribution } from '@/lib/analytics-api'
+import { formatLabel } from '@/lib/labels'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -88,7 +89,7 @@ function RejectionDistributionList({ distribution }: { distribution: RejectionDi
     <ul className="space-y-1.5 text-sm">
       {stages.map(([stage, count]) => (
         <li key={stage} className="flex items-center justify-between">
-          <span className="text-muted-foreground">Rejected after {stage}</span>
+          <span className="text-muted-foreground">Rejected after {formatLabel(stage)}</span>
           <span className="font-medium">{count}</span>
         </li>
       ))}
