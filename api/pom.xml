@@ -78,6 +78,14 @@
       <artifactId>resilience4j-spring-boot3</artifactId>
       <version>2.4.0</version>
     </dependency>
+    <dependency>
+      <!-- P63 (US-80, FR-102/103): PDF rendering for report exports.
+           OpenPDF is the LGPL/MPL-licensed fork of iText 4, so it carries no
+           AGPL obligations, and needs no native dependencies. -->
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>2.4.0</version>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>

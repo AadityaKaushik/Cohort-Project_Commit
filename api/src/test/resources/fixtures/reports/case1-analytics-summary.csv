@@ -1,0 +1,26 @@
+﻿Section,Metric,Value,Numerator,Denominator,Sample size,Sufficient data,Notes
+Summary,Applications in range,7,,,7,,All dates
+Current status,Applied,2,,,,,
+Current status,Interview,1,,,,,
+Current status,Offer,1,,,,,
+Current status,Rejected,2,,,,,
+Current status,Withdrawn,1,,,,,
+Funnel (ever reached),Applied,7,,,7,,
+Funnel (ever reached),Online assessment,4,,,7,,
+Funnel (ever reached),Interview,3,,,7,,
+Funnel (ever reached),Final round,1,,,7,,
+Funnel (ever reached),Offer,1,,,7,,
+Conversion rate,Applied to online assessment,80.0%,4,5,5,yes,
+Conversion rate,Online assessment to interview,insufficient data,3,4,4,no,Fewer than 5 resolved applications; rate withheld
+Conversion rate,Interview to final round,insufficient data,1,2,2,no,Fewer than 5 resolved applications; rate withheld
+Conversion rate,Final round to offer,insufficient data,1,1,1,no,Fewer than 5 resolved applications; rate withheld
+Conversion rate,Overall: applied to offer,20.0%,1,5,5,yes,
+Median days in stage,Saved,insufficient data,,,0,no,
+Median days in stage,Applied,5.0,,,5,yes,2 still in this stage (excluded)
+Median days in stage,Online assessment,insufficient data,,,3,no,
+Median days in stage,Interview,insufficient data,,,2,no,1 still in this stage (excluded)
+Median days in stage,Final round,insufficient data,,,1,no,
+Median days in stage,Offer,insufficient data,,,0,no,1 still in this stage (excluded)
+Rejected at stage,Applied,1,,,2,no,
+Rejected at stage,Online assessment,1,,,2,no,
+No response,Open with no activity for 60+ days,1,,,,,Counted separately from rejections

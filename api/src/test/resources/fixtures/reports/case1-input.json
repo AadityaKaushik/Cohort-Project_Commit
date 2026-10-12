@@ -1,0 +1,28 @@
+{
+  "_comment": "P63 golden fixture for ReportBuilder. Seven applications covering: a referral, a comma and a double quote in text fields (CSV quoting), a formula-injection company name, closed applications (rejected, withdrawn), an offer, and a long-open application that lands in the 'no response' bucket. Every history step happens at 10:00Z; the report is generated at 2026-09-25T12:00:00Z.",
+  "generatedAt": "2026-09-25T12:00:00Z",
+  "owner": "Asha Rao",
+  "applications": [
+    {"company": "Acme Corp", "title": "Backend Engineer", "dateApplied": "2026-09-01", "location": "London", "workMode": "hybrid", "priority": "high", "source": "LinkedIn", "referral": true, "interviews": 2,
+     "status": "INTERVIEW", "currentStage": "INTERVIEW",
+     "history": [["APPLIED", "2026-09-01"], ["OA", "2026-09-05"], ["INTERVIEW", "2026-09-12"]]},
+    {"company": "Globex", "title": "Platform Engineer", "dateApplied": "2026-08-20", "location": "Remote", "workMode": "remote", "priority": "medium", "source": "Company site", "referral": false, "interviews": 0,
+     "status": "REJECTED", "currentStage": "OA",
+     "history": [["APPLIED", "2026-08-20"], ["OA", "2026-08-25"], ["REJECTED", "2026-09-02"]]},
+    {"company": "Initech", "title": "SRE, Payments", "dateApplied": "2026-07-15", "location": "Berlin", "workMode": "onsite", "priority": "high", "source": "Referral", "referral": true, "interviews": 3,
+     "status": "OFFER", "currentStage": "OFFER",
+     "history": [["APPLIED", "2026-07-15"], ["OA", "2026-07-20"], ["INTERVIEW", "2026-07-28"], ["FINAL_ROUND", "2026-08-10"], ["OFFER", "2026-08-20"]]},
+    {"company": "Umbrella", "title": "\"Data\" Engineer", "dateApplied": "2026-06-10", "location": null, "workMode": null, "priority": "low", "source": null, "referral": false, "interviews": 1,
+     "status": "WITHDRAWN", "currentStage": "INTERVIEW",
+     "history": [["APPLIED", "2026-06-10"], ["INTERVIEW", "2026-06-20"], ["WITHDRAWN", "2026-07-01"]]},
+    {"company": "=HYPERLINK(\"http://evil.example\")", "title": "Intern", "dateApplied": "2026-09-20", "location": "Paris", "workMode": "onsite", "priority": null, "source": "Job board", "referral": false, "interviews": 0,
+     "status": "APPLIED", "currentStage": "APPLIED",
+     "history": [["APPLIED", "2026-09-20"]]},
+    {"company": "Hooli", "title": "Frontend Engineer", "dateApplied": "2026-05-01", "location": "Remote", "workMode": "remote", "priority": "medium", "source": "LinkedIn", "referral": false, "interviews": 0,
+     "status": "APPLIED", "currentStage": "APPLIED",
+     "history": [["APPLIED", "2026-05-01"]]},
+    {"company": "Stark Industries", "title": "ML Engineer", "dateApplied": "2026-09-10", "location": "New York", "workMode": "onsite", "priority": "high", "source": "LinkedIn", "referral": false, "interviews": 0,
+     "status": "REJECTED", "currentStage": "APPLIED",
+     "history": [["APPLIED", "2026-09-10"], ["REJECTED", "2026-09-15"]]}
+  ]
+}
