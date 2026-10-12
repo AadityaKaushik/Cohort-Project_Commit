@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { UserMenu } from '@/components/layout/UserMenu'
 import { primaryNavItems, secondaryNavItems, type NavItem } from '@/lib/navigation'
 import {
   Sidebar,
@@ -71,6 +72,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <NavGroup items={secondaryNavItems} />
+        <UserMenu />
       </SidebarFooter>
 
       <SidebarRail />

@@ -37,3 +37,53 @@ export const primaryNavItems: NavItem[] = [
 export const secondaryNavItems: NavItem[] = [
   { label: 'Profile', path: '/profile', icon: UserRound },
 ]
+
+export interface Crumb {
+  label: string
+  path?: string
+}
+
+const SECTION_LABELS: Record<string, string> = {
+  applications: 'Applications',
+  resumes: 'Resumes',
+  interviews: 'Interviews',
+  prep: 'Interview Prep',
+  analytics: 'Analytics',
+  recommendations: 'Recommendations',
+  reports: 'Reports',
+  privacy: 'Privacy / FL',
+  notifications: 'Notifications',
+  profile: 'Profile',
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  new: 'New',
+  edit: 'Edit',
+  debrief: 'Debrief',
+}
+
+export function breadcrumbsFor(pathname: string): Crumb[] {
+  const segments = pathname.split('/').filter(Boolean)
+  if (segments.length === 0) {
+    return [{ label: 'Dashboard' }]
+  }
+  const sectionPath = `/${segments[0]}`
+  const section: Crumb = { label: SECTION_LABELS[segments[0]] ?? 'Cohort', path: sectionPath }
+  if (segments.length === 1) {
+    return [{ label: section.label }]
+  }
+  const crumbs: Crumb[] = [section]
+  let path = sectionPath
+  segments.slice(1).forEach((segment, index, rest) => {
+    path = `${path}/${segment}`
+    const label = ACTION_LABELS[segment] ?? 'Details'
+    const isLast = index === rest.length - 1
+    crumbs.push(isLast ? { label } : { label, path })
+  })
+  return crumbs
+}
+
+export function pageTitleFor(pathname: string): string {
+  const crumbs = breadcrumbsFor(pathname)
+  return crumbs[crumbs.length - 1].label
+}
