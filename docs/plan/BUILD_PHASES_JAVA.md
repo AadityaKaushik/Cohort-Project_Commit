@@ -141,6 +141,15 @@ Same ownership split as before — P1–P10 map to the same people/epics from th
 
 A UI audit and a product review after Sprint 4 found gaps a real job seeker would hit: no way to log practice from the UI, no logout, no board view, no networking/referral tracking, no job-specific readiness, no AI assistance. Sprints 6–8 close those gaps; Sprint 9 is the original hardening work, moved to the end. Same rules as above: one commit per phase, tests in the same commit, cross-user isolation (404) on every new user-owned endpoint.
 
+### Release milestones
+
+Phase IDs do not change, but the build order does, so the project reaches a complete, standalone state before the AI sprint begins.
+
+| Release | Contents | State when reached |
+|---|---|---|
+| **v1.0 — complete core product** | Sprints 1–6, P121 polish, Sprint 7 (contacts, company pages, offers, search, goals, structured resume editor), then the Sprint 9 hardening phases P104, P122, P123, P66, P67, P114, P119 | A finished job-search campaign manager with federated cohort learning and a Privacy Ledger. Everything works without any AI feature. Security suite, accessibility pass, privacy pages, sample data and guided tour are in. Tagged `v1.0`. |
+| **v1.1 — AI and intelligence** | Sprint 8 (P90–P103, P110, P111) | Adds the local-model assistant and AI features, cohort benchmarks and the budget meter. P66 is re-run so the security suite covers the new endpoints. |
+
 ### Extension user stories
 
 | ID | Story |
