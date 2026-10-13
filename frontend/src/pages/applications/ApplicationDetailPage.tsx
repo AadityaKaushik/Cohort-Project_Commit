@@ -26,25 +26,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { NativeSelect } from '@/components/ui/native-select'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Timeline } from '@/components/shared/Timeline'
-
-const ALL_STATUSES: ApplicationStatusValue[] = [
-  'SAVED',
-  'APPLIED',
-  'OA',
-  'INTERVIEW',
-  'FINAL_ROUND',
-  'OFFER',
-  'REJECTED',
-  'WITHDRAWN',
-  'ACCEPTED',
-  'DECLINED',
-]
 
 export function ApplicationDetailPage() {
   const { id } = useParams()
@@ -58,7 +46,7 @@ export function ApplicationDetailPage() {
     enabled: Boolean(id),
   })
 
-  const [nextStatus, setNextStatus] = useState<ApplicationStatusValue | undefined>(undefined)
+  const [nextStatus, setNextStatus] = useState<ApplicationStatusValue | ''>('')
   const [note, setNote] = useState('')
   const [statusError, setStatusError] = useState<string | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -69,7 +57,7 @@ export function ApplicationDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['application', id] })
       queryClient.invalidateQueries({ queryKey: ['applications'] })
-      setNextStatus(undefined)
+      setNextStatus('')
       setNote('')
       setStatusError(null)
       toast({ title: 'Status updated' })
@@ -130,6 +118,8 @@ export function ApplicationDetailPage() {
       />
     )
   }
+
+  const needsNote = nextStatus !== '' && (data.correction_statuses as string[]).includes(nextStatus)
 
   const timelineEntries = data.history.map((entry) => ({
     id: entry.id,
@@ -194,6 +184,19 @@ export function ApplicationDetailPage() {
             <Detail label="Days in stage" value={String(data.days_in_stage)} />
             <Detail label="Priority" value={formatLabel(data.priority)} />
             <Detail label="Location" value={data.location ?? '—'} />
+            <Detail label="Job type" value={formatLabel(data.job_type)} />
+            <Detail
+              label="Salary"
+              value={
+                data.salary_min !== null || data.salary_max !== null
+                  ? `${data.salary_min ?? '?'} to ${data.salary_max ?? '?'} ${data.salary_currency ?? ''}`.trim()
+                  : '—'
+              }
+            />
+            <Detail label="Source" value={data.source ?? '—'} />
+            <Detail label="Referral" value={data.is_referral ? 'Yes' : 'No'} />
+            <Detail label="Deadline" value={data.deadline ? format(new Date(data.deadline), 'MMM d, yyyy') : '—'} />
+            <Detail label="Recruiter" value={[data.recruiter_name, data.recruiter_email].filter(Boolean).join(' · ') || '—'} />
             <Detail label="Work mode" value={formatLabel(data.work_mode)} />
             {data.job_url && (
               <div className="sm:col-span-2">
@@ -208,10 +211,22 @@ export function ApplicationDetailPage() {
                 </a>
               </div>
             )}
+            {data.job_description && (
+              <div className="sm:col-span-2">
+                <p className="text-muted-foreground">Job description</p>
+                <p className="whitespace-pre-wrap">{data.job_description}</p>
+              </div>
+            )}
             {data.notes && (
               <div className="sm:col-span-2">
                 <p className="text-muted-foreground">Notes</p>
                 <p className="whitespace-pre-wrap">{data.notes}</p>
+              </div>
+            )}
+            {data.cover_letter && (
+              <div className="sm:col-span-2">
+                <p className="text-muted-foreground">Cover letter</p>
+                <p className="whitespace-pre-wrap">{data.cover_letter}</p>
               </div>
             )}
           </CardContent>
@@ -222,30 +237,58 @@ export function ApplicationDetailPage() {
             <CardTitle>Change status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Select value={nextStatus} onValueChange={(value) => setNextStatus(value as ApplicationStatusValue)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a status" />
-              </SelectTrigger>
-              <SelectContent>
-                {ALL_STATUSES.filter((option) => option !== data.status).map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {formatLabel(option)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Textarea
-              placeholder="Optional note (required to move backward as a correction)"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              rows={2}
-            />
+            {data.allowed_next_statuses.length === 0 && data.correction_statuses.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                This application is closed, so its status can no longer change.
+              </p>
+            ) : (
+              <>
+                <label htmlFor="next-status" className="sr-only">
+                  New status
+                </label>
+                <NativeSelect
+                  id="next-status"
+                  value={nextStatus}
+                  onChange={(event) => {
+                    setNextStatus(event.target.value as ApplicationStatusValue | '')
+                    setStatusError(null)
+                  }}
+                >
+                  <option value="">Choose a status</option>
+                  {data.allowed_next_statuses.map((option) => (
+                    <option key={option} value={option}>
+                      {formatLabel(option)}
+                    </option>
+                  ))}
+                  {data.correction_statuses.length > 0 && (
+                    <optgroup label="Move back (note required)">
+                      {data.correction_statuses.map((option) => (
+                        <option key={option} value={option}>
+                          {formatLabel(option)}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </NativeSelect>
+                <Textarea
+                  aria-label="Note"
+                  placeholder={needsNote ? 'Why are you moving this back? (required)' : 'Optional note'}
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  rows={2}
+                />
+              </>
+            )}
             {statusError && (
               <p role="alert" className="text-sm text-destructive">
                 {statusError}
               </p>
             )}
-            <Button className="w-full" disabled={!nextStatus || statusMutation.isPending} onClick={() => statusMutation.mutate()}>
+            <Button
+              className="w-full"
+              disabled={!nextStatus || statusMutation.isPending || (needsNote && note.trim() === '')}
+              onClick={() => statusMutation.mutate()}
+            >
               {statusMutation.isPending ? 'Updating…' : 'Update status'}
             </Button>
           </CardContent>

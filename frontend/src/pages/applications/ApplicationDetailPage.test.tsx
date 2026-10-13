@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
@@ -71,5 +72,57 @@ describe('ApplicationDetailPage', () => {
     expect(text).not.toMatch(/[A-Z]{2,}_[A-Z]+/)
     expect(text).not.toMatch(/\b[a-z]+_[a-z]+\b/)
     expect(text).toContain('Phone Screen')
+  })
+})
+
+describe('ApplicationDetailPage status controls', () => {
+  function renderDetail() {
+    return render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={['/applications/a1']}>
+          <Routes>
+            <Route path="/applications/:id" element={<ApplicationDetailPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+  }
+
+  beforeEach(() => {
+    vi.mocked(applicationsApi.getApplication).mockResolvedValue({
+      ...detail,
+      status: 'OA',
+      allowed_next_statuses: ['INTERVIEW', 'REJECTED'],
+      correction_statuses: ['APPLIED'],
+    })
+    vi.mocked(resumesApi.listResumes).mockResolvedValue({ items: [], total: 0, page: 0, size: 100 })
+  })
+
+  it('offers only the statuses the server allows', async () => {
+    renderDetail()
+
+    const select = await screen.findByLabelText('New status')
+    const options = Array.from(select.querySelectorAll('option')).map((option) => option.textContent)
+    expect(options).toEqual(['Choose a status', 'Interview', 'Rejected', 'Applied'])
+  })
+
+  it('requires a note for a backward move and keeps a readable placeholder afterwards', async () => {
+    vi.mocked(applicationsApi.changeApplicationStatus).mockResolvedValue({ ...detail, status: 'APPLIED' })
+    const user = userEvent.setup()
+    renderDetail()
+
+    await user.selectOptions(await screen.findByLabelText('New status'), 'APPLIED')
+    expect(screen.getByRole('button', { name: 'Update status' })).toBeDisabled()
+
+    await user.type(screen.getByLabelText('Note'), 'logged too early')
+    await user.click(screen.getByRole('button', { name: 'Update status' }))
+
+    await waitFor(() =>
+      expect(applicationsApi.changeApplicationStatus).toHaveBeenCalledWith('a1', {
+        to_status: 'APPLIED',
+        note: 'logged too early',
+      }),
+    )
+    await waitFor(() => expect(screen.getByLabelText('New status')).toHaveValue(''))
   })
 })

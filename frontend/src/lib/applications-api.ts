@@ -128,6 +128,12 @@ export interface ListApplicationsParams {
   size?: number
   sort?: 'date_applied' | 'status' | 'priority' | 'days_in_stage'
   direction?: 'asc' | 'desc'
+  status?: ApplicationStatusValue
+  priority?: Priority
+  work_mode?: WorkMode
+  date_from?: string
+  date_to?: string
+  q?: string
 }
 
 export function listApplications(params: ListApplicationsParams = {}) {
@@ -136,6 +142,12 @@ export function listApplications(params: ListApplicationsParams = {}) {
   if (params.size !== undefined) query.set('size', String(params.size))
   if (params.sort) query.set('sort', params.sort)
   if (params.direction) query.set('direction', params.direction)
+  if (params.status) query.set('status', params.status)
+  if (params.priority) query.set('priority', params.priority)
+  if (params.work_mode) query.set('work_mode', params.work_mode)
+  if (params.date_from) query.set('date_from', params.date_from)
+  if (params.date_to) query.set('date_to', params.date_to)
+  if (params.q) query.set('q', params.q)
   const queryString = query.toString()
   return apiFetch<PagedResponse<ApplicationSummary>>(`/applications${queryString ? `?${queryString}` : ''}`)
 }

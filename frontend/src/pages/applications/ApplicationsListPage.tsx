@@ -1,12 +1,18 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { AlertCircleIcon, BriefcaseIcon, KanbanIcon, PlusIcon } from 'lucide-react'
+import { BriefcaseIcon, KanbanIcon, PlusIcon, SearchXIcon } from 'lucide-react'
 import { formatLabel } from '@/lib/labels'
 import { listApplications, type ApplicationSummary } from '@/lib/applications-api'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  ApplicationFilterBar,
+  NO_FILTERS,
+  hasActiveFilters,
+  type ApplicationFilters,
+} from '@/components/applications/ApplicationFilterBar'
+import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
 import { DataTable, type DataTableColumn } from '@/components/shared/DataTable'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -23,10 +29,47 @@ export function ApplicationsListPage() {
   const sort = (searchParams.get('sort') as SortKey | null) ?? 'date_applied'
   const direction = (searchParams.get('direction') as 'asc' | 'desc' | null) ?? 'desc'
 
+  const filters: ApplicationFilters = {
+    q: searchParams.get('q') ?? '',
+    status: (searchParams.get('status') as ApplicationFilters['status'] | null) ?? '',
+    priority: (searchParams.get('priority') as ApplicationFilters['priority'] | null) ?? '',
+    work_mode: (searchParams.get('work_mode') as ApplicationFilters['work_mode'] | null) ?? '',
+    date_from: searchParams.get('date_from') ?? '',
+    date_to: searchParams.get('date_to') ?? '',
+  }
+
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['applications', page, sort, direction],
-    queryFn: () => listApplications({ page, size: PAGE_SIZE, sort, direction }),
+    queryKey: ['applications', page, sort, direction, filters],
+    queryFn: () =>
+      listApplications({
+        page,
+        size: PAGE_SIZE,
+        sort,
+        direction,
+        q: filters.q || undefined,
+        status: filters.status || undefined,
+        priority: filters.priority || undefined,
+        work_mode: filters.work_mode || undefined,
+        date_from: filters.date_from || undefined,
+        date_to: filters.date_to || undefined,
+      }),
   })
+
+  const handleFiltersChange = useCallback(
+    (next: ApplicationFilters) => {
+      const params = new URLSearchParams(searchParams)
+      for (const [key, value] of Object.entries(next)) {
+        if (value) {
+          params.set(key, value)
+        } else {
+          params.delete(key)
+        }
+      }
+      params.set('page', '0')
+      setSearchParams(params)
+    },
+    [searchParams, setSearchParams],
+  )
 
   function updateParams(next: Record<string, string>) {
     const params = new URLSearchParams(searchParams)
@@ -78,43 +121,16 @@ export function ApplicationsListPage() {
     },
   ]
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Applications</h2>
-          <Skeleton className="h-9 w-40" />
-        </div>
-        <div className="space-y-2">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
-          ))}
-        </div>
-      </div>
-    )
-  }
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.size)) : 1
+  const filtered = hasActiveFilters(filters)
+  const isEmpty = !isLoading && !isError && data !== undefined && data.items.length === 0
 
-  if (isError) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircleIcon className="h-4 w-4" />
-        <AlertTitle>Couldn&apos;t load your applications</AlertTitle>
-        <AlertDescription className="flex items-center justify-between gap-4">
-          <span>Something went wrong talking to the server.</span>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Try again
-          </Button>
-        </AlertDescription>
-      </Alert>
-    )
-  }
-
-  if (!data || data.items.length === 0) {
+  if (isEmpty && !filtered) {
     return (
       <EmptyState
         icon={BriefcaseIcon}
         title="No applications yet"
-        description="Track every job you apply to in one place — status, timeline, and all."
+        description="Track every job you apply to in one place: status, timeline, and all."
         action={
           <Button asChild>
             <Link to="/applications/new">
@@ -127,14 +143,14 @@ export function ApplicationsListPage() {
     )
   }
 
-  const totalPages = Math.max(1, Math.ceil(data.total / data.size))
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold">Applications</h2>
-          <p className="text-sm text-muted-foreground">{data.total} total</p>
+          <p className="text-sm text-muted-foreground">
+            {data ? `${data.total} ${filtered ? 'matching' : 'total'}` : 'Loading'}
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
@@ -152,39 +168,50 @@ export function ApplicationsListPage() {
         </div>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data.items}
-        getRowId={(row) => row.id}
-        onRowClick={(row) => navigate(`/applications/${row.id}`)}
-        sort={sort}
-        direction={direction}
-        onSortChange={handleSortChange}
-      />
+      <ApplicationFilterBar filters={filters} onChange={handleFiltersChange} />
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Page {page + 1} of {totalPages}
-        </p>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 0}
-            onClick={() => updateParams({ page: String(page - 1) })}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page + 1 >= totalPages}
-            onClick={() => updateParams({ page: String(page + 1) })}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      {isLoading && <LoadingRows label="Loading applications" />}
+      {isError && <ErrorState title="Couldn't load your applications" onRetry={() => refetch()} />}
+      {isEmpty && (
+        <EmptyState
+          icon={SearchXIcon}
+          title="No applications match these filters"
+          description="Try a different search or clear the filters to see everything."
+          action={
+            <Button variant="outline" onClick={() => handleFiltersChange(NO_FILTERS)}>
+              Clear filters
+            </Button>
+          }
+        />
+      )}
+
+      {data && data.items.length > 0 && (
+        <>
+          <DataTable
+            columns={columns}
+            data={data.items}
+            getRowId={(row) => row.id}
+            onRowClick={(row) => navigate(`/applications/${row.id}`)}
+            sort={sort}
+            direction={direction}
+            onSortChange={handleSortChange}
+          />
+
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Page {page + 1} of {totalPages}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => updateParams({ page: String(page - 1) })}>
+                Previous
+              </Button>
+              <Button variant="outline" size="sm" disabled={page + 1 >= totalPages} onClick={() => updateParams({ page: String(page + 1) })}>
+                Next
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
