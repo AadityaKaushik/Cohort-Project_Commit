@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation, useNavigate, type Location } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams, type Location } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
+import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
 import { email as emailRule, hasErrors, required, validate } from '@/lib/validation'
@@ -15,6 +16,8 @@ export function LoginPage() {
   const { login, isAuthenticated, sessionMessage } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const oauthError = searchParams.get('oauth_error')
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -63,6 +66,20 @@ export function LoginPage() {
               <AlertDescription>{sessionMessage}</AlertDescription>
             </Alert>
           )}
+          {oauthError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Sign-in was not completed</AlertTitle>
+              <AlertDescription>
+                {oauthError === 'unverified_email'
+                  ? 'That provider has not verified your email address, so it cannot be linked to an existing account. Log in with your password instead.'
+                  : oauthError === 'missing_email'
+                    ? 'That provider did not share an email address.'
+                    : 'The provider sign-in did not complete. Please try again.'}
+              </AlertDescription>
+            </Alert>
+          )}
+          <OAuthButtons />
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

@@ -43,3 +43,10 @@ export function confirmEmailVerification(token: string) {
     skipAuth: true,
   })
 }
+
+export type OAuthProvider = 'google' | 'github'
+
+export async function listOAuthProviders(): Promise<OAuthProvider[]> {
+  const response = await apiFetch<{ providers: OAuthProvider[] }>('/auth/oauth/providers', { skipAuth: true })
+  return response.providers
+}

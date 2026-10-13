@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
 import { email as emailRule, hasErrors, minLength, required, validate } from '@/lib/validation'
@@ -63,6 +64,7 @@ export function RegisterPage() {
           <CardDescription>Your data stays private to you, always.</CardDescription>
         </CardHeader>
         <CardContent>
+          <OAuthButtons />
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-2">
               <Label htmlFor="displayName">Display name</Label>
