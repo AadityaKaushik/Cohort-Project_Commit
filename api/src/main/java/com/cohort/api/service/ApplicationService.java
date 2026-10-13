@@ -186,7 +186,10 @@ public class ApplicationService {
         boolean hasCorrectionNote = request.note() != null && !request.note().isBlank();
 
         if (!stateRegistry.canTransition(from, to, hasCorrectionNote)) {
-            throw new InvalidStatusTransitionException(from, to);
+            boolean legalWithNote = stateRegistry.canTransition(from, to, true);
+            throw legalWithNote
+                    ? InvalidStatusTransitionException.correctionNoteRequired(to)
+                    : new InvalidStatusTransitionException(from, to);
         }
 
         application.applyStatusChange(to);

@@ -1,7 +1,7 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { AlertCircleIcon, BriefcaseIcon, PlusIcon } from 'lucide-react'
+import { AlertCircleIcon, BriefcaseIcon, KanbanIcon, PlusIcon } from 'lucide-react'
 import { formatLabel } from '@/lib/labels'
 import { listApplications, type ApplicationSummary } from '@/lib/applications-api'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -136,12 +136,20 @@ export function ApplicationsListPage() {
           <h2 className="text-lg font-semibold">Applications</h2>
           <p className="text-sm text-muted-foreground">{data.total} total</p>
         </div>
-        <Button asChild>
-          <Link to="/applications/new">
-            <PlusIcon className="h-4 w-4" />
-            New application
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/applications/board">
+              <KanbanIcon className="h-4 w-4" />
+              Board
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link to="/applications/new">
+              <PlusIcon className="h-4 w-4" />
+              New application
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <DataTable

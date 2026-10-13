@@ -58,6 +58,7 @@ const SECTION_LABELS: Record<string, string> = {
 
 const ACTION_LABELS: Record<string, string> = {
   new: 'New',
+  board: 'Board',
   edit: 'Edit',
   debrief: 'Debrief',
 }

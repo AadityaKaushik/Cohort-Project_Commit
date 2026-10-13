@@ -38,6 +38,8 @@ const detail: applicationsApi.ApplicationDetail = {
   stage_entered_at: '2026-01-10T00:00:00Z',
   created_at: '2026-01-05T00:00:00Z',
   updated_at: '2026-01-10T00:00:00Z',
+  allowed_next_statuses: [],
+  correction_statuses: [],
   history: [
     { id: 'h1', from_status: 'SAVED', to_status: 'APPLIED', note: null, changed_at: '2026-01-05T00:00:00Z' },
     { id: 'h2', from_status: 'INTERVIEW', to_status: 'FINAL_ROUND', note: null, changed_at: '2026-01-10T00:00:00Z' },

@@ -6,9 +6,11 @@ import com.cohort.api.dto.ApplicationStatusHistoryResponse;
 import com.cohort.api.dto.ApplicationSummary;
 import com.cohort.api.dto.CompanySummary;
 import com.cohort.api.entity.Application;
+import com.cohort.api.entity.ApplicationStatus;
 import com.cohort.api.entity.ApplicationStatusHistory;
 import com.cohort.api.entity.Company;
 import com.cohort.api.entity.Interview;
+import com.cohort.api.service.application.state.ApplicationStatusStateRegistry;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +26,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApplicationMapper {
 
+    private final ApplicationStatusStateRegistry stateRegistry;
+
+    public ApplicationMapper(ApplicationStatusStateRegistry stateRegistry) {
+        this.stateRegistry = stateRegistry;
+    }
+
     public ApplicationSummary toSummary(Application application, Company company) {
         return new ApplicationSummary(
                 application.getId(),
@@ -34,7 +42,9 @@ public class ApplicationMapper {
                 daysInStage(application),
                 application.getDateApplied(),
                 application.getPriority(),
-                application.getArchivedAt() != null);
+                application.getArchivedAt() != null,
+                sorted(stateRegistry.stateFor(application.getStatus()).allowedTransitions()),
+                sorted(stateRegistry.stateFor(application.getStatus()).correctionTransitions()));
     }
 
     public ApplicationDetailResponse toDetail(
@@ -77,7 +87,13 @@ public class ApplicationMapper {
                 application.getCreatedAt(),
                 application.getUpdatedAt(),
                 historyResponse,
-                interviewSummaries);
+                interviewSummaries,
+                sorted(stateRegistry.stateFor(application.getStatus()).allowedTransitions()),
+                sorted(stateRegistry.stateFor(application.getStatus()).correctionTransitions()));
+    }
+
+    private static List<ApplicationStatus> sorted(java.util.Set<ApplicationStatus> statuses) {
+        return statuses.stream().sorted().toList();
     }
 
     private long daysInStage(Application application) {

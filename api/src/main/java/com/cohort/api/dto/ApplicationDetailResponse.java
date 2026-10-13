@@ -40,5 +40,7 @@ public record ApplicationDetailResponse(
         Instant createdAt,
         Instant updatedAt,
         List<ApplicationStatusHistoryResponse> history,
-        List<ApplicationInterviewSummary> interviews) {
+        List<ApplicationInterviewSummary> interviews,
+        List<ApplicationStatus> allowedNextStatuses,
+        List<ApplicationStatus> correctionStatuses) {
 }

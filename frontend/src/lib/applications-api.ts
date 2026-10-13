@@ -34,6 +34,10 @@ export interface ApplicationSummary {
   date_applied: string
   priority: Priority | null
   archived: boolean
+  /** Statuses the State pattern allows next without a note. */
+  allowed_next_statuses: ApplicationStatusValue[]
+  /** Backward moves that are legal only with an explanatory note. */
+  correction_statuses: ApplicationStatusValue[]
 }
 
 export interface ApplicationStatusHistoryEntry {
@@ -85,6 +89,8 @@ export interface ApplicationDetail {
   updated_at: string
   history: ApplicationStatusHistoryEntry[]
   interviews: ApplicationInterviewEntry[]
+  allowed_next_statuses: ApplicationStatusValue[]
+  correction_statuses: ApplicationStatusValue[]
 }
 
 export interface PagedResponse<T> {

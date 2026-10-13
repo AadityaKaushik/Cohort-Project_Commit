@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
 import { ApplicationFormPage } from '@/pages/applications/ApplicationFormPage'
+import { ApplicationsBoardPage } from '@/pages/applications/ApplicationsBoardPage'
 import { ApplicationsListPage } from '@/pages/applications/ApplicationsListPage'
 import { ResumeDetailPage } from '@/pages/resumes/ResumeDetailPage'
 import { ResumeFormPage } from '@/pages/resumes/ResumeFormPage'
@@ -40,6 +41,7 @@ function App() {
           <Route path="applications">
             <Route index element={<ApplicationsListPage />} />
             <Route path="new" element={<ApplicationFormPage />} />
+            <Route path="board" element={<ApplicationsBoardPage />} />
             <Route path=":id" element={<ApplicationDetailPage />} />
             <Route path=":id/edit" element={<ApplicationFormPage />} />
           </Route>

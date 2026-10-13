@@ -31,6 +31,8 @@ function application(overrides: Partial<ApplicationSummary> = {}): ApplicationSu
     date_applied: '2026-01-01',
     priority: null,
     archived: false,
+    allowed_next_statuses: [],
+    correction_statuses: [],
     ...overrides,
   }
 }
