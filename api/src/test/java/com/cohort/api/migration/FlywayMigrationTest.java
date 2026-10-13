@@ -75,6 +75,13 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(columnExists(connection, "report_exports", "expires_at")).isTrue();
             assertThat(columnExists(connection, "auth_tokens", "token_hash")).isTrue();
             assertThat(columnExists(connection, "users", "email_verified_at")).isTrue();
+            assertThat(tableExists(connection, "contacts")).isTrue();
+            assertThat(tableExists(connection, "company_notes")).isTrue();
+            assertThat(tableExists(connection, "offers")).isTrue();
+            assertThat(tableExists(connection, "goals")).isTrue();
+            assertThat(columnExists(connection, "contacts", "referral_status")).isTrue();
+            assertThat(columnExists(connection, "offers", "response_deadline")).isTrue();
+            assertThat(columnExists(connection, "goals", "weekly_target")).isTrue();
         }
     }
 
@@ -92,7 +99,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(versions)
                     .containsExactly(
                             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                            "17", "18", "19", "20", "21", "22", "23", "24");
+                            "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28");
         }
     }
 
@@ -137,6 +144,32 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             try (ResultSet rs = statement.executeQuery("SELECT count(*) FROM report_exports WHERE file_path = 'k'")) {
                 rs.next();
                 assertThat(rs.getLong(1)).as("report exports cascade with their owner").isZero();
+            }
+        }
+    }
+
+    @Test
+    void sprintSevenTableConstraintsHold() throws Exception {
+        try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+            statement.execute("INSERT INTO users (email, password_hash) VALUES ('v25@example.com', 'x')");
+            String uid = "(SELECT id FROM users WHERE email = 'v25@example.com')";
+
+            assertThat(statement.executeUpdate("INSERT INTO contacts (user_id, name, referral_status) VALUES (" + uid + ", 'A', 'requested')")).isEqualTo(1);
+            assertViolates(statement, "INSERT INTO contacts (user_id, name, referral_status) VALUES (" + uid + ", 'B', 'maybe')");
+
+            assertThat(statement.executeUpdate("INSERT INTO goals (user_id, metric, weekly_target) VALUES (" + uid + ", 'applications', 5)")).isEqualTo(1);
+            assertViolates(statement, "INSERT INTO goals (user_id, metric, weekly_target) VALUES (" + uid + ", 'interviews', 0)");
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> statement.executeUpdate(
+                            "INSERT INTO goals (user_id, metric, weekly_target) VALUES (" + uid + ", 'applications', 7)"))
+                    .isInstanceOf(java.sql.SQLException.class);
+
+            assertThat(statement.executeUpdate("INSERT INTO notifications (user_id, type, title, body, related_entity_type, related_entity_id) "
+                    + "VALUES (" + uid + ", 'cold_contact', 't25', 'b', 'contact', gen_random_uuid())")).isEqualTo(1);
+
+            statement.execute("DELETE FROM users WHERE email = 'v25@example.com'");
+            try (ResultSet rs = statement.executeQuery("SELECT count(*) FROM contacts WHERE name = 'A'")) {
+                rs.next();
+                assertThat(rs.getLong(1)).as("contacts cascade with their owner").isZero();
             }
         }
     }
