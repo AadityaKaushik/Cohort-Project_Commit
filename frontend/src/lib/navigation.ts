@@ -22,17 +22,54 @@ export interface NavItem {
   count?: number
 }
 
-export const primaryNavItems: NavItem[] = [
-  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { label: 'Applications', path: '/applications', icon: Briefcase },
-  { label: 'Resumes', path: '/resumes', icon: FileText },
-  { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
-  { label: 'Interview Prep', path: '/prep', icon: PencilLine },
-  { label: 'Analytics', path: '/analytics', icon: BarChart3 },
-  { label: 'Recommendations', path: '/recommendations', icon: Sparkles },
-  { label: 'Reports', path: '/reports', icon: FileDown },
-  { label: 'Privacy / FL', path: '/privacy', icon: ShieldCheck },
+export interface NavGroup {
+  label: string
+  items: NavItem[]
+}
+
+export const navGroups: NavGroup[] = [
+  {
+    label: 'Overview',
+    items: [{ label: 'Dashboard', path: '/', icon: LayoutDashboard }],
+  },
+  {
+    label: 'Job search',
+    items: [
+      { label: 'Applications', path: '/applications', icon: Briefcase },
+      { label: 'Resumes', path: '/resumes', icon: FileText },
+      { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
+    ],
+  },
+  {
+    label: 'Prepare',
+    items: [
+      { label: 'Interview Prep', path: '/prep', icon: PencilLine },
+      { label: 'Recommendations', path: '/recommendations', icon: Sparkles },
+    ],
+  },
+  {
+    label: 'Insights',
+    items: [
+      { label: 'Analytics', path: '/analytics', icon: BarChart3 },
+      { label: 'Reports', path: '/reports', icon: FileDown },
+      { label: 'Privacy / FL', path: '/privacy', icon: ShieldCheck },
+    ],
+  },
 ]
+
+export const primaryNavItems: NavItem[] = navGroups.flatMap((group) => group.items)
+
+/** The four destinations a phone user reaches for most; everything else lives in the drawer. */
+export const mobileNavItems: NavItem[] = ['/', '/applications', '/interviews', '/prep'].map(
+  (path) => primaryNavItems.find((item) => item.path === path)!,
+)
+
+export function isNavItemActive(pathname: string, itemPath: string): boolean {
+  if (itemPath === '/') {
+    return pathname === '/'
+  }
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
+}
 
 export const secondaryNavItems: NavItem[] = [
   { label: 'Profile', path: '/profile', icon: UserRound },

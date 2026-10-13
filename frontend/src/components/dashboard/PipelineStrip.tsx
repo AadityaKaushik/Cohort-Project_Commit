@@ -25,14 +25,32 @@ export function PipelineStrip({ applications }: { applications: ApplicationSumma
     countsByStatus.set(application.status, (countsByStatus.get(application.status) ?? 0) + 1)
   }
 
+  const largest = Math.max(1, ...PIPELINE_STAGES.map(({ status }) => countsByStatus.get(status) ?? 0))
+
   return (
-    <div data-testid="pipeline-strip" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      {PIPELINE_STAGES.map(({ status, label }) => (
-        <Link key={status} to="/applications" className="rounded-lg border p-3 text-center transition-colors hover:bg-accent">
-          <p className="text-2xl font-semibold">{countsByStatus.get(status) ?? 0}</p>
-          <p className="text-xs text-muted-foreground">{label}</p>
-        </Link>
-      ))}
+    <div data-testid="pipeline-strip" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      {PIPELINE_STAGES.map(({ status, label }, index) => {
+        const count = countsByStatus.get(status) ?? 0
+        return (
+          <Link
+            key={status}
+            to="/applications"
+            className="lift group/stage relative flex flex-col gap-3 rounded-xl border bg-card p-3.5 hover:border-primary/30"
+          >
+            <span className="flex items-center justify-between text-xs text-muted-foreground">
+              {label}
+              <span className="font-mono text-[10px] opacity-60">{String(index + 1).padStart(2, '0')}</span>
+            </span>
+            <span className="text-3xl font-semibold tracking-tight tabular-nums">{count}</span>
+            <span className="h-1 overflow-hidden rounded-full bg-muted" aria-hidden>
+              <span
+                className={`animate-grow-x block h-full origin-left rounded-full ${status === 'OFFER' ? 'bg-success' : 'bg-primary'}`}
+                style={{ width: `${(count / largest) * 100}%`, animationDelay: `${index * 60}ms` }}
+              />
+            </span>
+          </Link>
+        )
+      })}
     </div>
   )
 }

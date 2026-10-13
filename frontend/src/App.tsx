@@ -1,34 +1,43 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
-import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
-import { ApplicationFormPage } from '@/pages/applications/ApplicationFormPage'
-import { ApplicationsBoardPage } from '@/pages/applications/ApplicationsBoardPage'
-import { ApplicationsListPage } from '@/pages/applications/ApplicationsListPage'
-import { ResumeDetailPage } from '@/pages/resumes/ResumeDetailPage'
-import { ResumeFormPage } from '@/pages/resumes/ResumeFormPage'
-import { ResumesListPage } from '@/pages/resumes/ResumesListPage'
-import { InterviewDebriefPage } from '@/pages/interviews/InterviewDebriefPage'
-import { InterviewDetailPage } from '@/pages/interviews/InterviewDetailPage'
-import { InterviewFormPage } from '@/pages/interviews/InterviewFormPage'
-import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
-import { PrepPage } from '@/pages/prep/PrepPage'
-import { QuestionBankPage } from '@/pages/prep/QuestionBankPage'
-import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
-import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
-import { PrivacyPage } from '@/pages/privacy/PrivacyPage'
-import { AccountPage } from '@/pages/account/AccountPage'
-import { ReportsPage } from '@/pages/reports/ReportsPage'
-import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
 import { LoginPage } from '@/pages/LoginPage'
-import { OnboardingPage } from '@/pages/onboarding/OnboardingPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
-import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
-import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
-import { OAuthCallbackPage } from '@/pages/auth/OAuthCallbackPage'
-import { VerifyEmailPage } from '@/pages/auth/VerifyEmailPage'
+
+const ApplicationDetailPage = lazy(() => import('@/pages/applications/ApplicationDetailPage').then((module) => ({ default: module.ApplicationDetailPage })))
+const ApplicationFormPage = lazy(() => import('@/pages/applications/ApplicationFormPage').then((module) => ({ default: module.ApplicationFormPage })))
+const ApplicationsBoardPage = lazy(() => import('@/pages/applications/ApplicationsBoardPage').then((module) => ({ default: module.ApplicationsBoardPage })))
+const ApplicationsListPage = lazy(() => import('@/pages/applications/ApplicationsListPage').then((module) => ({ default: module.ApplicationsListPage })))
+const ResumeDetailPage = lazy(() => import('@/pages/resumes/ResumeDetailPage').then((module) => ({ default: module.ResumeDetailPage })))
+const ResumeFormPage = lazy(() => import('@/pages/resumes/ResumeFormPage').then((module) => ({ default: module.ResumeFormPage })))
+const ResumesListPage = lazy(() => import('@/pages/resumes/ResumesListPage').then((module) => ({ default: module.ResumesListPage })))
+const InterviewDebriefPage = lazy(() => import('@/pages/interviews/InterviewDebriefPage').then((module) => ({ default: module.InterviewDebriefPage })))
+const InterviewDetailPage = lazy(() => import('@/pages/interviews/InterviewDetailPage').then((module) => ({ default: module.InterviewDetailPage })))
+const InterviewFormPage = lazy(() => import('@/pages/interviews/InterviewFormPage').then((module) => ({ default: module.InterviewFormPage })))
+const InterviewsListPage = lazy(() => import('@/pages/interviews/InterviewsListPage').then((module) => ({ default: module.InterviewsListPage })))
+const PrepPage = lazy(() => import('@/pages/prep/PrepPage').then((module) => ({ default: module.PrepPage })))
+const QuestionBankPage = lazy(() => import('@/pages/prep/QuestionBankPage').then((module) => ({ default: module.QuestionBankPage })))
+const AnalyticsPage = lazy(() => import('@/pages/analytics/AnalyticsPage').then((module) => ({ default: module.AnalyticsPage })))
+const RecommendationsPage = lazy(() => import('@/pages/recommendations/RecommendationsPage').then((module) => ({ default: module.RecommendationsPage })))
+const PrivacyPage = lazy(() => import('@/pages/privacy/PrivacyPage').then((module) => ({ default: module.PrivacyPage })))
+const AccountPage = lazy(() => import('@/pages/account/AccountPage').then((module) => ({ default: module.AccountPage })))
+const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage').then((module) => ({ default: module.ReportsPage })))
+const NotificationsPage = lazy(() => import('@/pages/notifications/NotificationsPage').then((module) => ({ default: module.NotificationsPage })))
+const OnboardingPage = lazy(() => import('@/pages/onboarding/OnboardingPage').then((module) => ({ default: module.OnboardingPage })))
+const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage').then((module) => ({ default: module.ForgotPasswordPage })))
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage').then((module) => ({ default: module.ResetPasswordPage })))
+const OAuthCallbackPage = lazy(() => import('@/pages/auth/OAuthCallbackPage').then((module) => ({ default: module.OAuthCallbackPage })))
+const VerifyEmailPage = lazy(() => import('@/pages/auth/VerifyEmailPage').then((module) => ({ default: module.VerifyEmailPage })))
+const LandingPage = lazy(() => import('@/pages/landing/LandingPage').then((module) => ({ default: module.LandingPage })))
+
+const landing = (
+  <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <LandingPage />
+  </Suspense>
+)
 
 function App() {
   return (
@@ -39,7 +48,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute signedOutHome={landing} />}>
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />

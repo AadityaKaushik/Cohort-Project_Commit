@@ -1,4 +1,5 @@
 import type { StalledApplication } from '@/lib/applications-api'
+import { formatLabel } from '@/lib/labels'
 import type { InterviewSummary } from '@/lib/interviews-api'
 import type { PreparationTask } from '@/lib/prep-api'
 
@@ -92,9 +93,5 @@ function formatDate(iso: string): string {
 }
 
 function formatStage(stage: string): string {
-  return stage
-    .toLowerCase()
-    .split('_')
-    .map((word) => word[0]!.toUpperCase() + word.slice(1))
-    .join(' ')
+  return formatLabel(stage)
 }

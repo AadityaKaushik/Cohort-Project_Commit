@@ -12,6 +12,7 @@ export interface ToastInput {
 
 interface ToastItem extends ToastInput {
   id: number
+  leaving?: boolean
 }
 
 interface ToastContextValue {
@@ -19,6 +20,7 @@ interface ToastContextValue {
 }
 
 const DISMISS_AFTER_MS = 5000
+const EXIT_MS = 180
 
 const ToastContext = createContext<ToastContextValue>({ toast: () => undefined })
 
@@ -28,7 +30,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([])
 
   const dismiss = useCallback((id: number) => {
-    setItems((current) => current.filter((item) => item.id !== id))
+    setItems((current) => current.map((item) => (item.id === id ? { ...item, leaving: true } : item)))
+    window.setTimeout(() => setItems((current) => current.filter((item) => item.id !== id)), EXIT_MS)
   }, [])
 
   const toast = useCallback(
@@ -53,7 +56,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={item.id}
             role={item.variant === 'error' ? 'alert' : 'status'}
-            className="pointer-events-auto flex w-full items-start gap-3 rounded-lg border bg-popover p-3 text-sm text-popover-foreground"
+            data-leaving={item.leaving || undefined}
+            className="pointer-events-auto flex w-full items-start gap-3 rounded-xl border bg-popover p-3 text-sm text-popover-foreground shadow-md duration-200 animate-in fade-in slide-in-from-bottom-2 data-leaving:animate-out data-leaving:fade-out data-leaving:slide-out-to-right-4 data-leaving:fill-mode-forwards"
           >
             {item.variant === 'error' ? (
               <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-destructive" />

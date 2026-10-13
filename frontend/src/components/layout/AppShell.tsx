@@ -1,15 +1,24 @@
-import { useEffect, useState } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Suspense, useEffect, useState } from 'react'
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { Search } from 'lucide-react'
+import { BrandGlyph } from '@/components/brand/BrandMark'
 import { AppSidebar } from '@/components/layout/AppSidebar'
+import { MobileNav } from '@/components/layout/MobileNav'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { CommandPalette } from '@/components/layout/CommandPalette'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { breadcrumbsFor, pageTitleFor } from '@/lib/navigation'
+
+const WIDE_LAYOUT_MIN_PX = 1280
+
+function prefersExpandedSidebar(): boolean {
+  return typeof window === 'undefined' || window.innerWidth >= WIDE_LAYOUT_MIN_PX
+}
 
 export function AppShell() {
   const { pathname } = useLocation()
@@ -36,11 +45,14 @@ export function AppShell() {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={prefersExpandedSidebar()}>
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
+      <SidebarInset className="min-w-0">
+        <header className="frosted sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
+          <SidebarTrigger className="hidden md:inline-flex" aria-label="Toggle sidebar" />
+          <Link to="/" aria-label="Cohort dashboard" className="rounded-lg md:hidden">
+            <BrandGlyph className="size-7" />
+          </Link>
           <Separator orientation="vertical" className="h-4" />
           <Breadcrumbs crumbs={breadcrumbsFor(pathname)} />
           <div className="ml-auto flex items-center gap-2">
@@ -48,21 +60,39 @@ export function AppShell() {
               type="button"
               onClick={() => setPaletteOpen(true)}
               aria-label="Open command palette"
-              className="inline-flex h-8 items-center gap-2 rounded-md border px-2 text-sm text-muted-foreground hover:text-foreground"
+              className="inline-flex h-8 items-center gap-2 rounded-lg border bg-card/60 px-2.5 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
             >
               <Search className="size-3.5" />
-              <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden rounded border px-1 text-[10px] sm:inline">Ctrl K</kbd>
+              <span className="hidden pr-6 sm:inline">Search</span>
+              <span className="hidden items-center gap-0.5 sm:inline-flex">
+                <kbd className="kbd">Ctrl</kbd>
+                <kbd className="kbd">K</kbd>
+              </span>
             </button>
             <ThemeToggle className="hidden sm:inline-flex" />
             <NotificationBell />
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-4 sm:p-6">
-          <Outlet />
+        <main className="flex-1 px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-8 lg:px-8">
+          <div key={pathname} className="animate-enter mx-auto w-full max-w-7xl">
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
+          </div>
         </main>
       </SidebarInset>
+      <MobileNav />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </SidebarProvider>
+  )
+}
+
+function PageFallback() {
+  return (
+    <div role="status" aria-label="Loading page" className="space-y-4">
+      <Skeleton className="h-9 w-64" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+      <Skeleton className="h-64 w-full rounded-xl" />
+    </div>
   )
 }

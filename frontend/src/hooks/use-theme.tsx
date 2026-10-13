@@ -4,6 +4,7 @@ export type ThemePreference = 'light' | 'dark' | 'system'
 export type ResolvedTheme = 'light' | 'dark'
 
 export const THEME_STORAGE_KEY = 'cohort-theme'
+const THEME_TRANSITION_MS = 260
 
 interface ThemeContextValue {
   preference: ThemePreference
@@ -55,6 +56,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       preference,
       resolvedTheme,
       setPreference: (next) => {
+        const root = document.documentElement
+        root.classList.add('theme-transition')
+        window.setTimeout(() => root.classList.remove('theme-transition'), THEME_TRANSITION_MS)
         setPreferenceState(next)
         try {
           if (next === 'system') {

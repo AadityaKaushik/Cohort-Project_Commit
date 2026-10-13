@@ -6,7 +6,9 @@ import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { listApplications, listStalledApplications, type ApplicationSummary, type StalledApplication } from '@/lib/applications-api'
 import { listInterviews, type InterviewSummary } from '@/lib/interviews-api'
 import { listPreparationTasks, type PreparationTask } from '@/lib/prep-api'
+import { useAuth } from '@/hooks/use-auth'
 
+vi.mock('@/hooks/use-auth')
 vi.mock('@/lib/applications-api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/applications-api')>('@/lib/applications-api')
   return { ...actual, listApplications: vi.fn(), listStalledApplications: vi.fn() }
@@ -98,6 +100,15 @@ function renderPage() {
 
 describe('DashboardPage', () => {
   beforeEach(() => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: '1', email: 'jane@example.com', display_name: 'Jane Doe', target_role: null, graduation_year: null, target_date: null, onboarded: true, timezone: null, fl_opt_in: false, fl_privacy_posture: 'balanced', created_at: '' },
+      isLoading: false,
+      isAuthenticated: true,
+      sessionMessage: null,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+    })
     vi.mocked(listApplications).mockReset()
     vi.mocked(listStalledApplications).mockReset()
     vi.mocked(listInterviews).mockReset()
@@ -126,6 +137,9 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByTestId('pipeline-strip')).toBeInTheDocument()
     expect(screen.getByText(/nothing needs attention/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /, jane\./i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /schedule an interview/i })).toHaveAttribute('href', '/interviews/new')
+    expect(screen.getByText(/start a streak/i)).toBeInTheDocument()
   })
 
   it('caps the rendered action queue at 7 items even with far more than 7 actionable items across every source', async () => {
@@ -151,7 +165,7 @@ describe('DashboardPage', () => {
 
     renderPage()
 
-    const list = await screen.findByRole('list')
+    const list = await screen.findByRole('list', { name: 'Next actions' })
     const items = within(list).getAllByRole('listitem')
     expect(items.length).toBe(7)
   })

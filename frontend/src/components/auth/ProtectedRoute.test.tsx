@@ -27,6 +27,20 @@ function renderProtected() {
   )
 }
 
+function renderWithHome(path: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route path="/login" element={<div>Login page</div>} />
+        <Route element={<ProtectedRoute signedOutHome={<div>Public landing</div>} />}>
+          <Route index element={<div>Dashboard</div>} />
+          <Route path="/applications" element={<div>Applications</div>} />
+        </Route>
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     vi.mocked(useAuth).mockReset()
@@ -56,5 +70,32 @@ describe('ProtectedRoute', () => {
     renderProtected()
 
     expect(screen.getByText('Secret dashboard')).toBeInTheDocument()
+  })
+
+  it('shows the public landing page to a signed-out visitor at the root', () => {
+    vi.mocked(useAuth).mockReturnValue({ ...baseAuthValue, isLoading: false, isAuthenticated: false })
+
+    renderWithHome('/')
+
+    expect(screen.getByText('Public landing')).toBeInTheDocument()
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument()
+  })
+
+  it('sends a signed-in visitor at the root to the dashboard, not the landing page', () => {
+    vi.mocked(useAuth).mockReturnValue({ ...baseAuthValue, isLoading: false, isAuthenticated: true })
+
+    renderWithHome('/')
+
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.queryByText('Public landing')).not.toBeInTheDocument()
+  })
+
+  it('still redirects a signed-out visitor to /login from any other protected path', () => {
+    vi.mocked(useAuth).mockReturnValue({ ...baseAuthValue, isLoading: false, isAuthenticated: false })
+
+    renderWithHome('/applications')
+
+    expect(screen.getByText('Login page')).toBeInTheDocument()
+    expect(screen.queryByText('Public landing')).not.toBeInTheDocument()
   })
 })

@@ -38,7 +38,7 @@ describe('LoginPage', () => {
     renderLoginPage()
 
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com')
-    await user.type(screen.getByLabelText(/password/i), 'correcthorsebattery')
+    await user.type(screen.getByLabelText(/^password$/i), 'correcthorsebattery')
     await user.click(screen.getByRole('button', { name: /log in/i }))
 
     await waitFor(() => expect(login).toHaveBeenCalledWith('jane@example.com', 'correcthorsebattery'))
@@ -50,7 +50,7 @@ describe('LoginPage', () => {
     renderLoginPage()
 
     await user.type(screen.getByLabelText(/email/i), 'jane@example.com')
-    await user.type(screen.getByLabelText(/password/i), 'wrongpassword')
+    await user.type(screen.getByLabelText(/^password$/i), 'wrongpassword')
     await user.click(screen.getByRole('button', { name: /log in/i }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password.')
