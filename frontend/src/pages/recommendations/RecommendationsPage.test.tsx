@@ -3,11 +3,14 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ToastProvider } from '@/hooks/use-toast'
 import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
 import {
   acceptRecommendation,
   dismissRecommendation,
+  listHandledRecommendations,
   listRecommendations,
+  restoreRecommendation,
   snoozeRecommendation,
   type Recommendation,
 } from '@/lib/recommendations-api'
@@ -17,6 +20,8 @@ vi.mock('@/lib/recommendations-api', async () => {
   return {
     ...actual,
     listRecommendations: vi.fn(),
+    listHandledRecommendations: vi.fn().mockResolvedValue([]),
+    restoreRecommendation: vi.fn(),
     acceptRecommendation: vi.fn(),
     snoozeRecommendation: vi.fn(),
     dismissRecommendation: vi.fn(),
@@ -53,6 +58,8 @@ function sampleRecommendation(overrides: Partial<Recommendation> = {}): Recommen
     generated_at: '2026-01-10T00:00:00Z',
     federated_applied: false,
     rank_delta: 0,
+    suppressed_until: null,
+    handled_at: null,
     ...overrides,
   }
 }
@@ -183,5 +190,84 @@ describe('RecommendationsPage', () => {
     await user.click(screen.getByRole('button', { name: /federated lift/i }))
 
     expect(await screen.findByText('Shared model unavailable')).toBeInTheDocument()
+  })
+})
+
+describe('RecommendationsPage handled items', () => {
+  beforeEach(() => {
+    vi.mocked(listRecommendations).mockReset()
+    vi.mocked(acceptRecommendation).mockReset()
+    vi.mocked(listHandledRecommendations).mockReset()
+    vi.mocked(restoreRecommendation).mockReset()
+  })
+
+  function renderWithToasts() {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/recommendations']}>
+            <RecommendationsPage />
+          </MemoryRouter>
+        </ToastProvider>
+      </QueryClientProvider>,
+    )
+  }
+
+  it('confirms an accepted recommendation became a task', async () => {
+    vi.mocked(listRecommendations).mockResolvedValue([sampleRecommendation()])
+    vi.mocked(listHandledRecommendations).mockResolvedValue([])
+    vi.mocked(acceptRecommendation).mockResolvedValue(
+      sampleRecommendation({ status: 'accepted', accepted_task_id: 'task-1' }),
+    )
+    const user = userEvent.setup()
+    renderWithToasts()
+
+    await user.click(await screen.findByRole('button', { name: /accept and add to my plan/i }))
+
+    expect(await screen.findByText('Added to your preparation plan')).toBeInTheDocument()
+  })
+
+  it('warns that a dismissal hides the whole type', async () => {
+    vi.mocked(listRecommendations).mockResolvedValue([sampleRecommendation()])
+    vi.mocked(listHandledRecommendations).mockResolvedValue([])
+    const user = userEvent.setup()
+    renderWithToasts()
+
+    await user.click(await screen.findByRole('button', { name: /dismiss/i }))
+
+    expect(screen.getByText(/hides every weak topic recommendation for 30 days/i)).toBeInTheDocument()
+  })
+
+  it('lists dismissed items and brings them back', async () => {
+    vi.mocked(listRecommendations).mockResolvedValue([])
+    vi.mocked(listHandledRecommendations).mockResolvedValue([
+      sampleRecommendation({
+        status: 'dismissed',
+        dismissed_reason: 'not now',
+        suppressed_until: '2099-01-01T00:00:00Z',
+        handled_at: '2026-01-01T00:00:00Z',
+      }),
+    ])
+    vi.mocked(restoreRecommendation).mockResolvedValue(sampleRecommendation())
+    const user = userEvent.setup()
+    renderWithToasts()
+
+    expect(await screen.findByText(/hides every weak topic recommendation until jan 1/i)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Bring back' }))
+
+    await waitFor(() => expect(restoreRecommendation).toHaveBeenCalledWith('rec-1'))
+  })
+
+  it('tells the user when accepting fails', async () => {
+    vi.mocked(listRecommendations).mockResolvedValue([sampleRecommendation()])
+    vi.mocked(listHandledRecommendations).mockResolvedValue([])
+    vi.mocked(acceptRecommendation).mockRejectedValue(new Error('boom'))
+    const user = userEvent.setup()
+    renderWithToasts()
+
+    await user.click(await screen.findByRole('button', { name: /accept and add to my plan/i }))
+
+    expect(await screen.findByText('Could not accept the recommendation')).toBeInTheDocument()
   })
 })

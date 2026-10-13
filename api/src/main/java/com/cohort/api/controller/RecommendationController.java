@@ -39,6 +39,16 @@ public class RecommendationController {
         return facade.generateRecommendations(userId(jwt), federated);
     }
 
+    @GetMapping("/handled")
+    public List<RecommendationResponse> handled(@AuthenticationPrincipal Jwt jwt) {
+        return facade.listHandled(userId(jwt));
+    }
+
+    @PostMapping("/{id}/restore")
+    public RecommendationResponse restore(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        return facade.restore(userId(jwt), id);
+    }
+
     @PostMapping("/{id}/accept")
     public RecommendationResponse accept(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return facade.accept(userId(jwt), id);

@@ -5,6 +5,10 @@ import com.cohort.api.dto.RecommendationResponse;
 import com.cohort.api.entity.Recommendation;
 import com.cohort.api.entity.RecommendationEvidence;
 import com.cohort.api.service.recommendation.EvidenceItem;
+import com.cohort.api.service.recommendation.RecommendationFacade;
+import com.cohort.api.service.recommendation.RecommendationStatus;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +64,18 @@ public class RecommendationMapper {
                 entity.getAcceptedTaskId(),
                 entity.getGeneratedAt(),
                 federatedApplied,
-                rankDelta);
+                rankDelta,
+                suppressedUntil(entity),
+                entity.getStatus() == RecommendationStatus.active ? null : entity.getUpdatedAt());
+    }
+
+    private Instant suppressedUntil(Recommendation entity) {
+        Instant handledAt = entity.getUpdatedAt();
+        return switch (entity.getStatus()) {
+            case active -> null;
+            case accepted -> handledAt == null ? null : handledAt.plus(RecommendationFacade.ACCEPT_SUPPRESSION_DAYS, ChronoUnit.DAYS);
+            case snoozed -> entity.getSnoozedUntil();
+            case dismissed -> handledAt == null ? null : handledAt.plus(RecommendationFacade.DISMISS_SUPPRESSION_DAYS, ChronoUnit.DAYS);
+        };
     }
 }

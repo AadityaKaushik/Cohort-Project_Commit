@@ -58,7 +58,10 @@ public class RecommendationFacade {
     static final int SNOOZE_DAYS = 7;
 
     /** US-55: "dismiss ... suppresses that recommendation type for 30 days." */
-    static final int DISMISS_SUPPRESSION_DAYS = 30;
+    public static final int DISMISS_SUPPRESSION_DAYS = 30;
+
+    /** P78: an accepted recommendation (and its task) is not offered again straight away. */
+    public static final int ACCEPT_SUPPRESSION_DAYS = 14;
 
     private final TopicMasteryLoader topicMasteryLoader;
     private final TopicRepository topicRepository;
@@ -146,7 +149,7 @@ public class RecommendationFacade {
         candidates = candidates.stream().map(candidate -> applyRouting(candidate, context)).toList();
 
         List<Recommendation> suppressionSource = recommendationRepository.findAllByUserIdAndStatusIn(
-                userId, List.of(RecommendationStatus.snoozed, RecommendationStatus.dismissed));
+                userId, List.of(RecommendationStatus.snoozed, RecommendationStatus.dismissed, RecommendationStatus.accepted));
         candidates = candidates.stream().filter(candidate -> !isSuppressed(candidate, suppressionSource, asOf)).toList();
 
         List<RecommendationScorer.ScoredCandidate> localRanked = rankAndCap(candidates, asOf);
@@ -215,6 +218,9 @@ public class RecommendationFacade {
     @Transactional
     public RecommendationResponse accept(UUID userId, UUID recommendationId) {
         Recommendation recommendation = requireOwned(userId, recommendationId);
+        if (recommendation.getStatus() == RecommendationStatus.accepted) {
+            return respond(recommendation);
+        }
         if (recommendation.getTargetTopicId() != null) {
             PreparationTask task = new PreparationTask(userId, recommendation.getTargetTopicId(), recommendation.getHeadline());
             task.setDescription(recommendation.getExplanation());
@@ -238,6 +244,36 @@ public class RecommendationFacade {
         Recommendation recommendation = requireOwned(userId, recommendationId);
         recommendation.setStatus(RecommendationStatus.dismissed);
         recommendation.setDismissedReason(reason);
+        return respond(recommendation);
+    }
+
+    /** P78: everything the user has already acted on, newest first, so it can be reviewed and snoozes or dismissals undone. */
+    @Transactional(readOnly = true)
+    public List<RecommendationResponse> listHandled(UUID userId) {
+        Instant asOf = Instant.now();
+        return recommendationRepository
+                .findAllByUserIdAndStatusIn(userId, List.of(
+                        RecommendationStatus.accepted, RecommendationStatus.snoozed, RecommendationStatus.dismissed))
+                .stream()
+                .filter(recommendation -> {
+                    Instant until = respond(recommendation).suppressedUntil();
+                    return until == null || until.isAfter(asOf);
+                })
+                .sorted(Comparator.comparing(Recommendation::getUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(this::respond)
+                .toList();
+    }
+
+    /** P78: undoes a snooze or a dismissal so the recommendation (and its type) can be generated again. */
+    @Transactional
+    public RecommendationResponse restore(UUID userId, UUID recommendationId) {
+        Recommendation recommendation = requireOwned(userId, recommendationId);
+        if (recommendation.getStatus() == RecommendationStatus.snoozed
+                || recommendation.getStatus() == RecommendationStatus.dismissed) {
+            recommendation.setStatus(RecommendationStatus.active);
+            recommendation.setSnoozedUntil(null);
+            recommendation.setDismissedReason(null);
+        }
         return respond(recommendation);
     }
 
@@ -298,6 +334,15 @@ public class RecommendationFacade {
             boolean sameType = existing.getType() == candidate.type();
             if (!sameType) {
                 continue;
+            }
+            boolean sameTargetForAccepted = Objects.equals(existing.getTargetTopicId(), candidate.targetTopicId())
+                    && Objects.equals(existing.getTargetApplicationId(), candidate.targetApplicationId());
+            boolean acceptedRecently = existing.getStatus() == RecommendationStatus.accepted
+                    && sameTargetForAccepted
+                    && existing.getUpdatedAt() != null
+                    && existing.getUpdatedAt().isAfter(asOf.minus(ACCEPT_SUPPRESSION_DAYS, ChronoUnit.DAYS));
+            if (acceptedRecently) {
+                return true;
             }
             boolean dismissedRecently = existing.getStatus() == RecommendationStatus.dismissed
                     && existing.getUpdatedAt() != null

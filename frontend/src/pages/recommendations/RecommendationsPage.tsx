@@ -4,9 +4,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   acceptRecommendation,
   dismissRecommendation,
+  listHandledRecommendations,
   listRecommendations,
+  restoreRecommendation,
   snoozeRecommendation,
 } from '@/lib/recommendations-api'
+import { ApiError } from '@/lib/api-client'
+import { useToast } from '@/hooks/use-toast'
+import { HandledRecommendations } from '@/components/recommendations/HandledRecommendations'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -16,6 +21,7 @@ import { FederatedLiftToggle } from '@/components/recommendations/FederatedLiftT
 /** US-51..56,77,65: the ranked recommendations list, each card carrying its own evidence tier and accept/snooze/dismiss actions, plus the Federated Lift toggle (US-65). */
 export function RecommendationsPage() {
   const queryClient = useQueryClient()
+  const { toast } = useToast()
   const [federated, setFederated] = useState(false)
 
   const recommendationsQuery = useQuery({
@@ -23,18 +29,61 @@ export function RecommendationsPage() {
     queryFn: () => listRecommendations(federated),
   })
 
+  const handledQuery = useQuery({ queryKey: ['recommendations-handled'], queryFn: listHandledRecommendations })
+
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: ['recommendations'] })
+    queryClient.invalidateQueries({ queryKey: ['recommendations-handled'] })
   }
 
-  const acceptMutation = useMutation({ mutationFn: (id: string) => acceptRecommendation(id), onSuccess: invalidate })
-  const snoozeMutation = useMutation({ mutationFn: (id: string) => snoozeRecommendation(id), onSuccess: invalidate })
+  function failed(title: string) {
+    return (error: unknown) =>
+      toast({
+        title,
+        description: error instanceof ApiError ? error.message : 'Please try again.',
+        variant: 'error',
+      })
+  }
+
+  const acceptMutation = useMutation({
+    mutationFn: (id: string) => acceptRecommendation(id),
+    onSuccess: (result) => {
+      invalidate()
+      queryClient.invalidateQueries({ queryKey: ['preparation-tasks'] })
+      toast({
+        title: result.accepted_task_id ? 'Added to your preparation plan' : 'Marked as handled',
+        description: result.accepted_task_id ? 'Find it in your preparation tasks.' : undefined,
+      })
+    },
+    onError: failed('Could not accept the recommendation'),
+  })
+  const snoozeMutation = useMutation({
+    mutationFn: (id: string) => snoozeRecommendation(id),
+    onSuccess: () => {
+      invalidate()
+      toast({ title: 'Snoozed for 7 days', description: 'Find it under Handled if you want it back sooner.' })
+    },
+    onError: failed('Could not snooze the recommendation'),
+  })
   const dismissMutation = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => dismissRecommendation(id, reason),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate()
+      toast({ title: 'Dismissed', description: 'You can bring it back from Handled.' })
+    },
+    onError: failed('Could not dismiss the recommendation'),
+  })
+  const restoreMutation = useMutation({
+    mutationFn: (id: string) => restoreRecommendation(id),
+    onSuccess: () => {
+      invalidate()
+      toast({ title: 'Brought back' })
+    },
+    onError: failed('Could not bring it back'),
   })
 
-  const isBusy = acceptMutation.isPending || snoozeMutation.isPending || dismissMutation.isPending
+  const isBusy =
+    acceptMutation.isPending || snoozeMutation.isPending || dismissMutation.isPending || restoreMutation.isPending
 
   return (
     <div className="space-y-6">
@@ -97,6 +146,17 @@ export function RecommendationsPage() {
             />
           ))}
         </div>
+      )}
+
+      {handledQuery.data && handledQuery.data.length > 0 && (
+        <section aria-label="Handled recommendations" className="space-y-2">
+          <h3 className="text-sm font-medium">Handled</h3>
+          <HandledRecommendations
+            items={handledQuery.data}
+            isBusy={isBusy}
+            onRestore={(id) => restoreMutation.mutate(id)}
+          />
+        </section>
       )}
     </div>
   )

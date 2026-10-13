@@ -39,5 +39,10 @@ public record RecommendationResponse(
         // federatedApplied is false -- the Federated Lift viewer's whole point is comparing
         // this against the local-only order, which is why it must be exactly 0, not omitted,
         // on the fallback path.
-        int rankDelta) {
+        int rankDelta,
+        // US-55: when this recommendation stops being hidden (accepted: 14 days, snoozed: its snooze end,
+        // dismissed: 30 days, and a dismissal hides every recommendation of the same type). Null while active.
+        Instant suppressedUntil,
+        // When the user last acted on it; null while active.
+        Instant handledAt) {
 }

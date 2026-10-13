@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { CheckIcon, ClockIcon, TrendingDownIcon, TrendingUpIcon, XIcon } from 'lucide-react'
 import type { Recommendation } from '@/lib/recommendations-api'
+import { formatLabel } from '@/lib/labels'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -98,7 +99,7 @@ export function RecommendationCard({
           <div className="flex flex-wrap gap-2">
             <Button size="sm" disabled={isBusy} onClick={() => onAccept(recommendation.id)}>
               <CheckIcon className="h-4 w-4" />
-              Accept
+              {recommendation.target_topic_id ? 'Accept and add to my plan' : 'Accept'}
             </Button>
             <Button size="sm" variant="outline" disabled={isBusy} onClick={() => onSnooze(recommendation.id)}>
               <ClockIcon className="h-4 w-4" />
@@ -115,6 +116,10 @@ export function RecommendationCard({
           <form onSubmit={handleDismissSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-1">
               <Label htmlFor={`dismiss-reason-${recommendation.id}`}>Why dismiss this?</Label>
+              <p className="text-xs text-muted-foreground">
+                This hides every {formatLabel(recommendation.type).toLowerCase()} recommendation for 30 days, not just
+                this one. You can bring it back from Handled.
+              </p>
               <Input
                 id={`dismiss-reason-${recommendation.id}`}
                 value={reason}
