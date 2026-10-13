@@ -50,12 +50,12 @@ export function ApplicationFilterBar({ filters, onChange }: ApplicationFilterBar
   }, [search, filters, onChange])
 
   return (
-    <form role="search" aria-label="Filter applications" onSubmit={(event) => event.preventDefault()} className="flex flex-wrap items-end gap-2">
-      <div className="relative min-w-48 flex-1">
+    <form role="search" aria-label="Filter applications" onSubmit={(event) => event.preventDefault()} className="surface-raised grid grid-cols-2 gap-2 rounded-xl border p-2 sm:flex sm:flex-wrap sm:items-center">
+      <div className="relative col-span-2 min-w-48 flex-1">
         <label htmlFor="filter-q" className="sr-only">
           Search company or role
         </label>
-        <SearchIcon aria-hidden className="pointer-events-none absolute top-2 left-2.5 size-4 text-muted-foreground" />
+        <SearchIcon aria-hidden className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           id="filter-q"
           type="search"
@@ -65,7 +65,7 @@ export function ApplicationFilterBar({ filters, onChange }: ApplicationFilterBar
           onChange={(event) => setSearch(event.target.value)}
         />
       </div>
-      <div className="w-36">
+      <div className="min-w-0 sm:w-36">
         <label htmlFor="filter-status" className="sr-only">
           Status
         </label>
@@ -78,7 +78,7 @@ export function ApplicationFilterBar({ filters, onChange }: ApplicationFilterBar
           ))}
         </NativeSelect>
       </div>
-      <div className="w-32">
+      <div className="min-w-0 sm:w-32">
         <label htmlFor="filter-priority" className="sr-only">
           Priority
         </label>
@@ -91,7 +91,7 @@ export function ApplicationFilterBar({ filters, onChange }: ApplicationFilterBar
           ))}
         </NativeSelect>
       </div>
-      <div className="w-32">
+      <div className="col-span-2 min-w-0 sm:col-span-1 sm:w-40">
         <label htmlFor="filter-work-mode" className="sr-only">
           Work mode
         </label>
@@ -104,20 +104,20 @@ export function ApplicationFilterBar({ filters, onChange }: ApplicationFilterBar
           ))}
         </NativeSelect>
       </div>
-      <div className="w-36">
+      <div className="min-w-0 sm:w-36">
         <label htmlFor="filter-from" className="sr-only">
           Applied from
         </label>
         <Input id="filter-from" type="date" value={filters.date_from} onChange={(e) => onChange({ ...filters, date_from: e.target.value })} />
       </div>
-      <div className="w-36">
+      <div className="min-w-0 sm:w-36">
         <label htmlFor="filter-to" className="sr-only">
           Applied until
         </label>
         <Input id="filter-to" type="date" value={filters.date_to} onChange={(e) => onChange({ ...filters, date_to: e.target.value })} />
       </div>
       {hasActiveFilters(filters) && (
-        <Button type="button" variant="ghost" onClick={() => onChange(NO_FILTERS)}>
+        <Button type="button" variant="ghost" className="col-span-2 sm:col-span-1" onClick={() => onChange(NO_FILTERS)}>
           <XIcon className="h-4 w-4" />
           Clear filters
         </Button>

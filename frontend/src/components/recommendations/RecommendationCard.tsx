@@ -2,11 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { CheckIcon, ClockIcon, TrendingDownIcon, TrendingUpIcon, XIcon } from 'lucide-react'
 import type { Recommendation } from '@/lib/recommendations-api'
 import { formatLabel } from '@/lib/labels'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormField } from '@/components/shared/Form'
+import { ToneBadge, type Tone } from '@/components/shared/ToneBadge'
 
 const TIER_LABEL: Record<Recommendation['tier'], string> = {
   A: 'Tier A — your data',
@@ -15,11 +14,11 @@ const TIER_LABEL: Record<Recommendation['tier'], string> = {
   D: 'Tier D — heuristic',
 }
 
-const TIER_BADGE_VARIANT: Record<Recommendation['tier'], 'default' | 'secondary' | 'outline'> = {
-  A: 'default',
-  B: 'secondary',
-  C: 'secondary',
-  D: 'outline',
+const TIER_TONE: Record<Recommendation['tier'], Tone> = {
+  A: 'primary',
+  B: 'info',
+  C: 'info',
+  D: 'neutral',
 }
 
 interface RecommendationCardProps {
@@ -55,34 +54,26 @@ export function RecommendationCard({
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
-        <CardTitle className="text-base font-medium">{recommendation.headline}</CardTitle>
-        <div className="flex items-center gap-2">
-          {showRankDelta && recommendation.rank_delta !== 0 && (
-            <Badge
-              variant="outline"
-              className={recommendation.rank_delta > 0 ? 'text-emerald-600' : 'text-amber-600'}
-              title="Position change vs. local-only ranking"
-            >
-              {recommendation.rank_delta > 0 ? (
-                <TrendingUpIcon className="h-3 w-3" />
-              ) : (
-                <TrendingDownIcon className="h-3 w-3" />
-              )}
-              {recommendation.rank_delta > 0 ? `+${recommendation.rank_delta}` : recommendation.rank_delta}
-            </Badge>
-          )}
-          <Badge variant={TIER_BADGE_VARIANT[recommendation.tier]} title={TIER_LABEL[recommendation.tier]}>
-            {TIER_LABEL[recommendation.tier]}
-          </Badge>
+    <article className="surface-raised overflow-hidden rounded-xl border transition-colors hover:border-primary/25">
+      <div className="flex flex-col gap-3 p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+          <h3 className="font-heading text-base font-semibold tracking-tight">{recommendation.headline}</h3>
+          <div className="flex items-center gap-2">
+            {showRankDelta && recommendation.rank_delta !== 0 && (
+              <ToneBadge tone={recommendation.rank_delta > 0 ? 'success' : 'warning'} title="Position change vs. local-only ranking">
+                {recommendation.rank_delta > 0 ? <TrendingUpIcon aria-hidden /> : <TrendingDownIcon aria-hidden />}
+                {recommendation.rank_delta > 0 ? `+${recommendation.rank_delta}` : recommendation.rank_delta}
+              </ToneBadge>
+            )}
+            <ToneBadge tone={TIER_TONE[recommendation.tier]} title={TIER_LABEL[recommendation.tier]}>
+              {TIER_LABEL[recommendation.tier]}
+            </ToneBadge>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">{recommendation.explanation}</p>
+        <p className="text-sm text-pretty text-muted-foreground">{recommendation.explanation}</p>
 
         {recommendation.evidence.length > 0 && (
-          <ul className="space-y-1 rounded-md border border-dashed p-2 text-xs text-muted-foreground">
+          <ul className="space-y-1.5 rounded-lg border-l-2 border-primary/40 bg-surface-2/60 px-3 py-2.5 text-xs text-muted-foreground">
             {recommendation.evidence.map((item, index) => (
               <li key={index}>
                 <span className="font-medium text-foreground">{item.label}:</span> {item.detail}
@@ -94,39 +85,43 @@ export function RecommendationCard({
         <p className="text-xs text-muted-foreground">
           Based on {recommendation.observation_count} observation{recommendation.observation_count === 1 ? '' : 's'}.
         </p>
+      </div>
 
+      <div className="border-t bg-surface-2/50 px-4 py-3 sm:px-5">
         {!dismissing && (
           <div className="flex flex-wrap gap-2">
             <Button size="sm" disabled={isBusy} onClick={() => onAccept(recommendation.id)}>
-              <CheckIcon className="h-4 w-4" />
+              <CheckIcon aria-hidden />
               {recommendation.target_topic_id ? 'Accept and add to my plan' : 'Accept'}
             </Button>
             <Button size="sm" variant="outline" disabled={isBusy} onClick={() => onSnooze(recommendation.id)}>
-              <ClockIcon className="h-4 w-4" />
+              <ClockIcon aria-hidden />
               Snooze 7 days
             </Button>
             <Button size="sm" variant="ghost" disabled={isBusy} onClick={() => setDismissing(true)}>
-              <XIcon className="h-4 w-4" />
+              <XIcon aria-hidden />
               Dismiss
             </Button>
           </div>
         )}
 
         {dismissing && (
-          <form onSubmit={handleDismissSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-end">
-            <div className="flex-1 space-y-1">
-              <Label htmlFor={`dismiss-reason-${recommendation.id}`}>Why dismiss this?</Label>
-              <p className="text-xs text-muted-foreground">
-                This hides every {formatLabel(recommendation.type).toLowerCase()} recommendation for 30 days, not just
-                this one. You can bring it back from Handled.
-              </p>
-              <Input
+          <form onSubmit={handleDismissSubmit} className="animate-enter flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <FormField
                 id={`dismiss-reason-${recommendation.id}`}
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                placeholder="e.g. Not relevant right now"
-                autoFocus
-              />
+                label="Why dismiss this?"
+                hint={`This hides every ${formatLabel(recommendation.type).toLowerCase()} recommendation for 30 days, not just this one. You can bring it back from Handled.`}
+              >
+                <Input
+                  id={`dismiss-reason-${recommendation.id}`}
+                  className="bg-card"
+                  value={reason}
+                  onChange={(event) => setReason(event.target.value)}
+                  placeholder="e.g. Not relevant right now"
+                  autoFocus
+                />
+              </FormField>
             </div>
             <div className="flex gap-2">
               <Button type="submit" size="sm" disabled={isBusy || !reason.trim()}>
@@ -138,7 +133,7 @@ export function RecommendationCard({
             </div>
           </form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   )
 }

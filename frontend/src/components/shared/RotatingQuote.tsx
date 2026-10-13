@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useReducedMotion } from '@/hooks/use-motion'
+import { TypingText } from '@/components/motion/TypingText'
 import { quoteAt, quoteOfTheDay } from '@/lib/quotes'
 import { cn } from '@/lib/utils'
 
@@ -27,7 +28,7 @@ export function RotatingQuote({ className, rotate = true, offset = 0 }: Rotating
   return (
     <p data-testid="rotating-quote" className={cn('border-l-2 border-primary/50 pl-3 font-heading text-pretty text-muted-foreground', className)}>
       <span key={index} className="inline-block animate-quote">
-        {quoteAt(index)}
+        <TypingText text={quoteAt(index)} sessionKey={rotate ? undefined : `quote:${index}`} />
       </span>
     </p>
   )

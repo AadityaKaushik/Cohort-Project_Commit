@@ -21,9 +21,9 @@ export function CategoryProgressBar({ progress }: { progress: CategoryProgress }
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
         <span className="font-medium">{CATEGORY_LABELS[progress.category]}</span>
-        <span className="text-muted-foreground">
+        <span className="text-xs text-muted-foreground tabular-nums">
           {progress.tasks_completed}/{progress.tasks_total} tasks · {masteryLabel}
         </span>
       </div>
@@ -35,7 +35,7 @@ export function CategoryProgressBar({ progress }: { progress: CategoryProgress }
         aria-label={`${CATEGORY_LABELS[progress.category]} task completion: ${completionPercent}%`}
         className="h-2 w-full overflow-hidden rounded-full bg-muted"
       >
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completionPercent}%` }} />
+        <div className="animate-grow-x h-full origin-left rounded-full bg-primary" style={{ width: `${completionPercent}%` }} />
       </div>
     </div>
   )

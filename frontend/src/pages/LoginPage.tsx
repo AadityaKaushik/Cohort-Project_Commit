@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams, type Location } from 'react-router-dom'
-import { AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle, CheckIcon, Loader2 } from 'lucide-react'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuth } from '@/hooks/use-auth'
@@ -8,9 +8,13 @@ import { ApiError } from '@/lib/api-client'
 import { email as emailRule, hasErrors, required, validate, type FieldErrors } from '@/lib/validation'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { AuthFrame } from '@/components/layout/AuthFrame'
+import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FieldMessage, FormError, FormField } from '@/components/shared/Form'
+import { TransitionLink } from '@/components/motion/TransitionLink'
+import { finishSignIn } from '@/lib/route-transition'
+import { prefetchRoute } from '@/lib/route-chunks'
 
 export function LoginPage() {
   const { login, isAuthenticated, sessionMessage } = useAuth()
@@ -24,13 +28,18 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<'email' | 'password'>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [signedIn, setSignedIn] = useState(false)
+  const [errorCount, setErrorCount] = useState(0)
+  const [signingIn, setSigningIn] = useState(false)
 
   useEffect(() => {
     document.title = 'Log in · Cohort'
+    prefetchRoute('/')
   }, [])
 
-  if (isAuthenticated) {
-    const redirectTo = (location.state as { from?: Location } | null)?.from?.pathname ?? '/'
+  const redirectTo = (location.state as { from?: Location } | null)?.from?.pathname ?? '/'
+
+  if (isAuthenticated && !signingIn) {
     return <Navigate to={redirectTo} replace />
   }
 
@@ -46,11 +55,15 @@ export function LoginPage() {
       return
     }
     setIsSubmitting(true)
+    setSigningIn(true)
     try {
       await login(email, password)
-      navigate('/', { replace: true })
+      setSignedIn(true)
+      finishSignIn(() => navigate(redirectTo, { replace: true }))
     } catch (err) {
+      setSigningIn(false)
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setErrorCount((count) => count + 1)
     } finally {
       setIsSubmitting(false)
     }
@@ -64,19 +77,16 @@ export function LoginPage() {
 
   return (
     <AuthFrame>
-      <div className="mb-8">
-        <h1 className="text-display text-3xl">Log in to Cohort</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Welcome back. Pick up where you left off.</p>
-      </div>
+      <AuthIntro title="Log in to Cohort" subtitle="Welcome back. Pick up where you left off." />
       {sessionMessage && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-5">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Session ended</AlertTitle>
           <AlertDescription>{sessionMessage}</AlertDescription>
         </Alert>
       )}
       {oauthError && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-5">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Sign-in was not completed</AlertTitle>
           <AlertDescription>
@@ -90,8 +100,7 @@ export function LoginPage() {
       )}
       <OAuthButtons />
       <form onSubmit={handleSubmit} className="space-y-5" noValidate aria-busy={isSubmitting}>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+        <FormField id="email" label="Email" error={fieldErrors.email}>
           <Input
             id="email"
             type="email"
@@ -101,21 +110,14 @@ export function LoginPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             onBlur={handleEmailBlur}
-            aria-invalid={fieldErrors.email ? true : undefined}
-            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
             required
           />
-          {fieldErrors.email && (
-            <p id="email-error" className="text-sm text-destructive">
-              {fieldErrors.email}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
+        </FormField>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between gap-3">
             <Label htmlFor="password">Password</Label>
-            <Link to="/forgot-password" className="text-xs font-medium text-primary underline-offset-4 hover:underline">
-              Forgot your password?
+            <Link to="/forgot-password" className="rounded text-xs font-medium text-primary underline-offset-4 hover:underline">
+              Forgot password?
             </Link>
           </div>
           <PasswordInput
@@ -128,27 +130,24 @@ export function LoginPage() {
             aria-describedby={fieldErrors.password ? 'password-error' : undefined}
             required
           />
-          {fieldErrors.password && (
-            <p id="password-error" className="text-sm text-destructive">
-              {fieldErrors.password}
-            </p>
-          )}
+          {fieldErrors.password && <FieldMessage id="password-error">{fieldErrors.password}</FieldMessage>}
         </div>
         {error && (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {error}
-          </p>
+          <div key={errorCount} className="animate-shake">
+            <FormError>{error}</FormError>
+          </div>
         )}
-        <Button type="submit" size="xl" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" size="xl" variant={signedIn ? 'cta' : 'default'} className="w-full" disabled={isSubmitting || signedIn}>
           {isSubmitting && <Loader2 aria-hidden className="animate-spin" />}
-          {isSubmitting ? 'Logging in…' : 'Log in'}
+          {signedIn && <CheckIcon aria-hidden className="animate-enter" />}
+          {signedIn ? 'Signed in' : isSubmitting ? 'Logging in…' : 'Log in'}
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
-        <Link to="/register" className="font-medium text-primary underline-offset-4 hover:underline">
-          Register
-        </Link>
+      <p className="mt-8 text-center text-sm text-muted-foreground">
+        New to Cohort?{' '}
+        <TransitionLink to="/register" className="rounded font-medium text-primary underline-offset-4 hover:underline">
+          Create account
+        </TransitionLink>
       </p>
     </AuthFrame>
   )

@@ -1,7 +1,7 @@
 import { useRef, useState, type DragEvent } from 'react'
 import { FileUpIcon, UploadCloudIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 
 interface UploadDropzoneProps {
   onFileSelected: (file: File) => void
@@ -45,8 +45,8 @@ export function UploadDropzone({
       tabIndex={0}
       aria-disabled={disabled || isUploading}
       className={cn(
-        'flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors',
-        isDragOver ? 'border-primary bg-primary/5' : 'border-border',
+        'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed bg-surface-2/50 p-6 text-center transition-[background-color,border-color] duration-200 focus-visible:outline-2 focus-visible:outline-ring',
+        isDragOver ? 'border-primary bg-primary/8' : 'border-border',
         (disabled || isUploading) && 'cursor-not-allowed opacity-60',
         !disabled && !isUploading && 'cursor-pointer hover:border-primary/60',
       )}
@@ -64,16 +64,14 @@ export function UploadDropzone({
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
     >
-      {isUploading ? (
-        <FileUpIcon className="h-8 w-8 animate-pulse text-muted-foreground" />
-      ) : (
-        <UploadCloudIcon className="h-8 w-8 text-muted-foreground" />
-      )}
+      <span className="flex size-10 items-center justify-center rounded-xl bg-card text-primary ring-1 ring-border">
+        {isUploading ? <FileUpIcon aria-hidden className="size-5 animate-pulse" /> : <UploadCloudIcon aria-hidden className="size-5" />}
+      </span>
       <p className="text-sm font-medium">{isUploading ? 'Uploading…' : 'Drag a file here, or click to browse'}</p>
       <p className="text-xs text-muted-foreground">{helperText}</p>
-      <Button type="button" variant="outline" size="sm" disabled={disabled || isUploading} className="mt-1">
+      <span aria-hidden className={buttonVariants({ variant: 'outline', size: 'sm', className: 'mt-1 pointer-events-none' })}>
         Choose file
-      </Button>
+      </span>
       <input
         ref={inputRef}
         type="file"

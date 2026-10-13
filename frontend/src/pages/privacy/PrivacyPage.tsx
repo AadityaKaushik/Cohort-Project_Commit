@@ -1,23 +1,28 @@
-import { ShieldCheckIcon, ShieldOffIcon } from 'lucide-react'
+import { LockIcon, ScrollTextIcon, ShieldCheckIcon, ShieldOffIcon, SparklesIcon, UploadIcon } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getFlConsent, getFlSchema, listPrivacyLedger, optInFl, optOutFl } from '@/lib/fl-api'
 import { PrivacyLedgerTable } from '@/components/privacy/PrivacyLedgerTable'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
+import { ToneBadge } from '@/components/shared/ToneBadge'
 
 const PLAIN_LANGUAGE_POINTS = [
   {
+    icon: UploadIcon,
     title: 'What leaves your account',
     body: 'A short list of bounded numbers that describe how your preparation is going, such as an average mastery score. Never your resumes, notes, company names or anything you typed.',
   },
   {
+    icon: LockIcon,
     title: 'How it is protected',
     body: 'Before anything is sent, the numbers are capped to a fixed size and blurred with random noise, so no single person can be picked out of the shared result.',
   },
   {
+    icon: SparklesIcon,
     title: 'What you get back',
     body: 'Benchmarks learned from the whole cohort, used to improve recommendations. You can switch this off at any time, and the ledger below shows everything that was ever sent.',
   },
@@ -53,148 +58,101 @@ export function PrivacyPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Privacy &amp; Federated Learning</h2>
-        <p className="text-sm text-muted-foreground">
-          Choose whether to contribute to the shared model. Participation is your decision, off by default, and
-          reversible at any time.
-        </p>
-      </div>
+      <PageHeader
+        title="Privacy & Federated Learning"
+        description="Choose whether to contribute to the shared model. Participation is your decision, off by default, and reversible at any time."
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-medium">In plain language</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <dl className="grid gap-4 sm:grid-cols-3">
-            {PLAIN_LANGUAGE_POINTS.map((point) => (
-              <div key={point.title}>
-                <dt className="text-sm font-medium">{point.title}</dt>
-                <dd className="mt-1 text-sm text-muted-foreground">{point.body}</dd>
-              </div>
-            ))}
-          </dl>
-        </CardContent>
-      </Card>
+      <section aria-label="In plain language" className="stagger grid gap-3 md:grid-cols-3">
+        {PLAIN_LANGUAGE_POINTS.map((point) => (
+          <div key={point.title} className="surface-raised space-y-2 rounded-xl border p-4 sm:p-5">
+            <span aria-hidden className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <point.icon className="size-4" />
+            </span>
+            <h3 className="font-heading text-sm font-semibold tracking-tight">{point.title}</h3>
+            <p className="text-sm text-pretty text-muted-foreground">{point.body}</p>
+          </div>
+        ))}
+      </section>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-          <CardTitle className="text-base font-medium">Federated learning participation</CardTitle>
-          {!consentQuery.isLoading && (
-            <Badge variant={optedIn ? 'default' : 'outline'}>
-              {optedIn ? 'Opted in' : 'Opted out'}
-            </Badge>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {consentQuery.isLoading && <Skeleton className="h-9 w-40" />}
+      <SectionCard
+        title="Federated learning participation"
+        action={!consentQuery.isLoading && <ToneBadge tone={optedIn ? 'success' : 'neutral'} dot>{optedIn ? 'Opted in' : 'Opted out'}</ToneBadge>}
+      >
+        {consentQuery.isLoading ? (
+          <Skeleton className="h-9 w-40" />
+        ) : (
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-2xl text-sm text-pretty text-muted-foreground">
+              {optedIn
+                ? 'Your sanitised feature vector is included in the next federated round. You can withdraw at any time — withdrawal takes effect from the next round; anything already aggregated cannot be un-sent.'
+                : 'You are not contributing to the shared model. Nothing is ever exported while opted out.'}
+            </p>
+            {optedIn ? (
+              <Button variant="outline" className="shrink-0" disabled={isBusy} onClick={() => optOutMutation.mutate()}>
+                <ShieldOffIcon aria-hidden />
+                Withdraw from federation
+              </Button>
+            ) : (
+              <Button className="shrink-0" disabled={isBusy} onClick={() => optInMutation.mutate()}>
+                <ShieldCheckIcon aria-hidden />
+                Opt in to federated learning
+              </Button>
+            )}
+          </div>
+        )}
+      </SectionCard>
 
-          {!consentQuery.isLoading && (
-            <>
-              <p className="text-sm text-muted-foreground">
-                {optedIn
-                  ? 'Your sanitised feature vector is included in the next federated round. You can withdraw at any time — withdrawal takes effect from the next round; anything already aggregated cannot be un-sent.'
-                  : 'You are not contributing to the shared model. Nothing is ever exported while opted out.'}
-              </p>
-              {optedIn ? (
-                <Button variant="outline" disabled={isBusy} onClick={() => optOutMutation.mutate()}>
-                  <ShieldOffIcon className="h-4 w-4" />
-                  Withdraw from federation
-                </Button>
-              ) : (
-                <Button disabled={isBusy} onClick={() => optInMutation.mutate()}>
-                  <ShieldCheckIcon className="h-4 w-4" />
-                  Opt in to federated learning
-                </Button>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-medium">What is sent, exactly</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {schemaQuery.isLoading && (
-            <div className="space-y-2">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <Skeleton key={index} className="h-5 w-full" />
+      <SectionCard
+        title="What is sent, exactly"
+        description={schemaQuery.data ? `Exactly ${schemaQuery.data.feature_count} bounded numbers, derived only from your own activity. No raw counts, no free text, no identifiers.` : undefined}
+      >
+        {schemaQuery.isLoading && <LoadingRows rows={4} label="Loading the feature schema" />}
+        {schemaQuery.isError && <ErrorState title="Couldn't load the feature schema" onRetry={() => schemaQuery.refetch()} />}
+        {schemaQuery.data && (
+          <div className="space-y-5">
+            <ul className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 xl:grid-cols-3">
+              {schemaQuery.data.features.map((feature) => (
+                <li key={feature.name} className="flex items-center justify-between gap-2 rounded-lg border bg-surface-2/50 px-3 py-2">
+                  <span className="truncate font-mono text-foreground">{feature.name}</span>
+                  <span className="shrink-0 font-mono text-muted-foreground tabular-nums">
+                    [{feature.lower_bound}, {feature.upper_bound}]
+                  </span>
+                </li>
               ))}
-            </div>
-          )}
-
-          {schemaQuery.isError && (
-            <Alert variant="destructive">
-              <AlertTitle>Couldn&apos;t load the feature schema</AlertTitle>
-              <AlertDescription>Something went wrong talking to the server.</AlertDescription>
-            </Alert>
-          )}
-
-          {schemaQuery.data && (
-            <>
-              <p className="text-sm text-muted-foreground">
-                Exactly {schemaQuery.data.feature_count} bounded numbers, derived only from your own activity. No raw
-                counts, no free text, no identifiers.
-              </p>
-              <ul className="grid grid-cols-1 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-2">
-                {schemaQuery.data.features.map((feature) => (
-                  <li key={feature.name} className="flex justify-between gap-2 rounded border border-dashed px-2 py-1">
-                    <span className="font-mono text-foreground">{feature.name}</span>
-                    <span>
-                      [{feature.lower_bound}, {feature.upper_bound}]
-                    </span>
+            </ul>
+            <div className="space-y-2">
+              <p className="eyebrow">What is never sent</p>
+              <ul className="flex flex-wrap gap-1.5">
+                {schemaQuery.data.not_collected.map((item) => (
+                  <li key={item}>
+                    <ToneBadge tone="danger">{item}</ToneBadge>
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+        )}
+      </SectionCard>
 
-              <div>
-                <p className="text-sm font-medium">What is never sent</p>
-                <ul className="mt-1 flex flex-wrap gap-1">
-                  {schemaQuery.data.not_collected.map((item) => (
-                    <Badge key={item} variant="outline">
-                      {item}
-                    </Badge>
-                  ))}
-                </ul>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-medium">Privacy Ledger</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Everything this account has ever sent to the shared model, one row per round. Expand a row to see the exact
-            vector that was transmitted after clipping and noise.
-          </p>
-
-          {ledgerQuery.isLoading && <Skeleton className="h-24 w-full" />}
-
-          {ledgerQuery.isError && (
-            <Alert variant="destructive">
-              <AlertTitle>Couldn&apos;t load the Privacy Ledger</AlertTitle>
-              <AlertDescription>Something went wrong talking to the server.</AlertDescription>
-            </Alert>
-          )}
-
-          {ledgerQuery.data && ledgerQuery.data.length === 0 && (
-            <p className="text-sm text-muted-foreground">Nothing has been sent yet.</p>
-          )}
-
-          {ledgerQuery.data && ledgerQuery.data.length > 0 && (
-            <PrivacyLedgerTable
-              entries={ledgerQuery.data}
-              featureNames={schemaQuery.data?.features.map((feature) => feature.name)}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <SectionCard
+        title="Privacy Ledger"
+        description="Everything this account has ever sent to the shared model, one row per round. Expand a row to see the exact vector that was transmitted after clipping and noise."
+      >
+        {ledgerQuery.isLoading && <LoadingRows rows={3} label="Loading the Privacy Ledger" />}
+        {ledgerQuery.isError && <ErrorState title="Couldn't load the Privacy Ledger" onRetry={() => ledgerQuery.refetch()} />}
+        {ledgerQuery.data && ledgerQuery.data.length === 0 && (
+          <EmptyState
+            compact
+            icon={ScrollTextIcon}
+            title="Nothing has been sent yet."
+            description={optedIn ? 'Your first contribution appears here after the next federated round.' : 'Opt in above and each round you take part in is logged here.'}
+          />
+        )}
+        {ledgerQuery.data && ledgerQuery.data.length > 0 && (
+          <PrivacyLedgerTable entries={ledgerQuery.data} featureNames={schemaQuery.data?.features.map((feature) => feature.name)} />
+        )}
+      </SectionCard>
     </div>
   )
 }

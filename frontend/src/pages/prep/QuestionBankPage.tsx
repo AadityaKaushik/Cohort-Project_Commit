@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDownIcon, ChevronRightIcon, ListChecksIcon } from 'lucide-react'
+import { ChevronDownIcon, ChevronRightIcon, ListChecksIcon, SearchIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import {
   getPreparationProgress,
@@ -16,11 +16,13 @@ import {
 import { ApiError } from '@/lib/api-client'
 import { formatLabel } from '@/lib/labels'
 import { useToast } from '@/hooks/use-toast'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { Pagination } from '@/components/shared/DataTable'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ToneBadge, type Tone } from '@/components/shared/ToneBadge'
 import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
 import { LogAttemptDialog, type AttemptDraft } from '@/components/prep/LogAttemptDialog'
 import { MasteryBadge } from '@/components/prep/MasteryBadge'
@@ -28,6 +30,7 @@ import { MasteryBadge } from '@/components/prep/MasteryBadge'
 const CATEGORIES: QuestionCategory[] = ['dsa', 'technical', 'behavioural', 'hr', 'system_design', 'company_specific']
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
 const PAGE_SIZE = 20
+const DIFFICULTY_TONES: Record<Difficulty, Tone> = { easy: 'success', medium: 'warning', hard: 'danger' }
 
 export function QuestionBankPage() {
   const queryClient = useQueryClient()
@@ -101,30 +104,35 @@ export function QuestionBankPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">{selectedTopic ? selectedTopic.name : 'Question bank'}</h2>
-          <p className="text-sm text-muted-foreground">
-            Log every attempt. Mastery for a topic moves as your confidence and recency change.
-          </p>
-        </div>
-        {topicMastery && (
-          <MasteryBadge
-            masteryScore={topicMastery.mastery_score}
-            sufficientEvidence={topicMastery.sufficient_evidence}
-            observationCount={topicMastery.observation_count}
-          />
-        )}
-      </div>
+      <PageHeader
+        back={{ to: '/prep', label: 'Interview Prep' }}
+        title={selectedTopic ? selectedTopic.name : 'Question bank'}
+        description="Log every attempt. Mastery for a topic moves as your confidence and recency change."
+        meta={
+          topicMastery && (
+            <MasteryBadge
+              masteryScore={topicMastery.mastery_score}
+              sufficientEvidence={topicMastery.sufficient_evidence}
+              observationCount={topicMastery.observation_count}
+            />
+          )
+        }
+      />
 
-      <form role="search" aria-label="Filter questions" className="flex flex-wrap gap-2" onSubmit={(e) => e.preventDefault()}>
-        <div className="min-w-48 flex-1">
+      <form
+        role="search"
+        aria-label="Filter questions"
+        className="surface-raised grid grid-cols-2 gap-2 rounded-xl border p-2 sm:flex sm:flex-wrap sm:items-center"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <div className="relative col-span-2 min-w-48 flex-1">
+          <SearchIcon aria-hidden className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <label htmlFor="bank-q" className="sr-only">
             Search questions
           </label>
-          <Input id="bank-q" type="search" placeholder="Search questions" value={q} onChange={(e) => setParam('q', e.target.value)} />
+          <Input id="bank-q" type="search" className="pl-8" placeholder="Search questions" value={q} onChange={(e) => setParam('q', e.target.value)} />
         </div>
-        <div className="w-44">
+        <div className="min-w-0 sm:w-44">
           <label htmlFor="bank-topic" className="sr-only">
             Topic
           </label>
@@ -137,7 +145,7 @@ export function QuestionBankPage() {
             ))}
           </NativeSelect>
         </div>
-        <div className="w-40">
+        <div className="min-w-0 sm:w-44">
           <label htmlFor="bank-category" className="sr-only">
             Category
           </label>
@@ -150,7 +158,7 @@ export function QuestionBankPage() {
             ))}
           </NativeSelect>
         </div>
-        <div className="w-36">
+        <div className="col-span-2 min-w-0 sm:col-span-1 sm:w-40">
           <label htmlFor="bank-difficulty" className="sr-only">
             Difficulty
           </label>
@@ -169,27 +177,33 @@ export function QuestionBankPage() {
       {questionsQuery.isError && <ErrorState title="Couldn't load questions" onRetry={() => questionsQuery.refetch()} />}
       {questionsQuery.data && questionsQuery.data.items.length === 0 && (
         <EmptyState
+          compact
           icon={ListChecksIcon}
           title="No questions match"
           description="Try another topic or clear the search to see the whole bank."
+          action={
+            <Button variant="outline" onClick={() => setParams(new URLSearchParams())}>
+              Clear filters
+            </Button>
+          }
         />
       )}
 
-      <ul className="space-y-2">
+      <ul className="stagger space-y-2">
         {questionsQuery.data?.items.map((question) => (
-          <li key={question.id} className="rounded-lg border p-3">
+          <li key={question.id} className="surface-raised rounded-xl border p-4 transition-colors hover:border-primary/25">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm">{question.question_text}</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
+                <p className="text-sm leading-relaxed font-medium">{question.question_text}</p>
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {question.topic_name && (
-                    <Badge variant="outline" asChild>
+                    <ToneBadge tone="primary" asChild>
                       <Link to={`/prep/questions?topic_id=${question.topic_id}`}>{question.topic_name}</Link>
-                    </Badge>
+                    </ToneBadge>
                   )}
-                  <Badge variant="outline">{formatLabel(question.category)}</Badge>
-                  {question.difficulty && <Badge variant="outline">{formatLabel(question.difficulty)}</Badge>}
-                  {!question.is_system && <Badge variant="outline">Yours</Badge>}
+                  <ToneBadge tone="neutral">{formatLabel(question.category)}</ToneBadge>
+                  {question.difficulty && <ToneBadge tone={DIFFICULTY_TONES[question.difficulty]}>{formatLabel(question.difficulty)}</ToneBadge>}
+                  {!question.is_system && <ToneBadge tone="info">Yours</ToneBadge>}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -213,19 +227,7 @@ export function QuestionBankPage() {
       </ul>
 
       {questionsQuery.data && total > PAGE_SIZE && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Page {page + 1} of {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setParam('page', String(page - 1))}>
-              Previous
-            </Button>
-            <Button variant="outline" size="sm" disabled={page + 1 >= totalPages} onClick={() => setParam('page', String(page + 1))}>
-              Next
-            </Button>
-          </div>
-        </div>
+        <Pagination page={page} totalPages={totalPages} onPageChange={(next) => setParam('page', String(next))} label="Question pages" />
       )}
 
       <LogAttemptDialog
@@ -246,7 +248,7 @@ function AttemptHistory({ questionId }: { questionId: string }) {
   })
 
   if (isLoading) {
-    return <p className="mt-3 text-sm text-muted-foreground">Loading history</p>
+    return <p className="mt-3 text-sm text-muted-foreground">Loading history…</p>
   }
   if (isError) {
     return <p role="alert" className="mt-3 text-sm text-destructive">Couldn&apos;t load the history.</p>
@@ -255,7 +257,7 @@ function AttemptHistory({ questionId }: { questionId: string }) {
     return <p className="mt-3 text-sm text-muted-foreground">No attempts yet.</p>
   }
   return (
-    <ul className="mt-3 divide-y rounded-md border text-sm">
+    <ul className="animate-enter mt-3 divide-y rounded-lg border bg-surface-2/50 text-sm">
       {data.map((attempt) => (
         <li key={attempt.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
           <span>{formatLabel(attempt.status)}</span>

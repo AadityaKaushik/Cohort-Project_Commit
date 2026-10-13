@@ -14,8 +14,8 @@ interface VectorInspectorProps {
 export function VectorInspector({ vector, featureNames }: VectorInspectorProps) {
   const labels = featureNames && featureNames.length === vector.length ? featureNames : null
   return (
-    <div className="rounded-md border border-dashed bg-muted/30 p-3">
-      <p className="mb-2 text-xs font-medium text-muted-foreground">
+    <div className="animate-enter rounded-lg border border-dashed bg-card p-3">
+      <p className="eyebrow mb-2">
         Transmitted vector ({vector.length} value{vector.length === 1 ? '' : 's'})
       </p>
       <ul className="grid grid-cols-1 gap-x-4 gap-y-1 font-mono text-xs sm:grid-cols-3 md:grid-cols-4">

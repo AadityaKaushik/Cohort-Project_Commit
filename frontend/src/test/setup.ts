@@ -29,10 +29,12 @@ if (!Element.prototype.scrollIntoView) {
 }
 
 // jsdom has no matchMedia; the sidebar's mobile hook and the theme provider both read it.
+// Tests run with reduced motion by default so typing and count-up timers stay out of the way;
+// motion-specific tests opt back in with mockReducedMotion(false).
 if (typeof window.matchMedia !== 'function') {
   window.matchMedia = (query: string) =>
     ({
-      matches: false,
+      matches: query.includes('prefers-reduced-motion'),
       media: query,
       onchange: null,
       addEventListener: () => {},

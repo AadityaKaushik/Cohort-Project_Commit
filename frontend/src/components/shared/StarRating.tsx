@@ -12,7 +12,7 @@ interface StarRatingProps {
 export function StarRating({ value, onChange, label, disabled = false }: StarRatingProps) {
   return (
     <div className="space-y-1">
-      {label && <p className="text-sm text-muted-foreground">{label}</p>}
+      {label && <p className="text-sm font-medium">{label}</p>}
       <div className="flex items-center gap-1" role="radiogroup" aria-label={label}>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -23,12 +23,12 @@ export function StarRating({ value, onChange, label, disabled = false }: StarRat
             aria-label={`${star} out of 5`}
             disabled={disabled}
             onClick={() => onChange(star)}
-            className={cn('rounded p-0.5 transition-colors disabled:cursor-not-allowed', !disabled && 'hover:text-primary')}
+            className={cn('rounded-md p-1 transition-transform duration-150 disabled:cursor-not-allowed', !disabled && 'hover:scale-110 active:scale-95')}
           >
             <StarIcon
               className={cn(
-                'h-5 w-5',
-                value !== null && star <= value ? 'fill-primary text-primary' : 'text-muted-foreground/40',
+                'size-6 transition-colors duration-150',
+                value !== null && star <= value ? 'fill-warning text-warning' : 'text-muted-foreground/40',
               )}
             />
           </button>

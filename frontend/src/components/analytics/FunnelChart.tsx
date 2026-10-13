@@ -1,28 +1,22 @@
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { FunnelIcon } from 'lucide-react'
 import type { Funnel } from '@/lib/analytics-api'
+import { ChartEmpty, ChartFrame } from '@/components/shared/Chart'
+import { CHART_ANIMATION_MS, SERIES_COLORS, axisProps, gridProps, tooltipProps } from '@/lib/chart-theme'
 
 const STAGE_LABELS = ['Applied', 'OA', 'Interview', 'Final Round', 'Offer'] as const
+const HEIGHT = 248
 
 /**
  * US-43: the application funnel, one bar per stage, each count "ever
- * reached" (not current status). A single series (one bar chart, one
- * measure -- "how many applications reached this stage") needs only one
- * consistent hue, not a categorical palette -- the five stage names are the
- * chart's categorical axis, not five different series, so there is no
- * identity-by-colour requirement here. Every bar carries its count as a
- * direct label (five bars is few enough that this reads cleanly without
- * clutter), and a tooltip on hover repeats it for anyone zoomed in or using
- * a screen magnifier.
+ * reached" (not current status). A single series needs one consistent hue,
+ * not a categorical palette: the five stage names are the categorical axis.
+ * Every bar carries its count as a direct label, a tooltip repeats it, and a
+ * plain-text summary below makes it readable without the chart at all.
  */
 export function FunnelChart({ funnel }: { funnel: Funnel }) {
   if (funnel.sample_size === 0) {
-    return (
-      <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-md border border-dashed text-center text-sm text-muted-foreground">
-        <FunnelIcon className="h-5 w-5" />
-        <p>No applications yet — once you log one, your funnel appears here.</p>
-      </div>
-    )
+    return <ChartEmpty icon={<FunnelIcon aria-hidden className="size-4" />} message="No applications yet — once you log one, your funnel appears here." height={HEIGHT} />
   }
 
   const data = [
@@ -34,32 +28,39 @@ export function FunnelChart({ funnel }: { funnel: Funnel }) {
   ]
 
   return (
-    <div data-testid="funnel-chart">
-      <div className="h-[260px] w-full">
-        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height: 260 }}>
-        <BarChart data={data} layout="vertical" margin={{ left: 8, right: 28 }}>
-          <CartesianGrid horizontal={false} stroke="var(--color-border)" />
-          <XAxis type="number" allowDecimals={false} stroke="var(--color-muted-foreground)" fontSize={12} />
-          <YAxis type="category" dataKey="stage" width={84} stroke="var(--color-muted-foreground)" fontSize={12} />
-          <Tooltip
-            cursor={{ fill: 'var(--color-muted)' }}
-            contentStyle={{ background: 'var(--color-card)', border: '1px solid var(--color-border)', borderRadius: 8 }}
-            labelStyle={{ color: 'var(--color-foreground)' }}
-          />
-          <Bar dataKey="count" fill="var(--color-chart-1)" radius={4} barSize={22}>
-            <LabelList dataKey="count" position="right" fill="var(--color-foreground)" fontSize={12} />
-          </Bar>
-        </BarChart>
-        </ResponsiveContainer>
-      </div>
-      {/* A plain-text equivalent of the chart above -- never colour- or
-          hover-only, and robust for screen readers/low vision the same way
-          MasteryBadge's plain-language labels are (US-41's own precedent). */}
-      <dl data-testid="funnel-summary" className="mt-3 grid grid-cols-3 gap-2 text-center text-xs sm:grid-cols-5">
-        {data.map((point) => (
-          <div key={point.stage}>
-            <dt className="text-muted-foreground">{point.stage}</dt>
-            <dd className="text-sm font-semibold">{point.count}</dd>
+    <div data-testid="funnel-chart" className="space-y-4">
+      <ChartFrame height={HEIGHT} label={`Application funnel: ${data.map((point) => `${point.stage} ${point.count}`).join(', ')}`}>
+        {(animate) => (
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 640, height: HEIGHT }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 0, right: 32, top: 4, bottom: 0 }} barCategoryGap={10}>
+              <CartesianGrid {...gridProps} horizontal={false} />
+              <XAxis type="number" allowDecimals={false} {...axisProps} />
+              <YAxis type="category" dataKey="stage" width={92} {...axisProps} />
+              <Tooltip {...tooltipProps} cursor={{ fill: 'var(--color-muted)', opacity: 0.6 }} />
+              <Bar
+                dataKey="count"
+                name="Applications"
+                fill={SERIES_COLORS[0]}
+                radius={[0, 4, 4, 0]}
+                barSize={22}
+                isAnimationActive={animate}
+                animationDuration={CHART_ANIMATION_MS}
+                animationEasing="ease-out"
+              >
+                <LabelList dataKey="count" position="right" fill="var(--color-foreground)" fontSize={12} fontWeight={600} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </ChartFrame>
+      <dl data-testid="funnel-summary" className="grid grid-cols-3 gap-2 border-t pt-4 text-center sm:grid-cols-5">
+        {data.map((point, index) => (
+          <div key={point.stage} className="space-y-0.5">
+            <dt className="eyebrow">{point.stage}</dt>
+            <dd className="text-base font-semibold tabular-nums">{point.count}</dd>
+            {index > 0 && data[0].count > 0 && (
+              <dd className="text-[11px] text-muted-foreground tabular-nums">{Math.round((point.count / data[0].count) * 100)}% of applied</dd>
+            )}
           </div>
         ))}
       </dl>

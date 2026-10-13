@@ -69,3 +69,25 @@ describe.each([
     expect(contrast(tokens.ring, tokens.background)).toBeGreaterThanOrEqual(3)
   })
 })
+
+describe('dark theme neutrals', () => {
+  const tokens = tokenBlock('.dark')
+
+  it('keeps surfaces a low-saturation blue-black rather than a violet wash', () => {
+    for (const token of ['background', 'card', 'popover', 'muted', 'sidebar', 'surface-2', 'border']) {
+      const [, chroma] = tokens[token].replace(/oklch\(|\)/g, '').split(/\s+/).map(Number)
+      expect(chroma).toBeLessThanOrEqual(0.04)
+    }
+  })
+
+  it('gives inputs a border at least 3:1 against the page and the card they sit on', () => {
+    expect(contrast(tokens.input, tokens.background)).toBeGreaterThanOrEqual(3)
+    expect(contrast(tokens.input, tokens.card)).toBeGreaterThanOrEqual(3)
+  })
+
+  it('pairs muted text with every raised surface at 4.5:1', () => {
+    for (const surface of ['card', 'popover', 'surface-2', 'accent']) {
+      expect(contrast(tokens['muted-foreground'], tokens[surface])).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+})

@@ -3,7 +3,7 @@ import { CalendarClock, Flame, MousePointerClick } from 'lucide-react'
 import { ActionQueueList } from '@/components/dashboard/ActionQueueList'
 import { ProgressRing } from '@/components/dashboard/ProgressRing'
 import { InteractiveBoard } from '@/components/landing/InteractiveBoard'
-import { useReducedMotion } from '@/hooks/use-motion'
+import { useFrameThrottle, useReducedMotion } from '@/hooks/use-motion'
 import type { ActionItem } from '@/lib/action-queue'
 
 const SAMPLE_ACTIONS: ActionItem[] = [
@@ -27,17 +27,26 @@ export function ProductPreview() {
     if (reduced) {
       return
     }
-    const timer = window.setInterval(() => setStep((current) => (current + 1) % PREP_STEPS.length), STEP_MS)
+    const timer = window.setInterval(() => {
+      if (!document.hidden) {
+        setStep((current) => (current + 1) % PREP_STEPS.length)
+      }
+    }, STEP_MS)
     return () => window.clearInterval(timer)
   }, [reduced])
 
-  function handlePointerMove(event: PointerEvent<HTMLElement>) {
+  const tilt = useFrameThrottle(({ target, clientX, clientY }: { target: HTMLElement; clientX: number; clientY: number }) => {
     const element = tiltRef.current
-    if (!element || reduced || event.pointerType !== 'mouse') return
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5
+    if (!element) return
+    const bounds = target.getBoundingClientRect()
+    const x = (clientX - bounds.left) / bounds.width - 0.5
+    const y = (clientY - bounds.top) / bounds.height - 0.5
     element.style.transform = `rotateX(${(-y * MAX_TILT_DEG).toFixed(2)}deg) rotateY(${(x * MAX_TILT_DEG).toFixed(2)}deg)`
+  })
+
+  function handlePointerMove(event: PointerEvent<HTMLElement>) {
+    if (reduced || event.pointerType !== 'mouse') return
+    tilt({ target: event.currentTarget, clientX: event.clientX, clientY: event.clientY })
   }
 
   function resetTilt() {

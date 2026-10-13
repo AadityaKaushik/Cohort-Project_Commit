@@ -6,9 +6,9 @@ import { ApiError } from '@/lib/api-client'
 import { updateMyProfile } from '@/lib/users-api'
 import { email as emailRule, hasErrors, required, validate } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormActions, FormError, FormField } from '@/components/shared/Form'
+import { SectionCard } from '@/components/shared/SectionCard'
 
 export function ProfileForm() {
   const { user } = useAuth()
@@ -71,52 +71,35 @@ export function ProfileForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Profile</CardTitle>
-        <CardDescription>This shapes your starter plan and how Cohort addresses you.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2" noValidate>
-          <div className="space-y-1.5">
-            <Label htmlFor="profile-display-name">Display name</Label>
+    <SectionCard title="Profile" description="This shapes your starter plan and how Cohort addresses you.">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField id="profile-display-name" label="Display name" error={errors.displayName}>
             <Input id="profile-display-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-            {errors.displayName && <p className="text-sm text-destructive">{errors.displayName}</p>}
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="profile-email">Email</Label>
+          </FormField>
+          <FormField id="profile-email" label="Email" error={errors.email}>
             <Input id="profile-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="profile-role">Target role</Label>
+          </FormField>
+          <FormField id="profile-role" label="Target role">
             <Input id="profile-role" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="profile-target-date">Interview-ready by</Label>
+          </FormField>
+          <FormField id="profile-target-date" label="Interview-ready by">
             <Input id="profile-target-date" type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="profile-grad-year">Graduation year</Label>
+          </FormField>
+          <FormField id="profile-grad-year" label="Graduation year" error={errors.graduationYear}>
             <Input id="profile-grad-year" inputMode="numeric" value={graduationYear} onChange={(e) => setGraduationYear(e.target.value)} />
-            {errors.graduationYear && <p className="text-sm text-destructive">{errors.graduationYear}</p>}
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="profile-timezone">Time zone</Label>
+          </FormField>
+          <FormField id="profile-timezone" label="Time zone">
             <Input id="profile-timezone" placeholder="Europe/Berlin" value={timezone} onChange={(e) => setTimezone(e.target.value)} />
-          </div>
-          {serverError && (
-            <p role="alert" className="text-sm text-destructive sm:col-span-2">
-              {serverError}
-            </p>
-          )}
-          <div className="sm:col-span-2">
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Saving…' : 'Save profile'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+          </FormField>
+        </div>
+        {serverError && <FormError>{serverError}</FormError>}
+        <FormActions>
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? 'Saving…' : 'Save profile'}
+          </Button>
+        </FormActions>
+      </form>
+    </SectionCard>
   )
 }

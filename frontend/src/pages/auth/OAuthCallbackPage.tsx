@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { setTokens } from '@/lib/auth-storage'
-import { AuthFrame } from '@/components/layout/AuthFrame'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 
 /** Receives the application's own tokens from the provider round trip and starts a normal session. */
 export function OAuthCallbackPage() {
@@ -22,11 +21,8 @@ export function OAuthCallbackPage() {
 
   return (
     <AuthFrame>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Signing you in</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm">
+      <AuthIntro title="Signing you in" />
+      <div className="space-y-4 text-sm">
           {failed ? (
             <p role="alert">
               Sign-in could not be completed.{' '}
@@ -37,8 +33,7 @@ export function OAuthCallbackPage() {
           ) : (
             <p role="status">One moment.</p>
           )}
-        </CardContent>
-      </Card>
+        </div>
     </AuthFrame>
   )
 }

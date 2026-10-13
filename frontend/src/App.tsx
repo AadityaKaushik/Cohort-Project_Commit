@@ -1,12 +1,15 @@
 import { lazy, Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Outlet, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { AppShell } from '@/components/layout/AppShell'
-import { DashboardPage } from '@/pages/dashboard/DashboardPage'
-import { LoginPage } from '@/pages/LoginPage'
+import { AuthFrameSkeleton } from '@/components/layout/AuthFrame'
+import { RouteProgress } from '@/components/motion/RouteProgress'
+import { loadDashboardPage, loadLoginPage, loadRegisterPage } from '@/lib/route-chunks'
 import { NotFoundPage } from '@/pages/NotFoundPage'
-import { RegisterPage } from '@/pages/RegisterPage'
 
+const AppShell = lazy(() => import('@/components/layout/AppShell').then((module) => ({ default: module.AppShell })))
+const DashboardPage = lazy(() => loadDashboardPage().then((module) => ({ default: module.DashboardPage })))
+const LoginPage = lazy(() => loadLoginPage().then((module) => ({ default: module.LoginPage })))
+const RegisterPage = lazy(() => loadRegisterPage().then((module) => ({ default: module.RegisterPage })))
 const ApplicationDetailPage = lazy(() => import('@/pages/applications/ApplicationDetailPage').then((module) => ({ default: module.ApplicationDetailPage })))
 const ApplicationFormPage = lazy(() => import('@/pages/applications/ApplicationFormPage').then((module) => ({ default: module.ApplicationFormPage })))
 const ApplicationsBoardPage = lazy(() => import('@/pages/applications/ApplicationsBoardPage').then((module) => ({ default: module.ApplicationsBoardPage })))
@@ -34,23 +37,55 @@ const VerifyEmailPage = lazy(() => import('@/pages/auth/VerifyEmailPage').then((
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage').then((module) => ({ default: module.LandingPage })))
 
 const landing = (
-  <Suspense fallback={<div className="min-h-screen bg-background" />}>
+  <Suspense
+    fallback={
+      <div className="min-h-screen bg-background">
+        <RouteProgress />
+      </div>
+    }
+  >
     <LandingPage />
   </Suspense>
 )
 
+function SignedInShell() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background">
+          <RouteProgress />
+        </div>
+      }
+    >
+      <AppShell />
+    </Suspense>
+  )
+}
+
+function AuthRoutes() {
+  return (
+    <Suspense fallback={<AuthFrameSkeleton />}>
+      <Outlet />
+    </Suspense>
+  )
+}
+
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/verify-email" element={<VerifyEmailPage />} />
-      <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+      <Route element={<AuthRoutes />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+      </Route>
       <Route element={<ProtectedRoute signedOutHome={landing} />}>
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route element={<AppShell />}>
+        <Route element={<AuthRoutes />}>
+          <Route path="/onboarding" element={<OnboardingPage />} />
+        </Route>
+        <Route element={<SignedInShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="applications">
             <Route index element={<ApplicationsListPage />} />

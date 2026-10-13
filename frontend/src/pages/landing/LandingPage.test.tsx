@@ -85,7 +85,7 @@ describe('LandingPage', () => {
     mockReducedMotion(true)
     renderLanding()
 
-    expect(screen.getByTestId('typing-text')).toHaveTextContent('Track every application.')
+    expect(screen.getByTestId('typing-text')).toHaveAttribute('data-typed', 'Track every application.')
     expect(screen.getByRole('progressbar', { name: 'Prep tasks completed' })).toHaveAttribute('aria-valuenow', '75')
   })
 })

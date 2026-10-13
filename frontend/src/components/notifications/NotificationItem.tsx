@@ -38,7 +38,7 @@ export function NotificationItem({ notification, onOpen, expanded = false }: Not
     <>
       <span
         className={cn(
-          'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
+          'mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg',
           unread ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
         )}
         aria-hidden="true"
@@ -60,7 +60,7 @@ export function NotificationItem({ notification, onOpen, expanded = false }: Not
     </>
   )
 
-  const className = 'flex w-full items-start gap-3 rounded-md p-2.5 text-left transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none'
+  const className = 'flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors hover:bg-accent/60 focus-visible:bg-accent focus-visible:outline-none'
 
   if (href) {
     return (

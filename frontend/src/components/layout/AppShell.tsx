@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { RouteProgress } from '@/components/motion/RouteProgress'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { breadcrumbsFor, pageTitleFor } from '@/lib/navigation'
 
@@ -74,7 +75,7 @@ export function AppShell() {
           </div>
         </header>
         <main className="flex-1 px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-8 lg:px-8">
-          <div key={pathname} className="animate-enter mx-auto w-full max-w-7xl">
+          <div key={pathname} className="animate-route mx-auto w-full max-w-7xl">
             <Suspense fallback={<PageFallback />}>
               <Outlet />
             </Suspense>
@@ -89,8 +90,12 @@ export function AppShell() {
 
 function PageFallback() {
   return (
-    <div role="status" aria-label="Loading page" className="space-y-4">
-      <Skeleton className="h-9 w-64" />
+    <div role="status" aria-label="Loading page" className="space-y-6">
+      <RouteProgress />
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-96 max-w-full" />
+      </div>
       <Skeleton className="h-40 w-full rounded-xl" />
       <Skeleton className="h-64 w-full rounded-xl" />
     </div>

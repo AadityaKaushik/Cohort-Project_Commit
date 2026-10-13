@@ -1,5 +1,5 @@
 import { NetworkIcon, UserIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Segmented } from '@/components/shared/Segmented'
 
 interface FederatedLiftToggleProps {
   federated: boolean
@@ -16,29 +16,15 @@ interface FederatedLiftToggleProps {
  */
 export function FederatedLiftToggle({ federated, onChange, disabled }: FederatedLiftToggleProps) {
   return (
-    <div className="flex items-center gap-1 rounded-md border p-1" role="group" aria-label="Federated Lift toggle">
-      <Button
-        type="button"
-        size="sm"
-        variant={federated ? 'ghost' : 'secondary'}
-        disabled={disabled}
-        aria-pressed={!federated}
-        onClick={() => onChange(false)}
-      >
-        <UserIcon className="h-4 w-4" />
-        Local only
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant={federated ? 'secondary' : 'ghost'}
-        disabled={disabled}
-        aria-pressed={federated}
-        onClick={() => onChange(true)}
-      >
-        <NetworkIcon className="h-4 w-4" />
-        Federated lift
-      </Button>
-    </div>
+    <Segmented
+      label="Federated Lift toggle"
+      value={federated ? 'federated' : 'local'}
+      onChange={(value) => onChange(value === 'federated')}
+      disabled={disabled}
+      options={[
+        { value: 'local', label: 'Local only', icon: UserIcon },
+        { value: 'federated', label: 'Federated lift', icon: NetworkIcon },
+      ]}
+    />
   )
 }

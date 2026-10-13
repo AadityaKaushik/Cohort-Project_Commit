@@ -1,7 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertCircleIcon } from 'lucide-react'
 import {
   createApplication,
   getApplication,
@@ -16,14 +15,14 @@ import { ApiError } from '@/lib/api-client'
 import { formatLabel } from '@/lib/labels'
 import { email as emailRule, hasErrors, positiveInteger, required, url, validate } from '@/lib/validation'
 import { useToast } from '@/hooks/use-toast'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { CheckboxField, FormActions, FormError, FormField, FormSection } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, PageSkeleton } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
 
 const CREATE_STATUS_OPTIONS: ApplicationStatusValue[] = ['SAVED', 'APPLIED', 'OA', 'INTERVIEW', 'FINAL_ROUND', 'OFFER']
 const WORK_MODES: WorkMode[] = ['onsite', 'hybrid', 'remote']
@@ -200,55 +199,42 @@ export function ApplicationFormPage() {
   }
 
   if (isEditing && detailQuery.isLoading) {
-    return (
-      <div className="max-w-3xl space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-96 w-full" />
-      </div>
-    )
+    return <PageSkeleton label="Loading application" variant="form" />
   }
 
   if (isEditing && detailQuery.isError) {
     return (
-      <Alert variant="destructive">
-        <AlertCircleIcon className="h-4 w-4" />
-        <AlertTitle>Couldn&apos;t load this application</AlertTitle>
-        <AlertDescription>It may have been deleted, or something went wrong.</AlertDescription>
-      </Alert>
+      <ErrorState
+        title="Couldn't load this application"
+        description="It may have been deleted, or something went wrong."
+        onRetry={() => detailQuery.refetch()}
+      />
     )
   }
 
-  function field(key: string) {
-    return fieldErrors[key] ? <p className="text-sm text-destructive">{fieldErrors[key]}</p> : null
-  }
+  const backTo = isEditing ? { to: `/applications/${id}`, label: 'Application' } : { to: '/applications', label: 'Applications' }
 
   return (
-    <Card className="max-w-3xl">
-      <CardHeader>
-        <CardTitle>{isEditing ? 'Edit application' : 'Create an application'}</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="max-w-4xl space-y-6">
+      <PageHeader
+        back={backTo}
+        title={isEditing ? 'Edit application' : 'Create an application'}
+        description={isEditing ? 'Update the details you track for this role.' : 'Only the company, role and date are required. Add the rest whenever you have it.'}
+      />
+      <SectionCard>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-          <fieldset className="grid gap-4 sm:grid-cols-2">
-            <legend className="mb-2 text-sm font-medium">The role</legend>
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company</Label>
+          <FormSection title="The role" description="What you applied for and where it stands.">
+            <FormField id="companyName" label="Company" error={fieldErrors.companyName}>
               <Input id="companyName" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
-              {field('companyName')}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="jobTitle">Job title</Label>
+            </FormField>
+            <FormField id="jobTitle" label="Job title" error={fieldErrors.jobTitle}>
               <Input id="jobTitle" value={form.jobTitle} onChange={(e) => set('jobTitle', e.target.value)} required />
-              {field('jobTitle')}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="dateApplied">Date applied</Label>
+            </FormField>
+            <FormField id="dateApplied" label="Date applied" error={fieldErrors.dateApplied}>
               <Input id="dateApplied" type="date" value={form.dateApplied} onChange={(e) => set('dateApplied', e.target.value)} required />
-              {field('dateApplied')}
-            </div>
+            </FormField>
             {!isEditing && (
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+              <FormField id="status" label="Status">
                 <NativeSelect id="status" value={form.status} onChange={(e) => set('status', e.target.value as ApplicationStatusValue)}>
                   {CREATE_STATUS_OPTIONS.map((option) => (
                     <option key={option} value={option}>
@@ -256,14 +242,12 @@ export function ApplicationFormPage() {
                     </option>
                   ))}
                 </NativeSelect>
-              </div>
+              </FormField>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+            <FormField id="location" label="Location">
               <Input id="location" value={form.location} onChange={(e) => set('location', e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="workMode">Work mode</Label>
+            </FormField>
+            <FormField id="workMode" label="Work mode">
               <NativeSelect id="workMode" value={form.workMode} onChange={(e) => set('workMode', e.target.value as WorkMode | '')}>
                 <option value="">Not specified</option>
                 {WORK_MODES.map((option) => (
@@ -272,9 +256,8 @@ export function ApplicationFormPage() {
                   </option>
                 ))}
               </NativeSelect>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="jobType">Job type</Label>
+            </FormField>
+            <FormField id="jobType" label="Job type">
               <NativeSelect id="jobType" value={form.jobType} onChange={(e) => set('jobType', e.target.value as JobType | '')}>
                 <option value="">Not specified</option>
                 {JOB_TYPES.map((option) => (
@@ -283,37 +266,26 @@ export function ApplicationFormPage() {
                   </option>
                 ))}
               </NativeSelect>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="jobUrl">Job URL</Label>
-              <Input id="jobUrl" type="url" value={form.jobUrl} onChange={(e) => set('jobUrl', e.target.value)} />
-              {field('jobUrl')}
-            </div>
-          </fieldset>
+            </FormField>
+            <FormField id="jobUrl" label="Job URL" error={fieldErrors.jobUrl}>
+              <Input id="jobUrl" type="url" placeholder="https://" value={form.jobUrl} onChange={(e) => set('jobUrl', e.target.value)} />
+            </FormField>
+          </FormSection>
 
-          <fieldset className="grid gap-4 sm:grid-cols-3">
-            <legend className="mb-2 text-sm font-medium">Compensation</legend>
-            <div className="space-y-2">
-              <Label htmlFor="salaryMin">Minimum salary</Label>
+          <FormSection title="Compensation" description="Whole numbers, in the posting's currency." columns={3}>
+            <FormField id="salaryMin" label="Minimum salary" error={fieldErrors.salaryMin}>
               <Input id="salaryMin" inputMode="numeric" value={form.salaryMin} onChange={(e) => set('salaryMin', e.target.value)} />
-              {field('salaryMin')}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="salaryMax">Maximum salary</Label>
+            </FormField>
+            <FormField id="salaryMax" label="Maximum salary" error={fieldErrors.salaryMax}>
               <Input id="salaryMax" inputMode="numeric" value={form.salaryMax} onChange={(e) => set('salaryMax', e.target.value)} />
-              {field('salaryMax')}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="salaryCurrency">Currency</Label>
+            </FormField>
+            <FormField id="salaryCurrency" label="Currency" error={fieldErrors.salaryCurrency}>
               <Input id="salaryCurrency" maxLength={3} placeholder="USD" value={form.salaryCurrency} onChange={(e) => set('salaryCurrency', e.target.value)} />
-              {field('salaryCurrency')}
-            </div>
-          </fieldset>
+            </FormField>
+          </FormSection>
 
-          <fieldset className="grid gap-4 sm:grid-cols-2">
-            <legend className="mb-2 text-sm font-medium">Tracking</legend>
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
+          <FormSection title="Tracking" description="How much it matters and where it came from.">
+            <FormField id="priority" label="Priority">
               <NativeSelect id="priority" value={form.priority} onChange={(e) => set('priority', e.target.value as Priority | '')}>
                 <option value="">Not set</option>
                 {PRIORITIES.map((option) => (
@@ -322,70 +294,48 @@ export function ApplicationFormPage() {
                   </option>
                 ))}
               </NativeSelect>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="deadline">Deadline</Label>
+            </FormField>
+            <FormField id="deadline" label="Deadline">
               <Input id="deadline" type="date" value={form.deadline} onChange={(e) => set('deadline', e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="source">Source</Label>
+            </FormField>
+            <FormField id="source" label="Source">
               <Input id="source" placeholder="LinkedIn, referral, careers page" value={form.source} onChange={(e) => set('source', e.target.value)} />
-            </div>
-            <label className="flex items-center gap-2 self-end pb-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.isReferral}
-                onChange={(e) => set('isReferral', e.target.checked)}
-                className="h-4 w-4 rounded border-input"
-              />
-              I was referred
-            </label>
-          </fieldset>
+            </FormField>
+            <CheckboxField className="self-end" checked={form.isReferral} onChange={(checked) => set('isReferral', checked)} label="I was referred" />
+          </FormSection>
 
-          <fieldset className="grid gap-4 sm:grid-cols-2">
-            <legend className="mb-2 text-sm font-medium">Recruiter</legend>
-            <div className="space-y-2">
-              <Label htmlFor="recruiterName">Recruiter name</Label>
+          <FormSection title="Recruiter" description="Who to follow up with.">
+            <FormField id="recruiterName" label="Recruiter name">
               <Input id="recruiterName" value={form.recruiterName} onChange={(e) => set('recruiterName', e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="recruiterEmail">Recruiter email</Label>
+            </FormField>
+            <FormField id="recruiterEmail" label="Recruiter email" error={fieldErrors.recruiterEmail}>
               <Input id="recruiterEmail" type="email" value={form.recruiterEmail} onChange={(e) => set('recruiterEmail', e.target.value)} />
-              {field('recruiterEmail')}
-            </div>
-          </fieldset>
+            </FormField>
+          </FormSection>
 
-          <fieldset className="space-y-4">
-            <legend className="mb-2 text-sm font-medium">Notes and documents</legend>
-            <div className="space-y-2">
-              <Label htmlFor="jobDescription">Job description</Label>
+          <FormSection title="Notes and documents" description="Anything worth remembering before the next round." columns={1}>
+            <FormField id="jobDescription" label="Job description">
               <Textarea id="jobDescription" value={form.jobDescription} onChange={(e) => set('jobDescription', e.target.value)} rows={4} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+            </FormField>
+            <FormField id="notes" label="Notes">
               <Textarea id="notes" value={form.notes} onChange={(e) => set('notes', e.target.value)} rows={3} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="coverLetter">Cover letter</Label>
+            </FormField>
+            <FormField id="coverLetter" label="Cover letter">
               <Textarea id="coverLetter" value={form.coverLetter} onChange={(e) => set('coverLetter', e.target.value)} rows={4} />
-            </div>
-          </fieldset>
+            </FormField>
+          </FormSection>
 
-          {error && (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
-          <div className="flex justify-end gap-2">
+          {error && <FormError>{error}</FormError>}
+          <FormActions>
             <Button type="button" variant="outline" onClick={() => navigate(-1)}>
               Cancel
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Create application'}
             </Button>
-          </div>
+          </FormActions>
         </form>
-      </CardContent>
-    </Card>
+      </SectionCard>
+    </div>
   )
 }

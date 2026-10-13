@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuth } from '@/hooks/use-auth'
-import { breadcrumbsFor } from '@/lib/navigation'
+import { breadcrumbsFor, pageTitleFor } from '@/lib/navigation'
 
 vi.mock('@/hooks/use-auth')
 vi.mock('@/components/notifications/NotificationBell', () => ({ NotificationBell: () => null }))
@@ -101,5 +101,15 @@ describe('AppShell', () => {
     ])
     renderShell('/applications/42')
     expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toHaveTextContent('ApplicationsDetails')
+  })
+
+  it('gives every page a descriptive title', () => {
+    expect(pageTitleFor('/')).toBe('Dashboard')
+    expect(pageTitleFor('/applications')).toBe('Applications')
+    expect(pageTitleFor('/applications/new')).toBe('New application')
+    expect(pageTitleFor('/applications/42')).toBe('Application details')
+    expect(pageTitleFor('/resumes/7/edit')).toBe('Edit resume')
+    expect(pageTitleFor('/interviews/3/debrief')).toBe('Interview debrief')
+    expect(pageTitleFor('/prep/questions')).toBe('Question bank')
   })
 })

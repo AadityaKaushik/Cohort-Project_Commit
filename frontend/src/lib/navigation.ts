@@ -122,7 +122,38 @@ export function breadcrumbsFor(pathname: string): Crumb[] {
   return crumbs
 }
 
+const RECORD_NOUNS: Record<string, string> = {
+  applications: 'application',
+  resumes: 'resume',
+  interviews: 'interview',
+}
+
+const PAGE_TITLES: Record<string, string> = {
+  board: 'Application board',
+  questions: 'Question bank',
+  debrief: 'Interview debrief',
+}
+
+/** A descriptive tab title for the route, e.g. "New application" or "Interview details", without the brand suffix. */
 export function pageTitleFor(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean)
   const crumbs = breadcrumbsFor(pathname)
-  return crumbs[crumbs.length - 1].label
+  const noun = RECORD_NOUNS[segments[0]]
+  const last = segments[segments.length - 1]
+  if (segments.length < 2 || !last) {
+    return crumbs[crumbs.length - 1].label
+  }
+  if (PAGE_TITLES[last]) {
+    return PAGE_TITLES[last]
+  }
+  if (!noun) {
+    return crumbs[crumbs.length - 1].label
+  }
+  if (last === 'new') {
+    return `New ${noun}`
+  }
+  if (last === 'edit') {
+    return `Edit ${noun}`
+  }
+  return `${noun.charAt(0).toUpperCase()}${noun.slice(1)} details`
 }

@@ -1,15 +1,19 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
+import { Navigate, useNavigate } from 'react-router-dom'
+import { CheckIcon, Loader2 } from 'lucide-react'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
 import { email as emailRule, hasErrors, minLength, required, validate } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
-import { AuthFrame } from '@/components/layout/AuthFrame'
+import { FormError, FormField } from '@/components/shared/Form'
+import { TransitionLink } from '@/components/motion/TransitionLink'
+import { finishSignIn } from '@/lib/route-transition'
+import { prefetchRoute } from '@/lib/route-chunks'
+import { TypingText } from '@/components/motion/TypingText'
+import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 export function RegisterPage() {
   const { register, isAuthenticated } = useAuth()
@@ -21,12 +25,16 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [signedIn, setSignedIn] = useState(false)
+  const [errorCount, setErrorCount] = useState(0)
+  const [signingIn, setSigningIn] = useState(false)
 
   useEffect(() => {
     document.title = 'Create account · Cohort'
+    prefetchRoute('/')
   }, [])
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !signingIn) {
     return <Navigate to="/" replace />
   }
 
@@ -46,10 +54,14 @@ export function RegisterPage() {
       return
     }
     setIsSubmitting(true)
+    setSigningIn(true)
     try {
       await register(email, password, displayName)
-      navigate('/', { replace: true })
+      setSignedIn(true)
+      finishSignIn(() => navigate('/', { replace: true }))
     } catch (err) {
+      setSigningIn(false)
+      setErrorCount((count) => count + 1)
       if (err instanceof ApiError) {
         setError(err.message)
         setFieldErrors(err.fieldErrors ?? {})
@@ -80,32 +92,20 @@ export function RegisterPage() {
 
   return (
     <AuthFrame>
-      <div className="mb-8">
-        <h1 className="text-display text-3xl">Create your Cohort account</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Your data stays private to you, always.</p>
-      </div>
+      <AuthIntro title="Create your Cohort account" subtitle="Free to use. Your data stays private to you, always." />
       <OAuthButtons />
       <form onSubmit={handleSubmit} className="space-y-5" noValidate aria-busy={isSubmitting}>
-        <div className="space-y-2">
-          <Label htmlFor="displayName">Display name</Label>
+        <FormField id="displayName" label="Display name" error={fieldErrors.displayName}>
           <Input
             id="displayName"
             autoComplete="name"
             className="h-10"
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
-            aria-invalid={fieldErrors.displayName ? true : undefined}
-            aria-describedby={fieldErrors.displayName ? 'displayName-error' : undefined}
             required
           />
-          {fieldErrors.displayName && (
-            <p id="displayName-error" className="text-sm text-destructive">
-              {fieldErrors.displayName}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+        </FormField>
+        <FormField id="email" label="Email" error={fieldErrors.email}>
           <Input
             id="email"
             type="email"
@@ -115,18 +115,10 @@ export function RegisterPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             onBlur={() => handleBlur('email')}
-            aria-invalid={fieldErrors.email ? true : undefined}
-            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
             required
           />
-          {fieldErrors.email && (
-            <p id="email-error" className="text-sm text-destructive">
-              {fieldErrors.email}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+        </FormField>
+        <FormField id="password" label="Password" hint={<TypingText text="At least 10 characters." sessionKey="register-password-hint" startDelay={900} />} error={fieldErrors.password}>
           <PasswordInput
             id="password"
             autoComplete="new-password"
@@ -135,34 +127,25 @@ export function RegisterPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             onBlur={() => handleBlur('password')}
-            aria-invalid={fieldErrors.password ? true : undefined}
-            aria-describedby={fieldErrors.password ? 'password-error password-hint' : 'password-hint'}
             required
           />
-          <p id="password-hint" className="text-xs text-muted-foreground">
-            At least 10 characters.
-          </p>
-          {fieldErrors.password && (
-            <p id="password-error" className="text-sm text-destructive">
-              {fieldErrors.password}
-            </p>
-          )}
-        </div>
+        </FormField>
         {error && (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {error}
-          </p>
+          <div key={errorCount} className="animate-shake">
+            <FormError>{error}</FormError>
+          </div>
         )}
-        <Button type="submit" variant="cta" size="xl" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" size="xl" variant={signedIn ? 'cta' : 'default'} className="w-full" disabled={isSubmitting || signedIn}>
           {isSubmitting && <Loader2 aria-hidden className="animate-spin" />}
-          {isSubmitting ? 'Creating account…' : 'Create account'}
+          {signedIn && <CheckIcon aria-hidden className="animate-enter" />}
+          {signedIn ? 'Account created' : isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-8 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+        <TransitionLink to="/login" className="rounded font-medium text-primary underline-offset-4 hover:underline">
           Log in
-        </Link>
+        </TransitionLink>
       </p>
     </AuthFrame>
   )

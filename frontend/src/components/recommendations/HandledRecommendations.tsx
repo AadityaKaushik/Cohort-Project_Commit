@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import type { Recommendation } from '@/lib/recommendations-api'
 import { formatLabel } from '@/lib/labels'
-import { Badge } from '@/components/ui/badge'
+import { ToneBadge, type Tone } from '@/components/shared/ToneBadge'
 import { Button } from '@/components/ui/button'
 
 interface HandledRecommendationsProps {
@@ -10,6 +10,8 @@ interface HandledRecommendationsProps {
   isBusy: boolean
   onRestore: (id: string) => void
 }
+
+const STATUS_TONES: Partial<Record<Recommendation['status'], Tone>> = { accepted: 'success', snoozed: 'warning', dismissed: 'neutral' }
 
 function describe(item: Recommendation): string {
   const until = item.suppressed_until ? format(new Date(item.suppressed_until), 'MMM d') : null
@@ -29,13 +31,13 @@ function describe(item: Recommendation): string {
 
 export function HandledRecommendations({ items, isBusy, onRestore }: HandledRecommendationsProps) {
   return (
-    <ul className="divide-y rounded-lg border">
+    <ul className="surface-raised divide-y overflow-hidden rounded-xl border">
       {items.map((item) => (
-        <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm">
+        <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm transition-colors hover:bg-accent/40">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{item.headline}</span>
-              <Badge variant="outline">{formatLabel(item.status)}</Badge>
+              <ToneBadge tone={STATUS_TONES[item.status] ?? 'neutral'}>{formatLabel(item.status)}</ToneBadge>
             </div>
             <p className="mt-1 text-muted-foreground">{describe(item)}</p>
           </div>

@@ -23,7 +23,9 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { KanbanBoard } from '@/components/applications/KanbanBoard'
 import { EmptyState } from '@/components/shared/EmptyState'
-import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
+import { ErrorState } from '@/components/shared/QueryStates'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface PendingCorrection {
   application: ApplicationSummary
@@ -82,35 +84,43 @@ export function ApplicationsBoardPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">Board</h2>
-          <p className="text-sm text-muted-foreground">Drag a card to a stage, or use its move menu.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/applications">
-              <ListIcon className="h-4 w-4" />
-              List
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link to="/applications/new">
-              <PlusIcon className="h-4 w-4" />
-              New application
-            </Link>
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Application board"
+        description="Drag a card to a stage, or use its move menu. Moves the pipeline does not allow are blocked."
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/applications">
+                <ListIcon aria-hidden />
+                List
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/applications/new">
+                <PlusIcon aria-hidden />
+                New application
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-      {isLoading && <LoadingRows label="Loading board" />}
+      {isLoading && <BoardSkeleton />}
       {isError && <ErrorState title="Couldn't load your board" onRetry={() => refetch()} />}
       {data && data.items.length === 0 && (
         <EmptyState
           icon={BriefcaseIcon}
           title="No applications yet"
           description="Add your first application and it will appear in its stage here."
+          action={
+            <Button asChild>
+              <Link to="/applications/new">
+                <PlusIcon aria-hidden />
+                Add an application
+              </Link>
+            </Button>
+          }
         />
       )}
       {data && data.items.length > 0 && <KanbanBoard applications={data.items} onMove={handleMove} />}
@@ -140,6 +150,21 @@ export function ApplicationsBoardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+function BoardSkeleton() {
+  return (
+    <div role="status" aria-label="Loading board" className="flex gap-3 overflow-hidden">
+      {Array.from({ length: 5 }).map((_, column) => (
+        <div key={column} className="w-[17rem] shrink-0 space-y-2 rounded-xl border bg-surface-2/70 p-2">
+          <Skeleton className="m-1.5 h-5 w-20 rounded-full" />
+          {Array.from({ length: 3 - (column % 2) }).map((_, card) => (
+            <Skeleton key={card} className="h-24 w-full rounded-lg" />
+          ))}
+        </div>
+      ))}
     </div>
   )
 }

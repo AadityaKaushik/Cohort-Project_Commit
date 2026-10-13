@@ -2,8 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { requestPasswordReset } from '@/lib/auth-api'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AuthFrame } from '@/components/layout/AuthFrame'
+import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -29,12 +28,8 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthFrame>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Reset your password</CardTitle>
-          <CardDescription>We will email you a link that expires in one hour.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <AuthIntro title="Reset your password" subtitle="We will email you a link that expires in one hour." />
+      <div className="space-y-4">
           {submitted ? (
             <p role="status" className="text-sm">
               If an account exists for that address, a reset link is on its way.
@@ -57,7 +52,7 @@ export function ForgotPasswordPage() {
                   {error}
                 </p>
               )}
-              <Button type="submit" className="w-full" disabled={isSubmitting || email.trim() === ''}>
+              <Button type="submit" size="xl" className="w-full" disabled={isSubmitting || email.trim() === ''}>
                 Send reset link
               </Button>
             </form>
@@ -67,8 +62,7 @@ export function ForgotPasswordPage() {
               Back to log in
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </div>
     </AuthFrame>
   )
 }

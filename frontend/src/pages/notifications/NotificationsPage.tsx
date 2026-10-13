@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangleIcon, BellIcon, CheckCheckIcon } from 'lucide-react'
+import { BellIcon, CheckCheckIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { Pagination } from '@/components/shared/DataTable'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, LoadingCards } from '@/components/shared/QueryStates'
+import { Segmented } from '@/components/shared/Segmented'
 import { NotificationItem } from '@/components/notifications/NotificationItem'
-import { cn } from '@/lib/utils'
 import {
   getUnreadNotificationCount,
   listNotifications,
@@ -73,86 +75,55 @@ export function NotificationsPage() {
   const items = listQuery.data?.items ?? []
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">Notifications</h2>
-          <p className="text-sm text-muted-foreground">
-            {unreadCount > 0 ? `${unreadCount} unread` : 'Everything has been read'}
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => markAllMutation.mutate()}
-          disabled={unreadCount === 0 || markAllMutation.isPending}
-        >
-          <CheckCheckIcon className="h-4 w-4" />
-          {markAllMutation.isPending ? 'Marking…' : 'Mark all as read'}
-        </Button>
-      </div>
-
-      <div className="flex gap-1" role="group" aria-label="Filter notifications">
-        {FILTERS.map((option) => (
-          <Button
-            key={option.value}
-            variant="ghost"
-            size="sm"
-            aria-pressed={filter === option.value}
-            className={cn(filter === option.value && 'bg-accent text-accent-foreground')}
-            onClick={() => selectFilter(option.value)}
-          >
-            {option.label}
+    <div className="mx-auto max-w-3xl space-y-5">
+      <PageHeader
+        title="Notifications"
+        description={unreadCount > 0 ? `${unreadCount} unread` : 'Everything has been read'}
+        actions={
+          <Button variant="outline" onClick={() => markAllMutation.mutate()} disabled={unreadCount === 0 || markAllMutation.isPending}>
+            <CheckCheckIcon aria-hidden />
+            {markAllMutation.isPending ? 'Marking…' : 'Mark all as read'}
           </Button>
-        ))}
-      </div>
+        }
+      />
+
+      <Segmented label="Filter notifications" value={filter} options={FILTERS} onChange={selectFilter} />
 
       {listQuery.isLoading ? (
-        <div className="space-y-2" aria-label="Loading notifications">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-16 w-full" />
-          ))}
-        </div>
+        <LoadingCards count={4} label="Loading notifications" className="[&>*]:p-3" />
       ) : listQuery.isError ? (
-        <EmptyState
-          icon={AlertTriangleIcon}
+        <ErrorState
           title="Couldn't load notifications"
           description="Something went wrong while fetching your notifications."
-          action={
-            <Button variant="outline" onClick={() => listQuery.refetch()}>
-              Try again
-            </Button>
-          }
+          onRetry={() => listQuery.refetch()}
         />
       ) : items.length === 0 ? (
-        <EmptyState icon={BellIcon} title={EMPTY_COPY[filter].title} description={EMPTY_COPY[filter].description} />
+        <EmptyState
+          icon={BellIcon}
+          title={EMPTY_COPY[filter].title}
+          description={EMPTY_COPY[filter].description}
+          quote={filter === 'unread' ? 5 : undefined}
+          action={
+            filter === 'unread' ? (
+              <Button variant="outline" asChild>
+                <Link to="/">Back to dashboard</Link>
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
-        <Card className="py-0">
-          <CardContent className="p-1.5">
-            <ul className="divide-y">
-              {items.map((notification) => (
-                <li key={notification.id} className="py-0.5">
-                  <NotificationItem notification={notification} onOpen={handleOpen} expanded />
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="surface-raised overflow-hidden rounded-xl border p-1.5">
+          <ul className="stagger divide-y">
+            {items.map((notification) => (
+              <li key={notification.id} className="py-0.5">
+                <NotificationItem notification={notification} onOpen={handleOpen} expanded />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
-      {pageCount > 1 && (
-        <nav className="flex items-center justify-between" aria-label="Notification pages">
-          <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)} disabled={page === 0}>
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page + 1} of {pageCount}
-          </span>
-          <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page + 1 >= pageCount}>
-            Next
-          </Button>
-        </nav>
-      )}
+      {pageCount > 1 && <Pagination page={page} totalPages={pageCount} onPageChange={setPage} label="Notification pages" />}
     </div>
   )
 }

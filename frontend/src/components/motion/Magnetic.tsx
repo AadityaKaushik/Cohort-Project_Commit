@@ -1,5 +1,5 @@
 import { useRef, type PointerEvent, type ReactNode } from 'react'
-import { useReducedMotion } from '@/hooks/use-motion'
+import { useFrameThrottle, useReducedMotion } from '@/hooks/use-motion'
 
 const PULL = 0.18
 
@@ -8,13 +8,18 @@ export function Magnetic({ children, className }: { children: ReactNode; classNa
   const ref = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
 
-  function handleMove(event: PointerEvent<HTMLDivElement>) {
+  const pull = useFrameThrottle(({ clientX, clientY }: { clientX: number; clientY: number }) => {
     const element = ref.current
-    if (!element || reduced || event.pointerType !== 'mouse') return
+    if (!element) return
     const bounds = element.getBoundingClientRect()
-    const x = (event.clientX - (bounds.left + bounds.width / 2)) * PULL
-    const y = (event.clientY - (bounds.top + bounds.height / 2)) * PULL
+    const x = (clientX - (bounds.left + bounds.width / 2)) * PULL
+    const y = (clientY - (bounds.top + bounds.height / 2)) * PULL
     element.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
+  })
+
+  function handleMove(event: PointerEvent<HTMLDivElement>) {
+    if (reduced || event.pointerType !== 'mouse') return
+    pull({ clientX: event.clientX, clientY: event.clientY })
   }
 
   function handleLeave() {

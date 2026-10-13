@@ -13,7 +13,10 @@ import {
   type ApplicationFilters,
 } from '@/components/applications/ApplicationFilterBar'
 import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
-import { DataTable, type DataTableColumn } from '@/components/shared/DataTable'
+import { DataTable, Pagination, type DataTableColumn } from '@/components/shared/DataTable'
+import { CompanyCell } from '@/components/shared/CompanyMark'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { PriorityBadge } from '@/components/shared/ToneBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 
@@ -88,7 +91,7 @@ export function ApplicationsListPage() {
   }
 
   const columns: DataTableColumn<ApplicationSummary>[] = [
-    { key: 'company', header: 'Company', render: (row) => row.company.name },
+    { key: 'company', header: 'Company', render: (row) => <CompanyCell name={row.company.name} /> },
     { key: 'job_title', header: 'Role', render: (row) => row.job_title },
     {
       key: 'status',
@@ -99,74 +102,80 @@ export function ApplicationsListPage() {
     {
       key: 'current_stage',
       header: 'Stage',
-      render: (row) => formatLabel(row.current_stage),
+      render: (row) => <span className="text-muted-foreground">{formatLabel(row.current_stage)}</span>,
     },
     {
       key: 'days_in_stage',
       header: 'Days in stage',
       sortKey: 'days_in_stage',
+      align: 'end',
       render: (row) => row.days_in_stage,
     },
     {
       key: 'date_applied',
       header: 'Date applied',
       sortKey: 'date_applied',
-      render: (row) => format(new Date(row.date_applied), 'MMM d, yyyy'),
+      render: (row) => <span className="text-muted-foreground tabular-nums">{format(new Date(row.date_applied), 'MMM d, yyyy')}</span>,
     },
     {
       key: 'priority',
       header: 'Priority',
       sortKey: 'priority',
-      render: (row) => formatLabel(row.priority),
+      render: (row) => <PriorityBadge priority={row.priority} />,
     },
   ]
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.size)) : 1
   const filtered = hasActiveFilters(filters)
   const isEmpty = !isLoading && !isError && data !== undefined && data.items.length === 0
+  const newApplication = (
+    <Button asChild>
+      <Link to="/applications/new">
+        <PlusIcon aria-hidden />
+        New application
+      </Link>
+    </Button>
+  )
 
   if (isEmpty && !filtered) {
     return (
-      <EmptyState
-        icon={BriefcaseIcon}
-        title="No applications yet"
-        description="Track every job you apply to in one place: status, timeline, and all."
-        action={
-          <Button asChild>
-            <Link to="/applications/new">
-              <PlusIcon className="h-4 w-4" />
-              Create your first application
-            </Link>
-          </Button>
-        }
-      />
+      <div className="space-y-6">
+        <PageHeader title="Applications" description="Every role you are pursuing, with its status, stage and history." />
+        <EmptyState
+          icon={BriefcaseIcon}
+          title="No applications yet"
+          description="Track every job you apply to in one place: status, timeline, and all."
+          quote={1}
+          action={
+            <Button asChild>
+              <Link to="/applications/new">
+                <PlusIcon aria-hidden />
+                Create your first application
+              </Link>
+            </Button>
+          }
+        />
+      </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">Applications</h2>
-          <p className="text-sm text-muted-foreground">
-            {data ? `${data.total} ${filtered ? 'matching' : 'total'}` : 'Loading'}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/applications/board">
-              <KanbanIcon className="h-4 w-4" />
-              Board
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link to="/applications/new">
-              <PlusIcon className="h-4 w-4" />
-              New application
-            </Link>
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Applications"
+        description={data ? `${data.total} ${filtered ? 'matching your filters' : 'tracked in total'}` : 'Every role you are pursuing, in one list.'}
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/applications/board">
+                <KanbanIcon aria-hidden />
+                Board
+              </Link>
+            </Button>
+            {newApplication}
+          </>
+        }
+      />
 
       <ApplicationFilterBar filters={filters} onChange={handleFiltersChange} />
 
@@ -174,6 +183,7 @@ export function ApplicationsListPage() {
       {isError && <ErrorState title="Couldn't load your applications" onRetry={() => refetch()} />}
       {isEmpty && (
         <EmptyState
+          compact
           icon={SearchXIcon}
           title="No applications match these filters"
           description="Try a different search or clear the filters to see everything."
@@ -191,25 +201,13 @@ export function ApplicationsListPage() {
             columns={columns}
             data={data.items}
             getRowId={(row) => row.id}
+            rowLabel={(row) => `${row.company.name}, ${row.job_title}`}
             onRowClick={(row) => navigate(`/applications/${row.id}`)}
             sort={sort}
             direction={direction}
             onSortChange={handleSortChange}
           />
-
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Page {page + 1} of {totalPages}
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => updateParams({ page: String(page - 1) })}>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" disabled={page + 1 >= totalPages} onClick={() => updateParams({ page: String(page + 1) })}>
-                Next
-              </Button>
-            </div>
-          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={(next) => updateParams({ page: String(next) })} label="Application pages" />
         </>
       )}
     </div>

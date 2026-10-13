@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SampleSizeBadge } from '@/components/analytics/SampleSizeBadge'
 import type { ConversionRate, ConversionRates } from '@/lib/analytics-api'
+import { cn } from '@/lib/utils'
 
 const RATE_LABELS: { key: keyof ConversionRates; label: string }[] = [
   { key: 'application_to_oa', label: 'Applied → OA' },
@@ -12,14 +12,12 @@ const RATE_LABELS: { key: keyof ConversionRates; label: string }[] = [
 
 /**
  * US-44 / FR-67: one card per §20.7 conversion rate, each showing its own
- * value, denominator, and a {@link SampleSizeBadge} -- "every rate displays
- * its denominator" and low-confidence rates are "visually de-emphasised"
- * (muted text) rather than hidden outright, so the number is still there
- * for anyone who wants it, just clearly flagged.
+ * value, denominator, and a {@link SampleSizeBadge}. Low-confidence rates
+ * are de-emphasised (a dash and muted ink) rather than hidden outright.
  */
 export function ConversionCards({ rates }: { rates: ConversionRates }) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="stagger grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {RATE_LABELS.map(({ key, label }) => (
         <ConversionCard key={key} label={label} rate={rates[key]} />
       ))}
@@ -28,26 +26,28 @@ export function ConversionCards({ rates }: { rates: ConversionRates }) {
 }
 
 function ConversionCard({ label, rate }: { label: string; rate: ConversionRate }) {
+  const percent = rate.sufficient_data ? Math.round(rate.value * 100) : 0
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p className={rate.sufficient_data ? 'text-2xl font-semibold' : 'text-2xl font-semibold text-muted-foreground'}>
-          {rate.sufficient_data ? rate.formatted : '—'}
-        </p>
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            {rate.numerator} / {rate.denominator}
-          </span>
-          <SampleSizeBadge sampleSize={rate.denominator} sufficientData={rate.sufficient_data} />
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {rate.numerator} moved on, {rate.denominator - rate.numerator} did not
-          {rate.still_open > 0 ? `, ${rate.still_open} still waiting` : ''}
-        </p>
-      </CardContent>
-    </Card>
+    <div className="surface-raised flex flex-col gap-3 rounded-xl border p-4">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      </div>
+      <p className={cn('text-2xl font-semibold tracking-tight tabular-nums', !rate.sufficient_data && 'text-muted-foreground')}>
+        {rate.sufficient_data ? rate.formatted : '—'}
+      </p>
+      <div aria-hidden className="h-1 overflow-hidden rounded-full bg-muted">
+        <span className="animate-grow-x block h-full origin-left rounded-full bg-primary" style={{ width: `${percent}%` }} />
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span className="tabular-nums">
+          {rate.numerator} / {rate.denominator}
+        </span>
+        <SampleSizeBadge sampleSize={rate.denominator} sufficientData={rate.sufficient_data} />
+      </div>
+      <p className="text-xs text-pretty text-muted-foreground">
+        {rate.numerator} moved on, {rate.denominator - rate.numerator} did not
+        {rate.still_open > 0 ? `, ${rate.still_open} still waiting` : ''}
+      </p>
+    </div>
   )
 }

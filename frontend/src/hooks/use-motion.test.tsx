@@ -16,20 +16,20 @@ describe('reduced motion', () => {
     mockReducedMotion(true)
 
     expect(renderHook(() => useReducedMotion()).result.current).toBe(true)
-    expect(renderHook(() => useCountUp(42)).result.current).toBe(42)
+    expect(renderHook(() => useCountUp(42)).result.current.text).toBe('42')
   })
 
   it('starts count-ups from zero when motion is allowed', () => {
     mockReducedMotion(false)
 
-    expect(renderHook(() => useCountUp(42)).result.current).toBe(0)
+    expect(renderHook(() => useCountUp(42)).result.current.text).toBe('0')
   })
 
   it('shows typed text in full, with its whole content available to screen readers', () => {
     mockReducedMotion(true)
-    render(<TypingText phrases={['First line.', 'Second line.']} />)
+    render(<TypingText text={['First line.', 'Second line.']} />)
 
-    expect(screen.getByTestId('typing-text')).toHaveTextContent('First line.')
+    expect(screen.getByTestId('typing-text')).toHaveAttribute('data-typed', 'First line.')
     expect(screen.getByText('First line. Second line.')).toHaveClass('sr-only')
   })
 

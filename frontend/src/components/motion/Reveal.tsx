@@ -20,16 +20,28 @@ export function Reveal({ as: Component = 'div', delay = 0, className, children }
   )
 }
 
-function CountUpValue({ value, className }: { value: number; className?: string }) {
-  const shown = useCountUp(value)
+interface CountUpProps {
+  value: number
+  decimals?: number
+  suffix?: string
+  className?: string
+}
+
+function CountUpValue({ value, decimals = 0, suffix = '', className }: CountUpProps) {
+  const { ref, text } = useCountUp<HTMLSpanElement>(value, decimals, suffix)
   return (
     <span className={cn('tabular-nums', className)}>
-      <span aria-hidden>{shown}</span>
-      <span className="sr-only">{value}</span>
+      <span aria-hidden ref={ref}>
+        {text}
+      </span>
+      <span className="sr-only">
+        {value.toFixed(decimals)}
+        {suffix}
+      </span>
     </span>
   )
 }
 
-export function CountUp({ value, className }: { value: number; className?: string }) {
-  return <CountUpValue key={value} value={value} className={className} />
+export function CountUp(props: CountUpProps) {
+  return <CountUpValue key={props.value} {...props} />
 }

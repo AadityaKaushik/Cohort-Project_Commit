@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { AlertTriangleIcon, CopyIcon, DownloadIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import { CopyIcon, DownloadIcon, FileTextIcon, PencilIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
 import {
   cloneResume,
   deleteResume,
@@ -11,9 +11,7 @@ import {
   uploadResumeFile,
 } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -23,9 +21,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { UploadDropzone } from '@/components/shared/UploadDropzone'
+import { DetailList, type DetailItem } from '@/components/shared/DetailList'
+import { FormError } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { PageSkeleton } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
+import { ToneBadge } from '@/components/shared/ToneBadge'
 
 function formatBytes(bytes: number | null): string {
   if (bytes === null) return '—'
@@ -90,18 +93,13 @@ export function ResumeDetailPage() {
   })
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    )
+    return <PageSkeleton label="Loading resume" />
   }
 
   if (isError || !data) {
     return (
       <EmptyState
-        icon={AlertTriangleIcon}
+        icon={SearchXIcon}
         title="Resume not found"
         description="It may have been deleted, or the link may be wrong."
         action={
@@ -113,89 +111,79 @@ export function ResumeDetailPage() {
     )
   }
 
+  const details: DetailItem[] = [
+    { label: 'Version', value: data.version_label ?? '—' },
+    { label: 'Target role', value: data.target_role ?? '—' },
+    { label: 'Created', value: format(new Date(data.created_at), 'MMM d, yyyy') },
+    { label: 'Default', value: data.is_default ? 'Yes, attached to new applications first' : 'No' },
+  ]
+  if (data.summary) details.push({ label: 'Summary', value: data.summary, wide: true })
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
-            {data.name}
-            {data.is_default && <Badge variant="outline">Default</Badge>}
-          </h2>
-          <p className="text-sm text-muted-foreground">{data.version_label ?? 'No version label'}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => cloneMutation.mutate()} disabled={cloneMutation.isPending}>
-            <CopyIcon className="h-4 w-4" />
-            {cloneMutation.isPending ? 'Cloning…' : 'Clone'}
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link to={`/resumes/${data.id}/edit`}>
-              <PencilIcon className="h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Trash2Icon className="h-4 w-4" />
-                Delete
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete this resume?</DialogTitle>
-                <DialogDescription>
-                  This permanently deletes <strong>{data.name}</strong> and its uploaded file, if any. This cannot be
-                  undone.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-                  Cancel
+      <PageHeader
+        back={{ to: '/resumes', label: 'Resumes' }}
+        title={data.name}
+        description={data.version_label ? `Version ${data.version_label}` : 'No version label'}
+        meta={data.is_default ? <ToneBadge tone="primary">Default</ToneBadge> : undefined}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => cloneMutation.mutate()} disabled={cloneMutation.isPending}>
+              <CopyIcon aria-hidden />
+              {cloneMutation.isPending ? 'Cloning…' : 'Clone'}
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to={`/resumes/${data.id}/edit`}>
+                <PencilIcon aria-hidden />
+                Edit
+              </Link>
+            </Button>
+            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+              <DialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2Icon aria-hidden />
+                  Delete
                 </Button>
-                <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
-                  {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete this resume?</DialogTitle>
+                  <DialogDescription>
+                    This permanently deletes <strong>{data.name}</strong> and its uploaded file, if any. This cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
+                    {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        }
+      />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Details</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
-            <Detail label="Target role" value={data.target_role ?? '—'} />
-            <Detail label="Created" value={format(new Date(data.created_at), 'MMM d, yyyy')} />
-            {data.summary && (
-              <div className="sm:col-span-2">
-                <p className="text-muted-foreground">Summary</p>
-                <p className="whitespace-pre-wrap">{data.summary}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="stagger grid gap-6 lg:grid-cols-3">
+        <SectionCard title="Details" className="lg:col-span-2">
+          <DetailList items={details} />
+        </SectionCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>File</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <SectionCard title="File" description={data.has_file ? 'The document you send out.' : 'Upload the document you send out.'}>
+          <div className="space-y-4">
             {data.has_file ? (
-              <div className="space-y-2 text-sm">
-                <p className="font-medium">{data.file_original_name}</p>
-                <p className="text-muted-foreground">{formatBytes(data.file_size_bytes)}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => downloadMutation.mutate()}
-                  disabled={downloadMutation.isPending}
-                >
-                  <DownloadIcon className="h-4 w-4" />
+              <div className="flex items-center gap-3 rounded-lg border bg-surface-2/50 p-3">
+                <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-info/10 text-info">
+                  <FileTextIcon className="size-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{data.file_original_name}</p>
+                  <p className="text-xs text-muted-foreground">{formatBytes(data.file_size_bytes)}</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => downloadMutation.mutate()} disabled={downloadMutation.isPending}>
+                  <DownloadIcon aria-hidden />
                   {downloadMutation.isPending ? 'Downloading…' : 'Download'}
                 </Button>
               </div>
@@ -207,23 +195,10 @@ export function ResumeDetailPage() {
               isUploading={uploadMutation.isPending}
               helperText={data.has_file ? 'Uploading a new file replaces the current one' : 'PDF or Word document, up to 5 MB'}
             />
-            {uploadError && (
-              <p role="alert" className="text-sm text-destructive">
-                {uploadError}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+            {uploadError && <FormError>{uploadError}</FormError>}
+          </div>
+        </SectionCard>
       </div>
-    </div>
-  )
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-muted-foreground">{label}</p>
-      <p>{value}</p>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { CheckCircle2, CircleAlert, X } from 'lucide-react'
+import { TypingText } from '@/components/motion/TypingText'
 import { cn } from '@/lib/utils'
 
 export type ToastVariant = 'success' | 'error' | 'info'
@@ -65,7 +66,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               <CheckCircle2 aria-hidden className={cn('mt-0.5 size-4 shrink-0', item.variant === 'info' ? 'text-primary' : 'text-success')} />
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-medium">{item.title}</p>
+              <p className="font-medium">
+                <TypingText text={item.title} />
+              </p>
               {item.description && <p className="text-muted-foreground">{item.description}</p>}
             </div>
             <button

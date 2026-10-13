@@ -1,18 +1,17 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertCircleIcon } from 'lucide-react'
 import { createResume, getResume, updateResume, type ResumeFormInput } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
 import { hasErrors, required, validate } from '@/lib/validation'
 import { useToast } from '@/hooks/use-toast'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { CheckboxField, FormActions, FormError, FormField, FormSection } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, PageSkeleton } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
 
 export function ResumeFormPage() {
   const { id } = useParams()
@@ -81,79 +80,52 @@ export function ResumeFormPage() {
   }
 
   if (isEditing && detailQuery.isLoading) {
-    return (
-      <div className="max-w-2xl space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-72 w-full" />
-      </div>
-    )
+    return <PageSkeleton label="Loading resume" variant="form" />
   }
 
   if (isEditing && detailQuery.isError) {
     return (
-      <Alert variant="destructive">
-        <AlertCircleIcon className="h-4 w-4" />
-        <AlertTitle>Couldn&apos;t load this resume</AlertTitle>
-        <AlertDescription>It may have been deleted, or something went wrong.</AlertDescription>
-      </Alert>
+      <ErrorState title="Couldn't load this resume" description="It may have been deleted, or something went wrong." onRetry={() => detailQuery.refetch()} />
     )
   }
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
-        <CardTitle>{isEditing ? 'Edit resume' : 'Create a resume'}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="name">Name</Label>
+    <div className="max-w-4xl space-y-6">
+      <PageHeader
+        back={isEditing ? { to: `/resumes/${id}`, label: 'Resume' } : { to: '/resumes', label: 'Resumes' }}
+        title={isEditing ? 'Edit resume' : 'Create a resume'}
+        description="Name each version for the kind of role it targets, then upload its file."
+      />
+      <SectionCard>
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          <FormSection title="Version" description="How you will recognise it when attaching it to an application.">
+            <FormField id="name" label="Name" error={fieldErrors.name} className="sm:col-span-2">
               <Input id="name" value={name} onChange={(event) => setName(event.target.value)} required />
-              {fieldErrors.name && <p className="text-sm text-destructive">{fieldErrors.name}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="versionLabel">Version label</Label>
-              <Input
-                id="versionLabel"
-                placeholder="v1"
-                value={versionLabel}
-                onChange={(event) => setVersionLabel(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="targetRole">Target role</Label>
+            </FormField>
+            <FormField id="versionLabel" label="Version label">
+              <Input id="versionLabel" placeholder="v1" value={versionLabel} onChange={(event) => setVersionLabel(event.target.value)} />
+            </FormField>
+            <FormField id="targetRole" label="Target role">
               <Input id="targetRole" value={targetRole} onChange={(event) => setTargetRole(event.target.value)} />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="summary">Summary</Label>
-            <Textarea id="summary" value={summary} onChange={(event) => setSummary(event.target.value)} rows={4} />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={isDefault}
-              onChange={(event) => setIsDefault(event.target.checked)}
-              className="h-4 w-4 rounded border-input"
-            />
-            Set as my default resume
-          </label>
-          {error && (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
-          <div className="flex justify-end gap-2">
+            </FormField>
+          </FormSection>
+          <FormSection title="Content" description="A short summary of what this version emphasises." columns={1}>
+            <FormField id="summary" label="Summary">
+              <Textarea id="summary" value={summary} onChange={(event) => setSummary(event.target.value)} rows={4} />
+            </FormField>
+            <CheckboxField checked={isDefault} onChange={setIsDefault} label="Set as my default resume" />
+          </FormSection>
+          {error && <FormError>{error}</FormError>}
+          <FormActions>
             <Button type="button" variant="outline" onClick={() => navigate(-1)}>
               Cancel
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Create resume'}
             </Button>
-          </div>
+          </FormActions>
         </form>
-      </CardContent>
-    </Card>
+      </SectionCard>
+    </div>
   )
 }

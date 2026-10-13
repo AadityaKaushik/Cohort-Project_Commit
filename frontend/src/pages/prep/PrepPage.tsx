@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertCircleIcon, CheckCircle2Icon, CircleIcon, PencilLineIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { AlarmClockIcon, CheckCircle2Icon, CircleIcon, LibraryIcon, ListTodoIcon, PencilLineIcon, PlusIcon, TargetIcon, Trash2Icon } from 'lucide-react'
 import { format, isPast } from 'date-fns'
 import {
   createPreparationTask,
@@ -13,16 +13,20 @@ import {
   type PreparationTask,
   type TopicMasteryView,
 } from '@/lib/prep-api'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CategoryProgressBar } from '@/components/prep/CategoryProgressBar'
 import { TopicGrid } from '@/components/prep/TopicGrid'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { FormField } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, LoadingCards, LoadingRows } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
+import { StatGrid, StatTile } from '@/components/shared/StatTile'
+import { ToneBadge } from '@/components/shared/ToneBadge'
+import { cn } from '@/lib/utils'
 
 export function PrepPage() {
   const queryClient = useQueryClient()
@@ -70,154 +74,153 @@ export function PrepPage() {
     createMutation.mutate()
   }
 
+  const tasks = tasksQuery.data ?? []
+  const completed = tasks.filter((task) => task.status === 'completed').length
+  const overdue = tasks.filter((task) => task.status === 'open' && task.due_date !== null && isPast(new Date(task.due_date))).length
+  const topics = progressQuery.data?.topics ?? []
+  const strongTopics = topics.filter((topic) => topic.sufficient_evidence && topic.mastery_score >= 0.7).length
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold">Interview Prep</h2>
-          <p className="text-sm text-muted-foreground">
-            Practice tracking and topic mastery that fades over time, just like real skill does.
-          </p>
-        </div>
-        <Button asChild>
-          <Link to="/prep/questions">Question bank</Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Interview Prep"
+        description="Practice tracking and topic mastery that fades over time, just like real skill does."
+        actions={
+          <Button asChild>
+            <Link to="/prep/questions">
+              <LibraryIcon aria-hidden />
+              Question bank
+            </Link>
+          </Button>
+        }
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Progress by category</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {progressQuery.isLoading && (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <Skeleton key={index} className="h-10 w-full" />
+      <StatGrid>
+        <StatTile label="Tasks done" icon={CheckCircle2Icon} tone="success" value={tasksQuery.data ? completed : null} loading={tasksQuery.isLoading} hint={`of ${tasks.length} in your plan`} />
+        <StatTile label="Open tasks" icon={ListTodoIcon} value={tasksQuery.data ? tasks.length - completed : null} loading={tasksQuery.isLoading} hint="Still to practise" />
+        <StatTile
+          label="Overdue"
+          icon={AlarmClockIcon}
+          tone="warning"
+          value={tasksQuery.data ? overdue : null}
+          loading={tasksQuery.isLoading}
+          hint={overdue > 0 ? 'Past their due date' : 'Nothing slipping'}
+        />
+        <StatTile label="Strong topics" icon={TargetIcon} tone="info" value={progressQuery.data ? strongTopics : null} loading={progressQuery.isLoading} hint={`of ${topics.length} tracked topics`} />
+      </StatGrid>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <SectionCard title="Progress by category" description="Task completion, with average mastery alongside.">
+          {progressQuery.isLoading && <LoadingCards count={3} label="Loading progress" className="[&>*]:p-3" />}
+          {progressQuery.isError && <ErrorState title="Couldn't load progress" onRetry={() => progressQuery.refetch()} />}
+          {progressQuery.data && (
+            <div className="space-y-5">
+              {progressQuery.data.categories.map((category) => (
+                <CategoryProgressBar key={category.category} progress={category} />
               ))}
             </div>
           )}
-          {progressQuery.isError && (
-            <Alert variant="destructive">
-              <AlertCircleIcon className="h-4 w-4" />
-              <AlertTitle>Couldn&apos;t load progress</AlertTitle>
-              <AlertDescription>Something went wrong talking to the server.</AlertDescription>
-            </Alert>
-          )}
-          {progressQuery.data &&
-            progressQuery.data.categories.map((category) => <CategoryProgressBar key={category.category} progress={category} />)}
-        </CardContent>
-      </Card>
+        </SectionCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Preparation tasks</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleCreateTask} className="flex flex-col gap-2 sm:flex-row sm:items-end">
-            <div className="flex-1 space-y-1">
-              <Label htmlFor="new-task-title">New task</Label>
-              <Input
-                id="new-task-title"
-                placeholder="e.g. Practice 10 array problems"
-                value={newTaskTitle}
-                onChange={(event) => setNewTaskTitle(event.target.value)}
-              />
-            </div>
-            <div className="w-full space-y-1 sm:w-56">
-              <Label htmlFor="new-task-topic">Topic</Label>
-              <Select value={newTaskTopicId} onValueChange={setNewTaskTopicId}>
-                <SelectTrigger id="new-task-topic">
-                  <SelectValue placeholder="Choose a topic" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(topicsQuery.data ?? []).map((topic) => (
-                    <SelectItem key={topic.id} value={topic.id}>
-                      {topic.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" disabled={createMutation.isPending || !newTaskTitle.trim() || !newTaskTopicId}>
-              <PlusIcon className="h-4 w-4" />
-              Add task
-            </Button>
-          </form>
+        <SectionCard title="Preparation tasks" description="Turn a weak topic into a scheduled task.">
+          <div className="space-y-4">
+            <form onSubmit={handleCreateTask} className="flex flex-col gap-3 rounded-lg border bg-surface-2/50 p-3 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <FormField id="new-task-title" label="New task">
+                  <Input
+                    id="new-task-title"
+                    className="bg-card"
+                    placeholder="e.g. Practice 10 array problems"
+                    value={newTaskTitle}
+                    onChange={(event) => setNewTaskTitle(event.target.value)}
+                  />
+                </FormField>
+              </div>
+              <div className="w-full sm:w-48">
+                <FormField id="new-task-topic" label="Topic">
+                  <Select value={newTaskTopicId} onValueChange={setNewTaskTopicId}>
+                    <SelectTrigger id="new-task-topic" className="w-full bg-card">
+                      <SelectValue placeholder="Choose a topic" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(topicsQuery.data ?? []).map((topic) => (
+                        <SelectItem key={topic.id} value={topic.id}>
+                          {topic.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormField>
+              </div>
+              <Button type="submit" disabled={createMutation.isPending || !newTaskTitle.trim() || !newTaskTopicId}>
+                <PlusIcon aria-hidden />
+                Add task
+              </Button>
+            </form>
 
-          {tasksQuery.isLoading && <Skeleton className="h-24 w-full" />}
-          {tasksQuery.data && tasksQuery.data.length === 0 && (
-            <div className="flex items-center gap-3 rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-              <PencilLineIcon className="h-5 w-5" />
-              <span>No preparation tasks yet — turn a weak topic into a scheduled task above.</span>
-            </div>
-          )}
-          {tasksQuery.data && tasksQuery.data.length > 0 && (
-            <ul className="divide-y rounded-md border">
-              {tasksQuery.data.map((task) => {
-                const overdue = task.status === 'open' && task.due_date !== null && isPast(new Date(task.due_date))
-                return (
-                  <li key={task.id} className="flex items-center justify-between gap-3 p-3">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        aria-label={task.status === 'completed' ? 'Mark as open' : 'Mark as completed'}
-                        onClick={() => toggleMutation.mutate(task)}
-                        className="text-muted-foreground hover:text-primary"
-                      >
-                        {task.status === 'completed' ? (
-                          <CheckCircle2Icon className="h-5 w-5 text-emerald-600" />
-                        ) : (
-                          <CircleIcon className="h-5 w-5" />
-                        )}
-                      </button>
-                      <div>
-                        <p className={task.status === 'completed' ? 'text-sm line-through text-muted-foreground' : 'text-sm'}>
-                          {task.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {task.topic_name}
-                          {task.due_date && ` · Due ${format(new Date(task.due_date), 'MMM d, yyyy')}`}
-                        </p>
+            {tasksQuery.isLoading && <LoadingRows rows={3} label="Loading tasks" />}
+            {tasksQuery.isError && <ErrorState title="Couldn't load your tasks" onRetry={() => tasksQuery.refetch()} />}
+            {tasksQuery.data && tasksQuery.data.length === 0 && (
+              <EmptyState compact icon={PencilLineIcon} title="No preparation tasks yet" description="Turn a weak topic into a scheduled task above." />
+            )}
+            {tasksQuery.data && tasksQuery.data.length > 0 && (
+              <ul className="divide-y overflow-hidden rounded-lg border">
+                {tasksQuery.data.map((task) => {
+                  const isOverdue = task.status === 'open' && task.due_date !== null && isPast(new Date(task.due_date))
+                  const done = task.status === 'completed'
+                  return (
+                    <li key={task.id} className="group/task flex items-center justify-between gap-3 px-3 py-2.5 transition-colors hover:bg-accent/40">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <button
+                          type="button"
+                          aria-label={done ? 'Mark as open' : 'Mark as completed'}
+                          onClick={() => toggleMutation.mutate(task)}
+                          className="rounded-full text-muted-foreground transition-[color,transform] duration-150 hover:text-primary active:scale-90"
+                        >
+                          {done ? <CheckCircle2Icon className="size-5 text-success" /> : <CircleIcon className="size-5" />}
+                        </button>
+                        <div className="min-w-0">
+                          <p className={cn('truncate text-sm', done && 'text-muted-foreground line-through')}>{task.title}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {task.topic_name}
+                            {task.due_date && ` · Due ${format(new Date(task.due_date), 'MMM d, yyyy')}`}
+                          </p>
+                        </div>
+                        {isOverdue && <ToneBadge tone="danger">Overdue</ToneBadge>}
                       </div>
-                      {overdue && <Badge variant="destructive">Overdue</Badge>}
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="Delete task"
-                      onClick={() => deleteMutation.mutate(task.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Delete task"
+                        onClick={() => deleteMutation.mutate(task.id)}
+                        className="text-muted-foreground hover:text-destructive sm:opacity-0 sm:group-hover/task:opacity-100 sm:focus-visible:opacity-100"
+                      >
+                        <Trash2Icon aria-hidden />
+                      </Button>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
+        </SectionCard>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Topic mastery</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {progressQuery.isLoading && <Skeleton className="h-40 w-full" />}
-          {progressQuery.data && <TopicGrid topics={progressQuery.data.topics} onSelectTopic={setSelectedTopic} />}
-          {selectedTopic && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              {selectedTopic.topic_name}: {selectedTopic.observation_count} observation
-              {selectedTopic.observation_count === 1 ? '' : 's'} so far.{' '}
-              <Link
-                to={`/prep/questions?topic_id=${selectedTopic.topic_id}`}
-                className="font-medium text-primary underline-offset-4 hover:underline"
-              >
-                Practice this topic
-              </Link>
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      <SectionCard title="Topic mastery" description="Select a topic to see how much evidence it rests on, then practise it.">
+        {progressQuery.isLoading && <Skeleton className="h-40 w-full rounded-lg" />}
+        {progressQuery.data && <TopicGrid topics={progressQuery.data.topics} onSelectTopic={setSelectedTopic} />}
+        {selectedTopic && (
+          <p className="animate-enter mt-4 flex flex-wrap items-center gap-x-2 rounded-lg bg-surface-2/60 px-3 py-2 text-sm text-muted-foreground">
+            <span>
+              <span className="font-medium text-foreground">{selectedTopic.topic_name}</span>: {selectedTopic.observation_count} observation
+              {selectedTopic.observation_count === 1 ? '' : 's'} so far.
+            </span>
+            <Link to={`/prep/questions?topic_id=${selectedTopic.topic_id}`} className="font-medium text-primary underline-offset-4 hover:underline">
+              Practice this topic
+            </Link>
+          </p>
+        )}
+      </SectionCard>
     </div>
   )
 }

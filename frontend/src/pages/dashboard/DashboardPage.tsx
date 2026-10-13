@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AlertCircleIcon, ArrowRightIcon, BriefcaseIcon, CalendarClockIcon, FlameIcon, PlusIcon } from 'lucide-react'
+import { ArrowRightIcon, BriefcaseIcon, CalendarClockIcon, FlameIcon, PlusIcon } from 'lucide-react'
 import { format, isPast, isToday, isTomorrow, parseISO } from 'date-fns'
 import { listApplications, listStalledApplications } from '@/lib/applications-api'
 import { listInterviews, type InterviewSummary } from '@/lib/interviews-api'
@@ -10,7 +10,7 @@ import { buildActionQueue } from '@/lib/action-queue'
 import { summariseActivity, type ActivitySummary } from '@/lib/activity'
 import { formatLabel } from '@/lib/labels'
 import { useAuth } from '@/hooks/use-auth'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { ErrorState } from '@/components/shared/QueryStates'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PipelineStrip } from '@/components/dashboard/PipelineStrip'
@@ -18,6 +18,7 @@ import { ActionQueueList } from '@/components/dashboard/ActionQueueList'
 import { ProgressRing } from '@/components/dashboard/ProgressRing'
 import { CountUp } from '@/components/motion/Reveal'
 import { RotatingQuote } from '@/components/shared/RotatingQuote'
+import { TypingText } from '@/components/motion/TypingText'
 import { cn } from '@/lib/utils'
 
 const TERMINAL_STATUSES = new Set(['REJECTED', 'WITHDRAWN', 'ACCEPTED', 'DECLINED'])
@@ -88,8 +89,7 @@ export function DashboardPage() {
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE d MMMM')}</p>
           <h2 id="dashboard-greeting" className="text-display text-3xl sm:text-4xl">
-            {greetingFor(new Date().getHours())}
-            {firstName ? `, ${firstName}` : ''}.
+            <TypingText text={`${greetingFor(new Date().getHours())}${firstName ? `, ${firstName}` : ''}.`} sessionKey="dashboard-greeting" />
           </h2>
           <RotatingQuote className="text-sm" />
         </div>
@@ -162,14 +162,14 @@ export function DashboardPage() {
 
       <Panel title="Pipeline" action={<PanelLink to="/applications/board">Open board</PanelLink>}>
         {applicationsQuery.isLoading && <Skeleton className="h-28 w-full rounded-xl" data-testid="pipeline-loading" />}
-        {applicationsQuery.isError && <ErrorAlert />}
+        {applicationsQuery.isError && <ErrorState title="Couldn't load this" description="Something went wrong talking to the server." />}
         {applicationsQuery.data && <PipelineStrip applications={applicationsQuery.data.items} />}
       </Panel>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Panel title="Action queue">
           {isLoading && <Skeleton className="h-48 w-full rounded-xl" data-testid="action-queue-loading" />}
-          {!isLoading && hasError && <ErrorAlert />}
+          {!isLoading && hasError && <ErrorState title="Couldn't load this" description="Something went wrong talking to the server." />}
           {!isLoading && !hasError && <ActionQueueList items={actionQueue} />}
         </Panel>
         <Panel title="Next interviews" action={<PanelLink to="/interviews">All interviews</PanelLink>}>
@@ -297,12 +297,3 @@ function UpcomingInterviews({ interviews }: { interviews: InterviewSummary[] }) 
   )
 }
 
-function ErrorAlert() {
-  return (
-    <Alert variant="destructive">
-      <AlertCircleIcon className="h-4 w-4" />
-      <AlertTitle>Couldn&apos;t load this</AlertTitle>
-      <AlertDescription>Something went wrong talking to the server.</AlertDescription>
-    </Alert>
-  )
-}

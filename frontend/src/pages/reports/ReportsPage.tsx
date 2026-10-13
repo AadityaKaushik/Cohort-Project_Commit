@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DownloadIcon, FileTextIcon, Trash2Icon } from 'lucide-react'
+import { DownloadIcon, FileDownIcon, FileTextIcon, Loader2Icon, Trash2Icon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { NativeSelect } from '@/components/ui/native-select'
+import { FormActions, FormError, FormField } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
 import { ApiError } from '@/lib/api-client'
 import { saveBlob } from '@/lib/download'
 import {
@@ -20,9 +22,6 @@ import {
   type ReportFormat,
   type ReportType,
 } from '@/lib/reports-api'
-
-const NATIVE_SELECT =
-  'h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
 
 /** US-80 / FR-102..104: generate a PDF or CSV export and download it before it expires. */
 export function ReportsPage() {
@@ -74,95 +73,90 @@ export function ReportsPage() {
   const reports = reportsQuery.data ?? []
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Reports</h2>
-        <p className="text-sm text-muted-foreground">Export your data. Files are private to you and expire automatically.</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Reports" description="Export your data. Files are private to you and expire automatically." />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">New export</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="report-type">Report</Label>
-              <select id="report-type" className={NATIVE_SELECT} value={reportType} onChange={(e) => selectType(e.target.value as ReportType)}>
-                {REPORT_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">{selectedType.description}</p>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <SectionCard title="New export" description="Choose what to export and in which format.">
+          <div className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField id="report-type" label="Report" hint={selectedType.description}>
+                <NativeSelect id="report-type" value={reportType} onChange={(e) => selectType(e.target.value as ReportType)}>
+                  {REPORT_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </FormField>
+              <FormField id="report-format" label="Format">
+                <NativeSelect id="report-format" value={format} onChange={(e) => setFormat(e.target.value as ReportFormat)}>
+                  {selectedType.formats.map((option) => (
+                    <option key={option} value={option}>
+                      {option.toUpperCase()}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </FormField>
+              <FormField id="report-from" label="Applied from">
+                <Input id="report-from" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+              </FormField>
+              <FormField id="report-to" label="Applied to">
+                <Input id="report-to" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+              </FormField>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="report-format">Format</Label>
-              <select id="report-format" className={NATIVE_SELECT} value={format} onChange={(e) => setFormat(e.target.value as ReportFormat)}>
-                {selectedType.formats.map((option) => (
-                  <option key={option} value={option}>
-                    {option.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="report-from">Applied from</Label>
-              <Input id="report-from" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="report-to">Applied to</Label>
-              <Input id="report-to" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-            </div>
+            {error && <FormError>{error}</FormError>}
+            <FormActions>
+              <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
+                {createMutation.isPending ? <Loader2Icon aria-hidden className="animate-spin" /> : <FileDownIcon aria-hidden />}
+                {createMutation.isPending ? 'Generating...' : 'Generate export'}
+              </Button>
+            </FormActions>
           </div>
-          {error ? (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          ) : null}
-          <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
-            {createMutation.isPending ? 'Generating...' : 'Generate export'}
-          </Button>
-        </CardContent>
-      </Card>
+        </SectionCard>
 
-      <section className="space-y-3" aria-label="Your exports">
-        <h3 className="text-sm font-medium">Your exports</h3>
-        {reportsQuery.isLoading ? (
-          <Skeleton className="h-16 w-full" />
-        ) : reports.length === 0 ? (
-          <EmptyState icon={FileTextIcon} title="No exports yet" description="Generate one above and it will be listed here until it expires." />
-        ) : (
-          <ul className="space-y-2">
-            {reports.map((report) => (
-              <li key={report.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{report.file_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatFileSize(report.file_size_bytes)} - expires {new Date(report.expires_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <Button variant="outline" size="sm" onClick={() => downloadMutation.mutate(report.id)} disabled={downloadMutation.isPending}>
-                    <DownloadIcon className="h-4 w-4" />
-                    Download
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Delete ${report.file_name}`}
-                    onClick={() => deleteMutation.mutate(report.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <section className="space-y-3" aria-label="Your exports">
+          <h3 className="font-heading text-base font-semibold tracking-tight">Your exports</h3>
+          {reportsQuery.isLoading ? (
+            <LoadingRows rows={2} label="Loading exports" />
+          ) : reportsQuery.isError ? (
+            <ErrorState title="Couldn't load your exports" onRetry={() => reportsQuery.refetch()} />
+          ) : reports.length === 0 ? (
+            <EmptyState compact icon={FileTextIcon} title="No exports yet" description="Generate one and it will be listed here until it expires." />
+          ) : (
+            <ul className="stagger space-y-2">
+              {reports.map((report) => (
+                <li key={report.id} className="surface-raised flex items-center justify-between gap-3 rounded-xl border p-3">
+                  <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-info/10 text-info">
+                    <FileTextIcon className="size-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{report.file_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatFileSize(report.file_size_bytes)} · expires {new Date(report.expires_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <Button variant="outline" size="sm" onClick={() => downloadMutation.mutate(report.id)} disabled={downloadMutation.isPending}>
+                      <DownloadIcon aria-hidden />
+                      Download
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Delete ${report.file_name}`}
+                      onClick={() => deleteMutation.mutate(report.id)}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2Icon aria-hidden />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </div>
   )
 }

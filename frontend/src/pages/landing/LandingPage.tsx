@@ -24,6 +24,7 @@ import { JobMatchDemo } from '@/components/landing/JobMatchDemo'
 import { JourneyTimeline } from '@/components/landing/JourneyTimeline'
 import { PaletteDemo } from '@/components/landing/PaletteDemo'
 import { Magnetic } from '@/components/motion/Magnetic'
+import { TransitionLink } from '@/components/motion/TransitionLink'
 import { ProductPreview } from '@/components/landing/ProductPreview'
 import { TypingText } from '@/components/motion/TypingText'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
@@ -38,10 +39,22 @@ function stagger(index: number): CSSProperties {
 function useScrolled(threshold = 8): boolean {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > threshold)
-    handleScroll()
+    let frame = 0
+    const update = () => {
+      frame = 0
+      setScrolled(window.scrollY > threshold)
+    }
+    const handleScroll = () => {
+      if (!frame) {
+        frame = window.requestAnimationFrame(update)
+      }
+    }
+    update()
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [threshold])
   return scrolled
 }
@@ -59,15 +72,15 @@ function PrimaryActions({ className }: { className?: string }) {
     <div className={cn('flex flex-col items-center justify-center gap-3 sm:flex-row', className)}>
       <Magnetic className="w-full sm:w-auto">
         <Button variant="cta" size="xl" asChild className="group/cta w-full sm:w-auto">
-          <Link to="/register">
+          <TransitionLink to="/register">
             Create your free account
             <ArrowRight aria-hidden className="transition-transform duration-200 group-hover/cta:translate-x-0.5" />
-          </Link>
+          </TransitionLink>
         </Button>
       </Magnetic>
       <Magnetic className="w-full sm:w-auto">
         <Button variant="outline" size="xl" asChild className="w-full sm:w-auto">
-          <Link to="/login">Log in</Link>
+          <TransitionLink to="/login">Log in</TransitionLink>
         </Button>
       </Magnetic>
     </div>
@@ -95,7 +108,7 @@ export function LandingPage() {
       >
         <nav aria-label="Primary" className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link to="/" aria-label="Cohort home" className="rounded-lg">
-            <BrandMark animated />
+            <BrandMark animated className="brand-continuity" />
           </Link>
           <div className="ml-6 hidden items-center gap-7 text-sm text-muted-foreground md:flex">
             {NAV_LINKS.map((link) => (
@@ -107,10 +120,10 @@ export function LandingPage() {
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle className="hidden sm:inline-flex" />
             <Button variant="ghost" asChild>
-              <Link to="/login">Log in</Link>
+              <TransitionLink to="/login">Log in</TransitionLink>
             </Button>
             <Button asChild className="hidden sm:inline-flex">
-              <Link to="/register">Get started</Link>
+              <TransitionLink to="/register">Get started</TransitionLink>
             </Button>
           </div>
         </nav>
@@ -149,7 +162,7 @@ export function LandingPage() {
               className="animate-enter mt-5 font-heading text-lg font-medium tracking-tight text-primary sm:text-2xl"
               style={stagger(2)}
             >
-              <TypingText phrases={USE_CASES} />
+              <TypingText text={USE_CASES} />
             </p>
             <p
               className="animate-enter mx-auto mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg"
@@ -169,12 +182,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="journey" aria-labelledby="journey-title" className="scroll-mt-20 border-t">
+        <section id="journey" aria-labelledby="journey-title" className="defer-render scroll-mt-20 border-t">
           <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
             <Reveal className="lg:sticky lg:top-28 lg:self-start">
               <p className="text-sm font-medium text-primary">The journey</p>
               <h2 id="journey-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                Four steps, one place.
+                <TypingText text="Four steps, one place." sessionKey="landing-journey-title" />
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Most searches live in a spreadsheet, a notes app and memory. Cohort keeps each step connected, so
@@ -185,12 +198,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="modules" aria-labelledby="modules-title" className="scroll-mt-20 border-t bg-surface-2/40">
+        <section id="modules" aria-labelledby="modules-title" className="defer-render scroll-mt-20 border-t bg-surface-2/40">
           <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
             <Reveal className="max-w-2xl">
               <p className="text-sm font-medium text-primary">How it works</p>
               <h2 id="modules-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                One loop, from first application to signed offer.
+                <TypingText text="One loop, from first application to signed offer." sessionKey="landing-modules-title" />
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Applications create interviews, interviews create prep, and prep shows up in your numbers.
@@ -230,12 +243,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="match" aria-labelledby="match-title" className="scroll-mt-20 border-t">
+        <section id="match" aria-labelledby="match-title" className="defer-render scroll-mt-20 border-t">
           <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
             <Reveal className="max-w-2xl">
               <p className="text-sm font-medium text-primary">Try it</p>
               <h2 id="match-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                How well does a job fit?
+                <TypingText text="How well does a job fit?" sessionKey="landing-match-title" />
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Paste a job description to see which skills a sample resume covers and which it is missing. It runs
@@ -248,12 +261,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="privacy" aria-labelledby="privacy-title" className="scroll-mt-20 border-t">
+        <section id="privacy" aria-labelledby="privacy-title" className="defer-render scroll-mt-20 border-t">
           <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
             <Reveal>
               <p className="text-sm font-medium text-primary">Privacy by design</p>
               <h2 id="privacy-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                The model travels. Your data stays.
+                <TypingText text="The model travels. Your data stays." sessionKey="landing-privacy-title" />
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Federated learning lets a shared model learn from many people without anyone handing over their
@@ -275,11 +288,11 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="faq" aria-labelledby="faq-title" className="scroll-mt-20 border-t bg-surface-2/40">
+        <section id="faq" aria-labelledby="faq-title" className="defer-render scroll-mt-20 border-t bg-surface-2/40">
           <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 sm:py-28">
             <Reveal>
               <h2 id="faq-title" className="text-display text-3xl sm:text-5xl">
-                Questions, answered.
+                <TypingText text="Questions, answered." sessionKey="landing-faq-title" />
               </h2>
               <div className="mt-8">
                 <FaqTabs />
@@ -288,10 +301,10 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section aria-labelledby="cta-title" className="border-t">
+        <section aria-labelledby="cta-title" className="defer-render border-t">
           <Reveal className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 sm:py-24">
             <h2 id="cta-title" className="text-display mx-auto max-w-3xl text-3xl text-balance sm:text-5xl">
-              Start with one application. See the whole picture.
+              <TypingText text="Start with one application. See the whole picture." sessionKey="landing-cta-title" />
             </h2>
             <PrimaryActions className="mt-8" />
           </Reveal>
@@ -305,12 +318,12 @@ export function LandingPage() {
             <a href="#privacy" className="hover:text-foreground">
               Privacy
             </a>
-            <Link to="/login" className="hover:text-foreground">
+            <TransitionLink to="/login" className="hover:text-foreground">
               Log in
-            </Link>
-            <Link to="/register" className="hover:text-foreground">
+            </TransitionLink>
+            <TransitionLink to="/register" className="hover:text-foreground">
               Create account
-            </Link>
+            </TransitionLink>
           </nav>
           <p className="text-xs text-muted-foreground sm:ml-6">© {new Date().getFullYear()} Cohort</p>
         </div>

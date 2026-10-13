@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { DownloadIcon, Trash2Icon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { ProfileForm } from '@/components/account/ProfileForm'
+import { CompanyMark } from '@/components/shared/CompanyMark'
+import { FormActions, FormError, FormField } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { SectionCard } from '@/components/shared/SectionCard'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
 import { saveBlob } from '@/lib/download'
@@ -43,83 +46,75 @@ export function AccountPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Profile</h2>
-        <p className="text-sm text-muted-foreground">{user?.email}</p>
-      </div>
+      <PageHeader
+        title="Profile"
+        description={user?.email}
+        meta={
+          user ? (
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <CompanyMark name={user.display_name ?? user.email ?? 'You'} className="size-6 rounded-full text-[11px]" />
+              {user.display_name}
+            </span>
+          ) : undefined
+        }
+      />
 
-      <ProfileForm />
+      <div className="stagger space-y-6">
+        <ProfileForm />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Change password</CardTitle>
-          <CardDescription>You will be signed out everywhere and asked to sign in again.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <SectionCard title="Change password" description="You will be signed out everywhere and asked to sign in again.">
           <form className="space-y-4" onSubmit={submitPassword}>
-            <div className="space-y-1.5">
-              <Label htmlFor="current-password">Current password</Label>
-              <Input id="current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField id="current-password" label="Current password">
+                <Input id="current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+              </FormField>
+              <FormField id="new-password" label="New password" hint="At least 10 characters.">
+                <Input id="new-password" type="password" autoComplete="new-password" minLength={10} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+              </FormField>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="new-password">New password</Label>
-              <Input id="new-password" type="password" autoComplete="new-password" minLength={10} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-            </div>
-            {passwordMutation.isError ? (
-              <p role="alert" className="text-sm text-destructive">
-                {messageOf(passwordMutation.error, 'Could not change the password.')}
-              </p>
-            ) : null}
-            <Button type="submit" disabled={passwordMutation.isPending}>
-              Change password
-            </Button>
+            {passwordMutation.isError ? <FormError>{messageOf(passwordMutation.error, 'Could not change the password.')}</FormError> : null}
+            <FormActions>
+              <Button type="submit" disabled={passwordMutation.isPending}>
+                Change password
+              </Button>
+            </FormActions>
           </form>
-        </CardContent>
-      </Card>
+        </SectionCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Export my data</CardTitle>
-          <CardDescription>Download everything you have entered as a JSON file, including your resume files.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {exportMutation.isError ? (
-            <p role="alert" className="text-sm text-destructive">
-              {messageOf(exportMutation.error, 'Could not export your data.')}
-            </p>
-          ) : null}
-          <Button variant="outline" onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
-            {exportMutation.isPending ? 'Preparing...' : 'Download my data'}
-          </Button>
-        </CardContent>
-      </Card>
+        <SectionCard
+          title="Export my data"
+          description="Download everything you have entered as a JSON file, including your resume files."
+          action={
+            <Button variant="outline" onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
+              <DownloadIcon aria-hidden />
+              {exportMutation.isPending ? 'Preparing...' : 'Download my data'}
+            </Button>
+          }
+        >
+          {exportMutation.isError ? <FormError>{messageOf(exportMutation.error, 'Could not export your data.')}</FormError> : null}
+        </SectionCard>
 
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle className="text-base text-destructive">Delete account</CardTitle>
-          <CardDescription>
-            Permanently removes your account, applications, resumes, files and federated-learning data. This cannot be undone.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="delete-confirmation">Type {DELETE_CONFIRMATION} to confirm</Label>
-            <Input id="delete-confirmation" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="off" />
+        <SectionCard
+          tone="danger"
+          title="Delete account"
+          description="Permanently removes your account, applications, resumes, files and federated-learning data. This cannot be undone."
+        >
+          <div className="space-y-4">
+            <FormField id="delete-confirmation" label={`Type ${DELETE_CONFIRMATION} to confirm`} className="sm:max-w-xs">
+              <Input id="delete-confirmation" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="off" />
+            </FormField>
+            {deleteMutation.isError ? <FormError>{messageOf(deleteMutation.error, 'Could not delete the account.')}</FormError> : null}
+            <Button
+              variant="destructive"
+              onClick={() => deleteMutation.mutate()}
+              disabled={confirmation !== DELETE_CONFIRMATION || deleteMutation.isPending}
+            >
+              <Trash2Icon aria-hidden />
+              Delete my account
+            </Button>
           </div>
-          {deleteMutation.isError ? (
-            <p role="alert" className="text-sm text-destructive">
-              {messageOf(deleteMutation.error, 'Could not delete the account.')}
-            </p>
-          ) : null}
-          <Button
-            variant="destructive"
-            onClick={() => deleteMutation.mutate()}
-            disabled={confirmation !== DELETE_CONFIRMATION || deleteMutation.isPending}
-          >
-            Delete my account
-          </Button>
-        </CardContent>
-      </Card>
+        </SectionCard>
+      </div>
     </div>
   )
 }

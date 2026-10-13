@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { VectorInspector } from '@/components/privacy/VectorInspector'
 import { useIsMobile } from '@/hooks/use-mobile'
 
+const LEDGER_COLUMNS = ['Round', 'Sent', 'Cohort size', 'Pre-clip norm', 'Post-clip norm', 'Noise (sigma)', 'Epsilon']
+
 interface PrivacyLedgerTableProps {
   entries: PrivacyLedgerEntry[]
   featureNames?: string[]
@@ -23,11 +25,11 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
 
   if (isMobile) {
     return (
-      <ul className="space-y-2" data-testid="ledger-cards">
+      <ul className="stagger space-y-2" data-testid="ledger-cards">
         {entries.map((entry) => {
           const expanded = expandedId === entry.id
           return (
-            <li key={entry.id} className="rounded-lg border p-3 text-sm">
+            <li key={entry.id} className="rounded-lg border bg-surface-2/50 p-3 text-sm">
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Round {entry.round_number}</p>
@@ -45,7 +47,7 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
               </div>
               <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                 <dt className="text-muted-foreground">Cohort size</dt>
-                <dd className="text-right">{entry.cohort_size}</dd>
+                <dd className="text-right tabular-nums">{entry.cohort_size}</dd>
                 <dt className="text-muted-foreground">Pre-clip norm</dt>
                 <dd className="text-right">{entry.pre_clip_norm.toFixed(4)}</dd>
                 <dt className="text-muted-foreground">Post-clip norm</dt>
@@ -68,17 +70,16 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
   }
 
   return (
+    <div className="overflow-hidden rounded-lg border">
     <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead />
-          <TableHead>Round</TableHead>
-          <TableHead>Sent</TableHead>
-          <TableHead>Cohort size</TableHead>
-          <TableHead>Pre-clip norm</TableHead>
-          <TableHead>Post-clip norm</TableHead>
-          <TableHead>Noise (sigma)</TableHead>
-          <TableHead>Epsilon</TableHead>
+      <TableHeader className="bg-surface-2/70">
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="w-12" />
+          {LEDGER_COLUMNS.map((column) => (
+            <TableHead key={column} className="eyebrow text-muted-foreground">
+              {column}
+            </TableHead>
+          ))}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -86,7 +87,7 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
           const expanded = expandedId === entry.id
           return (
             <Fragment key={entry.id}>
-              <TableRow className="cursor-pointer" onClick={() => setExpandedId(expanded ? null : entry.id)}>
+              <TableRow className="row-interactive cursor-pointer font-mono text-xs tabular-nums" onClick={() => setExpandedId(expanded ? null : entry.id)}>
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -106,8 +107,8 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
                 <TableCell>{entry.epsilon.toFixed(4)}</TableCell>
               </TableRow>
               {expanded && (
-                <TableRow>
-                  <TableCell colSpan={8}>
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={8} className="bg-surface-2/40">
                     <VectorInspector vector={entry.transmitted_vector} featureNames={featureNames} />
                   </TableCell>
                 </TableRow>
@@ -117,5 +118,6 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
         })}
       </TableBody>
     </Table>
+    </div>
   )
 }

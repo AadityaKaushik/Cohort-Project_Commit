@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { AlertTriangleIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { NotebookPenIcon, PencilIcon, PlusIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
 import {
   addInterviewQuestion,
   deleteInterview,
@@ -14,9 +14,7 @@ import {
   type QuestionDifficulty,
   updateInterview,
 } from '@/lib/interviews-api'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -27,10 +25,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { formatLabel } from '@/lib/labels'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { DetailList, type DetailItem } from '@/components/shared/DetailList'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { PageSkeleton } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
+import { OutcomeBadge, ToneBadge } from '@/components/shared/ToneBadge'
 
 const OUTCOMES: InterviewOutcome[] = ['pending', 'passed', 'failed', 'unknown']
 const CATEGORIES: QuestionCategory[] = ['dsa', 'technical', 'behavioural', 'hr', 'system_design', 'company_specific']
@@ -92,18 +94,13 @@ export function InterviewDetailPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    )
+    return <PageSkeleton label="Loading interview" />
   }
 
   if (isError || !data) {
     return (
       <EmptyState
-        icon={AlertTriangleIcon}
+        icon={SearchXIcon}
         title="Interview not found"
         description="It may have been deleted, or the link may be wrong."
         action={
@@ -115,122 +112,115 @@ export function InterviewDetailPage() {
     )
   }
 
+  const details: DetailItem[] = [
+    { label: 'Scheduled', value: data.scheduled_at ? format(new Date(data.scheduled_at), 'EEE d MMM yyyy, p') : 'Not scheduled' },
+    { label: 'Mode', value: formatLabel(data.mode) },
+    { label: 'Duration', value: data.duration_minutes ? `${data.duration_minutes} min` : '—' },
+    { label: 'Interviewer', value: data.interviewer_name ?? '—' },
+  ]
+  if (data.notes) details.push({ label: 'Notes', value: data.notes, wide: true })
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold">
-            {data.company.name} — Round {data.round_number} ({formatLabel(data.round_type)})
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            <Link to={`/applications/${data.application_id}`} className="underline-offset-4 hover:underline">
+      <PageHeader
+        back={{ to: '/interviews', label: 'Interviews' }}
+        title={`${data.company.name} · Round ${data.round_number}`}
+        description={
+          <>
+            {formatLabel(data.round_type)} for{' '}
+            <Link to={`/applications/${data.application_id}`} className="font-medium text-foreground underline-offset-4 hover:underline">
               {data.job_title}
             </Link>
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {data.has_feedback ? (
-            <Button variant="outline" size="sm" asChild>
-              <Link to={`/interviews/${data.id}/debrief`}>View debrief</Link>
-            </Button>
-          ) : (
-            <Button size="sm" asChild>
-              <Link to={`/interviews/${data.id}/debrief`}>Start debrief</Link>
-            </Button>
-          )}
-          <Button variant="outline" size="sm" asChild>
-            <Link to={`/interviews/${data.id}/edit`}>
-              <PencilIcon className="h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Trash2Icon className="h-4 w-4" />
-                Delete
+          </>
+        }
+        meta={<OutcomeBadge outcome={data.outcome} />}
+        actions={
+          <>
+            {data.has_feedback ? (
+              <Button variant="outline" asChild>
+                <Link to={`/interviews/${data.id}/debrief`}>
+                  <NotebookPenIcon aria-hidden />
+                  View debrief
+                </Link>
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete this interview?</DialogTitle>
-                <DialogDescription>
-                  This permanently deletes round {data.round_number} and every question or debrief recorded against it.
-                  This cannot be undone.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-                  Cancel
-                </Button>
-                <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
-                  {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Details</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
-            <Detail
-              label="Scheduled"
-              value={data.scheduled_at ? format(new Date(data.scheduled_at), 'MMM d, yyyy p') : 'Not scheduled'}
-            />
-            <Detail label="Mode" value={formatLabel(data.mode)} />
-            <Detail label="Duration" value={data.duration_minutes ? `${data.duration_minutes} min` : '—'} />
-            <Detail label="Interviewer" value={data.interviewer_name ?? '—'} />
-            {data.notes && (
-              <div className="sm:col-span-2">
-                <p className="text-muted-foreground">Notes</p>
-                <p className="whitespace-pre-wrap">{data.notes}</p>
-              </div>
+            ) : (
+              <Button asChild>
+                <Link to={`/interviews/${data.id}/debrief`}>
+                  <NotebookPenIcon aria-hidden />
+                  Start debrief
+                </Link>
+              </Button>
             )}
-          </CardContent>
-        </Card>
+            <Button variant="outline" asChild>
+              <Link to={`/interviews/${data.id}/edit`}>
+                <PencilIcon aria-hidden />
+                Edit
+              </Link>
+            </Button>
+            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+              <DialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2Icon aria-hidden />
+                  Delete
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete this interview?</DialogTitle>
+                  <DialogDescription>
+                    This permanently deletes round {data.round_number} and every question or debrief recorded against it. This cannot be
+                    undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
+                    {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        }
+      />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Outcome</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Select value={data.outcome} onValueChange={(value) => outcomeMutation.mutate(value as InterviewOutcome)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {OUTCOMES.map((outcome) => (
-                  <SelectItem key={outcome} value={outcome}>
-                    {formatLabel(outcome)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Badge variant="outline">{data.has_feedback ? 'Debrief recorded' : 'No debrief yet'}</Badge>
-          </CardContent>
-        </Card>
+      <div className="stagger grid gap-6 lg:grid-cols-3">
+        <SectionCard title="Details" className="lg:col-span-2">
+          <DetailList items={details} />
+        </SectionCard>
+
+        <SectionCard title="Outcome" description={data.has_feedback ? 'Debrief recorded.' : 'No debrief yet.'}>
+          <Select value={data.outcome} onValueChange={(value) => outcomeMutation.mutate(value as InterviewOutcome)}>
+            <SelectTrigger aria-label="Outcome" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {OUTCOMES.map((outcome) => (
+                <SelectItem key={outcome} value={outcome}>
+                  {formatLabel(outcome)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SectionCard>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Questions asked</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleAddQuestion} className="space-y-3 rounded-md border p-3">
+      <SectionCard title="Questions asked" description="Log them inline; they feed your prep recommendations.">
+        <div className="space-y-4">
+          <form onSubmit={handleAddQuestion} className="space-y-3 rounded-lg border bg-surface-2/50 p-3">
             <Textarea
-              placeholder="What were you asked? (added inline, no need to leave this page)"
+              aria-label="Question"
+              placeholder="What were you asked?"
               value={questionText}
               onChange={(event) => setQuestionText(event.target.value)}
               rows={2}
+              className="bg-card"
             />
             <div className="flex flex-wrap items-center gap-2">
               <Select value={category} onValueChange={(value) => setCategory(value as QuestionCategory)}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger aria-label="Category" className="w-[160px] bg-card">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -242,7 +232,7 @@ export function InterviewDetailPage() {
                 </SelectContent>
               </Select>
               <Select value={difficulty} onValueChange={(value) => setDifficulty(value as QuestionDifficulty)}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger aria-label="Difficulty" className="w-[140px] bg-card">
                   <SelectValue placeholder="Difficulty" />
                 </SelectTrigger>
                 <SelectContent>
@@ -253,50 +243,36 @@ export function InterviewDetailPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button type="submit" size="sm" disabled={!questionText.trim() || addQuestionMutation.isPending}>
-                <PlusIcon className="h-4 w-4" />
+              <Button type="submit" size="sm" className="ml-auto" disabled={!questionText.trim() || addQuestionMutation.isPending}>
+                <PlusIcon aria-hidden />
                 Add question
               </Button>
             </div>
           </form>
 
           {questionsQuery.data && questionsQuery.data.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className="divide-y rounded-lg border">
               {questionsQuery.data.map((question) => (
-                <li key={question.id} className="flex items-start justify-between gap-3 rounded-md border p-3 text-sm">
-                  <div>
+                <li key={question.id} className="flex items-start justify-between gap-3 p-3 text-sm transition-colors hover:bg-accent/40">
+                  <div className="min-w-0">
                     <p>{question.question_text}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {formatLabel(question.category)}
-                      {question.difficulty ? ` · ${formatLabel(question.difficulty)}` : ''}
-                      {question.self_rating ? ` · self-rating ${question.self_rating}/5` : ''}
-                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <ToneBadge tone="neutral">{formatLabel(question.category)}</ToneBadge>
+                      {question.difficulty && <ToneBadge tone="info">{formatLabel(question.difficulty)}</ToneBadge>}
+                      {question.self_rating && <ToneBadge tone="primary">Self-rating {question.self_rating}/5</ToneBadge>}
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteQuestionMutation.mutate(question.id)}
-                    aria-label="Delete question"
-                  >
-                    <Trash2Icon className="h-4 w-4" />
+                  <Button variant="ghost" size="icon-sm" onClick={() => deleteQuestionMutation.mutate(question.id)} aria-label="Delete question">
+                    <Trash2Icon aria-hidden />
                   </Button>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No questions recorded yet.</p>
+            <p className="text-center text-sm text-muted-foreground">No questions recorded yet.</p>
           )}
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-muted-foreground">{label}</p>
-      <p>{value}</p>
+        </div>
+      </SectionCard>
     </div>
   )
 }

@@ -3,8 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ApiError } from '@/lib/api-client'
 import { confirmPasswordReset } from '@/lib/auth-api'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AuthFrame } from '@/components/layout/AuthFrame'
+import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -36,12 +35,8 @@ export function ResetPasswordPage() {
 
   return (
     <AuthFrame>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Choose a new password</CardTitle>
-          <CardDescription>Signing in again is required on every device.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <AuthIntro title="Choose a new password" subtitle="Signing in again is required on every device." />
+      <div className="space-y-4">
           {done ? (
             <p role="status" className="text-sm">
               Your password was updated.{' '}
@@ -67,13 +62,12 @@ export function ResetPasswordPage() {
                   {error}
                 </p>
               )}
-              <Button type="submit" className="w-full" disabled={isSubmitting || token === ''}>
+              <Button type="submit" size="xl" className="w-full" disabled={isSubmitting || token === ''}>
                 Update password
               </Button>
             </form>
           )}
-        </CardContent>
-      </Card>
+        </div>
     </AuthFrame>
   )
 }

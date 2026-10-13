@@ -1,7 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertCircleIcon } from 'lucide-react'
 import {
   createInterview,
   getInterview,
@@ -11,14 +10,14 @@ import {
 } from '@/lib/interviews-api'
 import { listApplications } from '@/lib/applications-api'
 import { ApiError } from '@/lib/api-client'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { FormActions, FormError, FormField, FormSection } from '@/components/shared/Form'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { ErrorState, PageSkeleton } from '@/components/shared/QueryStates'
+import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
 import { hasErrors, positiveInteger, required, validate } from '@/lib/validation'
 
@@ -124,66 +123,47 @@ export function InterviewFormPage() {
   }
 
   if (isEditing && detailQuery.isLoading) {
-    return (
-      <div className="max-w-2xl space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-96 w-full" />
-      </div>
-    )
+    return <PageSkeleton label="Loading interview" variant="form" />
   }
 
   if (isEditing && detailQuery.isError) {
     return (
-      <Alert variant="destructive">
-        <AlertCircleIcon className="h-4 w-4" />
-        <AlertTitle>Couldn&apos;t load this interview</AlertTitle>
-        <AlertDescription>It may have been deleted, or something went wrong.</AlertDescription>
-      </Alert>
+      <ErrorState title="Couldn't load this interview" description="It may have been deleted, or something went wrong." onRetry={() => detailQuery.refetch()} />
     )
   }
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
-        <CardTitle>{isEditing ? 'Edit interview' : 'Record an interview'}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {!isEditing && (
-            <div className="space-y-2">
-              <Label htmlFor="application">Application</Label>
-              <Select value={applicationId} onValueChange={setApplicationId}>
-                <SelectTrigger id="application">
-                  <SelectValue placeholder="Choose an application" />
-                </SelectTrigger>
-                <SelectContent>
-                  {applicationsQuery.data?.items.map((application) => (
-                    <SelectItem key={application.id} value={application.id}>
-                      {application.company.name} — {application.job_title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {fieldErrors.applicationId && <p className="text-sm text-destructive">{fieldErrors.applicationId}</p>}
-            </div>
-          )}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="roundNumber">Round number</Label>
-              <Input
-                id="roundNumber"
-                type="number"
-                min={1}
-                value={roundNumber}
-                onChange={(event) => setRoundNumber(event.target.value)}
-                required
-              />
-              {fieldErrors.roundNumber && <p className="text-sm text-destructive">{fieldErrors.roundNumber}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="roundType">Round type</Label>
+    <div className="max-w-4xl space-y-6">
+      <PageHeader
+        back={isEditing ? { to: `/interviews/${id}`, label: 'Interview' } : { to: '/interviews', label: 'Interviews' }}
+        title={isEditing ? 'Edit interview' : 'Record an interview'}
+        description="Schedule the round now; the debrief prompt follows once it has happened."
+      />
+      <SectionCard>
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          <FormSection title="The round" description="Which application it belongs to and what kind of round it is.">
+            {!isEditing && (
+              <FormField id="application" label="Application" error={fieldErrors.applicationId} className="sm:col-span-2">
+                <Select value={applicationId} onValueChange={setApplicationId}>
+                  <SelectTrigger id="application" className="w-full">
+                    <SelectValue placeholder="Choose an application" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {applicationsQuery.data?.items.map((application) => (
+                      <SelectItem key={application.id} value={application.id}>
+                        {application.company.name} — {application.job_title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            )}
+            <FormField id="roundNumber" label="Round number" error={fieldErrors.roundNumber}>
+              <Input id="roundNumber" type="number" min={1} value={roundNumber} onChange={(event) => setRoundNumber(event.target.value)} required />
+            </FormField>
+            <FormField id="roundType" label="Round type">
               <Select value={roundType} onValueChange={(value) => setRoundType(value as InterviewRoundType)}>
-                <SelectTrigger id="roundType">
+                <SelectTrigger id="roundType" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -194,20 +174,15 @@ export function InterviewFormPage() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="scheduledAt">Scheduled at</Label>
-              <Input
-                id="scheduledAt"
-                type="datetime-local"
-                value={scheduledAt}
-                onChange={(event) => setScheduledAt(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="mode">Mode</Label>
+            </FormField>
+          </FormSection>
+          <FormSection title="Logistics" description="When, how and with whom.">
+            <FormField id="scheduledAt" label="Scheduled at">
+              <Input id="scheduledAt" type="datetime-local" value={scheduledAt} onChange={(event) => setScheduledAt(event.target.value)} />
+            </FormField>
+            <FormField id="mode" label="Mode">
               <Select value={mode} onValueChange={(value) => setMode(value as InterviewMode)}>
-                <SelectTrigger id="mode">
+                <SelectTrigger id="mode" className="w-full">
                   <SelectValue placeholder="Not specified" />
                 </SelectTrigger>
                 <SelectContent>
@@ -218,42 +193,30 @@ export function InterviewFormPage() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="durationMinutes">Duration (minutes)</Label>
-              <Input
-                id="durationMinutes"
-                type="number"
-                min={0}
-                value={durationMinutes}
-                onChange={(event) => setDurationMinutes(event.target.value)}
-              />
-              {fieldErrors.durationMinutes && <p className="text-sm text-destructive">{fieldErrors.durationMinutes}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="interviewerName">Interviewer name</Label>
+            </FormField>
+            <FormField id="durationMinutes" label="Duration (minutes)" error={fieldErrors.durationMinutes}>
+              <Input id="durationMinutes" type="number" min={0} value={durationMinutes} onChange={(event) => setDurationMinutes(event.target.value)} />
+            </FormField>
+            <FormField id="interviewerName" label="Interviewer name">
               <Input id="interviewerName" value={interviewerName} onChange={(event) => setInterviewerName(event.target.value)} />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} rows={3} />
-          </div>
-          {error && (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
-          <div className="flex justify-end gap-2">
+            </FormField>
+          </FormSection>
+          <FormSection title="Notes" description="Anything to prepare or remember." columns={1}>
+            <FormField id="notes" label="Notes">
+              <Textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} rows={3} />
+            </FormField>
+          </FormSection>
+          {error && <FormError>{error}</FormError>}
+          <FormActions>
             <Button type="button" variant="outline" onClick={() => navigate(-1)}>
               Cancel
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? 'Saving…' : isEditing ? 'Save changes' : 'Record interview'}
             </Button>
-          </div>
+          </FormActions>
         </form>
-      </CardContent>
-    </Card>
+      </SectionCard>
+    </div>
   )
 }
