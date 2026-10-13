@@ -1,6 +1,6 @@
 # Cohort — Build Phases (Java Spring Boot Edition)
 
-**Purpose:** Use this file together with `PROJECT_PLAN.md` and `ARCHITECTURE_REVISION_JAVA.md`. It replaces the earlier Python-only build-phases file — same idea, same one-commit-per-phase discipline, rebuilt for the Java/Python split: **Spring Boot owns the whole application; Python is scoped down to just the Flower client/server.** 69 phases across 5 sprints, including the two additions (notifications, report export) and the design-pattern work from the architecture revision. Extension Sprints 6–9, added after Sprint 4, bring the total to 105 phases after a scope review that cut low-priority phases (see "Extension sprints").
+**Purpose:** Use this file together with `PROJECT_PLAN.md` and `ARCHITECTURE_REVISION_JAVA.md`. It replaces the earlier Python-only build-phases file — same idea, same one-commit-per-phase discipline, rebuilt for the Java/Python split: **Spring Boot owns the whole application; Python is scoped down to just the Flower client/server.** 69 phases across 5 sprints, including the two additions (notifications, report export) and the design-pattern work from the architecture revision. Extension Sprints 6–9, added after Sprint 4, bring the total to 109 phases after a scope review that cut low-priority phases (see "Extension sprints").
 
 ## How to use this plan
 
@@ -156,7 +156,11 @@ A UI audit and a product review after Sprint 4 found gaps a real job seeker woul
 | US-93 | As a user, I can sign in with Google or GitHub |
 | US-95 | As a user, I can track contacts and referrals per company and get nudged when a contact goes cold |
 | US-96 | As a user, each company has a page with all my applications, interviews, questions, contacts and notes |
+| US-99 | As a user, I can search everything from one search box |
 | US-100 | As a user, I can compare offers side by side with deadline countdowns |
+| US-101 | As a user, I set weekly goals and see my activity as a streak heatmap |
+| US-116 | As a new user, I can load realistic sample data and take a short guided tour |
+| US-117 | As a user, errors, missing pages, offline state and expired sessions show clear, helpful screens |
 | US-102 | As an operator, AI runs on a local model by default, with an optional hosted provider behind one interface |
 | US-103 | As a user, I can chat with an AI coach that answers from my own data |
 | US-104 | As a user, pasting a job posting creates a filled-in application |
@@ -200,7 +204,9 @@ A UI audit and a product review after Sprint 4 found gaps a real job seeker woul
 | P82 | — | — | `feat(db): contacts, company notes, offers, goals migration (US-95,96,100,101)` | Flyway scripts + rollbacks | — | Migrates cleanly |
 | P83 | — | — | `feat(contacts): contacts and referrals + cold-contact nudges (US-95)` | CRUD, referral status, nudge via the P59 Observer events | uses **Observer** | Isolation test (404) |
 | P84 | — | — | `feat(companies): company pages (US-96)` | Aggregated view per company | — | API + RTL |
+| P87 | — | — | `feat(search): global search behind the command palette (US-99)` | One endpoint across applications, companies, questions, notes; results appear in the ⌘K palette | — | Results never include another user's data |
 | P88 | — | — | `feat(offers): offer comparison + deadline countdown (US-100)` | Side-by-side compare | — | API + RTL |
+| P89 | — | — | `feat(goals): weekly goals + activity heatmap (US-101)` | Targets, progress, GitHub-style heatmap, streak on the dashboard | — | API + RTL; isolation test |
 | P106 | — | — | `feat(resumes): structured resume section editor (US-23)` | Edit sections (experience, projects, skills); clones carry sections; export a clean PDF resume from the sections | — | Isolation test; clone copies edited sections |
 
 **Sprint 7 DoD:** every new endpoint isolation-tested.
@@ -235,12 +241,14 @@ AI runs on a local model (Ollama) by default, so user data never leaves the serv
 | # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
 |---|---|---|---|---|---|---|
 | P104 | — | — | `chore: seed data for the extension features (US-72)` | Demo data for contacts, offers, goals, stories, AI history | — | Seed loads identically twice |
+| P122 | — | — | `feat(onboarding): sample data loader + guided product tour (US-116)` | One-click realistic sample data that is clearly marked and removable; first-run guided tour of the main areas, skippable and replayable from help | — | Sample data only touches the current user's records; removal leaves no orphans; tour skippable |
+| P123 | — | — | `feat(frontend): designed error, 404, offline and session-expired screens (US-117)` | Consistent full-page and inline states with clear next actions and retry; offline banner; graceful token-expiry flow | — | RTL for each state in both themes |
 | P114 | — | — | `chore(security): security headers, secret scan, SQL-interpolation gate (NFR-03,08,09)` | CSP/nosniff/Referrer-Policy/HSTS, CI secret scanning, CI check for string-built SQL | — | Header test; CI gates fail on a planted violation |
 | P119 | — | — | `feat(frontend): privacy policy, AI disclosure, help pages (NFR-16)` | Plain-language data, FL and AI disclosure; keyboard shortcut help | — | Linked from sign-up and settings |
 | P66 | P10 | all | `test: full security suite (US-73)` | Enumerate every endpoint from the OpenAPI schema (springdoc), including all Sprint 6–8 endpoints; assert 401/404 systematically | — | Full suite green |
 | P67 | P10 | P4 | `chore(a11y): accessibility remediation pass (US-74)` | Contrast, focus traps, aria-labels across the redesigned UI in both themes | — | axe-core: zero critical violations |
 
-**Scope freeze.** After a scope review the feature set is final: tracking (list, board, companies, contacts, offers), resumes (files, structured editor, PDF export, versions, performance), interviews (debriefs, prep packs, mock interviews, story bank), preparation (question bank, practice, mastery, spaced review, recommendations, readiness), analytics, in-app notifications, reports, AI assistance, federated learning with a Privacy Ledger and budget meter, and sign-in with email or Google/GitHub. Deliberately excluded: calendar view and .ics export, CSV import, global search, weekly goals and heatmap, tags and bulk update, recruiter feedback, email notification channel, admin console, structured ops logging, CI quality gates, load and cross-browser tests, production deploy profile, a browser extension, job-board scraping or auto-apply, two-way calendar/email sync, MFA, sharing between users, and mobile apps (the web app is fully responsive instead).
+**Scope freeze.** After a scope review the feature set is final: tracking (list, board, companies, contacts, offers, global search, weekly goals and heatmap), resumes (files, structured editor, PDF export, versions, performance), interviews (debriefs, prep packs, mock interviews, story bank), preparation (question bank, practice, mastery, spaced review, recommendations, readiness), analytics, in-app notifications, reports, AI assistance, federated learning with a Privacy Ledger and budget meter, and sign-in with email or Google/GitHub. Deliberately excluded: calendar view and .ics export, CSV import, tags and bulk update, recruiter feedback, email notification channel, admin console, structured ops logging, CI quality gates, load and cross-browser tests, production deploy profile, a browser extension, job-board scraping or auto-apply, two-way calendar/email sync, MFA, sharing between users, and mobile apps (the web app is fully responsive instead).
 
 **Project DoD:** everything in the Sprint 5 DoD, plus the Sprint 6–8 DoDs, plus every NFR in `PROJECT_PLAN.md` §8 that is in scope either verified by an automated check or recorded with a manual result (table below). NFRs whose verification phases were cut are listed as not measured.
 
