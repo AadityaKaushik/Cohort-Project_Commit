@@ -14,6 +14,7 @@ import { InterviewDetailPage } from '@/pages/interviews/InterviewDetailPage'
 import { InterviewFormPage } from '@/pages/interviews/InterviewFormPage'
 import { InterviewsListPage } from '@/pages/interviews/InterviewsListPage'
 import { PrepPage } from '@/pages/prep/PrepPage'
+import { QuestionBankPage } from '@/pages/prep/QuestionBankPage'
 import { AnalyticsPage } from '@/pages/analytics/AnalyticsPage'
 import { RecommendationsPage } from '@/pages/recommendations/RecommendationsPage'
 import { PrivacyPage } from '@/pages/privacy/PrivacyPage'
@@ -58,7 +59,10 @@ function App() {
             <Route path=":id/edit" element={<InterviewFormPage />} />
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
           </Route>
-          <Route path="prep" element={<PrepPage />} />
+          <Route path="prep">
+            <Route index element={<PrepPage />} />
+            <Route path="questions" element={<QuestionBankPage />} />
+          </Route>
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="recommendations" element={<RecommendationsPage />} />
           <Route path="privacy" element={<PrivacyPage />} />

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AlertCircleIcon, CheckCircle2Icon, CircleIcon, PencilLineIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { format, isPast } from 'date-fns'
@@ -71,11 +72,16 @@ export function PrepPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Interview Prep</h2>
-        <p className="text-sm text-muted-foreground">
-          Practice tracking and topic mastery that fades over time, just like real skill does.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold">Interview Prep</h2>
+          <p className="text-sm text-muted-foreground">
+            Practice tracking and topic mastery that fades over time, just like real skill does.
+          </p>
+        </div>
+        <Button asChild>
+          <Link to="/prep/questions">Question bank</Link>
+        </Button>
       </div>
 
       <Card>
@@ -201,7 +207,13 @@ export function PrepPage() {
           {selectedTopic && (
             <p className="mt-3 text-sm text-muted-foreground">
               {selectedTopic.topic_name}: {selectedTopic.observation_count} observation
-              {selectedTopic.observation_count === 1 ? '' : 's'} so far.
+              {selectedTopic.observation_count === 1 ? '' : 's'} so far.{' '}
+              <Link
+                to={`/prep/questions?topic_id=${selectedTopic.topic_id}`}
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Practice this topic
+              </Link>
             </p>
           )}
         </CardContent>

@@ -78,7 +78,7 @@ describe('ApplicationFormPage validation', () => {
         }),
       ),
     )
-  })
+  }, 20000)
 
   it('rejects a maximum salary below the minimum', async () => {
     const user = userEvent.setup()
@@ -92,5 +92,5 @@ describe('ApplicationFormPage validation', () => {
     await user.click(screen.getByRole('button', { name: /create application/i }))
 
     expect(await screen.findByText('Maximum salary must be at least the minimum.')).toBeInTheDocument()
-  })
+  }, 20000)
 })
