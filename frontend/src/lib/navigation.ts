@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MessagesSquare,
   PencilLine,
+  UsersRound,
   ShieldCheck,
   Sparkles,
   UserRound,
@@ -36,6 +37,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Applications', path: '/applications', icon: Briefcase },
       { label: 'Resumes', path: '/resumes', icon: FileText },
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
+      { label: 'Contacts', path: '/contacts', icon: UsersRound },
     ],
   },
   {
@@ -81,6 +83,7 @@ const SECTION_LABELS: Record<string, string> = {
   applications: 'Applications',
   resumes: 'Resumes',
   interviews: 'Interviews',
+  contacts: 'Contacts',
   prep: 'Interview Prep',
   analytics: 'Analytics',
   recommendations: 'Recommendations',

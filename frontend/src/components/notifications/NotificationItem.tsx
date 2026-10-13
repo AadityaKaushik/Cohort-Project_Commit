@@ -6,6 +6,7 @@ import {
   CalendarClockIcon,
   MessageSquareWarningIcon,
   ShieldCheckIcon,
+  SnowflakeIcon,
   SparklesIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -18,6 +19,7 @@ const ICONS: Record<NotificationType, LucideIcon> = {
   missing_debrief: MessageSquareWarningIcon,
   new_recommendation: SparklesIcon,
   fl_round_result: ShieldCheckIcon,
+  cold_contact: SnowflakeIcon,
 }
 
 interface NotificationItemProps {

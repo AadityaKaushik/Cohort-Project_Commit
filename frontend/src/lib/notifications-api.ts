@@ -7,13 +7,14 @@ export type NotificationType =
   | 'missing_debrief'
   | 'new_recommendation'
   | 'fl_round_result'
+  | 'cold_contact'
 
 export interface AppNotification {
   id: string
   type: NotificationType
   title: string
   body: string
-  related_entity_type: 'application' | 'interview' | null
+  related_entity_type: 'application' | 'interview' | 'contact' | null
   related_entity_id: string | null
   is_read: boolean
   read_at: string | null
@@ -47,6 +48,7 @@ export function notificationHref(notification: Pick<AppNotification, 'type' | 'r
   const { type, related_entity_type: entityType, related_entity_id: entityId } = notification
   if (!entityType || !entityId) return null
   if (entityType === 'application') return `/applications/${entityId}`
+  if (entityType === 'contact') return '/contacts'
   if (type === 'missing_debrief') return `/interviews/${entityId}/debrief`
   return `/interviews/${entityId}`
 }

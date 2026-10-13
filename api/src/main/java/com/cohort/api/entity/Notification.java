@@ -14,9 +14,9 @@ import org.hibernate.annotations.UuidGenerator;
 @Entity
 @Table(name = "notifications")
 public class Notification {
-    public enum Type { stalled_application, upcoming_interview, missing_debrief, new_recommendation, fl_round_result }
+    public enum Type { stalled_application, upcoming_interview, missing_debrief, new_recommendation, fl_round_result, cold_contact }
 
-    public enum RelatedEntityType { application, interview }
+    public enum RelatedEntityType { application, interview, contact }
 
     @Id
     @UuidGenerator

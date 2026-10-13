@@ -148,6 +148,16 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("PREPARATION_TASK_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(ContactNotFoundException.class)
+    public ResponseEntity<ApiError> handleContactNotFound(ContactNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("CONTACT_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public ResponseEntity<ApiError> handleCompanyNotFound(CompanyNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("COMPANY_NOT_FOUND", ex.getMessage()));
+    }
+
     @ExceptionHandler(RecommendationNotFoundException.class)
     public ResponseEntity<ApiError> handleRecommendationNotFound(RecommendationNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

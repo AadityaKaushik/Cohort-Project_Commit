@@ -17,14 +17,17 @@ public class NotificationDetectionJob {
     private final UserRepository userRepository;
     private final StalledApplicationDetector stalledApplicationDetector;
     private final InterviewEventDetector interviewEventDetector;
+    private final ColdContactDetector coldContactDetector;
 
     public NotificationDetectionJob(
             UserRepository userRepository,
             StalledApplicationDetector stalledApplicationDetector,
-            InterviewEventDetector interviewEventDetector) {
+            InterviewEventDetector interviewEventDetector,
+            ColdContactDetector coldContactDetector) {
         this.userRepository = userRepository;
         this.stalledApplicationDetector = stalledApplicationDetector;
         this.interviewEventDetector = interviewEventDetector;
+        this.coldContactDetector = coldContactDetector;
     }
 
     @Scheduled(
@@ -44,6 +47,7 @@ public class NotificationDetectionJob {
         int stalled = 0;
         int upcoming = 0;
         int missing = 0;
+        int cold = 0;
         int failed = 0;
         for (User user : users) {
             try {
@@ -51,23 +55,25 @@ public class NotificationDetectionJob {
                 stalled += result.stalledApplications();
                 upcoming += result.upcomingInterviews();
                 missing += result.missingDebriefs();
+                cold += result.coldContacts();
             } catch (RuntimeException ex) {
                 failed++;
                 log.warn("Notification detection failed for user {}: {}", user.getId(), ex.getMessage());
             }
         }
-        return new RunSummary(users.size(), stalled, upcoming, missing, failed);
+        return new RunSummary(users.size(), stalled, upcoming, missing, cold, failed);
     }
 
     public UserSummary runFor(UUID userId, Instant now) {
         int stalled = stalledApplicationDetector.detect(userId);
         InterviewEventDetector.DetectionSummary interviews = interviewEventDetector.detect(userId, now);
-        return new UserSummary(stalled, interviews.upcomingInterviews(), interviews.missingDebriefs());
+        int cold = coldContactDetector.detect(userId, now);
+        return new UserSummary(stalled, interviews.upcomingInterviews(), interviews.missingDebriefs(), cold);
     }
 
-    public record UserSummary(int stalledApplications, int upcomingInterviews, int missingDebriefs) {
+    public record UserSummary(int stalledApplications, int upcomingInterviews, int missingDebriefs, int coldContacts) {
     }
 
-    public record RunSummary(int usersScanned, int stalledApplications, int upcomingInterviews, int missingDebriefs, int failedUsers) {
+    public record RunSummary(int usersScanned, int stalledApplications, int upcomingInterviews, int missingDebriefs, int coldContacts, int failedUsers) {
     }
 }

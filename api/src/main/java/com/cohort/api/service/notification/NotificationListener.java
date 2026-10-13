@@ -3,6 +3,7 @@ package com.cohort.api.service.notification;
 import com.cohort.api.entity.ApplicationStatus;
 import com.cohort.api.entity.InterviewRoundType;
 import com.cohort.api.entity.Notification;
+import com.cohort.api.event.ColdContactEvent;
 import com.cohort.api.event.MissingDebriefEvent;
 import com.cohort.api.event.StalledApplicationEvent;
 import com.cohort.api.event.UpcomingInterviewEvent;
@@ -68,6 +69,20 @@ public class NotificationListener {
         notificationService.dispatch(new NotificationMessage(
                 event.userId(), Notification.Type.missing_debrief, title, body,
                 Notification.RelatedEntityType.interview, event.interviewId(), event.occurrenceKey()));
+    }
+
+    @EventListener
+    public void onColdContact(ColdContactEvent event) {
+        String where = event.companyName() == null ? "" : " at " + event.companyName();
+        String title = "Reconnect with " + event.contactName();
+        String body = "You last spoke with " + event.contactName() + where + " " + event.daysSinceContact()
+                + " days ago."
+                + (event.referralPending()
+                        ? " Your referral request is still open, so a quick follow-up is worthwhile."
+                        : " A short check-in keeps the relationship warm.");
+        notificationService.dispatch(new NotificationMessage(
+                event.userId(), Notification.Type.cold_contact, title, body,
+                Notification.RelatedEntityType.contact, event.contactId(), event.occurrenceKey()));
     }
 
     private String formatDateTime(UUID userId, Instant instant) {

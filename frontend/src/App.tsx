@@ -21,6 +21,7 @@ const InterviewDebriefPage = lazy(() => import('@/pages/interviews/InterviewDebr
 const InterviewDetailPage = lazy(() => import('@/pages/interviews/InterviewDetailPage').then((module) => ({ default: module.InterviewDetailPage })))
 const InterviewFormPage = lazy(() => import('@/pages/interviews/InterviewFormPage').then((module) => ({ default: module.InterviewFormPage })))
 const InterviewsListPage = lazy(() => import('@/pages/interviews/InterviewsListPage').then((module) => ({ default: module.InterviewsListPage })))
+const ContactsPage = lazy(() => import('@/pages/contacts/ContactsPage').then((module) => ({ default: module.ContactsPage })))
 const PrepPage = lazy(() => import('@/pages/prep/PrepPage').then((module) => ({ default: module.PrepPage })))
 const QuestionBankPage = lazy(() => import('@/pages/prep/QuestionBankPage').then((module) => ({ default: module.QuestionBankPage })))
 const AnalyticsPage = lazy(() => import('@/pages/analytics/AnalyticsPage').then((module) => ({ default: module.AnalyticsPage })))
@@ -107,6 +108,7 @@ function App() {
             <Route path=":id/edit" element={<InterviewFormPage />} />
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
           </Route>
+          <Route path="contacts" element={<ContactsPage />} />
           <Route path="prep">
             <Route index element={<PrepPage />} />
             <Route path="questions" element={<QuestionBankPage />} />
