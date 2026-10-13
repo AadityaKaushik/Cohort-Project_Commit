@@ -1,6 +1,6 @@
 # Cohort — Build Phases (Java Spring Boot Edition)
 
-**Purpose:** Use this file together with `PROJECT_PLAN.md` and `ARCHITECTURE_REVISION_JAVA.md`. It replaces the earlier Python-only build-phases file — same idea, same one-commit-per-phase discipline, rebuilt for the Java/Python split: **Spring Boot owns the whole application; Python is scoped down to just the Flower client/server.** 69 phases across 5 sprints, including the two additions (notifications, report export) and the design-pattern work from the architecture revision. Extension Sprints 6–9, added after Sprint 4, bring the total to 102 phases after a scope review that cut low-priority phases (see "Extension sprints").
+**Purpose:** Use this file together with `PROJECT_PLAN.md` and `ARCHITECTURE_REVISION_JAVA.md`. It replaces the earlier Python-only build-phases file — same idea, same one-commit-per-phase discipline, rebuilt for the Java/Python split: **Spring Boot owns the whole application; Python is scoped down to just the Flower client/server.** 69 phases across 5 sprints, including the two additions (notifications, report export) and the design-pattern work from the architecture revision. Extension Sprints 6–9, added after Sprint 4, bring the total to 103 phases after a scope review that cut low-priority phases (see "Extension sprints").
 
 ## How to use this plan
 
@@ -153,6 +153,7 @@ A UI audit and a product review after Sprint 4 found gaps a real job seeker woul
 | US-90 | As a user, I can browse the question bank and log practice attempts, so my mastery actually changes |
 | US-91 | As a new user, onboarding asks my target role and date and gives me a starter plan |
 | US-92 | As a user, I can reset a forgotten password and verify my email |
+| US-93 | As a user, I can sign in with Google or GitHub |
 | US-95 | As a user, I can track contacts and referrals per company and get nudged when a contact goes cold |
 | US-96 | As a user, each company has a page with all my applications, interviews, questions, contacts and notes |
 | US-100 | As a user, I can compare offers side by side with deadline countdowns |
@@ -185,6 +186,7 @@ A UI audit and a product review after Sprint 4 found gaps a real job seeker woul
 | P77 | — | — | `feat(users): profile page + onboarding starter plan (US-91)` | Profile editing, first-run onboarding (target role/date) seeding tasks and goals | — | RTL; new user lands on onboarding, not an empty dashboard |
 | P78 | — | — | `fix(recommendations): accept creates a task, clear dismiss scope, snoozed view (US-55)` | Visible accepted state, error handling, dismiss warns about type-wide hiding, manage snoozed/dismissed | — | RTL + API |
 | P79 | — | — | `feat(auth): password reset + email verification (US-92)` | Expiring single-use tokens; mail sender behind an interface (log/Mailpit in dev) | **Strategy** (mail sender) | Token reuse and expiry rejected; no email enumeration |
+| P80 | — | — | `feat(auth): Google and GitHub sign-in (US-93)` | Spring Security OAuth2 client issuing the app's own JWTs; link only on provider-verified email; ADR-012 records the scope change | — | Unverified-email linking refused; existing auth tests unchanged |
 | P105 | — | — | `fix(auth): Argon2id parameters and refresh-token lifetime per NFR-01/02` | Argon2id ≥64 MiB / ≥3 iterations with transparent rehash on next login; refresh tokens ≤7 days | — | Test asserts hash parameters and TTLs; existing users still log in |
 
 **Sprint 6 DoD:** every audit "Broken" item fixed; both themes and both breakpoints reviewed with screenshots; practice logging moves mastery end to end.
@@ -236,7 +238,7 @@ AI runs on a local model (Ollama) by default, so user data never leaves the serv
 | P66 | P10 | all | `test: full security suite (US-73)` | Enumerate every endpoint from the OpenAPI schema (springdoc), including all Sprint 6–8 endpoints; assert 401/404 systematically | — | Full suite green |
 | P67 | P10 | P4 | `chore(a11y): accessibility remediation pass (US-74)` | Contrast, focus traps, aria-labels across the redesigned UI in both themes | — | axe-core: zero critical violations |
 
-**Scope freeze.** After a scope review the feature set is final: tracking (list, board, companies, contacts, offers), resumes (files, structured editor, PDF export, versions, performance), interviews (debriefs, prep packs, mock interviews, story bank), preparation (question bank, practice, mastery, spaced review, recommendations, readiness), analytics, in-app notifications, reports, AI assistance, and federated learning with a Privacy Ledger and budget meter. Deliberately excluded: Google/GitHub sign-in, calendar view and .ics export, CSV import, global search, weekly goals and heatmap, tags and bulk update, recruiter feedback, email notification channel, admin console, structured ops logging, CI quality gates, load and cross-browser tests, production deploy profile, a browser extension, job-board scraping or auto-apply, two-way calendar/email sync, MFA, sharing between users, and mobile apps (the web app is fully responsive instead).
+**Scope freeze.** After a scope review the feature set is final: tracking (list, board, companies, contacts, offers), resumes (files, structured editor, PDF export, versions, performance), interviews (debriefs, prep packs, mock interviews, story bank), preparation (question bank, practice, mastery, spaced review, recommendations, readiness), analytics, in-app notifications, reports, AI assistance, federated learning with a Privacy Ledger and budget meter, and sign-in with email or Google/GitHub. Deliberately excluded: calendar view and .ics export, CSV import, global search, weekly goals and heatmap, tags and bulk update, recruiter feedback, email notification channel, admin console, structured ops logging, CI quality gates, load and cross-browser tests, production deploy profile, a browser extension, job-board scraping or auto-apply, two-way calendar/email sync, MFA, sharing between users, and mobile apps (the web app is fully responsive instead).
 
 **Project DoD:** everything in the Sprint 5 DoD, plus the Sprint 6–8 DoDs, plus every NFR in `PROJECT_PLAN.md` §8 that is in scope either verified by an automated check or recorded with a manual result (table below). NFRs whose verification phases were cut are listed as not measured.
 
@@ -262,7 +264,7 @@ Every user story in `PROJECT_PLAN.md` maps to at least one phase. US-69 (schema 
 | NFR-30, 31 | P25, P77 |
 | NFR-32–35 | P72, P73 |
 | NFR-36–39 | Not enforced in CI (P115 cut from scope) |
-| NFR-40 | ADRs throughout |
+| NFR-40 | ADRs throughout; ADR-012 in P80 |
 | NFR-41, 42 | P02 |
 | NFR-43 | Not in scope (P118 cut) |
 | NFR-44–48 | P70, P73, P67 |

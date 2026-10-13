@@ -2637,11 +2637,12 @@ All MVP stories done; all NFR measures verified or explicitly waived with a reas
 
 Email verification and password reset; MFA; OAuth; admin dashboards beyond account disable; job-board scraping or integrations; LLM features of any kind; calendar or email sync; mobile applications; collaboration or sharing of any kind; secure aggregation; formal DP accounting; real-user federation at scale; browser-based FL clients.
 
-> **Scope changes after Sprint 4.** A UI audit and product review after Sprint 4 moved two of these items into scope, as extension Sprints 6–8 in `BUILD_PHASES_JAVA.md`:
+> **Scope changes after Sprint 4.** A UI audit and product review after Sprint 4 moved three of these items into scope, as extension Sprints 6–8 in `BUILD_PHASES_JAVA.md`:
 > - **Email verification and password reset** (US-92).
+> - **OAuth sign-in with Google and GitHub** (US-93). Recorded in ADR-012.
 > - **LLM features** (US-102 to US-113). They run on a local model by default, so user data stays on the server. A hosted provider (Google Gemini) is optional and disclosed to users when active. Recorded in ADR-013.
 >
-> A later scope review kept OAuth sign-in (US-93) and one-way calendar export (US-97) out of scope. Everything else in the list above remains out of scope.
+> A later scope review kept one-way calendar export (US-97) out of scope. Everything else in the list above remains out of scope.
 
 ### 31.3 The one-sentence version
 
