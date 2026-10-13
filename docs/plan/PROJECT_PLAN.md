@@ -1,54 +1,40 @@
-# Smart Job Application Tracker — Project Plan
+# Cohort — Project Plan
 
-**Status:** PLANNING ONLY. No code written, no files created, no dependencies installed, no database configured.
-**Working title:** *Cohort* — Smart Job Application Tracker with Federated Interview Prep
-**Document version:** 1.0 (awaiting approval)
+*Cohort* is a smart job application tracker with federated interview preparation. This document holds the requirements (functional, non-functional and domain), the user stories grouped by epic, the sprint roadmap, and the product, data, ML and federated-learning design.
 
 ---
 
-## 1. Repository Assessment
+## 1. About this plan
 
-### 1.1 What I inspected
+### 1.1 Document set
 
-I examined the working environment and the upload directory before writing anything:
-
-| Check | Result |
+| Document | Contents |
 |---|---|
-| Uploaded files | None (`/mnt/user-data/uploads` empty) |
-| Existing project directory | None |
-| Framework in place | None |
-| `package.json` / `requirements.txt` / `pyproject.toml` | None |
-| Database configuration | None |
-| `.env` / `.env.example` | None |
-| README | None |
-| Test suite | None |
-| Git configuration / history | None |
-| Docker files | None |
-| Code to preserve | None |
+| `PROJECT_OVERVIEW.md` | Plain-language map of the whole project; read first |
+| `PROJECT_PLAN.md` (this file) | Requirements, user stories, backlog, sprint roadmap, product and system design |
+| `ARCHITECTURE_REVISION_JAVA.md` | Technology stack, Java/Python architecture, design patterns, notifications and report export |
+| `BUILD_PHASES_JAVA.md` | The 110 build phases, one commit each, with owners, dependencies and verification; team and ownership; requirement traceability |
 
-**Nothing was modified.**
+### 1.2 Delivery shape
 
-### 1.2 Conclusion
+Nine sprints. Sprints 1–4 deliver the core loop (tracking, interviews, preparation, analytics, recommendations, federated learning); Sprint 5 adds notifications, reports and account self-service; Sprint 6 brings the interface to one consistent standard; Sprint 7 adds the job-search workflow; Sprint 8 adds AI assistance and prep intelligence; Sprint 9 hardens and verifies everything for delivery. §12 describes each sprint.
 
-The repository is **empty**. This is a clean greenfield build, which is good news: there is no legacy structure to work around, no framework mismatch, and no migration cost. The entire architecture below is proposed from scratch.
+### 1.3 Conventions
 
-### 1.3 What this means for the plan
+- Requirement IDs (FR, NFR, DR), user-story IDs (US) and phase IDs (P) are stable and cited in commit messages.
+- Every user story maps to at least one build phase (§10.1); every phase cites at least one story or requirement.
+- The conventions in §25 apply from the first commit.
 
-- Every folder, file, and dependency in this document is **proposed**, not existing.
-- Sprint 1 must include repository bootstrapping (git init, `.gitignore`, branch protection, CI skeleton, Docker Compose) as real, pointed work — it is not free.
-- There is no prior art in the repo constraining naming conventions, so the conventions defined in §25 become the project standard from commit one.
+### 1.4 Planning assumptions
 
-### 1.4 Assumptions I am making (flag any that are wrong before approval)
-
-| # | Assumption | Why it matters | How to validate |
-|---|---|---|---|
-| A1 | Team size is 3–5 students | Drives velocity and sprint scope | Confirm with me |
-| A2 | Sprints are 2 weeks; ~5 sprints total (~10–12 weeks) | Roadmap shape | Confirm academic calendar |
-| A3 | Each student can deliver 12–15 story points per 2-week sprint | Backlog sizing | Recalibrate after Sprint 1 |
-| A4 | Deployment target is local Docker Compose + optional single free-tier cloud host | Avoids over-engineering | Confirm evaluator expectation |
-| A5 | Evaluators care about *process artifacts* (backlog, sprints, conflicts, poster) at least as much as the running product | Documentation weight | Confirm rubric |
-| A6 | Real multi-user data will not exist during the project | FL demo must work with synthetic cohorts | Accept as design constraint |
-| A7 | Python 3.11+, Node 20+ available on team machines | Toolchain | Confirm |
+| # | Assumption | Why it matters |
+|---|---|---|
+| A1 | The team has 10 members in three departments (Backend, Frontend, AI/ML) | Drives ownership and parallel work (`BUILD_PHASES_JAVA.md`, Team and ownership) |
+| A2 | Sprints are 2 weeks; nine sprints in total | Roadmap shape |
+| A3 | Deployment target is local Docker Compose | Avoids over-engineering; the FL isolation demo runs locally |
+| A4 | Evaluators weigh process artifacts (backlog, sprints, conflicts, poster) alongside the running product | Documentation weight |
+| A5 | Real multi-user data will not exist during the project | The FL demo uses synthetic cohorts |
+| A6 | Java 21, Python 3.11+ and Node 20+ are available on team machines | Toolchain |
 
 ---
 
@@ -70,7 +56,7 @@ A web application that closes the loop: **track → interview → capture what h
 
 ### 2.3 Why this project will not look like everyone else's
 
-This is the section you specifically asked about, so it gets real attention. The default version of this project — the one a dozen other teams will submit — is a CRUD board with status columns, four stat cards, a pie chart, and an "AI" feature that is a single call to a hosted LLM. Below are seven design decisions that make this build structurally different. Each one is cheap enough for a student team and each one is visible in a five-minute demo.
+The default version of this project is a CRUD board with status columns, four stat cards, a pie chart, and an "AI" feature that is a single call to a hosted LLM. Below are seven design decisions that make this build structurally different. Each one is cheap enough for a student team and each one is visible in a five-minute demo.
 
 ---
 
@@ -84,7 +70,7 @@ In this design each FL client is a **separate OS process with its own isolated d
 
 Every user gets a page that is not a privacy *policy* but a privacy *log*. For each federated round the user's client participated in, it shows: round ID, timestamp, the exact feature schema that was used, the L2 norm of the update before and after clipping, the noise multiplier applied, the number of peer clients in the cohort, and a "what was NOT sent" list. The user can expand any round to see the actual 24-float vector that left their machine. They can revoke participation per round, and export the whole ledger as JSON.
 
-I have not seen a student project do this, and it inverts the usual dynamic where privacy is asserted rather than shown. It also makes an excellent poster panel.
+It inverts the usual dynamic where privacy is asserted rather than shown. It also makes an excellent poster panel.
 
 **D3 — Evidence-tiered recommendations with honest uncertainty.**
 
@@ -122,19 +108,19 @@ Differential privacy epsilon is not buried in a config file. The user sees a bud
 
 ---
 
-**Anti-similarity checklist.** The team should deliberately avoid these commodity patterns:
+**Design guardrails.** The team deliberately avoids these commodity patterns:
 
-- ❌ Trello-clone drag-and-drop board as the primary UI (use a dense, sortable, filterable data table with a detail drawer instead)
-- ❌ Four generic stat cards across the top of a dashboard (use one pipeline-health strip + one action queue)
-- ❌ A pie chart of application statuses
-- ❌ "AI resume review" that is one LLM prompt
-- ❌ Purple gradient hero, default shadcn theme, Inter everywhere
-- ❌ Recommendations phrased as prophecy
-- ❌ FL as a diagram on a slide with no running processes behind it
+- A board as the only view: the primary UI is a dense, sortable, filterable data table with a detail view, and the Kanban board is a second view whose moves are checked by the server's state machine.
+- Four generic stat cards across the top of a dashboard (use one pipeline-health strip and one action queue instead).
+- A pie chart of application statuses.
+- "AI" that is one prompt to a hosted model: AI features run on a local model by default, answer only from the user's own data, and are disclosed when a hosted provider is active.
+- Purple gradient hero, default shadcn theme, Inter everywhere.
+- Recommendations phrased as prophecy.
+- FL as a diagram on a slide with no running processes behind it.
 
 ### 2.4 Naming
 
-`Cohort` works on three levels: the peer cohort you're job hunting alongside, the FL client cohort, and the minimum-cohort-size privacy guarantee. Alternatives if you prefer: *Loop*, *Postmortem*, *Aperture*, *Throughline*. The name is cosmetic — say the word and I'll switch it everywhere.
+`Cohort` works on three levels: the peer cohort you are job hunting alongside, the FL client cohort, and the minimum-cohort-size privacy guarantee.
 
 ---
 
@@ -164,7 +150,7 @@ Differential privacy epsilon is not buried in a config file. The user sees a bud
 ### 3.3 Explicit non-goals
 
 - Not a job board or scraper. We do not ingest listings from third-party sites (ToS and scope risk).
-- Not an LLM wrapper. No generative resume rewriting in the MVP.
+- Not an LLM wrapper. AI assists the user's own workflow, answers only from the user's own data, and never acts on their behalf (drafts are never sent automatically).
 - Not a social network. No user-to-user visibility of any kind, ever.
 - Not a production multi-tenant SaaS. Single-region, single-deployment, Compose-based.
 
@@ -179,10 +165,10 @@ Differential privacy epsilon is not buried in a config file. The user sees a bud
 | S3 | **Faculty / project evaluators** | Assess against rubric | Correct SE process, documentation completeness, technical merit, individual effort | SCRUM artifacts, requirement traceability, poster, per-member commit history | **Very high** — they hold acceptance authority | Document analysis of the project brief; clarification meetings |
 | S4 | **System administrator** (operational role, played by team) | Deploy, monitor, back up, manage user accounts | Reliable, observable, recoverable system | Health endpoint, structured logs, migrations, backup/restore path, admin ability to disable an account | Medium | Brainstorming; analysis of ops runbooks |
 | S5 | **ML / FL administrator** (operational role, played by team) | Configure and run federated rounds | Rounds converge; privacy parameters are correct; poisoning is contained | Round configuration, min-cohort enforcement, clipping/noise settings, round audit log, model rollback | Medium–high (owns the innovation) | Document analysis of FL literature; prototype experimentation |
-| S6 | **Database / system maintainer** (operational role, played by team) | Schema, migrations, integrity, performance | Normalized schema, safe migrations, indexed queries | Alembic migrations, FK constraints, per-user isolation enforced in the data layer | Medium | Design walkthroughs |
+| S6 | **Database / system maintainer** (operational role, played by team) | Schema, migrations, integrity, performance | Normalized schema, safe migrations, indexed queries | Flyway migrations, FK constraints, per-user isolation enforced in the data layer | Medium | Design walkthroughs |
 | S7 | **University / institution** (indirect) | Provides infrastructure, governs conduct | Academic integrity; no misuse of student data; licensing | Data handling within institutional norms; open-source licence compliance | Low–medium, but a hard constraint | Document analysis of institutional policy |
 
-**Deliberately excluded** (and why — do not pad the list): *Recruiters and employers* are not stakeholders; they never touch the system and have no interface to it. *Career services staff* would be a plausible future stakeholder for a cohort-analytics dashboard, but that feature is out of MVP scope, so including them now would generate requirements we will not build. Both are recorded in Future Scope (§32) instead.
+**Deliberately excluded** (and why — do not pad the list): *Recruiters and employers* are not stakeholders; they never touch the system and have no interface to it. *Career services staff* would be a plausible future stakeholder for a cohort-analytics dashboard, but that feature is outside the product scope, so including them would generate requirements the project does not build. Both are recorded in Future Scope (§32).
 
 ---
 
@@ -208,7 +194,7 @@ Requirements come from three asymmetric sources: the project brief (authoritativ
 This distinction matters and is frequently missed. Everything below is tracked in a live document.
 
 **KNOWN — from the brief, authoritative, not up for debate:**
-- The stack (React/TS/Tailwind/shadcn/Recharts; FastAPI; PostgreSQL/SQLAlchemy; JWT + Argon2/bcrypt; scikit-learn; Flower; Pytest/RTL; Docker/Compose/Git/GitHub)
+- The stack (React/TS/Tailwind/shadcn/Recharts; Java/Spring Boot; PostgreSQL with JPA and Flyway; JWT + Argon2id; scikit-learn; Flower; JUnit/pytest/RTL; Docker/Compose/Git/GitHub)
 - FL is mandatory and raw data must not reach the central server
 - Required documentation set and Agile/SCRUM process
 - GitHub development with per-member contribution
@@ -231,13 +217,13 @@ This distinction matters and is frequently missed. Everything below is tracked i
 | V5 | Users want resume-version performance comparison despite weak statistical power | Sprint 3 (EPIC 3/6) | Interviews | End Sprint 2 |
 | V6 | Tagging free-text notes is acceptable; users won't demand full-text search | Sprint 2 | Survey | End Sprint 1 |
 
-Any assumption that fails validation triggers a backlog refinement, recorded in the sprint review notes. This is exactly the kind of traceability evaluators look for.
+Any assumption that fails validation triggers a backlog refinement, recorded in the sprint review notes.
 
 ---
 
 ## 6. Functional Requirements
 
-Priority: **M** = Must (MVP), **S** = Should, **C** = Could, **F** = Future.
+Priority: **M** = Must, **S** = Should, **C** = Could, **Out** = outside the product scope (§31.2), kept so the requirement IDs stay stable.
 
 ### 6.1 Authentication & User Management
 
@@ -253,7 +239,7 @@ Priority: **M** = Must (MVP), **S** = Should, **C** = Could, **F** = Future.
 | FR-08 | The system shall allow a user to change their password after re-authenticating. | S |
 | FR-09 | The system shall allow a user to permanently delete their account and all associated data, including any stored FL client state. | S |
 | FR-10 | The system shall allow a user to export all of their own data as JSON. | S |
-| FR-11 | The system shall support an administrator role able to disable accounts and view aggregate system health, but never able to read another user's application, resume, or interview content. | C |
+| FR-11 | The system shall support an administrator role able to disable accounts and view aggregate system health, but never able to read another user's application, resume, or interview content. | Out |
 
 ### 6.2 Job Application Tracking
 
@@ -271,7 +257,7 @@ Priority: **M** = Must (MVP), **S** = Should, **C** = Could, **F** = Future.
 | FR-21 | The system shall validate status transitions against a defined state machine and reject invalid transitions (e.g. `Rejected` → `Applied`). | S |
 | FR-22 | The system shall render an application's status history as a chronological timeline. | M |
 | FR-23 | The system shall maintain a normalised company record, reused across applications, created on demand. | M |
-| FR-24 | The system shall allow bulk status update for multiple selected applications. | C |
+| FR-24 | The system shall allow bulk status update for multiple selected applications. | Out |
 | FR-25 | The system shall compute, per application, the number of days spent in the current stage. | M |
 | FR-26 | The system shall flag applications whose current-stage dwell time exceeds the user's own median dwell time for that stage (minimum 5 observations), or a system default when history is insufficient. | S |
 | FR-27 | The system shall allow archiving an application without deleting it. | C |
@@ -301,7 +287,7 @@ Priority: **M** = Must (MVP), **S** = Should, **C** = Could, **F** = Future.
 | FR-41 | The system shall allow recording questions asked during an interview, each with text, category, topic, difficulty, and how well the user felt they answered. | M |
 | FR-42 | The system shall allow linking an interview question to an existing question-bank entry, or promoting a recorded question into the user's question bank. | S |
 | FR-43 | The system shall allow recording structured post-interview feedback: overall self-rating (1–5), what went well, what went poorly, improvement areas, perceived difficulty, and outcome. | M |
-| FR-44 | The system shall allow recording externally provided recruiter feedback separately from self-evaluation. | C |
+| FR-44 | The system shall allow recording externally provided recruiter feedback separately from self-evaluation. | Out |
 | FR-45 | The system shall provide a guided debrief flow completable in under 3 minutes. | S |
 | FR-46 | The system shall automatically suggest an application status change when an interview outcome is recorded, requiring user confirmation. | C |
 | FR-47 | The system shall derive the set of topics tested in an interview from its recorded questions. | M |
@@ -436,7 +422,7 @@ Priority: **M** = Must (MVP), **S** = Should, **C** = Could, **F** = Future.
 |---|---|---|
 | NFR-25 | Target 99% availability during the demonstration period | Uptime log |
 | NFR-26 | All write operations are transactional; a failed multi-step operation leaves no partial state | Integration test with induced failure |
-| NFR-27 | Database migrations are versioned and reversible | Alembic up/down test in CI |
+| NFR-27 | Database migrations are versioned and reversible | Flyway migrate and rollback test in CI |
 | NFR-28 | An FL round failure never corrupts the current global model; the previous version remains servable | Test: kill a client mid-round, assert model integrity |
 | NFR-29 | Daily automated `pg_dump` in the deployed environment with a documented restore procedure | Restore rehearsed once before final demo |
 
@@ -455,10 +441,10 @@ Priority: **M** = Must (MVP), **S** = Should, **C** = Could, **F** = Future.
 
 | ID | Requirement | Measure |
 |---|---|---|
-| NFR-36 | Backend layered as routers → services → repositories → models, with no layer skipping | Import-boundary lint rule |
-| NFR-37 | Backend line coverage ≥70%; services and analytics/recommendation modules ≥85% | `pytest --cov` gate in CI |
-| NFR-38 | All Python public functions typed and passing `mypy`; frontend `strict: true` with no `any` in committed code | CI gate |
-| NFR-39 | Linting and formatting enforced (Ruff + Black; ESLint + Prettier) and run on every PR | CI gate |
+| NFR-36 | Backend layered as controllers → services → repositories → entities, with no layer skipping | Import-boundary lint rule |
+| NFR-37 | Backend line coverage ≥70%; services and analytics/recommendation modules ≥85% | JaCoCo coverage gate in CI |
+| NFR-38 | fl-service public functions typed; frontend `strict: true` with no `any` in committed code | CI gate |
+| NFR-39 | Linting and formatting enforced on every PR (ESLint on the frontend) | CI gate |
 | NFR-40 | Every non-obvious design decision recorded as a short ADR in `docs/adr/` | Review |
 
 ### 7.8 Portability
@@ -550,7 +536,7 @@ Format: **As a [role], I want [goal], so that [benefit].**
 Roles used: *job seeker* (primary), *administrator*, *FL administrator*, *developer*.
 Points use a modified Fibonacci scale (1, 2, 3, 5, 8, 13) where **1 point ≈ 2–3 focused hours** for a student developer.
 
-Acceptance criteria are given in full for Sprint 1 and Sprint 2 stories, and condensed (the 3 highest-value checks) for later sprints — those will be expanded during backlog refinement in the sprint before they are pulled, which is normal SCRUM practice rather than an omission.
+Acceptance criteria are given in full for Sprint 1 and Sprint 2 stories, and condensed (the highest-value checks) for later sprints; they are expanded during backlog refinement in the sprint before the story is pulled. The sprint shown is the sprint whose phases deliver the story (§10.1 lists the phases).
 
 ### EPIC 1 — Authentication & User Management
 
@@ -607,6 +593,18 @@ Acceptance criteria:
 > As a job seeker, I want to permanently delete my account, so that I control my own footprint.
 - Requires typed confirmation; removes every row referencing my ID plus uploaded files and FL client state; a post-deletion orphan-check query returns zero rows.
 
+**US-91 — Onboarding and starter plan** · Should · 5 · Sprint 6 · Deps: US-05, US-40
+> As a new user, I want onboarding to ask my target role and date and give me a starter plan, so that I do not land on an empty dashboard.
+- First login routes to onboarding, not the dashboard; target role and date are saved to the profile; starter preparation tasks are created and can be edited or removed.
+
+**US-92 — Password reset and email verification** · Should · 5 · Sprint 5 · Deps: US-02
+> As a job seeker, I want to reset a forgotten password and verify my email, so that I can recover my account and prove the address is mine.
+- Reset and verification tokens are single-use and expire; a reused or expired token is rejected; the reset request gives the same response whether or not the email exists.
+
+**US-93 — Sign in with Google or GitHub** · Could · 5 · Sprint 6 · Deps: US-02
+> As a job seeker, I want to sign in with Google or GitHub, so that I do not need another password.
+- The provider sign-in issues the app's own tokens; an existing account is linked only when the provider has verified the email; email-and-password sign-in keeps working unchanged.
+
 ---
 
 ### EPIC 2 — Job Application Tracking
@@ -658,11 +656,11 @@ Acceptance criteria:
 > As a job seeker, I want a chronological timeline on the application detail page, so that I can see how it progressed.
 - Newest-first vertical timeline combining status changes and interviews; each entry shows relative and absolute time; empty state when only the creation event exists.
 
-**US-16 — Search applications** · Must · 3 · Sprint 2 · Deps: US-10
+**US-16 — Search applications** · Must · 3 · Sprints 2, 6 · Deps: US-10
 > As a job seeker, I want to search by company or role, so that I can find one application among hundreds.
 - Case-insensitive substring match across company name and job title; debounced at 300 ms; result count shown; a no-results state distinct from the empty state.
 
-**US-17 — Filter and sort applications** · Must · 5 · Sprint 2 · Deps: US-10
+**US-17 — Filter and sort applications** · Must · 5 · Sprints 2, 6 · Deps: US-10
 > As a job seeker, I want to combine filters, so that I can narrow to exactly the slice I care about.
 - Filters on status, stage, priority, tag, work mode, and date range, combinable with AND semantics; active filters shown as removable chips; filter state encoded in the URL so a view can be bookmarked and shared with myself; "Clear all" resets.
 
@@ -670,9 +668,29 @@ Acceptance criteria:
 > As a job seeker, I want stalled applications flagged, so that I follow up before an opportunity dies quietly.
 - Days-in-stage computed from the latest history entry; an application is flagged when it exceeds my own median dwell time for that stage (min 5 observations) or a documented default; the flag explains its own threshold and sample size on hover.
 
-**US-19 — Tag and bulk-update applications** · Could · 5 · Sprint 5 · Deps: US-17
-> As a job seeker, I want to tag applications and update several at once, so that managing a large campaign is not tedious.
-- Free-form tags with autocomplete; multi-select in the table; bulk status change writes individual history rows for each affected application.
+**US-89 — Kanban board** · Should · 5 · Sprint 6 · Deps: US-14
+> As a job seeker, I want to manage applications on a board, so that I can move them through stages at a glance.
+- Dragging between columns calls the status endpoint; an illegal move is refused by the state machine and snaps back with the reason; a backward move prompts for a correction note; every accepted move writes history.
+
+**US-95 — Contacts and referrals** · Should · 5 · Sprint 7 · Deps: US-09
+> As a job seeker, I want to track contacts and referrals per company, so that networking is part of my campaign rather than a separate list.
+- Contacts belong to me and link to companies and applications; referral status is recorded; a contact with no interaction for a configurable period raises a nudge; another user's contacts return 404.
+
+**US-96 — Company pages** · Should · 3 · Sprint 7 · Deps: US-95, US-27
+> As a job seeker, I want a page per company, so that everything I know about an employer is in one place.
+- Shows all my applications, interviews, recorded questions, contacts and notes for that company; private notes are editable; only my own records appear.
+
+**US-99 — Global search** · Should · 5 · Sprint 7 · Deps: US-95, US-96
+> As a job seeker, I want one search box across everything, so that I can find any record quickly.
+- One query searches applications, companies, contacts, questions and notes; results open from the command palette; results never include another user's data.
+
+**US-100 — Offer comparison** · Should · 3 · Sprint 7 · Deps: US-09
+> As a job seeker, I want to compare offers side by side with deadline countdowns, so that I decide well and on time.
+- Offers record compensation and terms; two or more offers render side by side; each shows days remaining to its deadline.
+
+**US-101 — Weekly goals and activity heatmap** · Should · 3 · Sprint 7 · Deps: US-09, US-37
+> As a job seeker, I want weekly goals and an activity heatmap, so that I keep a steady cadence.
+- Weekly targets for applications and practice with progress; a calendar heatmap of activity; the current streak appears on the dashboard.
 
 ---
 
@@ -694,7 +712,7 @@ Acceptance criteria:
 > As a job seeker, I want to download a stored resume, so that I can reuse it.
 - Download requires authentication; the URL is not guessable and expires; requesting another user's file returns 404; the correct `Content-Disposition` and content type are set.
 
-**US-23 — Structured resume content** · Should · 5 · Sprint 2 · Deps: US-20
+**US-23 — Structured resume content** · Should · 5 · Sprint 7 · Deps: US-20
 > As a job seeker, I want to record skills, experience, education, and projects, so that the system has structure to reason about, not just a binary blob.
 - Repeatable sections with add/remove/reorder; skills are tags; content saves independently of the file.
 
@@ -702,11 +720,11 @@ Acceptance criteria:
 > As a job seeker, I want to record which resume I used for an application, so that I can later compare outcomes.
 - Selectable from application create and edit forms; exactly one resume per application; the association is visible from both sides; changing it is allowed and logged in `updated_at`.
 
-**US-25 — Clone a resume into a new version** · Should · 3 · Sprint 3 · Deps: US-23
+**US-25 — Clone a resume into a new version** · Should · 3 · Sprint 2 · Deps: US-23
 > As a job seeker, I want to duplicate a resume as a new version, so that I can tailor it without starting over.
 - Clone copies structured content, not the file; `parent_resume_id` records lineage; version label auto-increments.
 
-**US-26 — Compare resume outcomes** · Should · 5 · Sprint 3 · Deps: US-24, US-43
+**US-26 — Compare resume outcomes** · Should · 5 · Sprint 8 · Deps: US-24, US-43
 > As a job seeker, I want to see how applications using each resume turned out, so that I can form a hypothesis about which is working.
 - Per-resume counts and rates with explicit sample size; comparison is suppressed below 5 applications per version with an explanatory message; the panel carries a standing note that observed differences are associations and may reflect role, timing, or company mix.
 
@@ -734,17 +752,17 @@ Acceptance criteria:
 > As a job seeker, I want to correct interview records, so that my history is accurate.
 - All fields editable; deletion confirmed and cascades to its questions and feedback; cross-user access returns 404.
 
-**US-32 — Record external recruiter feedback** · Could · 2 · Sprint 5 · Deps: US-30
-> As a job seeker, I want to store feedback I was actually given, so that I can separate it from my own impressions.
-- Stored in a distinct field from self-evaluation and visually distinguished; excluded from any federated feature.
-
-**US-33 — Interview outcome suggests a status change** · Could · 3 · Sprint 3 · Deps: US-30, US-14
+**US-33 — Interview outcome suggests a status change** · Could · 3 · Sprint 8 · Deps: US-30, US-14
 > As a job seeker, I want the app to suggest updating the application status after I record an outcome, so that I do not have to remember to do it twice.
 - Suggestion is a prompt, never automatic; accepting writes a normal history entry; dismissing is remembered for that interview.
 
-**US-34 — Derive tested topics from an interview** · Must · 3 · Sprint 3 · Deps: US-29
+**US-34 — Derive tested topics from an interview** · Must · 3 · Sprint 8 · Deps: US-29
 > As a job seeker, I want the topics I was tested on inferred from my recorded questions, so that preparation can target them without extra data entry.
 - Topic set is the distinct topics of the interview's questions; displayed on the interview detail; feeds the mastery calculation.
+
+**US-110 — STAR story bank** · Should · 3 · Sprint 8 · Deps: US-102
+> As a job seeker, I want a bank of STAR stories that AI helps me structure, so that behavioural answers are ready before the interview.
+- Create, edit and delete stories with competency tags; AI suggests a Situation–Task–Action–Result structure that I accept or edit; stories are private to me.
 
 ---
 
@@ -778,9 +796,21 @@ Acceptance criteria:
 > As a job seeker, I want to see progress by topic and category, so that I know where I stand.
 - Progress bars per category; a topic grid coloured by mastery with an accessible non-colour indicator; drill-down from category to topic to questions.
 
-**US-42 — Spaced review queue** · Could · 5 · Sprint 5 · Deps: US-39
+**US-42 — Spaced review queue** · Could · 5 · Sprint 8 · Deps: US-39
 > As a job seeker, I want topics resurfaced as my mastery decays, so that I retain what I learned.
 - Queue ordered by decayed mastery and interview relevance; capped at 5 items to stay actionable; items can be deferred.
+
+**US-90 — Question bank browser and practice logging** · Must · 5 · Sprints 3, 6 · Deps: US-35, US-37
+> As a job seeker, I want to browse the question bank and log practice from the UI, so that my mastery actually changes as I work.
+- Every topic has real, original interview questions; I can filter and drill from topic to question; logging an attempt updates mastery visibly.
+
+**US-106 — Question recommendations** · Should · 5 · Sprint 8 · Deps: US-39, US-102
+> As a job seeker, I want "solve next", daily and interview-driven question picks, each with a reason, so that practice targets what matters.
+- Picks use local embeddings and my mastery; each pick states its reason; ranking is deterministic on fixed fixtures.
+
+**US-107 — Job readiness score** · Should · 5 · Sprint 8 · Deps: US-39
+> As a job seeker, I want each application to show how ready I am for that job, so that I prepare for the role in front of me.
+- The job's skills map to topics weighted by my mastery; the score shows its sample size and is suppressed when evidence is thin.
 
 ---
 
@@ -802,11 +832,11 @@ Acceptance criteria:
 > As a job seeker, I want to see at which stage I am rejected, so that I can target the right skill.
 - Distribution of the last stage reached before rejection; separates "rejected" from "no response" and never conflates them.
 
-**US-47 — Topic performance** · Should · 5 · Sprint 4 · Deps: US-29, US-38
+**US-47 — Topic performance** · Should · 5 · Sprint 3 · Deps: US-29, US-38
 > As a job seeker, I want per-topic interview performance, so that I can see which topics actually hurt me in real rounds.
 - Mean self-rating per topic weighted by recency, with question counts; topics with fewer than 3 questions are grouped as "insufficient data" rather than shown as extremes.
 
-**US-48 — Stage dwell times** · Should · 3 · Sprint 4 · Deps: US-18
+**US-48 — Stage dwell times** · Should · 3 · Sprint 3 · Deps: US-18
 > As a job seeker, I want median time spent at each stage, so that I know what "normal" looks like for me.
 - Median and interquartile range per stage from completed transitions only; right-censored applications excluded from the median and reported separately.
 
@@ -817,6 +847,14 @@ Acceptance criteria:
 **US-50 — Sample-size honesty across analytics** · Must · 3 · Sprint 3 · Deps: US-44
 > As a job seeker, I want to know how much data each number is based on, so that I do not over-read noise.
 - Every rate, average, and median displays n; a shared low-confidence badge component is used consistently; a golden-file test pins outputs for a fixed fixture dataset.
+
+**US-80 — Export my applications and analytics** · Should · 5 · Sprint 5 · Deps: EPIC 2, EPIC 6
+> As a job seeker, I want to export my application list and summary analytics as a PDF or CSV, so that I can share my progress outside the app or keep an offline record.
+- Full definition and FR-102 to FR-104 in `ARCHITECTURE_REVISION_JAVA.md` §6.2; downloads are owner-only, authenticated and expiring.
+
+**US-114 — Resume performance and funnel simulator** · Could · 5 · Sprint 8 · Deps: US-26, US-44
+> As a job seeker, I want to see which resume version performs best and simulate how many applications I need, so that I plan volume realistically.
+- Response rate per resume version, sample-size gated; the simulator uses my own conversion rates and states its assumptions.
 
 ---
 
@@ -838,7 +876,7 @@ Acceptance criteria:
 > As a job seeker, I want the app to be honest about correlation, so that I am not misled about my own chances.
 - All recommendation copy lives in a template registry; an automated test fails the build if any template matches the prohibited-phrasing list; associative phrasing is verified by review.
 
-**US-55 — Act on a recommendation** · Should · 3 · Sprint 4 · Deps: US-51, US-40
+**US-55 — Act on a recommendation** · Should · 3 · Sprints 4, 6 · Deps: US-51, US-40
 > As a job seeker, I want to convert a recommendation into a task, snooze it, or dismiss it, so that the list stays relevant.
 - Accept creates a linked preparation task; snooze hides it for 7 days; dismiss records a reason and suppresses that recommendation type for 30 days.
 
@@ -886,15 +924,23 @@ Acceptance criteria:
 > As a job seeker, I want to compare my recommendations with and without the shared model, so that I can see what federation actually contributes.
 - A toggle re-ranks recommendations live; changed items are highlighted with their rank delta; the comparison works offline against a cached global model.
 
-**US-66 — Privacy budget meter** · Could · 5 · Sprint 5 · Deps: US-63
+**US-66 — Privacy budget meter** · Could · 5 · Sprint 8 · Deps: US-63
 > As a job seeker, I want to see my cumulative privacy budget, so that I understand the cost of participating.
 - Displays total and spent epsilon and remaining rounds; participation halts at exhaustion with a clear explanation; posture selection (Strict/Balanced/Contributor) adjusts parameters and shows the trade-off.
+
+**US-84 — Poisoning filter** · Should · 3 · Sprint 4 · Deps: US-61
+> As an FL administrator, I want over-norm updates rejected before aggregation, so that one malicious client cannot steer the shared model.
+- Updates whose norm exceeds the configured bound are discarded and logged; a crafted over-norm update in a test is excluded from the average.
+
+**US-115 — Cohort benchmarks** · Should · 5 · Sprint 8 · Deps: US-62
+> As a job seeker, I want benchmarks learned from the whole cohort, so that I can compare my preparation without anyone's data being shared.
+- Benchmarks come from the global model only; they are hidden below the minimum cohort size; no individual's data is shown or inferable.
 
 ---
 
 ### EPIC 9 — Platform, Quality & DevOps
 
-*Justification for adding a ninth EPIC beyond the eight suggested:* infrastructure, CI, seeding, and security hardening are real work that consumes real capacity. If they are not in the backlog they are invisible, velocity is overstated, and they get skipped under deadline pressure — the single most common failure mode in student projects. Making them first-class stories also gives every team member a legitimate, reviewable contribution surface in Sprint 1.
+Infrastructure, CI, seeding, and security hardening are real work that consumes real capacity. If they are not in the backlog they are invisible, velocity is overstated, and they get skipped under deadline pressure. Making them first-class stories also gives every team member a reviewable contribution surface in Sprint 1.
 
 **US-67 — Repository and toolchain bootstrap** · Must · 5 · Sprint 1
 > As a developer, I want a configured repository, so that the team can work in parallel without conflicts.
@@ -916,21 +962,93 @@ Acceptance criteria:
 > As a job seeker, I want consistent navigation and layout, so that the product feels coherent.
 - Sidebar with the nine sections, responsive collapse below 768 px, active-route highlighting, protected route wrapper, 404 page, global error boundary, toast system.
 
-**US-72 — Seed and demo data** · Should · 3 · Sprint 2
+**US-72 — Seed and demo data** · Should · 3 · Sprints 2, 9
 > As a developer, I want realistic seed data, so that features can be demonstrated and analytics tested without hand-entry.
 - One command seeds a demo user with ~60 applications, 20 interviews, 3 resumes, and practice history; data is deterministic under a fixed seed and clearly marked synthetic.
 
-**US-73 — Security test suite** · Must · 5 · Sprint 5 · Deps: EPIC 1–5
+**US-73 — Security test suite** · Must · 5 · Sprints 1, 9 · Deps: EPIC 1–5
 > As a developer, I want automated cross-user access tests, so that isolation is proven, not assumed.
 - For every owned resource type, a test asserts that user B receives 404 for user A's object; unauthenticated access to every non-public endpoint returns 401; the suite is enumerated from the OpenAPI schema so new endpoints cannot be forgotten.
 
-**US-74 — Accessibility and responsive pass** · Should · 5 · Sprint 5
+**US-74 — Accessibility and responsive pass** · Should · 5 · Sprint 9
 > As a job seeker with accessibility needs, I want the app to be keyboard and screen-reader usable, so that I can actually use it.
 - axe-core reports zero critical violations on the main pages; full keyboard walkthrough passes; layouts verified at 360/768/1280/1920 px.
 
-**US-75 — Deployment and demo readiness** · Must · 5 · Sprint 5
-> As a developer, I want a rehearsed deployment and demo path, so that the final presentation does not fail on logistics.
-- Production Compose profile builds and runs; backup and restore rehearsed; a scripted demo path is timed and practised end to end.
+---
+
+### EPIC 10 — Notifications
+
+US-76 to US-79 (stalled application, upcoming interview, missing debrief, notification bell) are defined with FR-99 to FR-101 and NFR-53 in `ARCHITECTURE_REVISION_JAVA.md` §6.1. All four are Should, Sprint 5.
+
+---
+
+### EPIC 11 — Experience and First Run
+
+**US-85 — Consistent professional interface** · Should · 8 · Sprint 6 · Deps: US-71
+> As a user, I want a consistent, professional interface in light or dark mode on any screen size, so that the product is pleasant and trustworthy to use daily.
+- Design tokens for colour, type and spacing; system-default theme with a toggle; every page follows one visual standard; both themes pass contrast checks.
+
+**US-86 — App shell: user menu, logout, command palette** · Must · 3 · Sprint 6 · Deps: US-71
+> As a user, I want to see who I am signed in as, log out, and jump anywhere with a command palette, so that navigation is fast.
+- User menu with logout that clears the session; page titles and breadcrumbs; the command palette navigates to any page.
+
+**US-87 — Feedback and validation** · Must · 3 · Sprint 6 · Deps: US-71
+> As a user, I want every action to give clear feedback and forms to tell me what is wrong before I submit, so that I never guess what happened.
+- Shared toasts; one formatter for every enum value (no raw enum strings); client-side validation blocks invalid submits; consistent empty, loading and error states.
+
+**US-88 — Responsive tables, charts and privacy views** · Must · 5 · Sprint 6 · Deps: US-85
+> As a user, I want tables, charts and the privacy views to be readable on my phone, so that I can use the app anywhere.
+- Card rows on narrow screens; responsive charts with legends; the vector inspector works on mobile; verified at 390 px and 1440 px.
+
+**US-116 — Sample data and guided tour** · Could · 3 · Sprint 9 · Deps: US-72
+> As a new user, I want to load realistic sample data and take a short guided tour, so that I understand the product before entering my own data.
+- Sample data is clearly marked, touches only my records and is removable without orphans; the tour is skippable and replayable from help.
+
+**US-117 — Designed error and edge states** · Should · 3 · Sprint 9 · Deps: US-87
+> As a user, I want errors, missing pages, offline state and expired sessions to show clear, helpful screens, so that I always know what to do next.
+- Full-page and inline states with a next action and retry; an offline banner; a graceful session-expiry flow; both themes covered.
+
+---
+
+### EPIC 12 — AI Assistance
+
+AI runs on a local model by default, so user data never leaves the server; a hosted provider is optional and disclosed whenever active. Every prompt is assembled only from the requesting user's own data.
+
+**US-102 — AI provider** · Must · 5 · Sprint 8
+> As an operator, I want AI to run on a local model by default, with an optional hosted provider behind one interface, so that privacy holds and providers are swappable.
+- Provider interface with local and hosted implementations; timeouts and a graceful "AI unavailable" state; per-user rate limits; usage log without prompt content.
+
+**US-103 — Cohort Coach** · Should · 5 · Sprint 8 · Deps: US-102
+> As a job seeker, I want to chat with an AI coach that answers from my own data, so that advice is specific to my campaign.
+- Streaming replies grounded in my records only; the causal-language linter applies to replies; the coach never sees another user's data.
+
+**US-104 — Job posting parser** · Should · 3 · Sprint 8 · Deps: US-102, US-09
+> As a job seeker, I want pasting a job posting to create a filled-in application, so that data entry takes seconds.
+- Structured extraction with validation; I confirm before saving; malformed model output is rejected and never saved.
+
+**US-105 — Debrief notes to questions** · Should · 5 · Sprint 8 · Deps: US-102, US-29
+> As a job seeker, I want AI to turn my rough debrief notes into tagged interview questions, so that they feed my preparation.
+- Extracted questions map to topics and can be promoted to the bank; topics tested are derived for the interview (US-34); a status change is suggested, never applied automatically (US-33).
+
+**US-108 — Resume and job description match** · Should · 5 · Sprint 8 · Deps: US-102, US-23
+> As a job seeker, I want to check my resume against a job description, so that I can tailor it.
+- Gaps and tailoring suggestions per section; a tailored cover-letter draft; nothing changes until I accept it.
+
+**US-109 — Mock interview** · Should · 5 · Sprint 8 · Deps: US-102, US-39
+> As a job seeker, I want an AI mock interview that grades my answers, so that practice feels like the real thing.
+- Questions drawn from my weak topics; graded answers are recorded as practice attempts on the right topic.
+
+**US-111 — Interview prep pack** · Should · 3 · Sprint 8 · Deps: US-102, US-27
+> As a job seeker, I want a one-page prep pack before each interview, so that I walk in prepared.
+- One brief per upcoming interview, assembled only from my own data: company history, likely topics, recommended questions and stories.
+
+**US-112 — Follow-up and negotiation drafts** · Could · 3 · Sprint 8 · Deps: US-102
+> As a job seeker, I want AI to draft follow-up and negotiation emails, so that I respond promptly and well.
+- Drafts only, never sent automatically; drafts use the application and offer context.
+
+**US-113 — Weekly review** · Could · 3 · Sprint 8 · Deps: US-102, US-43
+> As a job seeker, I want an AI-written weekly review of my search, so that I reflect on progress without effort.
+- Generated from my analytics; delivered through the notification channel; numbers match the analytics exactly.
 
 ---
 
@@ -938,142 +1056,216 @@ Acceptance criteria:
 
 ### 10.1 Master backlog
 
-| ID | User Story (abbrev.) | EPIC | Priority | Points | Sprint |
-|---|---|---|---|---:|---|
-| US-67 | Repository & toolchain bootstrap | 9 | Must | 5 | 1 |
-| US-68 | Docker Compose dev environment | 9 | Must | 5 | 1 |
-| US-69 | Database schema & migrations | 9 | Must | 8 | 1 |
-| US-70 | CI pipeline | 9 | Must | 5 | 1 |
-| US-71 | App shell & navigation | 9 | Must | 5 | 1 |
-| US-01 | Register an account | 1 | Must | 5 | 1 |
-| US-02 | Log in | 1 | Must | 3 | 1 |
-| US-03 | Log out | 1 | Must | 2 | 1 |
-| US-04 | Session persistence & expiry | 1 | Must | 3 | 1 |
-| US-05 | View & edit profile | 1 | Must | 3 | 1 |
-| US-09 | Create an application | 2 | Must | 5 | 1 |
-| US-10 | List applications | 2 | Must | 5 | 1 |
-| US-11 | View application detail | 2 | Must | 3 | 1 |
-| US-12 | Edit an application | 2 | Must | 3 | 1 |
-| US-13 | Delete an application | 2 | Must | 3 | 1 |
-| US-14 | Change status & record history | 2 | Must | 5 | 1 |
-| US-15 | Application timeline | 2 | Must | 3 | 1 |
-| **Sprint 1 total** | | | | **71** | |
-| US-16 | Search applications | 2 | Must | 3 | 2 |
-| US-17 | Filter & sort applications | 2 | Must | 5 | 2 |
-| US-20 | Create a resume record | 3 | Must | 3 | 2 |
-| US-21 | Upload a resume file | 3 | Must | 5 | 2 |
-| US-22 | Download resume file | 3 | Must | 3 | 2 |
-| US-23 | Structured resume content | 3 | Should | 5 | 2 |
-| US-24 | Attach resume to application | 3 | Must | 3 | 2 |
-| US-27 | Record an interview | 4 | Must | 5 | 2 |
-| US-28 | List & view interviews | 4 | Must | 3 | 2 |
-| US-29 | Record questions asked | 4 | Must | 5 | 2 |
-| US-30 | Post-interview debrief | 4 | Must | 5 | 2 |
-| US-31 | Edit & delete an interview | 4 | Must | 3 | 2 |
-| US-72 | Seed & demo data | 9 | Should | 3 | 2 |
-| **Sprint 2 total** | | | | **51** | |
-| US-18 | Days-in-stage & stall flag | 2 | Should | 5 | 3 |
-| US-25 | Clone resume version | 3 | Should | 3 | 3 |
-| US-26 | Compare resume outcomes | 3 | Should | 5 | 3 |
-| US-33 | Outcome suggests status change | 4 | Could | 3 | 3 |
-| US-34 | Derive tested topics | 4 | Must | 3 | 3 |
-| US-35 | Browse question bank | 5 | Must | 5 | 3 |
-| US-36 | Add own questions | 5 | Must | 3 | 3 |
-| US-37 | Record practice attempt | 5 | Must | 5 | 3 |
-| US-38 | Topic taxonomy with prerequisites | 5 | Should | 5 | 3 |
-| US-39 | Topic mastery with decay | 5 | Should | 8 | 3 |
-| US-40 | Preparation tasks | 5 | Must | 3 | 3 |
-| US-41 | Preparation progress view | 5 | Must | 5 | 3 |
-| US-43 | Application funnel | 6 | Must | 5 | 3 |
-| US-44 | Conversion rates | 6 | Must | 5 | 3 |
-| US-45 | Activity over time | 6 | Must | 3 | 3 |
-| US-46 | Rejection stage distribution | 6 | Should | 3 | 3 |
-| US-49 | Dashboard strip & action queue | 6 | Must | 8 | 3 |
-| US-50 | Sample-size honesty | 6 | Must | 3 | 3 |
-| **Sprint 3 total** | | | | **80** | |
-| US-47 | Topic performance analytics | 6 | Should | 5 | 4 |
-| US-48 | Stage dwell times | 6 | Should | 3 | 4 |
-| US-51 | Weak-topic recommendations | 7 | Must | 8 | 4 |
-| US-52 | Root-cause prerequisite routing | 7 | Should | 5 | 4 |
-| US-53 | Evidence tiers & explanations | 7 | Must | 5 | 4 |
-| US-54 | Non-causal language enforcement | 7 | Must | 3 | 4 |
-| US-55 | Act on a recommendation | 7 | Should | 3 | 4 |
-| US-56 | Stall follow-up recommendations | 7 | Should | 3 | 4 |
-| US-57 | Opt in to federated learning | 8 | Must | 5 | 4 |
-| US-58 | Local feature extraction | 8 | Must | 8 | 4 |
-| US-59 | Local model training | 8 | Must | 8 | 4 |
-| US-60 | Clipping & noise | 8 | Must | 5 | 4 |
-| US-61 | Aggregation with min cohort | 8 | Must | 8 | 4 |
-| US-62 | Global model distribution | 8 | Must | 5 | 4 |
-| US-63 | Privacy Ledger | 8 | Should | 8 | 4 |
-| US-64 | Withdraw from federation | 8 | Must | 3 | 4 |
-| US-65 | Federated Lift viewer | 8 | Should | 5 | 4 |
-| **Sprint 4 total** | | | | **90** | |
-| US-06 | Change password | 1 | Should | 3 | 5 |
-| US-07 | Export my data | 1 | Should | 3 | 5 |
-| US-08 | Delete my account | 1 | Should | 5 | 5 |
-| US-19 | Tags & bulk update | 2 | Could | 5 | 5 |
-| US-32 | External recruiter feedback | 4 | Could | 2 | 5 |
-| US-42 | Spaced review queue | 5 | Could | 5 | 5 |
-| US-66 | Privacy budget meter | 8 | Could | 5 | 5 |
-| US-73 | Security test suite | 9 | Must | 5 | 5 |
-| US-74 | Accessibility & responsive pass | 9 | Should | 5 | 5 |
-| US-75 | Deployment & demo readiness | 9 | Must | 5 | 5 |
-| **Sprint 5 total** | | | | **43** | |
-| | | | **TOTAL** | **335** | |
+Stories are grouped by epic. **Sprint** is the sprint whose phases deliver the story; **Phases** are the build phases in `BUILD_PHASES_JAVA.md`.
 
-### 10.2 Capacity check — read this before approving
+**EPIC 1 — Authentication & User Management**
 
-335 points across 5 sprints averages to **67 points per sprint**, but it isn't evenly spread — Sprint 4 is the heaviest at **90 points**. At 12–15 points per person per 2-week sprint:
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-01 | Register an account | Must | 5 | 1 | P04, P05, P08 |
+| US-02 | Log in | Must | 3 | 1 | P05, P08 |
+| US-03 | Log out | Must | 2 | 1 | P05, P08 |
+| US-04 | Session persistence and expiry | Must | 3 | 1 | P05, P08 |
+| US-05 | View and edit my profile | Must | 3 | 1 | P06 |
+| US-06 | Change my password | Should | 3 | 5 | P66 |
+| US-07 | Export all my data | Should | 3 | 5 | P66 |
+| US-08 | Delete my account | Should | 5 | 5 | P66 |
+| US-91 | Onboarding and starter plan | Should | 5 | 6 | P76 |
+| US-92 | Password reset and email verification | Should | 5 | 5 | P68 |
+| US-93 | Sign in with Google or GitHub | Could | 5 | 6 | P78 |
 
-| Team size | Capacity/sprint | Verdict |
-|---:|---:|---|
-| 2 | 24–30 | Not viable. Cut to Sprints 1–3 + a minimal FL demo; drop EPIC 7 sophistication. |
-| 3 | 36–45 | Tight. Drop all *Could* items and US-23, US-26, US-42, US-66, US-19 (≈28 pts). Feasible. |
-| 4 | 48–60 | Workable with Sprint 3 and 4 rebalanced (move US-47/US-48 to Sprint 5). |
-| 5 | 60–75 | Comfortable; the plan as written fits. |
+**EPIC 2 — Job Application Tracking**
 
-**Tell me the team size and I will rebalance the sprints before implementation begins.** Sprints 3 and 4 as written are the overloaded ones; the release valve is the *Could* column plus US-23, US-26, US-42, US-66, and US-19, in that order.
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-09 | Create an application | Must | 5 | 1 | P09, P11, P12 |
+| US-10 | List my applications | Must | 5 | 1 | P11, P12 |
+| US-11 | View application detail | Must | 3 | 1 | P11, P12 |
+| US-12 | Edit an application | Must | 3 | 1 | P11, P12 |
+| US-13 | Delete an application | Must | 3 | 1 | P11, P12 |
+| US-14 | Change status and record history | Must | 5 | 1 | P10, P11, P12 |
+| US-15 | See an application timeline | Must | 3 | 1 | P11, P12 |
+| US-16 | Search applications | Must | 3 | 2, 6 | P16, P74 |
+| US-17 | Filter and sort applications | Must | 5 | 2, 6 | P16, P74 |
+| US-18 | Days-in-stage and stall flag | Should | 5 | 3 | P37 |
+| US-89 | Kanban board | Should | 5 | 6 | P73 |
+| US-95 | Contacts and referrals | Should | 5 | 7 | P82, P83 |
+| US-96 | Company pages | Should | 3 | 7 | P82, P84 |
+| US-99 | Global search | Should | 5 | 7 | P87 |
+| US-100 | Offer comparison | Should | 3 | 7 | P82, P85 |
+| US-101 | Weekly goals and activity heatmap | Should | 3 | 7 | P82, P86 |
 
-### 10.3 MVP definition
+**EPIC 3 — Resume Management**
 
-The MVP is everything marked **Must**, plus these **Should** items that carry the project's identity: US-18, US-38, US-39, US-52, US-63, US-65.
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-20 | Create a resume record | Must | 3 | 2 | P17, P20, P22 |
+| US-21 | Upload a resume file | Must | 5 | 2 | P18, P19, P20, P22 |
+| US-22 | Download my resume file | Must | 3 | 2 | P20, P22 |
+| US-23 | Structured resume content | Should | 5 | 7 | P88 |
+| US-24 | Attach a resume to an application | Must | 3 | 2 | P21, P22 |
+| US-25 | Clone a resume into a new version | Should | 3 | 2 | P21, P22 |
+| US-26 | Compare resume outcomes | Should | 5 | 8 | P101 |
 
-Rationale: a Must-only build would be a competent tracker with generic recommendations and an invisible FL backend — exactly the commodity project §2.3 sets out to avoid. The six additions are the differentiators, and they are also the cheapest possible versions of them.
+**EPIC 4 — Interview Tracking**
 
-### 10.4 Future scope (not in MVP)
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-27 | Schedule/record an interview | Must | 5 | 2 | P23, P24, P25 |
+| US-28 | List and view interviews | Must | 3 | 2 | P24, P25 |
+| US-29 | Record questions asked | Must | 5 | 2 | P24, P25 |
+| US-30 | Post-interview debrief | Must | 5 | 2 | P24, P25 |
+| US-31 | Edit and delete an interview | Must | 3 | 2 | P24 |
+| US-33 | Interview outcome suggests a status change | Could | 3 | 8 | P92 |
+| US-34 | Derive tested topics from an interview | Must | 3 | 8 | P92 |
+| US-110 | STAR story bank | Should | 3 | 8 | P97 |
 
-Anything marked *Future* in §32, plus: US-19, US-32, US-42, US-66 if capacity forces cuts.
+**EPIC 5 — Interview Preparation & Topic Mastery**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-35 | Browse the question bank | Must | 5 | 3 | P27, P28 |
+| US-36 | Add my own questions | Must | 3 | 3 | P28 |
+| US-37 | Record a practice attempt | Must | 5 | 3 | P28 |
+| US-38 | Topic taxonomy with prerequisites | Should | 5 | 3 | P27 |
+| US-39 | Topic mastery score with decay | Should | 8 | 3 | P31 |
+| US-40 | Create preparation tasks | Must | 3 | 3 | P32 |
+| US-41 | Preparation progress view | Must | 5 | 3 | P32 |
+| US-42 | Spaced review queue | Could | 5 | 8 | P103 |
+| US-90 | Question bank browser and practice logging | Must | 5 | 3, 6 | P29, P75 |
+| US-106 | Question recommendations | Should | 5 | 8 | P93 |
+| US-107 | Job readiness score | Should | 5 | 8 | P94 |
+
+**EPIC 6 — Analytics & Pipeline Health**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-43 | Application funnel | Must | 5 | 3 | P34, P36 |
+| US-44 | Conversion rates | Must | 5 | 3 | P34, P36 |
+| US-45 | Activity over time | Must | 3 | 3 | P34, P36 |
+| US-46 | Rejection stage distribution | Should | 3 | 3 | P35, P36 |
+| US-47 | Topic performance | Should | 5 | 3 | P36 |
+| US-48 | Stage dwell times | Should | 3 | 3 | P35, P36 |
+| US-49 | Dashboard pipeline strip and action queue | Must | 8 | 3 | P38 |
+| US-50 | Sample-size honesty across analytics | Must | 3 | 3 | P30, P35, P36 |
+| US-80 | Export my applications and analytics | Should | 5 | 5 | P63, P64, P65 |
+| US-114 | Resume performance and funnel simulator | Could | 5 | 8 | P101 |
+
+**EPIC 7 — Explainable Recommendations**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-51 | Weak-topic recommendations | Must | 8 | 4 | P39, P40 |
+| US-52 | Root-cause prerequisite routing | Should | 5 | 4 | P41 |
+| US-53 | Evidence tiers and explanations | Must | 5 | 4 | P42 |
+| US-54 | Non-causal language enforcement | Must | 3 | 4 | P42 |
+| US-55 | Act on a recommendation | Should | 3 | 4, 6 | P43, P77 |
+| US-56 | Stalled-application follow-up recommendations | Should | 3 | 4 | P40 |
+
+**EPIC 8 — Federated Learning & Privacy Ledger**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-57 | Opt in to federated learning | Must | 5 | 4 | P55 |
+| US-58 | Local feature extraction | Must | 8 | 4 | P44, P45, P51, P52 |
+| US-59 | Local model training | Must | 8 | 4 | P46 |
+| US-60 | Clipping and noise before transmission | Must | 5 | 4 | P47 |
+| US-61 | Federated aggregation with minimum cohort | Must | 8 | 4 | P48, P53 |
+| US-62 | Global model distribution | Must | 5 | 4 | P50, P53 |
+| US-63 | Privacy Ledger | Should | 8 | 4 | P56, P57 |
+| US-64 | Withdraw from federation | Must | 3 | 4 | P55 |
+| US-65 | Federated Lift viewer | Should | 5 | 4 | P58 |
+| US-66 | Privacy budget meter | Could | 5 | 8 | P104 |
+| US-84 | Poisoning filter | Should | 3 | 4 | P49 |
+| US-115 | Cohort benchmarks | Should | 5 | 8 | P102 |
+
+**EPIC 9 — Platform, Quality & DevOps**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-67 | Repository and toolchain bootstrap | Must | 5 | 1 | P01, P03, P15 |
+| US-68 | Docker Compose development environment | Must | 5 | 1 | P02 |
+| US-69 | Database schema and migrations | Must | 8 | 1 | P04, P09 and every `feat(db)` phase |
+| US-70 | CI pipeline | Must | 5 | 1 | P13 |
+| US-71 | Application shell and navigation | Must | 5 | 1 | P07 |
+| US-72 | Seed and demo data | Should | 3 | 2, 9 | P26, P105 |
+| US-73 | Security test suite | Must | 5 | 1, 9 | P14, P109 |
+| US-74 | Accessibility and responsive pass | Should | 5 | 9 | P110 |
+
+**EPIC 10 — Notifications**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-76 | Notify when an application stalls | Should | 3 | 5 | P59, P60, P61, P62 |
+| US-77 | Notify before an interview | Should | 3 | 5 | P59, P60, P61, P62 |
+| US-78 | Notify about a missing debrief | Should | 2 | 5 | P59, P60, P61, P62 |
+| US-79 | Notification bell and mark as read | Should | 3 | 5 | P59, P61, P62 |
+
+**EPIC 11 — Experience and First Run**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-85 | Consistent professional interface | Should | 8 | 6 | P69, P79, P80 |
+| US-86 | App shell: user menu, logout, command palette | Must | 3 | 6 | P70 |
+| US-87 | Feedback and validation | Must | 3 | 6 | P71 |
+| US-88 | Responsive tables, charts and privacy views | Must | 5 | 6 | P72 |
+| US-116 | Sample data and guided tour | Could | 3 | 9 | P106 |
+| US-117 | Designed error and edge states | Should | 3 | 9 | P107 |
+
+**EPIC 12 — AI Assistance**
+
+| ID | User story | Priority | Points | Sprint | Phases |
+|---|---|---|---:|---|---|
+| US-102 | AI provider | Must | 5 | 8 | P89 |
+| US-103 | Cohort Coach | Should | 5 | 8 | P90 |
+| US-104 | Job posting parser | Should | 3 | 8 | P91 |
+| US-105 | Debrief notes to questions | Should | 5 | 8 | P92 |
+| US-108 | Resume and job description match | Should | 5 | 8 | P95 |
+| US-109 | Mock interview | Should | 5 | 8 | P96 |
+| US-111 | Interview prep pack | Should | 3 | 8 | P98 |
+| US-112 | Follow-up and negotiation drafts | Could | 3 | 8 | P99 |
+| US-113 | Weekly review | Could | 3 | 8 | P100 |
+
+**Total:** 108 stories, 471 points.
+
+### 10.2 Prioritisation
+
+Priorities use MoSCoW. Within each sprint, Must stories are built before Should and Could stories, always in dependency order. Capacity is planned per department (`BUILD_PHASES_JAVA.md`, Team and ownership); the federated-learning work in Sprint 4 is the heaviest and is protected by the Sprint 3 spike.
+
+### 10.3 Core product
+
+The core product is every Must story plus the Should stories that carry the project's identity: US-18 (stall detection), US-38 and US-39 (topic graph and mastery decay), US-52 (root-cause routing), US-63 (Privacy Ledger) and US-65 (Federated Lift). Without them the product would be a competent tracker with generic recommendations and an invisible FL backend.
+
+### 10.4 Out of scope
+
+Features outside the product scope are listed once, in §31.2.
 
 ---
 
 ## 11. EPICs
 
-| EPIC | Name | Stories | Points | Primary sprints | Business value |
-|---|---|---|---:|---|---|
-| 1 | Authentication & User Management | 8 | 27 | 1, 5 | Gate for everything; privacy foundation |
-| 2 | Job Application Tracking | 11 | 45 | 1, 2, 3, 5 | The core daily-use loop |
-| 3 | Resume Management | 7 | 27 | 2, 3 | Links documents to outcomes |
-| 4 | Interview Tracking | 8 | 29 | 2, 3, 5 | Captures the highest-value data in the system |
-| 5 | Interview Prep & Topic Mastery | 8 | 39 | 3, 5 | Turns experience into action |
-| 6 | Analytics & Pipeline Health | 8 | 35 | 3, 4 | Makes performance legible |
-| 7 | Explainable Recommendations | 6 | 27 | 4 | The personalisation payoff |
-| 8 | Federated Learning & Privacy Ledger | 10 | 60 | 4, 5 | The innovation and the privacy story |
-| 9 | Platform, Quality & DevOps | 9 | 46 | 1, 2, 5 | Makes the rest deliverable |
+| EPIC | Name | Stories | Points | Sprints | Business value |
+|---|---|---|---:|---:|---|
+| 1 | Authentication & User Management | 11 | 42 | 1, 5, 6 | Gate for everything; privacy foundation |
+| 2 | Job Application Tracking | 16 | 64 | 1, 2, 3, 6, 7 | The core daily-use loop and the wider job-search workflow |
+| 3 | Resume Management | 7 | 27 | 2, 7, 8 | Links documents to outcomes |
+| 4 | Interview Tracking | 8 | 30 | 2, 8 | Captures the highest-value data in the system |
+| 5 | Interview Preparation & Topic Mastery | 11 | 54 | 3, 6, 8 | Turns experience into action |
+| 6 | Analytics & Pipeline Health | 10 | 45 | 3, 5, 8 | Makes performance legible |
+| 7 | Explainable Recommendations | 6 | 27 | 4, 6 | The personalisation payoff |
+| 8 | Federated Learning & Privacy Ledger | 12 | 68 | 4, 8 | The innovation and the privacy story |
+| 9 | Platform, Quality & DevOps | 8 | 41 | 1, 2, 9 | Makes the rest deliverable |
+| 10 | Notifications | 4 | 11 | 5 | Surfaces what needs attention without polling the dashboard |
+| 11 | Experience and First Run | 6 | 25 | 6, 9 | A product people want to use daily |
+| 12 | AI Assistance | 9 | 37 | 8 | Grounded, private assistance across the whole loop |
 
-Deviations from the suggested EPIC list, with reasons:
-- **EPIC 5 renamed** from "Interview Preparation" to "Interview Prep & Topic Mastery" because the mastery graph is the substantive content, not a sub-feature.
-- **EPIC 6 renamed** to "Analytics & Pipeline Health" to make stall detection a first-class concern rather than a stray chart.
-- **EPIC 8 merged** FL and Privacy, because a privacy design specified separately from the FL design produces a privacy policy rather than a privacy architecture. They are one system.
-- **EPIC 9 added** — justified above in §9.
-
-Every user story maps to exactly one EPIC; the mapping is in the §10.1 table.
+Every user story maps to exactly one EPIC; the mapping is in §10.1. EPIC 8 combines federated learning and privacy because a privacy design specified separately from the FL design produces a privacy policy rather than a privacy architecture. EPIC 9 makes platform work visible in the backlog (§9).
 
 ---
 
 ## 12. Sprint Roadmap
 
-Assumption: five 2-week sprints, roughly 10–12 weeks including a hardening finish.
+Nine 2-week sprints. Each sprint lists its goal, stories, deliverables, dependencies, risks and Definition of Done; `BUILD_PHASES_JAVA.md` breaks each sprint into phases.
 
 ### Sprint 1 — Foundation (see §13 for the full plan)
 **Goal:** A running, deployable skeleton in which a user can register, log in, and manage applications end to end — plus the concept poster.
@@ -1082,47 +1274,75 @@ Assumption: five 2-week sprints, roughly 10–12 weeks including a hardening fin
 **Risks:** Environment setup consumes more time than estimated on mixed OSes; the team is learning the stack. *Mitigation:* Compose parity verified by every member on day 3; a spike day is budgeted.
 **DoD:** §30 project-wide DoD, plus: every member has merged at least one reviewed PR; `docker compose up` works on every member's machine; poster reviewed by all.
 
-### Sprint 2 — Resumes & Interview Capture
+### Sprint 2 — Resumes & Interview Capture (P16–P26)
 **Goal:** Users can manage resume versions, attach them to applications, and capture structured interview experience including questions and a fast debrief.
-**Stories:** US-16, US-17, US-20 → US-24, US-27 → US-31, US-72.
-**Tasks:** File-upload pipeline with magic-byte validation; storage abstraction; resume schema and endpoints; interview and question models; debrief flow; search and filter with URL state; seed script.
-**Deliverables:** Resumes, Resume Detail, Interviews, Interview Detail pages; secure file upload/download; seeded demo dataset.
+**Stories:** US-16, US-17, US-20 → US-22, US-24, US-25, US-27 → US-31, US-72.
+**Deliverables:** Resumes, Resume Detail, Interviews, Interview Detail pages; secure file upload and download with magic-byte validation; resume cloning; search and filter with combinable Specifications; seeded demo dataset.
 **Dependencies:** Sprint 1 auth and applications.
-**Risks:** File upload security is easy to get subtly wrong. *Mitigation:* Write the malicious-upload test before the feature. Debrief UX may fail the 3-minute target. *Mitigation:* Time it with 3 users mid-sprint and cut fields if needed.
-**DoD:** Upload rejects a renamed executable; cross-user file access returns 404; debrief timed under 3 minutes with 3 users.
+**Risks:** File upload security is easy to get subtly wrong. *Mitigation:* write the malicious-upload test before the feature. Debrief UX may miss the 3-minute target. *Mitigation:* time it with 3 users mid-sprint and trim fields if needed.
+**DoD:** Upload rejects a renamed executable; cross-user file access returns 404; debrief timed under 3 minutes with 3 users; seed data loads deterministically.
 
-### Sprint 3 — Preparation & Analytics
+### Sprint 3 — Preparation & Analytics (P27–P38)
 **Goal:** The system turns recorded history into measured preparation progress and a legible campaign picture, with a dashboard that recommends action rather than displaying numbers.
-**Stories:** US-18, US-25, US-26, US-33, US-34, US-35 → US-41, US-43 → US-46, US-49, US-50.
-**Tasks:** Topic taxonomy seed with cycle test; question bank seed (≥150); practice attempt model; mastery scoring module with golden-file tests; analytics service with documented formulas; Recharts components; dashboard action queue.
-**Deliverables:** Question Bank, Interview Prep, Analytics pages; redesigned Dashboard; mastery engine.
+**Stories:** US-18, US-35 → US-41, US-43 → US-50, US-90 (question content).
+**Deliverables:** topic taxonomy and prerequisite graph; question bank with real, original questions for every topic; practice attempts; mastery engine with decay; preparation tasks and progress; analytics with documented formulas behind a Template Method base; Analytics page; dashboard pipeline strip and action queue; the one-day Flower spike.
 **Dependencies:** Sprint 2 interview questions; seed data.
-**Risks:** Analytics correctness is hard to eyeball and easy to get wrong. *Mitigation:* Golden-file tests on a fixed fixture dataset, written first. Sprint 3 is the heaviest at 80 points. *Mitigation:* US-25, US-26, US-33 are the designated drop candidates.
-**DoD:** Every metric has a documented formula and a passing golden-file test; every chart has empty, loading, and error states.
+**Risks:** Analytics correctness is hard to eyeball. *Mitigation:* golden-file tests on a fixed fixture dataset, written first.
+**DoD:** Every metric has a documented formula and a passing golden-file test; the topic graph passes cycle detection; every topic has real questions; the Flower spike is written up (ADR-011).
 
-### Sprint 4 — Recommendations & Federated Learning
+### Sprint 4 — Recommendations & Federated Learning (P39–P58)
 **Goal:** Explainable, evidence-tiered recommendations, and a genuinely federated learning loop with a user-visible Privacy Ledger.
-**Stories:** US-47, US-48, US-51 → US-65.
-**Tasks:** Recommendation rule engine with template registry and the phrasing linter; prerequisite routing; feature extractor with schema allow-list test; Flower client and server; clipping and noise; FedAvg with min-cohort enforcement; synthetic cohort client generator; ledger model and UI; lift viewer.
-**Deliverables:** Recommendations page; Privacy & FL page with ledger; running Flower server and ≥5 client containers; documented FL evaluation.
-**Dependencies:** Sprint 3 mastery scores and topic analytics (features depend on them).
-**Risks:** **Highest-risk sprint.** Flower integration friction; too little real data to train on; convergence may look poor with non-IID synthetic clients. *Mitigations:* FL spike completed during Sprint 3 (see §13.11); synthetic cohort generator built in Sprint 3 as part of US-72's extension; success is defined as a *correct and private* pipeline, not a high accuracy number, and that definition is agreed with the evaluator in advance.
-**DoD:** A round with fewer than k clients is refused and logged; the payload schema test passes; the FL server container demonstrably holds no user-schema credentials; the ledger shows a real transmitted vector.
+**Stories:** US-51 → US-65, US-84.
+**Deliverables:** recommendation generator chain, root-cause routing, evidence tiers, template registry and phrasing linter, Recommendations page; feature schema, local extraction and training, clipping and noise, Flower server with min-cohort refusal and norm filtering, model versioning; isolated FL compose profile; sanitised export from Java; FL gateway with circuit breaker; opt-in, Privacy Ledger and Federated Lift viewer.
+**Dependencies:** Sprint 3 mastery scores and analytics (features depend on them).
+**Risks:** **Highest-risk sprint.** Flower integration friction; too little real data to train on; poor convergence with non-IID synthetic clients. *Mitigations:* the Sprint 3 spike (§13.11); synthetic cohort clients; success defined as a *correct and private* pipeline rather than a high accuracy number, agreed with the evaluator in advance.
+**DoD:** A round with fewer than k clients is refused and logged; the payload schema test passes; the FL service demonstrably holds no user-schema credentials; the phrasing linter passes; the circuit-breaker fault-injection test passes; the ledger shows a real transmitted vector.
 
-### Sprint 5 — Hardening, Privacy Controls & Delivery
-**Goal:** A secure, accessible, documented, deployable product with a rehearsed demonstration.
-**Stories:** US-06, US-07, US-08, US-19, US-32, US-42, US-66, US-73, US-74, US-75.
-**Tasks:** Full security test suite; accessibility remediation; account deletion with orphan checks; data export; production Compose profile; backup/restore rehearsal; final documentation, README, ADR consolidation, user guide; demo script.
-**Deliverables:** Final report, complete test suite meeting coverage gates, deployed instance, rehearsed demo.
+### Sprint 5 — Notifications, Reports & Account (P59–P68)
+**Goal:** In-app notifications driven by domain events, PDF and CSV report export, and complete account self-service.
+**Stories:** US-06, US-07, US-08, US-76 → US-80, US-92.
+**Deliverables:** notifications table, domain events, notification channel strategy and bell UI; report export with a builder and secured downloads; change password, data export, account deletion; Argon2id parameters and token lifetimes per NFR-01/02; password reset and email verification.
+**Dependencies:** Sprint 3 stall detection and analytics; Sprint 1 auth.
+**Risks:** Account deletion leaves orphan rows. *Mitigation:* an orphan-check test across every table.
+**DoD:** Notifications and reports work end to end; deletion leaves no orphans; reset and verification tokens are single-use and expiring; no email enumeration.
+
+### Sprint 6 — Experience & Core Gaps (P69–P81)
+**Goal:** One consistent, responsive interface in light and dark themes, with the interactions a job seeker expects every day.
+**Stories:** US-16, US-17 (filter UI), US-55 (refinements), US-85 → US-91, US-93.
+**Deliverables:** design system and themes; app shell with logout, breadcrumbs and command palette; feedback and validation layer; responsive tables, charts and privacy views; Kanban board; filter bar; question bank browser and practice logging; profile and onboarding; recommendation refinements; Google and GitHub sign-in; landing and auth page polish; consistent polish across every page; security headers, secret scan and SQL-interpolation gate.
+**Dependencies:** Sprints 1–5 (this sprint refines every existing page).
+**Risks:** Visual polish expands without end. *Mitigation:* one shared standard (tokens, page header, table, form, empty state, chart) applied to every page, reviewed with screenshots at two breakpoints.
+**DoD:** Both themes and both breakpoints reviewed with screenshots; practice logging moves mastery end to end; illegal board moves refused with a reason; header test passes and CI gates fail on a planted violation.
+
+### Sprint 7 — Job-Search Workflow (P82–P88)
+**Goal:** The networking and decision side of a job search.
+**Stories:** US-23, US-95, US-96, US-99, US-100, US-101.
+**Deliverables:** contacts and referrals with cold-contact nudges; company pages; offer comparison with deadline countdowns; weekly goals and activity heatmap; global search in the command palette; structured resume section editor with PDF export.
+**Dependencies:** Sprint 5 domain events; Sprint 6 command palette and onboarding.
+**Risks:** Global search leaking across users. *Mitigation:* search goes through the same user-scoped repositories, with a dedicated isolation test.
+**DoD:** Every new endpoint isolation-tested; search never returns another user's data; cloned resumes carry edited sections.
+
+### Sprint 8 — AI & Intelligence (P89–P104)
+**Goal:** AI assistance grounded in the user's own data on a local model, prep intelligence, and visible value from the federated model.
+**Stories:** US-26, US-33, US-34, US-42, US-66, US-102 → US-115.
+**Deliverables:** AI provider strategy (local Ollama default, optional Gemini); Cohort Coach; job-posting parser; debrief notes to tagged questions; question recommendations with embeddings; job readiness score; resume and job-description match; mock interview; STAR story bank; prep packs; email drafts; weekly review; resume performance and funnel simulator; cohort benchmarks; spaced review queue; privacy budget meter.
+**Dependencies:** Sprints 3–4 mastery, analytics and FL; Sprint 7 resume sections and offers.
+**Risks:** Local model too slow on team machines. *Mitigation:* timeouts, streaming, and a graceful "AI unavailable" state; every non-AI feature keeps working.
+**DoD:** Every AI feature works with the local model and degrades gracefully when it is down; no prompt contains another user's data; the hosted-provider disclosure is shown whenever it is active.
+
+### Sprint 9 — Hardening & Delivery (P105–P110)
+**Goal:** A demo-ready, verified product: realistic data, a first-run experience, designed error states, disclosure pages, and the final security and accessibility verification across every feature.
+**Stories:** US-72, US-73, US-74, US-116, US-117.
+**Deliverables:** seed data for every feature; sample data loader and guided tour; designed error, 404, offline and session-expired screens; privacy policy, AI disclosure and help pages; full security suite enumerated from the OpenAPI schema; accessibility remediation in both themes.
 **Dependencies:** Everything.
-**Risks:** Bug backlog from Sprints 3–4 crowds out hardening. *Mitigation:* 20% of Sprint 5 capacity is reserved for defects from the start and is not planned against stories.
-**DoD:** Coverage gates met; zero critical axe violations; deletion leaves no orphans; restore rehearsed; demo run end to end twice without intervention.
+**Risks:** Defects from Sprints 6–8 crowd out verification. *Mitigation:* 20% of Sprint 9 capacity is reserved for defects and not planned against stories.
+**DoD:** Full security suite green; zero critical axe violations in both themes; sample data and tour work for a new user; demo run end to end twice without intervention.
 
 ---
 
 ## 13. Sprint 1 — Detailed Plan
 
-This is the sprint that starts on approval, so it is specified to task level.
+Sprint 1 is specified to task level.
 
 ### 13.1 Sprint goal
 
@@ -1195,7 +1415,7 @@ Building `DataTable`, `EmptyState`, `LoadingSkeleton`, and `ErrorState` as reusa
 ### 13.7 Authentication scope for Sprint 1
 
 **In:** registration, login, logout, refresh rotation, Argon2id hashing, password policy with blocklist, JWT issuing and verification, `get_current_user` dependency, protected routes, auth rate limiting, per-user query scoping.
-**Out (later sprints):** password reset by email, change password (Sprint 5), account deletion (Sprint 5), OAuth (never), MFA (future), admin role (Sprint 5 if capacity allows).
+**Out (later sprints):** change password, account deletion, password reset and email verification (Sprint 5), Google and GitHub sign-in (Sprint 6). MFA and an admin role are out of scope (§31.2).
 
 ### 13.8 Testing scope for Sprint 1
 
@@ -1208,15 +1428,15 @@ Building `DataTable`, `EmptyState`, `LoadingSkeleton`, and `ErrorState` as reusa
 
 ### 13.9 Documentation scope for Sprint 1
 
-`README.md` (setup, run, test, structure); `docs/requirements.md` (FR/NFR/DR from §6–8); `docs/architecture.md` with the C4-style diagrams from §16; `docs/database.md` with the ERD; `docs/api.md` (or published OpenAPI); `docs/agile/` containing product backlog, sprint 1 plan, daily standup log, sprint review and retrospective notes; `docs/adr/` with ADRs for the first decisions (Argon2id over bcrypt; refresh-token rotation; per-user query scoping at the repository layer; Alembic from day one); `CONTRIBUTING.md` with branch and commit conventions.
+`README.md` (setup, run, test, structure); `docs/requirements.md` (FR/NFR/DR from §6–8); `docs/architecture.md` with the C4-style diagrams from §16; `docs/database.md` with the ERD; `docs/api.md` (or published OpenAPI); `docs/agile/` containing product backlog, sprint 1 plan, daily standup log, sprint review and retrospective notes; `docs/adr/` with ADRs for the first decisions (Argon2id over bcrypt; refresh-token rotation; per-user query scoping at the repository layer; Flyway from day one); `CONTRIBUTING.md` with branch and commit conventions.
 
 ### 13.10 Concept poster content (Sprint 1 deliverable)
 
 See §29 for full layout. Sprint 1 task: produce the finished A1 poster as PDF plus source, reviewed by the whole team.
 
-### 13.11 One thing to schedule now for later: the FL spike
+### 13.11 The FL spike (Sprint 3)
 
-Add a **timeboxed 1-day Flower spike** to Sprint 3 (not Sprint 4): two hard-coded clients, a trivial 3-feature logistic regression, one FedAvg round, nothing else. Its only purpose is to surface Flower version and API friction a full sprint before Sprint 4 depends on it. This single scheduling decision is the highest-leverage risk reduction in the whole plan.
+A **timeboxed 1-day Flower spike** (P33) runs in Sprint 3: two hard-coded clients, a trivial 3-feature logistic regression, one FedAvg round, nothing else. Its only purpose is to surface Flower version and API friction a full sprint before Sprint 4 depends on it. It is the highest-leverage risk reduction in the plan.
 
 ### 13.12 Sprint 1 Definition of Done
 
@@ -1249,7 +1469,7 @@ Project-wide DoD (§30), plus:
 **Conflicting:** Ease and accuracy of centralised training vs FR-79…FR-92, DR-21, and the brief's hard constraint.
 **Why they conflict:** Centralised training over a single database is dramatically simpler, converges faster, and produces better metrics. FL adds a server, N client processes, orchestration, DP noise, and non-IID convergence problems, for a strictly worse accuracy number.
 **Decision:** **FL, unconditionally.** It is the project's stated innovation and a mandatory requirement; simulating it over pooled data would be dishonest.
-**Resolution:** MVP FL is a *real* Flower deployment with genuinely isolated client data stores (§22), sized down rather than faked: small model, few clients, few rounds, synthetic cohort peers. Success is redefined as **architectural correctness and demonstrable privacy**, not accuracy. This redefinition is agreed with the evaluator in advance so the criterion is not contested at the end.
+**Resolution:** The prototype FL is a *real* Flower deployment with genuinely isolated client data stores (§22), sized down rather than faked: small model, few clients, few rounds, synthetic cohort peers. Success is redefined as **architectural correctness and demonstrable privacy**, not accuracy. This redefinition is agreed with the evaluator in advance so the criterion is not contested at the end.
 **Impact:** Higher engineering cost, concentrated in Sprint 4, mitigated by the Sprint 3 spike. Model quality will be modest and must be reported honestly, including the FL-vs-centralised gap — which is itself a good result to discuss in the report.
 
 ### C3 — Feature richness vs deliverability
@@ -1257,8 +1477,8 @@ Project-wide DoD (§30), plus:
 **Conflicting:** The full FR set vs a fixed academic deadline and student capacity.
 **Why they conflict:** The requirement list describes a product a funded team would build over months. Attempting all of it produces a broad, broken system, which scores worse than a narrow, working one.
 **Decision:** **Depth over breadth.** Ship a smaller set of features that are complete, tested, and polished.
-**Resolution:** MoSCoW prioritisation (§10); an MVP defined as Must + six identity-carrying Shoulds (§10.3); a pre-agreed cut list in priority order (§10.2); an explicit capacity check before approval; a strict Definition of Done that makes "nearly finished" impossible to claim.
-**Impact:** Several attractive features (bulk operations, spaced review, privacy budget meter, external feedback) land in Future Scope. Documented deliberately in the report as scope management, which reads as competence rather than omission.
+**Resolution:** MoSCoW prioritisation (§10); a core product defined as Must plus six identity-carrying Shoulds (§10.3); an explicit out-of-scope list (§31.2); a sprint order in which every sprint ends with a working product; a strict Definition of Done that makes "nearly finished" impossible to claim.
+**Impact:** Several attractive features (bulk operations, external recruiter feedback, an admin console, calendar and email sync) are outside the product scope. This is documented in the report as scope management.
 
 ### C4 — Personalisation vs standardisation
 
@@ -1296,54 +1516,51 @@ Project-wide DoD (§30), plus:
 
 ## 15. Technology Stack
 
-### 15.1 Stack as specified, with justification
+### 15.1 Stack, with justification
 
 | Layer | Technology | Why it is the right choice here |
 |---|---|---|
-| UI library | **React 18** | The interface is a stateful dashboard with tables, filters, modals, and charts — exactly the component-tree problem React solves. Largest ecosystem, so the team can find help fast, which matters on a deadline. |
-| Language (FE) | **TypeScript** | The domain has many similar-shaped entities (application, interview, resume) and a compiler that catches a field mismatch at build time is worth more than a debugging session. Types generated from the OpenAPI schema keep the frontend and backend contract honest automatically. |
-| Styling | **Tailwind CSS** | Utility classes keep styling colocated with markup, which suits a small team with no dedicated designer, and enforce a design-token scale (spacing, colour, type) so the UI stays consistent without a style guide nobody reads. |
-| Components | **shadcn/ui** | Accessible Radix primitives delivered as owned source rather than an opaque dependency. This matters twice: NFR-44…NFR-47 come largely for free, and the components can be restyled to avoid the default look flagged in §2.3. |
-| Charts | **Recharts** | Declarative React charts covering funnel, bar, line, and area needs. Composable enough to add the sample-size annotations FR-67 requires, without the learning cost of D3. |
-| Backend framework | **FastAPI** | Pydantic validation satisfies FR-96 by construction; automatic OpenAPI generation feeds both the frontend types and `docs/api.md`; dependency injection makes `get_current_user` and per-user scoping clean; async support handles the FL-server calls without blocking. Being Python, it shares a runtime with scikit-learn and Flower — no cross-language bridge anywhere in the system. |
-| Language (BE) | **Python 3.11+** | Mandatory for the ML and FL layer; unifying the backend on it removes an entire class of integration problem. |
-| Database | **PostgreSQL 16** | The domain is genuinely relational — users own applications own interviews own questions — and the isolation requirement is best enforced with real foreign keys and constraints. Also gives JSONB for semi-structured resume content, window functions for dwell-time and funnel queries, and per-schema privilege separation, which is what makes the FL client isolation in §22 architecturally real rather than cosmetic. |
-| ORM | **SQLAlchemy 2.0** | Parameterised queries by default (NFR-03), typed models, and a repository layer where per-user scoping is enforced once rather than remembered at every call site (FR-94). |
-| Auth | **JWT + Argon2id** | JWT keeps the API stateless (NFR-23) while refresh tokens stored server-side keep logout genuinely revocable (FR-06). **Argon2id over bcrypt**: memory-hard, resistant to GPU cracking, and the current OWASP recommendation. Recorded as ADR-001. |
-| ML | **scikit-learn** | Right-sized for the task. Its linear models expose `coef_` and `intercept_` as plain arrays, which is precisely what a FedAvg implementation needs to average — a deep-learning framework would be heavier and no more capable here. |
-| FL | **Flower (flwr)** | Framework-agnostic, works cleanly with scikit-learn, has a real client/server separation over gRPC (so clients are genuinely separate processes, not a loop), supports custom strategies for the min-cohort and norm-filtering rules in FR-83/FR-84, and its simulation mode gives a fallback if the containerised deployment misbehaves near the deadline. |
-| Testing (BE) | **Pytest** | Fixtures model the multi-user setups the isolation tests need; `pytest-cov` provides the CI gate; parametrisation covers the state machine cheaply. |
-| Testing (FE) | **React Testing Library + Vitest** | Tests behaviour rather than implementation, which survives refactoring. Vitest shares the Vite config, so there is no second toolchain. |
-| Containers | **Docker + Docker Compose** | Removes environment drift across a mixed-OS team (NFR-41) and — critically — is what makes the FL client isolation demonstrable: separate containers, separate credentials, inspectable. |
-| VCS | **Git + GitHub** | Required. Also provides Actions for CI, Projects for the sprint board, and a per-member contribution record. |
+| UI library | **React 19** | The interface is a stateful dashboard with tables, filters, modals, and charts — exactly the component-tree problem React solves. Largest ecosystem, so the team can find help fast. |
+| Language (FE) | **TypeScript** | The domain has many similar-shaped entities (application, interview, resume); a compiler that catches a field mismatch at build time is worth more than a debugging session. |
+| Styling | **Tailwind CSS** | Utility classes keep styling colocated with markup and enforce a design-token scale (spacing, colour, type), so the UI stays consistent without a separate style guide. |
+| Components | **shadcn/ui** | Accessible Radix primitives delivered as owned source. NFR-44…NFR-47 come largely for free, and the components can be restyled away from the default look (§2.3). |
+| Charts | **Recharts** | Declarative React charts covering funnel, bar, line, and area needs, composable enough for the sample-size annotations FR-67 requires. |
+| Backend framework | **Spring Boot 3 (Java 21)** | Owns everything user-facing. Mature dependency injection makes per-user scoping and every pattern in `ARCHITECTURE_REVISION_JAVA.md` §4 clean; Bean Validation satisfies FR-96; springdoc generates the OpenAPI contract. |
+| Database | **PostgreSQL 16** | The domain is genuinely relational — users own applications own interviews own questions — and the isolation requirement is best enforced with real foreign keys and constraints. Also gives JSONB for semi-structured resume content, window functions for dwell-time and funnel queries, and role-based privilege separation, which makes the FL isolation in §22 architecturally real. |
+| ORM and migrations | **Spring Data JPA + Hibernate; Flyway** | Parameterised queries by default (NFR-03); a repository layer where per-user scoping is enforced once (FR-94); versioned migrations with rollback scripts (NFR-27). |
+| Auth | **Spring Security: JWT + Argon2id; OAuth2 client for Google and GitHub** | JWT keeps the API stateless (NFR-23) while server-side refresh tokens keep logout revocable (FR-06). **Argon2id over bcrypt**: memory-hard, resistant to GPU cracking, and the current OWASP recommendation (ADR-001). |
+| ML | **scikit-learn** | Right-sized for the task. Linear models expose `coef_` and `intercept_` as plain arrays, which is exactly what FedAvg averages. |
+| FL | **Flower (flwr)** in a small Python service | Framework-agnostic, works cleanly with scikit-learn, separates client and server, supports custom strategies for the min-cohort and norm-filtering rules (FR-83/FR-84), and has a simulation mode as a fallback. Flower has no Java equivalent, which is why Python is limited to this service. |
+| AI | **Ollama** local model by default; Google Gemini optional | AI features answer from the user's own data without that data leaving the server; the hosted provider is opt-in for the operator and disclosed to users. |
+| Testing | **JUnit 5, MockMvc, Testcontainers; pytest; React Testing Library + Vitest** | Real-Postgres integration tests, controller tests, FL unit tests, and behavioural UI tests. |
+| Containers | **Docker + Docker Compose** | Removes environment drift (NFR-41) and makes the FL isolation demonstrable: separate containers, separate credentials, inspectable. |
+| VCS and CI | **Git + GitHub + GitHub Actions** | Per-member contribution record, CI on every push, Projects for the sprint board. |
 
-### 15.2 Minimal additions, each justified
+Full detail, including the resilience and mapping libraries, is in `ARCHITECTURE_REVISION_JAVA.md` §2.
 
-These are not new technology choices so much as unavoidable companions to the ones above. Nothing here expands the stack conceptually.
+### 15.2 Supporting libraries
 
 | Addition | Layer | Why it is necessary |
 |---|---|---|
-| **Vite** | FE build | React needs a bundler; Vite is the current default and shares config with Vitest. |
+| **Vite** | FE build | React needs a bundler; Vite shares config with Vitest. |
 | **React Router** | FE routing | Multi-page SPA requires routing. |
-| **TanStack Query** | FE data | Server-state caching, request deduplication, and — the deciding reason — a clean place to implement the single-flight token-refresh interceptor from US-04. Hand-rolling this is more code and worse. |
-| **React Hook Form + Zod** | FE forms | The application, resume, interview, and debrief forms are large; Zod schemas mirror the Pydantic models so validation rules are stated once per side. |
-| **Alembic** | BE migrations | Part of the SQLAlchemy ecosystem. NFR-27 requires reversible versioned migrations; `create_all` cannot provide them. |
-| **Argon2-cffi** | BE auth | The Argon2id implementation. |
-| **python-jose** or **PyJWT** | BE auth | JWT signing and verification. |
-| **pytest-asyncio, httpx, testcontainers** | BE test | Async test support, API test client, and a real Postgres instance for integration tests. |
-| **Ruff, Black, mypy, ESLint, Prettier** | Quality | Enforce NFR-38 and NFR-39 in CI. |
-| **NumPy** | ML | Transitive under scikit-learn; used directly for clipping and noise arithmetic. |
+| **TanStack Query** | FE data | Server-state caching, request deduplication, and a clean place for the single-flight token-refresh interceptor from US-04. |
+| **React Hook Form + Zod** | FE forms | The application, resume, interview, and debrief forms are large; Zod schemas mirror the server-side validation rules. |
+| **Resilience4j** | BE | Circuit breaker and fallback at the FL boundary. |
+| **springdoc-openapi** | BE | Generated OpenAPI contract, also used to enumerate endpoints in the security suite. |
+| **Testcontainers** | BE test | A real Postgres instance for integration tests. |
+| **NumPy** | FL | Transitive under scikit-learn; used directly for clipping and noise arithmetic. |
 
 ### 15.3 Explicitly rejected
 
 | Rejected | Why |
 |---|---|
-| Redis | Nothing needs a cache or queue at this scale; rate limiting can use an in-process store or a Postgres table. Adding it costs a container and a failure mode for no benefit. |
-| Celery / background workers | FL rounds are triggered manually or on a schedule; FastAPI background tasks suffice. |
-| MinIO / S3 | Local volume storage is adequate for the MVP; the storage layer is abstracted behind an interface so S3 is a future swap, not a rewrite. |
+| Redis | Nothing needs a cache or queue at this scale; rate limiting uses an in-process store. Adding it costs a container and a failure mode for no benefit. |
+| Message brokers / separate workers | FL rounds and detectors run on Spring scheduling; nothing needs a queue. |
+| MinIO / S3 | Local volume storage is adequate; storage sits behind `FileStorageStrategy`, so S3 is a swap, not a rewrite. |
 | Next.js | Server-side rendering brings no benefit to an authenticated dashboard and complicates the Compose setup. |
-| PyTorch / TensorFlow | Over-powered for a logistic-regression-scale problem and would triple image size. |
-| An LLM API | Would make the "AI" feature a network call to someone else's model, undermining both the FL contribution and the privacy story. Deliberately out. |
+| PyTorch / TensorFlow | Over-powered for a logistic-regression-scale problem. |
+| A hosted LLM as the default | Would send user data to a third party by default, undermining the privacy story; the local model is the default and the hosted provider is optional and disclosed. |
 | MongoDB | The domain is relational and the isolation requirement depends on foreign keys. |
 
 ---
@@ -1359,8 +1576,9 @@ These are not new technology choices so much as unavoidable companions to the on
    ┌───────────┐                        │                      │
    │  Admin    │──── HTTPS ────────────▶│                      │
    └───────────┘                        └──────────────────────┘
-   No external integrations. No third-party data sharing. No outbound
-   user data of any kind.
+   External calls: Google/GitHub sign-in (identity only) and, only when
+   the operator enables it, a hosted AI provider (disclosed to users).
+   No third-party data sharing otherwise.
 ```
 
 ### 16.2 Container view
@@ -1376,7 +1594,7 @@ These are not new technology choices so much as unavoidable companions to the on
                                │ REST / JSON  (Bearer JWT)
                                ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│  FastAPI Backend  (container: api)                                   │
+│  Spring Boot API  (container: api)                                   │
 │                                                                      │
 │  ── API layer ────────────────────────────────────────────────────   │
 │  auth · users · applications · companies · resumes · interviews ·    │
@@ -1389,10 +1607,10 @@ These are not new technology choices so much as unavoidable companions to the on
 │                                                                      │
 │  ── Repository layer (ALL queries scoped by user_id) ─────────────   │
 │                                                                      │
-│  ── Cross-cutting: JWT auth · Pydantic validation · rate limiting    │
+│  ── Cross-cutting: JWT auth · Bean Validation · rate limiting        │
 │     structured logging · error handling · file storage adapter       │
 └───────────┬───────────────────────────────────┬──────────────────────┘
-            │ SQLAlchemy                        │ HTTP (control plane
+            │ JPA                               │ HTTP (control plane
             ▼                                   │  only — no user data)
 ┌────────────────────────┐                      │
 │ PostgreSQL (app)       │                      │
@@ -1429,6 +1647,8 @@ These are not new technology choices so much as unavoidable companions to the on
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+The language boundary between the Spring Boot API and the Python fl-service, including the sanitised export from Java and the circuit breaker, is drawn in `ARCHITECTURE_REVISION_JAVA.md` §3.
+
 ### 16.3 Component responsibilities
 
 | Component | Responsibility | Explicitly not responsible for |
@@ -1446,7 +1666,7 @@ These are not new technology choices so much as unavoidable companions to the on
 
 ### 16.4 Data flow — the two loops
 
-**Loop A: normal request.** Browser sends a request with a bearer token → API validates the token, resolves `current_user` → router calls a service → the service calls repositories, which inject `user_id` into every query → Postgres returns only that user's rows → the service computes → Pydantic serialises → the browser renders. *User data never leaves the app boundary.*
+**Loop A: normal request.** Browser sends a request with a bearer token → API validates the token, resolves `current_user` → the controller calls a service → the service calls repositories, which inject `user_id` into every query → Postgres returns only that user's rows → the service computes → a mapper builds the response DTO → the browser renders. *User data never leaves the app boundary.*
 
 **Loop B: federated round.** FLCoordinator opens round *r* and publishes global model *M(r-1)* → each opted-in client fetches *M(r-1)* → each client reads **only its own schema**, extracts a fixed 24-float feature matrix locally, and fits a local model → computes the update Δ, clips it to ‖Δ‖₂ ≤ S, adds Gaussian noise N(0, σ²S²I) → sends the noised vector over gRPC → the Flower server counts participants, refuses if < k, filters over-norm updates, computes the FedAvg mean → *M(r)* is versioned and stored → FLCoordinator writes round metadata and a per-user ledger entry → clients fetch *M(r)*. *No record, string, or identifier crosses the boundary at any point.*
 
@@ -1560,6 +1780,8 @@ Indexes: `(user_id, status)`, `(user_id, date_applied DESC)`, `(user_id, company
 
 **privacy_ledger_entries** — `user_id FK`, `fl_round_id FK`, `feature_schema_version`, `raw_update_norm NUMERIC`, `clipped_norm NUMERIC`, `noise_multiplier NUMERIC`, `epsilon_consumed NUMERIC`, `cohort_size INT`, `transmitted_vector JSONB`, `created_at`. **Append-only, never updated or deleted except by account deletion.** This table is the product feature described in D2.
 
+**Further tables.** `notifications` and `report_exports` are defined in `ARCHITECTURE_REVISION_JAVA.md` §5. Single-use auth tokens and OAuth identities support US-92 and US-93 (P68, P78); contacts, company notes, offers and goals support US-95, US-96, US-100 and US-101 (P82). Every one carries `user_id NOT NULL` and goes through `UserScopedRepository`.
+
 ### 17.3 Key relationships explained
 
 - **User → Applications (1:∞).** The central ownership edge. `user_id` is NOT NULL with no default and is set server-side from the token; the client can never supply it. Every repository method for applications takes `user_id` as a required parameter — it is impossible to write a query that forgets it, because the function signature will not compile without it.
@@ -1573,7 +1795,7 @@ Indexes: `(user_id, status)`, `(user_id, date_applied DESC)`, `(user_id, company
 ### 17.4 How isolation is actually enforced (three independent layers)
 
 1. **Schema:** `user_id NOT NULL` on every owned table, foreign-keyed with cascade.
-2. **Repository:** a `UserScopedRepository` base class whose every method requires `user_id`; route handlers cannot call the raw session. An import-boundary lint rule prevents routers from importing models directly.
+2. **Repository:** a `UserScopedRepository` base class whose every method requires `user_id`; controllers cannot reach the persistence layer directly; they call services only.
 3. **Test:** the US-73 suite enumerates every endpoint from the OpenAPI schema and asserts a 404 for cross-user access, so a newly added endpoint that forgets scoping fails CI rather than shipping.
 
 Belt, braces, and an alarm. Any one of these can fail without a breach.
@@ -1641,7 +1863,6 @@ Base path `/api/v1`. All responses JSON. Errors use a consistent envelope: `{"er
 | `DELETE /applications/{id}` | Delete | — | 204, cascades | 401, 404 |
 | `POST /applications/{id}/status` | Change status | `{to_status, note?}` | 200 with new history entry | 401, 404, **409 invalid transition** |
 | `GET /applications/{id}/history` | Timeline | — | 200 list, newest first | 401, 404 |
-| `POST /applications/bulk-status` | Bulk change | `{application_ids[], to_status}` | 200 `{updated, failed[]}` | 401, 422 |
 
 **Filtering is server-side.** Returning everything and filtering in the browser would violate NFR-20 and leak the full dataset into memory.
 
@@ -1659,7 +1880,7 @@ Base path `/api/v1`. All responses JSON. Errors use a consistent envelope: `{"er
 
 ### 18.7 Analytics
 
-Rejecting the single `GET /analytics` suggested in the brief in favour of resource-scoped endpoints: one endpoint returning everything is slow, uncacheable, hard to test, and forces the client to over-fetch for a single chart.
+Analytics uses resource-scoped endpoints rather than a single `GET /analytics`: one endpoint returning everything is slow, uncacheable, hard to test, and forces the client to over-fetch for a single chart.
 
 | Endpoint | Returns |
 |---|---|
@@ -1702,7 +1923,11 @@ Every recommendation object carries `evidence_tier`, `observation_count`, `expla
 | `GET /fl/rounds` | Round history with participant counts | User (metadata only) | |
 | `GET /fl/schema` | The current feature schema, human-readable | Public | Shown on the opt-in screen — the schema is documentation |
 
-**`POST /fl/update` is deliberately absent.** Client updates travel over Flower's gRPC channel to the Flower server, not through the application API. Routing updates through the app backend would put user-linked model updates in the same process that holds database credentials, weakening exactly the boundary the design exists to create. This is a considered deviation from the endpoint list in the brief, recorded as ADR-007.
+**`POST /fl/update` is deliberately absent.** Client updates travel over Flower's gRPC channel to the Flower server, not through the application API. Routing updates through the app backend would put user-linked model updates in the same process that holds database credentials, weakening exactly the boundary the design exists to create. Recorded as ADR-007.
+
+### 18.10 Further endpoints
+
+Notifications, reports, account recovery, social sign-in, contacts, companies, offers, goals, search and AI features follow the same conventions (base path, error envelope, pagination, bearer auth, 404 on foreign resources). The generated OpenAPI schema is the complete list, and the security suite (P109) enumerates it.
 
 ---
 
@@ -1731,7 +1956,7 @@ No Redux. There is no state complex enough to justify it, and adding it would be
 | **Login** | `/login` | Authenticate | `AuthCard`, `LoginForm` | — | Submit, navigate to register |
 | **Register** | `/register` | Create account | `AuthCard`, `RegisterForm`, `PasswordStrength` | — | Submit |
 | **Dashboard** | `/` | Answer "what should I do today?" | `PipelineStrip`, `ActionQueue`, `UpcomingInterviews`, `RecentActivity` | `/analytics/summary`, stalled apps, pending debriefs, due tasks, upcoming interviews | Act on a queue item, quick-add application |
-| **Applications** | `/applications` | Manage the campaign | `DataTable`, `FilterBar`, `StatusBadge`, `BulkActionBar`, `ApplicationFormModal` | Paginated applications, tags, companies | Create, filter, search, sort, bulk update, open detail |
+| **Applications** | `/applications` | Manage the campaign | `DataTable`, `FilterBar`, `StatusBadge`, `ApplicationFormModal` | Paginated applications, companies | Create, filter, search, sort, open detail |
 | **Application Detail** | `/applications/:id` | Everything about one application | `DetailHeader`, `FieldPanel`, `StatusChanger`, `Timeline`, `InterviewList`, `ResumeChip`, `NotesPanel` | Application with relations | Edit, change status, add interview, attach resume, delete |
 | **Resumes** | `/resumes` | Version library | `ResumeCard` grid, `UploadDropzone`, `VersionBadge` | Resumes with usage counts | Create, upload, clone, set default, delete |
 | **Resume Detail** | `/resumes/:id` | One version | `SectionEditor`, `FilePreview`, `UsageList`, `PerformancePanel` | Resume, sections, linked applications, performance | Edit sections, replace file, download, clone |
@@ -1743,6 +1968,11 @@ No Redux. There is no state complex enough to justify it, and adding it would be
 | **Recommendations** | `/recommendations` | What to do next | `RecommendationCard`, `EvidenceTierBadge`, `EvidenceDrawer`, `FederatedLiftToggle` | Recommendations with evidence | Accept, snooze, dismiss, toggle federated, expand evidence |
 | **Privacy & FL** | `/privacy` | Control and verify | `OptInPanel`, `PostureSelector`, `PrivacyLedgerTable`, `VectorInspector`, `BudgetMeter`, `RoundHistory`, `WhatWasNotSent` | FL status, ledger, rounds, schema | Opt in/out, choose posture, inspect a vector, export ledger |
 | **Profile** | `/profile` | Account | `ProfileForm`, `PasswordChange`, `DataExport`, `DangerZone` | Current user | Update, change password, export, delete account |
+| **Board** | `/applications/board` | Kanban view of the pipeline | `KanbanColumn`, `ApplicationCard` | Applications by status | Drag between legal stages |
+| **Companies, Contacts, Offers, Goals** | `/companies/:id`, `/contacts`, `/offers`, `/goals` | Job-search workflow (EPIC 2) | Company page, contact list, offer comparison, goal tracker and heatmap | The user's own records | Create, edit, compare, track |
+| **Coach and AI tools** | `/coach` and in-context panels | AI assistance (EPIC 12) | Chat, parser, match, mock interview, story bank, prep pack, drafts | The user's own records | Ask, accept or discard suggestions |
+| **Notifications, Reports** | `/notifications`, `/reports` | EPIC 10 and US-80 | Notification list, export form | Notifications, export history | Mark read, export, download |
+| **Landing, onboarding, help** | `/welcome`, `/onboarding`, `/help`, `/privacy-policy` | First run and disclosure | Landing, onboarding steps, tour, help and policy pages | — | Sign up, set goals, load sample data |
 | **404** | `*` | Not found | `NotFound` | — | Return home |
 
 ### 19.4 Cross-cutting frontend concerns
@@ -2050,6 +2280,8 @@ Fixed length, all `float32`, all bounded to [0,1] or [-1,1], all derived locally
 
 ### 22.3 Client architecture and isolation
 
+In the implemented architecture the Java API exports the allow-listed features into the fl-service's own store, and the fl-service's database role can write only the three FL bookkeeping tables (`ARCHITECTURE_REVISION_JAVA.md` §3). The isolation properties below hold for each client process inside that service.
+
 Each FL client is a separate container running its own process, with:
 
 - **Its own Postgres schema** (`client_1`, `client_2`, …) and **its own database role** granted `USAGE` on that schema alone. This is enforced by Postgres, not by application code.
@@ -2086,9 +2318,9 @@ Round r, coordinated by the Flower server:
 
 **Parameters and their justification:** S = 1.0 (bounds any single client's influence, which is simultaneously the DP sensitivity bound and the poisoning bound); σ = 1.0 (a conservative default from the DP-SGD literature, held fixed per §14/C7 rather than tuned to flatter the accuracy chart); k = 3 (the minimum at which averaging provides any anonymity at all; production would use 50+, and the report says so); τ = 3 (rejects updates more than 3× the clipping norm, which after clipping should be impossible for an honest client).
 
-### 22.5 MVP FL vs Future Production FL
+### 22.5 Prototype FL vs production FL
 
-| Dimension | **MVP (this project)** | **Future production** |
+| Dimension | **This project** | **Production** |
 |---|---|---|
 | Clients | 5–8 containers: 1 bound to the demo user, 4–7 synthetic-cohort clients | Thousands of real user devices or per-tenant enclaves |
 | Client location | Docker containers on one host, with genuinely separate schemas and roles | Browser (WASM) or user-controlled agent |
@@ -2101,7 +2333,7 @@ Round r, coordinated by the Flower server:
 | Model | Logistic regression, 25 parameters | Larger models, personalisation layers, per-cohort specialisation |
 | Accounting | Approximate per-round ε, displayed honestly as approximate | Rigorous RDP composition with a formal ε–δ guarantee |
 
-**The MVP is a scale reduction, not a fidelity reduction.** Every architectural property that matters — data never moves, updates are clipped and noised, small cohorts are refused, the server has no data access — is genuinely present. What is reduced is the number of clients, the size of the model, and the cryptographic sophistication. That is exactly the right kind of compromise for a student project, and it is defensible under questioning in a way that a simulated-on-pooled-data version would not be.
+**The prototype is a scale reduction, not a fidelity reduction.** Every architectural property that matters — data never moves, updates are clipped and noised, small cohorts are refused, the server has no data access — is genuinely present. What is reduced is the number of clients, the size of the model, and the cryptographic sophistication. That is exactly the right kind of compromise for a student project, and it is defensible under questioning in a way that a simulated-on-pooled-data version would not be.
 
 ### 22.6 How the prototype demonstrates the concept without distributed infrastructure
 
@@ -2157,7 +2389,7 @@ See §16.6 for the full crossing matrix. Summarised by sensitivity:
 | **Identity** | Argon2id (m=64 MiB, t=3, p=4); ≥10-char policy with a blocklist; no enumeration on register or login; auth rate limiting |
 | **Session** | Access token ≤15 min; refresh token ≤7 days, hashed at rest, rotated on use, revocable; logout revokes server-side; password change revokes all other sessions |
 | **Authorisation** | Repository-layer `user_id` scoping; 404 on foreign resources; admin role cannot read user content, only aggregates |
-| **Input** | Pydantic models rejecting unknown fields; length caps on every text field; enum validation; server-side authority over all client validation |
+| **Input** | Bean Validation rejecting unknown fields; length caps on every text field; enum validation; server-side authority over all client validation |
 | **Files** | 5 MB cap; extension + MIME + magic-byte validation; UUID filenames; stored outside served paths; authenticated expiring download; no server-side rendering or parsing of uploads |
 | **Database** | Parameterised queries only (a CI grep gate rejects f-string SQL); least-privilege app role; FL clients on separate schemas with separate roles |
 | **Transport** | HTTPS in deployment; HSTS; CORS restricted to the known origin |
@@ -2189,9 +2421,9 @@ See §16.6 for the full crossing matrix. Summarised by sensitivity:
 | Dependency vulnerability | Medium | Medium | Dependabot; `pip-audit` and `npm audit` in CI; pinned versions | CI |
 | Orphaned data after account deletion | Medium | High | Cascade constraints + a post-deletion orphan-check test across every table | Integration test |
 
-### 23.4 Explicitly out of scope for the MVP
+### 23.4 Explicitly out of scope
 
-Multi-factor authentication; email verification and password reset by email (no mail infrastructure); secure aggregation; formal DP accounting; penetration testing by a third party; SOC2/GDPR certification (though the design follows GDPR principles: minimisation, purpose limitation, right to export, right to erasure). Each is listed in Future Scope rather than quietly omitted.
+Multi-factor authentication; secure aggregation; formal DP accounting; penetration testing by a third party; SOC2/GDPR certification (though the design follows GDPR principles: minimisation, purpose limitation, right to export, right to erasure). Each is listed in Future Scope rather than quietly omitted.
 
 ---
 
@@ -2199,7 +2431,7 @@ Multi-factor authentication; email verification and password reset by email (no 
 
 ### 24.1 Shape of the suite
 
-A pragmatic pyramid: many fast unit tests over pure logic (mastery, scoring, state machine, metrics, FL arithmetic), a solid layer of API tests over the real contract, a thin layer of integration tests over critical journeys, and no browser-automation layer at all — E2E tooling is a time sink that a student team should trade for better API and component coverage. Manual scripted walkthroughs cover what E2E would.
+A pragmatic pyramid: many fast unit tests over pure logic (mastery, scoring, state machine, metrics, FL arithmetic), a solid layer of API tests over the real contract, a thin layer of integration tests over critical journeys, and browser automation limited to Playwright screenshots for the responsive review (P72); full E2E tooling is traded for better API and component coverage. Manual scripted walkthroughs cover the remaining journeys.
 
 ### 24.2 By category
 
@@ -2220,10 +2452,14 @@ A pragmatic pyramid: many fast unit tests over pure logic (mastery, scoring, sta
 | Sprint | Focus | Gate |
 |---|---|---|
 | 1 | Auth unit + API tests; application CRUD; **the cross-user isolation pattern established here**; RTL basics; register→create→status integration | ≥70% backend coverage; CI green |
-| 2 | Upload validation (write the malicious-upload test first); interview and question CRUD; debrief flow; resume-application association | Malicious upload rejected; cross-user file access 404 |
-| 3 | Mastery golden-file tests; every analytics formula against hand-computed fixtures; question bank and practice; chart component tests | Analytics golden files pinned; ≥75% coverage |
-| 4 | Recommendation logic; phrasing linter; feature extraction and point-in-time correctness; the full FL round; refusal and filtering | Payload schema test passing; refusal test passing; ≥80% on services |
-| 5 | Full security suite; accessibility scan; deletion orphan check; export completeness; performance under seeded load | All gates; zero critical axe violations |
+| 2 | Upload validation (malicious-upload test first); interview and question CRUD; debrief flow; resume-application association | Malicious upload rejected; cross-user file access 404 |
+| 3 | Mastery golden-file tests; every analytics formula against hand-computed fixtures; question bank and practice; chart component tests | Analytics golden files pinned |
+| 4 | Recommendation logic; phrasing linter; feature extraction and point-in-time correctness; the full FL round; refusal and filtering; circuit-breaker fault injection | Payload schema and refusal tests passing |
+| 5 | Event detection and notification channels; report builder fixtures; deletion orphan check; token reuse and expiry | Orphan check passing; no email enumeration |
+| 6 | RTL in both themes; screenshots at 390 px and 1440 px; board moves against the state machine; header and CI-gate tests | No raw enum strings; illegal moves refused |
+| 7 | Isolation tests for every new endpoint; search scoping | Search never returns foreign data |
+| 8 | Contract tests against stubbed AI providers; fixture-based extraction tests; grounding tests; deterministic ranking | No prompt contains another user's data |
+| 9 | Full security suite from the OpenAPI schema; accessibility scan in both themes; sample-data removal | Suite green; zero critical axe violations |
 
 ### 24.4 Standing rules
 
@@ -2246,7 +2482,7 @@ main            protected · always deployable · squash-merge only
         ├── feature/US-58-fl-feature-extraction
         ├── fix/US-14-status-transition-validation
         ├── docs/sprint-2-retrospective
-        └── chore/upgrade-alembic
+        └── chore/upgrade-flyway
 ```
 
 Branch names carry the story ID, which makes the board, the branches, the commits, and the PRs mutually traceable — precisely what an evaluator checking individual contribution needs.
@@ -2289,9 +2525,9 @@ Every user story becomes a GitHub Issue with the story ID in the title, acceptan
 
 Every ceremony produces a dated markdown file in `docs/agile/sprint-N/`. These files are the evidence that the process happened, and they cost ten minutes each to write.
 
-### 25.7 Dividing work without assuming team size
+### 25.7 Dividing work
 
-Assign by **vertical slice**, not by layer. "You do frontend, I do backend" is the most common student split and the worst one: it creates constant blocking, makes individual contribution hard to assess, and leaves half the team unable to discuss half the system in the viva. Instead, each person owns a feature end to end — schema, migration, service, endpoint, page, tests.
+The team of ten works in three departments: Backend (Anuj Madhani, Harshit Goyal, Achintya Chandwani, Dev Bhavsar), Frontend (Anshul Rai, Chinmay Dak) and AI/ML (Aaditya Kaushik, Nirmal Nakum, Ved Dhanani, Abhishek Singh). Each phase in `BUILD_PHASES_JAVA.md` names its owning department, and each person tests their own department's work. Departments work in parallel on independent phases, respecting each phase's **Depends on** column.
 
 **Role rotation across sprints** (a member takes a different hat each sprint):
 
@@ -2302,121 +2538,31 @@ Assign by **vertical slice**, not by layer. "You do frontend, I do backend" is t
 | **Documentation lead** | Ceremony notes, ADRs, README, requirement traceability |
 | **Domain owner** | The sprint's headline feature area |
 
-**Suggested allocations:**
-
-*Two people:* both full-stack; one leans data/ML, the other UI/UX; both review everything; cut scope per §10.2.
-*Three:* A = auth + applications + platform; B = resumes + interviews + UI system; C = prep + analytics + ML/FL; everyone reviews outside their area.
-*Four:* as above with D = analytics + recommendations, freeing C to focus on FL from Sprint 3.
-*Five:* as four, plus E = QA, security suite, accessibility, documentation, deployment, and the poster.
-
-Regardless of size: **everyone writes tests for their own code, everyone reviews someone else's, everyone is able to explain the FL design in the viva.** Concentrated FL knowledge in one head is a project risk (§28, R6), not a division of labour.
+Regardless of department: **everyone writes tests for their own code, everyone reviews someone else's, everyone is able to explain the FL design in the viva.** Concentrated FL knowledge in one head is a project risk (§28, R6).
 
 ---
 
 ## 26. Project Folder Structure
 
-Proposed only — nothing is created until approval.
+The full package-level structure is in `ARCHITECTURE_REVISION_JAVA.md` §7. At the top level:
 
 ```
-smart-job-tracker/
-├── README.md
-├── LICENSE
-├── CONTRIBUTING.md
-├── .gitignore
-├── .env.example
+cohort/
+├── README.md  LICENSE  CONTRIBUTING.md  .gitignore  .env.example
 ├── docker-compose.yml               # dev: db + api + web
-├── docker-compose.fl.yml            # FL profile: fl-server + fl-client-1..N
-├── docker-compose.prod.yml          # production profile
-│
-├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml                   # lint · types · tests · coverage gate
-│   │   ├── security.yml             # secret scan · pip-audit · npm audit
-│   │   └── fl-isolation-check.yml   # asserts fl-server has no DB credentials
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   └── ISSUE_TEMPLATE/user_story.md
-│
-├── backend/
-│   ├── pyproject.toml
-│   ├── Dockerfile
-│   ├── alembic.ini
-│   ├── alembic/versions/
-│   └── app/
-│       ├── main.py                  # FastAPI app factory
-│       ├── config.py                # pydantic-settings, env only
-│       ├── database.py              # engine, session, base
-│       ├── dependencies.py          # get_current_user, get_db, pagination
-│       ├── api/v1/
-│       │   ├── auth.py  users.py  applications.py  companies.py
-│       │   ├── resumes.py  interviews.py  questions.py  preparation.py
-│       │   ├── analytics.py  recommendations.py  fl.py  health.py
-│       ├── models/                  # SQLAlchemy ORM, one module per aggregate
-│       ├── schemas/                 # Pydantic request/response models
-│       ├── repositories/
-│       │   ├── base.py              # UserScopedRepository — user_id required
-│       │   └── …
-│       ├── services/
-│       │   ├── auth_service.py  application_service.py  resume_service.py
-│       │   ├── interview_service.py  preparation_service.py
-│       │   ├── mastery_engine.py  analytics_service.py
-│       │   ├── recommendation/
-│       │   │   ├── generators.py  scoring.py  templates.py  tiering.py
-│       │   └── fl_coordinator.py
-│       ├── core/                    # security, hashing, jwt, rate limit, errors
-│       ├── storage/                 # file storage adapter (local now, S3 later)
-│       └── seeds/                   # topics, taxonomy edges, question bank
-│
-├── fl/                              # deliberately OUTSIDE backend/ —
-│   ├── Dockerfile.server            # different trust zone, different image,
-│   ├── Dockerfile.client            # no shared credentials
-│   ├── server/
-│   │   ├── server.py                # Flower server entrypoint
-│   │   ├── strategy.py              # FedAvg + min-cohort + norm filter
-│   │   └── model_registry.py
-│   ├── client/
-│   │   ├── client.py                # Flower NumPyClient
-│   │   ├── feature_extractor.py     # the 24-feature schema, point-in-time
-│   │   ├── local_trainer.py
-│   │   └── privacy.py               # clipping + Gaussian noise
-│   ├── common/
-│   │   ├── schema.py                # FEATURE_SCHEMA_V1 — single source of truth
-│   │   └── serialization.py
-│   └── synthetic/
-│       └── cohort_generator.py      # seeded non-IID synthetic clients
-│
-├── frontend/
-│   ├── package.json  vite.config.ts  tailwind.config.ts  Dockerfile
-│   └── src/
-│       ├── main.tsx  App.tsx  router.tsx
-│       ├── features/                # feature-first, not type-first
-│       │   ├── auth/  applications/  resumes/  interviews/
-│       │   ├── preparation/  questions/  analytics/
-│       │   ├── recommendations/  privacy/  profile/
-│       │   │   └── (each: components/ · hooks/ · api.ts · types.ts · pages/)
-│       ├── components/
-│       │   ├── ui/                  # shadcn primitives
-│       │   └── shared/              # DataTable · StatusBadge · EmptyState
-│       │                            # LoadingSkeleton · ErrorState · Timeline
-│       ├── lib/                     # api client · query client · utils
-│       ├── hooks/  contexts/  types/api.ts (generated from OpenAPI)
-│       └── styles/
-│
-├── tests/
-│   ├── backend/{unit,api,integration,security}/
-│   ├── fl/
-│   └── fixtures/                    # golden files for analytics & mastery
-│
+├── docker-compose.fl.yml            # FL profile: fl-service with isolated roles
+├── .github/workflows/ci.yml         # build · tests · coverage gate · FL isolation check
+├── api/                             # Spring Boot application (Java 21, Maven)
+├── fl-service/                      # Python: Flower + scikit-learn, thin control plane
+│   └── app/common/schema.py         # FEATURE_SCHEMA_V1 — single source of truth
+├── frontend/                        # React + TypeScript SPA, feature-first
 └── docs/
-    ├── requirements.md  architecture.md  database.md  api.md
-    ├── fl-design.md  privacy.md  testing.md  deployment.md  user-guide.md
-    ├── adr/                         # ADR-001 … one file per decision
-    ├── agile/
-    │   ├── product-backlog.md
-    │   └── sprint-1..5/{plan,standups,review,retrospective}.md
-    └── poster/                      # source + exported PDF
+    ├── architecture.md  concept-poster.md
+    ├── adr/                         # one file per decision
+    └── plan/                        # this document set
 ```
 
-Two structural decisions worth noting. **`fl/` sits outside `backend/`** because it is a different trust zone; nesting it would invite shared imports and shared configuration, which is exactly how the credential separation would erode. **`fl/common/schema.py` is the single source of truth for the feature schema**, imported by the client, the serialisation test, and the `/fl/schema` endpoint — so the opt-in screen cannot drift out of sync with what is actually sent.
+Two structural decisions worth noting. **`fl-service/` sits outside `api/`** because it is a different trust zone; nesting it would invite shared imports and shared configuration, which is exactly how the credential separation would erode. **`fl-service/app/common/schema.py` is the single source of truth for the feature schema**, used by the extractor, the serialisation test, and the `/fl/schema` endpoint, so the opt-in screen cannot drift out of sync with what is actually sent.
 
 ---
 
@@ -2424,14 +2570,14 @@ Two structural decisions worth noting. **`fl/` sits outside `backend/`** because
 
 ### 27.1 Principle
 
-Local first, containerised from day one, cloud only if it adds marks. The failure mode to avoid is a team spending Sprint 5 fighting a hosting provider instead of hardening the product.
+Local first, containerised from day one, cloud only if it adds marks. The failure mode to avoid is a team spending the final sprint fighting a hosting provider instead of hardening the product.
 
 ### 27.2 Local development (Sprint 1 onward)
 
 ```
 docker compose up
   ├── db      postgres:16-alpine · volume · healthcheck · port 5432
-  ├── api     backend/Dockerfile · uvicorn --reload · mounts ./backend
+  ├── api     api/Dockerfile · Spring Boot · Flyway migrations on start
   └── web     frontend/Dockerfile · vite dev · mounts ./frontend
 ```
 
@@ -2450,22 +2596,22 @@ Kept in a separate compose file so the FL stack starts only when needed, and so 
 
 ### 27.4 Production profile
 
-Multi-stage builds: the frontend compiles to static assets served by nginx; the backend runs uvicorn behind gunicorn workers with `--reload` off; Postgres uses a named volume with a nightly `pg_dump` to a mounted backup directory. All secrets from environment. HTTPS terminated at nginx or the platform edge.
+A production deployment profile with scheduled backups is outside the product scope (§31.2). The demo runs on the local Compose stack; all secrets come from the environment.
 
 ### 27.5 Hosting options
 
 | Option | Effort | Cost | When to choose |
 |---|---|---|---|
-| **Local only, demo on a laptop** | None | Free | Default. Fully acceptable for a university MVP and the lowest-risk choice for a live demo. |
+| **Local only, demo on a laptop** | None | Free | Default. The lowest-risk choice for a live demo. |
 | **Single VPS** (Hetzner, DigitalOcean, campus VM) | Low | ~$5/mo | If the evaluator wants a URL. One host, docker compose, Caddy or nginx for TLS. This is the recommended upgrade. |
 | **Split PaaS** (Railway/Render API + Neon/Supabase Postgres + Vercel/Netlify frontend) | Medium | Free tiers | If a permanent public link matters more than the FL demo — note that free tiers make running FL client containers awkward. |
 | **Kubernetes** | High | Real money | **No.** Nothing here justifies it. |
 
-**Recommendation:** local Compose as the primary demo path, with an optional VPS deployment in Sprint 5 if capacity allows. The FL demonstration should always be run locally, because the credential-isolation walkthrough is the strongest part of it.
+**Choice:** local Compose is the demo path. The FL demonstration always runs locally, because the credential-isolation walkthrough is the strongest part of it.
 
 ### 27.6 Pre-demo checklist
 
-Fresh clone → `docker compose up` → migrations apply → seed loads → register a new user → complete the scripted path → run the FL round → restore from a backup once. Rehearsed twice, end to end, by two different people, at least three days before the presentation.
+Fresh clone → `docker compose up` → migrations apply → seed loads → register a new user → complete the scripted path → run the FL round. Rehearsed twice, end to end, by two different people, at least three days before the presentation.
 
 ---
 
@@ -2475,18 +2621,18 @@ Fresh clone → `docker compose up` → migrations apply → seed loads → regi
 
 | ID | Risk | Prob. | Impact | Mitigation | Early warning sign |
 |---|---|---|---|---|---|
-| R1 | **Scope creep** — the backlog grows faster than velocity | High | High | MoSCoW with a pre-agreed cut list (§10.2); no story enters a sprint mid-sprint; new ideas go to the backlog, not the branch | Sprint 2 finishes under 80% of committed points |
-| R2 | **FL complexity overruns Sprint 4** | High | High | The 1-day Flower spike moved into Sprint 3 (§13.11); simulation-mode fallback; success defined as correctness not accuracy, agreed with the evaluator in advance | The spike takes more than one day |
+| R1 | **Scope creep** — the backlog grows faster than velocity | High | High | MoSCoW priorities and a fixed out-of-scope list (§31.2); no story enters a sprint mid-sprint; new ideas go to the backlog, not the branch | Sprint 2 finishes under 80% of committed points |
+| R2 | **FL complexity overruns Sprint 4** | High | High | The 1-day Flower spike in Sprint 3 (§13.11); simulation-mode fallback; success defined as correctness not accuracy, agreed with the evaluator in advance | The spike takes more than one day |
 | R3 | **Insufficient data to train anything** | **Certain** | Medium | Planned for, not discovered: synthetic non-IID cohort generator built in Sprint 3; results reported as mechanism validation | — (accepted and designed around) |
 | R4 | **Analytics silently wrong** | Medium | High | Formulas defined in §20.7 before implementation; golden-file tests written before the code; hand-computed fixtures | A metric changes after an unrelated refactor |
-| R5 | **Time pressure from other coursework** | High | High | 20% of Sprint 5 reserved for defects; the cut list; async standups; small PRs so work is never stuck in one head | Two consecutive missed standups |
+| R5 | **Time pressure from other coursework** | High | High | 20% of Sprint 9 reserved for defects; the out-of-scope list; async standups; small PRs so work is never stuck in one head | Two consecutive missed standups |
 | R6 | **Knowledge silos, especially FL** | Medium | High | Role rotation; cross-area review; a mandatory FL walkthrough session for the whole team in Sprint 4 | Only one person can answer a question about a subsystem |
 | R7 | **Integration problems late** | Medium | High | Vertical slice in Sprint 1 exercises every layer; `develop` kept green; generated API types break the build on drift | A PR sits unmergeable for over 48 h |
 | R8 | **Testing deferred to the end** | Medium | High | Coverage gate live in CI from Sprint 1; DoD blocks merge without tests | Coverage trends down two sprints running |
 | R9 | **Uneven contribution damages grades** | Medium | High | Vertical-slice ownership; per-member PR requirement in Sprint 1 DoD; contribution reviewed at every retrospective while there is still time to correct | One member's PR count is an outlier by Sprint 2 |
 | R10 | **Environment differences across the team** | Medium | Medium | Compose parity verified by every member in Sprint 1; no host-installed dependencies | Anyone says "it only works if I run it outside Docker" |
 | R11 | **Team member unavailable (illness, withdrawal)** | Low–medium | High | No single-owner subsystem; documentation in-repo; work sliced so it can be handed over | — |
-| R12 | **Database schema churn late in the project** | Medium | Medium | Full schema designed up front (§17); Alembic from day one; only additive migrations after Sprint 3 | A Sprint 4 story requires altering a Sprint 1 table |
+| R12 | **Database schema churn late in the project** | Medium | Medium | Full schema designed up front (§17); Flyway from day one; only additive migrations after Sprint 3 | A Sprint 4 story requires altering a Sprint 1 table |
 | R13 | **Demo fails live** | Medium | High | Rehearsed twice from a fresh clone; seeded deterministic data; a recorded backup video | Any rehearsal needs a code change to complete |
 
 ### 28.2 Security risks
@@ -2495,7 +2641,7 @@ Covered in full in §23.3 with likelihood, impact, mitigation, and verification 
 
 ### 28.3 The three risks that actually decide this project
 
-If attention is limited, spend it here: **R2** (FL overrun — mitigated by moving the spike earlier, which costs one day and buys a sprint), **R1** (scope — mitigated by having the cut list agreed before it is needed, not during a panic), and **R9** (contribution — mitigated by noticing in Sprint 2, when it is fixable, rather than in Sprint 5, when it is not).
+If attention is limited, spend it here: **R2** (FL overrun — mitigated by the Sprint 3 spike, which costs one day and buys a sprint), **R1** (scope — mitigated by a fixed out-of-scope list), and **R9** (contribution — mitigated by noticing in Sprint 2, when it is fixable, rather than in the final sprint, when it is not).
 
 ---
 
@@ -2559,8 +2705,8 @@ A1 portrait, readable from two metres, viewed for roughly ninety seconds. That c
 ├──────────────────────┴───────────────────────────────────────┤
 │  TECH STACK                                                  │
 │  React · TypeScript · Tailwind · shadcn/ui · Recharts        │
-│  FastAPI · Python · PostgreSQL · SQLAlchemy · JWT/Argon2id   │
-│  scikit-learn · Flower · Pytest · Docker · GitHub Actions    │
+│  Spring Boot · Java · PostgreSQL · Flyway · JWT/Argon2id     │
+│  Python · scikit-learn · Flower · Docker · GitHub Actions    │
 ├──────────────────────┬───────────────────────────────────────┤
 │  EXPECTED BENEFITS   │  FUTURE SCOPE                         │
 │  · One source of     │  · Secure aggregation (SecAgg)        │
@@ -2609,44 +2755,59 @@ One accent colour, used only for the privacy boundary and the FL arrows, so the 
 
 **Sprint 1:** Compose verified on every member's machine; migrations apply and roll back cleanly; the cross-user isolation suite passes for every endpoint; ≥70% backend coverage; concept poster complete and reviewed.
 **Sprint 2:** A renamed executable is rejected by upload validation; cross-user file access returns 404; the debrief flow is timed under 3 minutes with 3 users; seed data loads deterministically.
-**Sprint 3:** Every analytics metric has a documented formula in §20.7 and a passing golden-file test; the topic graph passes cycle detection; the Flower spike is complete and written up.
-**Sprint 4:** The FL payload schema test passes (24 named floats, no strings); a 2-client round is refused and logged; the FL server container is verified to hold no database credentials; the phrasing linter passes; a Privacy Ledger entry displays a real transmitted vector.
-**Sprint 5:** Zero critical axe violations; account deletion leaves no orphan rows; export completeness verified; backup and restore rehearsed; the demo runs end to end twice without intervention.
+**Sprint 3:** Every analytics metric has a documented formula in §20.7 and a passing golden-file test; the topic graph passes cycle detection; every topic has real questions; the Flower spike is complete and written up.
+**Sprint 4:** The FL payload schema test passes (24 named floats, no strings); a 2-client round is refused and logged; the FL service is verified to hold no user-content credentials; the phrasing linter passes; the circuit-breaker fault-injection test passes; a Privacy Ledger entry displays a real transmitted vector.
+**Sprint 5:** Notifications and reports work end to end; account deletion leaves no orphan rows; reset and verification tokens are single-use and expiring.
+**Sprint 6:** Both themes and both breakpoints reviewed with screenshots; practice logging moves mastery end to end; security headers present on every response.
+**Sprint 7:** Every new endpoint isolation-tested; search never returns another user's data.
+**Sprint 8:** Every AI feature works on the local model and degrades gracefully when it is down; no prompt contains another user's data.
+**Sprint 9:** Full security suite green; zero critical axe violations; the demo runs end to end twice without intervention.
 
 ### 30.4 Project-level DoD
 
-All MVP stories done; all NFR measures verified or explicitly waived with a reason; full documentation set complete; poster delivered; deployment working; demo rehearsed; every team member able to explain the architecture, the analytics formulas, and the FL privacy design.
+All stories in §10.1 done; every NFR verified by its phase or marked "documented, not measured" in the traceability table (`BUILD_PHASES_JAVA.md`); full documentation set complete; poster delivered; deployment working; demo rehearsed; every team member able to explain the architecture, the analytics formulas, and the FL privacy design.
 
 ---
 
-## 31. Final MVP Scope
+## 31. Product Scope
 
-### 31.1 In the MVP
+### 31.1 In scope
 
-**Authentication:** registration, login, logout, refresh rotation, profile management, Argon2id, per-user isolation.
-**Applications:** full CRUD, search, filter, sort, status changes with immutable history, timeline, days-in-stage, stall detection, company records, tags.
-**Resumes:** versioned records, structured content, validated file upload and secure download, application association, cloning, sample-size-gated outcome comparison.
-**Interviews:** creation against applications, multiple rounds, question capture with topic and difficulty, structured debrief under three minutes, derived topics.
-**Preparation:** seeded question bank (≥150), personal questions, practice attempts with confidence history, topic taxonomy with prerequisites, mastery scoring with time decay, preparation tasks, progress views.
-**Analytics:** funnel from history-based stage attainment, five conversion rates with denominators, activity over time, rejection distribution separated from no-response, dwell times, topic performance, sample-size honesty throughout.
-**Recommendations:** rule-based generation, prerequisite root-cause routing, evidence tiers A–D with observation counts, plain-language explanations, enforced non-causal phrasing, accept/snooze/dismiss, stall follow-ups.
-**Federated learning:** opt-in default off, local 24-feature extraction with point-in-time correctness, local scikit-learn training, L2 clipping, Gaussian noise, Flower FedAvg with a minimum cohort of 3 and norm filtering, versioned global models, Privacy Ledger with inspectable vectors, withdrawal, Federated Lift viewer, credential-free FL server verified in CI.
-**Platform:** Docker Compose, Alembic migrations, CI with lint/type/test/coverage gates, security test suite, accessibility pass, seed data, full documentation, concept poster.
+**Authentication and account:** registration, login, logout, refresh rotation, profile, onboarding, Argon2id, per-user isolation, password change and reset, email verification, Google and GitHub sign-in, data export, account deletion.
+**Applications and workflow:** full CRUD, table and Kanban views, search, filter, sort, status changes with immutable history, timeline, days-in-stage, stall detection, company records and pages, contacts and referrals, offer comparison, weekly goals and activity heatmap, global search.
+**Resumes:** versioned records, structured section editor, PDF export, validated file upload and secure download, application association, cloning, sample-size-gated performance comparison.
+**Interviews:** creation against applications, multiple rounds, question capture with topic and difficulty, structured debrief under three minutes, derived topics, STAR story bank, prep packs, mock interviews.
+**Preparation:** question bank with real questions for every topic, personal questions, practice attempts with confidence history, topic taxonomy with prerequisites, mastery with time decay, preparation tasks, progress views, spaced review, question recommendations, job readiness.
+**Analytics:** funnel from history-based stage attainment, five conversion rates with denominators, activity over time, rejection distribution separated from no-response, dwell times, topic performance, resume performance, funnel simulator, sample-size honesty throughout.
+**Recommendations:** rule-based generation, prerequisite root-cause routing, evidence tiers A–D, plain-language explanations, enforced non-causal phrasing, accept/snooze/dismiss, stall follow-ups.
+**Federated learning:** opt-in default off, 24-feature extraction with point-in-time correctness, local scikit-learn training, L2 clipping, Gaussian noise, Flower FedAvg with a minimum cohort of 3 and norm filtering, versioned global models, Privacy Ledger with inspectable vectors, withdrawal, Federated Lift viewer, cohort benchmarks, privacy budget meter, credential-free FL service verified in CI.
+**Notifications and reports:** in-app notifications from domain events; PDF and CSV export with secured downloads.
+**AI assistance:** local-model provider with an optional disclosed hosted provider, Cohort Coach, job-posting parser, debrief extraction, resume and job-description match, email drafts, weekly review.
+**Platform:** Docker Compose, Flyway migrations, CI with build, tests and coverage gate, security headers, secret and SQL-interpolation scans, security test suite, accessibility pass, seed and sample data, guided tour, designed error states, privacy and AI disclosure pages, documentation, concept poster.
 
-### 31.2 Deliberately not in the MVP
+### 31.2 Out of scope
 
-Email verification and password reset; MFA; OAuth; admin dashboards beyond account disable; job-board scraping or integrations; LLM features of any kind; calendar or email sync; mobile applications; collaboration or sharing of any kind; secure aggregation; formal DP accounting; real-user federation at scale; browser-based FL clients.
+The product deliberately does not include:
 
-> **Scope changes after Sprint 4.** A UI audit and product review after Sprint 4 moved three of these items into scope, as extension Sprints 6–8 in `BUILD_PHASES_JAVA.md`:
-> - **Email verification and password reset** (US-92).
-> - **OAuth sign-in with Google and GitHub** (US-93). Recorded in ADR-012.
-> - **LLM features** (US-102 to US-113). They run on a local model by default, so user data stays on the server. A hosted provider (Google Gemini) is optional and disclosed to users when active. Recorded in ADR-013.
->
-> A later scope review kept one-way calendar export (US-97) out of scope. Everything else in the list above remains out of scope.
+- Tag management and bulk status updates (FR-24).
+- External recruiter feedback capture (FR-44).
+- An admin console or administrator role (FR-11).
+- An email or push notification channel (the channel interface allows one; none is built).
+- A calendar view, .ics export, or two-way calendar or email sync.
+- CSV import of applications.
+- Job-board scraping, integrations or auto-apply; a browser extension.
+- Multi-factor authentication.
+- Sharing or collaboration between users of any kind.
+- Native mobile applications (the web app is fully responsive).
+- A production deployment profile with scheduled backups and restore.
+- Structured operations logging and observability.
+- CI quality gates beyond the coverage gate: lint, type and import-boundary gates.
+- Load testing and a cross-browser test matrix.
+- Secure aggregation, formal DP accounting, real-user federation at scale, and browser-based FL clients.
 
 ### 31.3 The one-sentence version
 
-*A privacy-first job-search tracker that turns each interview into targeted, evidence-tiered preparation, and learns which preparation patterns work across users through a real federated learning deployment in which raw data never leaves the user's own client — and every user can inspect exactly what did.*
+*A privacy-first job-search tracker that turns each interview into targeted, evidence-tiered preparation, assists with AI that runs on a local model and answers only from the user's own data, and learns which preparation patterns work across users through a real federated learning deployment in which raw data never leaves the user's own partition — and every user can inspect exactly what did.*
 
 ---
 
@@ -2662,70 +2823,38 @@ Email verification and password reset; MFA; OAuth; admin dashboards beyond accou
 | **ML** | Survival analysis for stage transitions | Proper handling of right-censored applications; better stall prediction | Medium |
 | **ML** | Sequence models over interview history | Captures trajectory rather than a snapshot | High |
 | **Product** | Calendar integration for interview scheduling | Removes duplicate entry | Medium |
-| **Product** | Email parsing to auto-detect application updates | Largest possible reduction in data-entry burden — and the largest new privacy surface, which is precisely why it is not in the MVP | High |
+| **Product** | Email parsing to auto-detect application updates | Largest possible reduction in data-entry burden — and the largest new privacy surface, which is why it is outside the product scope | High |
 | **Product** | Browser extension to capture a listing in one click | Removes the biggest friction point in adoption | Medium |
-| **Product** | Mock interview mode with timed practice sessions | Deepens the preparation loop | Medium |
 | **Product** | Mobile application | Debrief immediately after leaving the room, when recall is best | High |
-| **Product** | Spaced-repetition scheduling built on the decay model | The mastery formula already supports it | Low |
-| **Analytics** | Cohort benchmarking for institutions, opt-in and differentially private | Brings career-services staff in as a genuine stakeholder (deferred from §4) | High |
+| **Analytics** | Cohort benchmarking for institutions, opt-in and differentially private | Brings career-services staff in as a genuine stakeholder (see §4) | High |
 | **Platform** | S3-compatible object storage | Already abstracted behind the storage interface — a swap, not a rewrite | Low |
 | **Platform** | Observability: metrics, tracing, alerting | Operational maturity | Medium |
-| **Security** | MFA, email verification, third-party penetration test | Closes the §23.4 gaps | Medium |
+| **Security** | MFA, third-party penetration test | Closes the §23.4 gaps | Medium |
 | **Accessibility** | Screen-reader-optimised chart alternatives beyond data tables | Beyond AA | Medium |
 
 ---
 
-## 33. Recommended Changes to the Brief, and Why
+## 33. Key Design Decisions
 
-You asked what I would do differently. Seven deviations from the instructions as written, each with a reason. Reject any of them and I will follow the original.
+Seven decisions that shape the system, each with its reason.
 
-**1. `POST /fl/update` removed from the API.**
-Routing model updates through the application backend would put user-linked updates in the same process that holds database credentials, which weakens the exact boundary the FL design exists to create. Updates travel over Flower's gRPC channel instead. The app API keeps only the control-plane endpoints (`/fl/status`, `/fl/opt-in`, `/fl/ledger`, `/fl/model`, `/fl/rounds`). This is the single most important change.
+**1. No `POST /fl/update` endpoint in the application API.**
+Routing model updates through the application backend would put user-linked updates in the same process that holds database credentials, weakening the boundary the FL design exists to create. The app API keeps only the control-plane endpoints (`/fl/status`, `/fl/opt-in`, `/fl/ledger`, `/fl/model`, `/fl/rounds`). Recorded as ADR-007.
 
-**2. `GET /analytics` split into nine resource-scoped endpoints.**
-One endpoint returning everything is slow, uncacheable, hard to test, and forces over-fetching for a single chart. Splitting also lets each metric carry its own `sample_size` and `sufficient_data` in the response schema, which is how FR-67 gets enforced by the contract rather than by UI discipline.
+**2. Nine resource-scoped analytics endpoints instead of one `GET /analytics`.**
+One endpoint returning everything is slow, uncacheable, hard to test, and forces over-fetching. Splitting also lets each metric carry its own `sample_size` and `sufficient_data`, so FR-67 is enforced by the contract rather than by UI discipline.
 
-**3. A ninth EPIC for platform, quality, and DevOps.**
+**3. A platform, quality and DevOps epic.**
 Infrastructure work that is not in the backlog is invisible, unestimated, and first to be skipped. Making it first-class also gives every member reviewable Sprint 1 work.
 
-**4. Argon2id specified over bcrypt.**
-The brief allows either. Argon2id is memory-hard and the current OWASP recommendation; bcrypt has no advantage here.
+**4. Argon2id over bcrypt.**
+Argon2id is memory-hard and the current OWASP recommendation (ADR-001).
 
-**5. Five sprints rather than four plus an undefined "final phase".**
-The final phase in the brief has no goal, no stories, and no DoD, which is how hardening gets squeezed to nothing. Sprint 5 is a real sprint with real stories and 20% capacity reserved for defects from the start.
+**5. A dedicated hardening sprint.**
+Sprint 9 is a real sprint with real stories, a Definition of Done, and 20% capacity reserved for defects, so hardening is never squeezed to nothing.
 
-**6. The Flower spike moved into Sprint 3.**
-One day in Sprint 3 to surface Flower's API friction before Sprint 4 depends on it. This is the highest-leverage scheduling decision in the plan and costs almost nothing.
+**6. The Flower spike in Sprint 3.**
+One day in Sprint 3 surfaces Flower's API friction before Sprint 4 depends on it.
 
 **7. Companies scoped per user rather than shared globally.**
-A global company table creates a subtle cross-user inference channel and needs deduplication logic nobody has time to write. Per-user scoping costs some duplication and buys clean isolation.
-
-### 33.1 If you want an even leaner plan
-
-If the team is two or three people, or the timeline is under ten weeks, here is the version I would actually recommend:
-
-- **Drop EPIC 3 to the minimum:** resume records, upload, download, and application association. Cut structured sections (US-23), cloning (US-25), and outcome comparison (US-26). Saves 13 points and removes the weakest statistical claim in the product.
-- **Cut analytics to four metrics:** funnel, conversion rates, activity over time, and stall detection. Drop rejection distribution, dwell-time IQR, topic performance, and preparation trends. Saves ~14 points.
-- **Keep every FL story.** It is the differentiator and the graded innovation; cutting it to save time inverts the priority.
-- **Keep the Privacy Ledger and the mastery decay.** They are cheap and they carry the project's identity.
-- **Merge Sprints 3 and 4 into one six-week block** with FL work starting in week one, so FL is never the thing that runs out of runway.
-
-That version is roughly 230 points, fits three people comfortably, and loses nothing that distinguishes the project.
-
----
-
-## 34. Status: Awaiting Approval
-
-Nothing has been created, installed, configured, or modified. The repository is untouched and empty.
-
-**What I need from you before implementation starts:**
-
-1. **Team size** — this determines the sprint rebalance (§10.2). It is the one input I cannot infer.
-2. **Timeline** — number of weeks and sprint length.
-3. **Confirm or correct assumptions A1–A7** (§1.4).
-4. **Accept, modify, or reject the seven deviations** in §33.
-5. **Accept or reject the lean variant** in §33.1.
-6. **Confirm the project name** — *Cohort*, or your own.
-7. **Explicit approval to begin Sprint 1.**
-
-On approval, Sprint 1 begins with US-67 (repository bootstrap) and US-68 (Compose environment), because every other story depends on them.
+A global company table creates a cross-user inference channel and needs deduplication logic. Per-user scoping costs some duplication and buys clean isolation (ADR-004).

@@ -1,30 +1,72 @@
-# Cohort — Build Phases (Java Spring Boot Edition)
+# Cohort — Build Phases
 
-**Purpose:** Use this file together with `PROJECT_PLAN.md` and `ARCHITECTURE_REVISION_JAVA.md`. It replaces the earlier Python-only build-phases file — same idea, same one-commit-per-phase discipline, rebuilt for the Java/Python split: **Spring Boot owns the whole application; Python is scoped down to just the Flower client/server.** 69 phases across 5 sprints, including the two additions (notifications, report export) and the design-pattern work from the architecture revision. Extension Sprints 6–9, added after Sprint 4, bring the total to 110 phases after a scope review that cut low-priority phases (see "Extension sprints").
+This file is the build sequence for Cohort: 110 phases across nine sprints, one commit per phase. Spring Boot owns the whole application; Python is limited to the Flower federated-learning service. Read it together with `PROJECT_OVERVIEW.md` (the plain-language map), `PROJECT_PLAN.md` (requirements, user stories, sprint roadmap) and `ARCHITECTURE_REVISION_JAVA.md` (architecture and design patterns).
+
+| Sprint | Goal | Phases |
+|---|---|---|
+| 1 | Foundation | P01–P15 |
+| 2 | Resumes and interview capture | P16–P26 |
+| 3 | Preparation and analytics | P27–P38 |
+| 4 | Recommendations and federated learning | P39–P58 |
+| 5 | Notifications, reports and account | P59–P68 |
+| 6 | Experience and core gaps | P69–P81 |
+| 7 | Job-search workflow | P82–P88 |
+| 8 | AI and intelligence | P89–P104 |
+| 9 | Hardening and delivery | P105–P110 |
 
 ## How to use this plan
 
-1. Keep `PROJECT_OVERVIEW.md` (the plain-language map of the whole project), `PROJECT_PLAN.md` (requirements), `ARCHITECTURE_REVISION_JAVA.md` (design-pattern rationale), and this file together in the repo, e.g. `docs/plan/`.
-2. Work order: read `PROJECT_OVERVIEW.md` first for the big picture, then `PROJECT_PLAN.md` for requirements and `ARCHITECTURE_REVISION_JAVA.md` for the design-pattern rationale. Execute `BUILD_PHASES_JAVA.md` one phase at a time. After finishing a phase, run the verification checks listed, then commit with the exact message given, then stop and wait for review before starting the next phase.
-3. Review every commit's diff before continuing — this is also how you actually learn the Spring Boot codebase well enough to defend it in a viva.
+1. Keep `PROJECT_OVERVIEW.md`, `PROJECT_PLAN.md`, `ARCHITECTURE_REVISION_JAVA.md` and this file together in `docs/plan/`.
+2. Read `PROJECT_OVERVIEW.md` first for the big picture, then `PROJECT_PLAN.md` for requirements and `ARCHITECTURE_REVISION_JAVA.md` for the design-pattern rationale. Execute this file one phase at a time: finish the phase, run its verification checks, commit with the exact message given, then stop for review before starting the next phase.
+3. Review every commit's diff before continuing; this is also how each member learns the codebase well enough to defend it in a viva.
 4. Never merge two phases into one commit, even if a phase looks small.
 
 ## Global rules
 
-- Conventional commit format: `type(scope): description (US-XX)` — types: `feat`, `fix`, `test`, `docs`, `chore`, `refactor`.
-- **Every commit that adds or changes a pattern-bearing class (see the "pattern" column below) must say which pattern it implements/extends, in one sentence, in the PR description** — this is a Definition-of-Done requirement from `ARCHITECTURE_REVISION_JAVA.md` §10, not optional polish.
-- Every phase adding backend logic ships with tests in the **same commit** — JUnit 5 for units/slices, MockMvc for controller tests, Testcontainers for anything touching real Postgres.
-- Every phase touching user-owned data includes the cross-user isolation test for any new endpoint (404 on foreign access).
-- Run `mvn test` (Java side) or `pytest` (fl-service side) before every commit — never commit a red suite.
-- No phase jumps ahead of its listed dependency.
+- Conventional commit format: `type(scope): description (US-XX)`; types: `feat`, `fix`, `test`, `docs`, `chore`, `refactor`, `spike`.
+- **Every commit that adds or changes a pattern-bearing class (see the Pattern column) must state which pattern it implements or extends, in one sentence, in the PR description.** This is a Definition-of-Done requirement from `ARCHITECTURE_REVISION_JAVA.md` §10.
+- Every phase adding backend logic ships with tests in the **same commit**: JUnit 5 for units and slices, MockMvc for controllers, Testcontainers for anything touching real Postgres.
+- Every phase touching user-owned data includes the cross-user isolation test for each new endpoint (404 on foreign access).
+- Run `mvn test` (Java) or `pytest` (fl-service) before every commit; never commit a red suite.
+- No phase starts before the phases in its **Depends on** column are committed.
 
-## Mapping to your 10-person team
+## Team and ownership
 
-Same ownership split as before — P1–P10 map to the same people/epics from the original planning conversation. Ideally different phases are run by different teammates from their own machines/GitHub accounts, on branches named `feature/US-XX-description`, reviewed by the person listed under **Reviewer**. If P8/P9 (the FL owners) are less comfortable in Java, that's fine — their phases in this plan are almost entirely inside `fl-service/`, which stays Python.
+The team works in three departments. Each department builds its own phases and tests its own work; every phase is reviewed by someone other than its author.
+
+| Department | Members | Typical phases |
+|---|---|---|
+| Backend | Anuj Madhani, Harshit Goyal, Achintya Chandwani, Dev Bhavsar | Migrations, Spring Boot services and endpoints, security, analytics, recommendations, notifications, reports |
+| Frontend | Anshul Rai, Chinmay Dak | React pages and components, design system, accessibility |
+| AI/ML | Aaditya Kaushik, Nirmal Nakum, Ved Dhanani, Abhishek Singh | fl-service (Flower, scikit-learn), AI provider and AI features, CI and environment set-up |
+
+**Testing.** Each person tests their own department's work: Backend writes the JUnit, MockMvc and Testcontainers tests for its phases, Frontend writes the React Testing Library tests and accessibility checks, and AI/ML writes the pytest suites and AI fixture tests.
+
+**Sprint 1 owners.** The Sprint 1 table keeps its member codes (P1–P10) in the Owner and Reviewer columns. The named owner of each Sprint 1 phase is:
+
+| Phase | Department | Owner |
+|---|---|---|
+| P01 | AI/ML | Nirmal Nakum |
+| P02 | AI/ML | Abhishek Singh |
+| P03 | Backend | Anuj Madhani |
+| P04 | Backend | Achintya Chandwani |
+| P05 | Backend | Harshit Goyal |
+| P06 | Backend | Dev Bhavsar |
+| P07 | Frontend | Anshul Rai |
+| P08 | Frontend | Chinmay Dak |
+| P09 | Backend | Achintya Chandwani |
+| P10 | Backend | Anuj Madhani |
+| P11 | Backend | Dev Bhavsar |
+| P12 | Frontend | Anshul Rai |
+| P13 | AI/ML | Ved Dhanani |
+| P14 | Backend | Harshit Goyal |
+| P15 | AI/ML | Aaditya Kaushik |
+
+From Sprint 2 onward the Owner column names the owning department; the department assigns each phase to one of its members at sprint planning. Work happens on branches named `feature/US-XX-description`.
 
 ---
 
-## SPRINT 1 — Foundation (Java)
+## SPRINT 1 — Foundation
 
 | # | Owner | Reviewer | Commit message | Scope | Pattern | Verify before commit |
 |---|---|---|---|---|---|---|
@@ -48,248 +90,227 @@ Same ownership split as before — P1–P10 map to the same people/epics from th
 
 ---
 
-## SPRINT 2 — Resumes & Interview Capture
+## SPRINT 2 — Resumes and interview capture
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P16 | P2 | P3 | `feat(applications): Specification-based search/filter (US-16,17)` | `ApplicationSpecifications` (status/priority/tag/date, combinable via `.and()`) | **Specification** | MockMvc tests for combined filters |
-| P17 | P3 | P4 | `feat(db): resumes + resume_sections migration (US-20)` | Flyway scripts | — | Migrates cleanly |
-| P18 | P3 | P4 | `feat(resumes): FileStorageStrategy + LocalFileStorage (US-21)` | `FileStorageStrategy` interface, `LocalFileStorageImpl` | **Strategy** | Unit test round-trips a file |
-| P19 | P3 | P5 | `feat(resumes): ValidatingFileStorage decorator + validation chain (US-21)` | `ValidatingFileStorage` wraps base storage; extension → MIME → magic-byte checks as ordered chain | **Decorator + Chain of Responsibility** | **Test: renamed executable rejected** |
-| P20 | P3 | P5 | `feat(resumes): CRUD + upload/download endpoints (US-20..22)` | `ResumeController/Service`, expiring authenticated download | — | Cross-user file access returns 404 |
-| P21 | P3 | P6 | `feat(resumes): application association + clone (US-24,25)` | Association endpoint, clone with lineage | — | API tests |
-| P22 | P3 | P7 | `feat(frontend): resumes list, detail, upload, clone (US-20..25)` | Resume pages, `UploadDropzone` | — | RTL + manual upload test |
-| P23 | P4 | P8 | `feat(db): interviews, interview_questions, interview_feedback migration (US-27)` | Flyway scripts | — | Migrates cleanly |
-| P24 | P4 | P8 | `feat(interviews): CRUD + questions + feedback endpoints (US-27..31)` | `InterviewController/Service`, round-number uniqueness | — | Isolation test |
-| P25 | P4 | P9 | `feat(frontend): interview list, detail, question capture, debrief flow (US-27..30)` | Interview pages, guided debrief UI | — | **Debrief timed under 3 min**; RTL tests |
-| P26 | P10 | P1 | `chore: deterministic seed data (US-72)` | Flyway `R__seed_dev_data.sql` or a `CommandLineRunner` seeder | — | Seed loads identically twice; marked synthetic |
+**Goal:** Users manage resume versions, attach them to applications, and capture structured interview experience, including the questions asked and a fast debrief.
 
-**Sprint 2 DoD:** upload security verified; debrief timed; seed data working.
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P16 | Backend | Backend team | P11 | `feat(applications): Specification-based search/filter (US-16,17)` | `ApplicationSpecifications` (status/priority/tag/date, combinable via `.and()`) | **Specification** | MockMvc tests for combined filters |
+| P17 | Backend | Backend team | P09 | `feat(db): resumes + resume_sections migration (US-20)` | Flyway scripts | — | Migrates cleanly |
+| P18 | Backend | Backend team | P17 | `feat(resumes): FileStorageStrategy + LocalFileStorage (US-21)` | `FileStorageStrategy` interface, `LocalFileStorageImpl` | **Strategy** | Unit test round-trips a file |
+| P19 | Backend | Backend team | P18 | `feat(resumes): ValidatingFileStorage decorator + validation chain (US-21)` | `ValidatingFileStorage` wraps base storage; extension → MIME → magic-byte checks as ordered chain | **Decorator + Chain of Responsibility** | **Test: renamed executable rejected** |
+| P20 | Backend | Backend team | P17, P19 | `feat(resumes): CRUD + upload/download endpoints (US-20..22)` | `ResumeController/Service`, expiring authenticated download | — | Cross-user file access returns 404 |
+| P21 | Backend | Backend team | P20 | `feat(resumes): application association + clone (US-24,25)` | Association endpoint, clone with lineage | — | API tests |
+| P22 | Frontend | Frontend team | P20, P21 | `feat(frontend): resumes list, detail, upload, clone (US-20..25)` | Resume pages, `UploadDropzone` | — | RTL + manual upload test |
+| P23 | Backend | Backend team | P09 | `feat(db): interviews, interview_questions, interview_feedback migration (US-27)` | Flyway scripts | — | Migrates cleanly |
+| P24 | Backend | Backend team | P23 | `feat(interviews): CRUD + questions + feedback endpoints (US-27..31)` | `InterviewController/Service`, round-number uniqueness | — | Isolation test |
+| P25 | Frontend | Frontend team | P24 | `feat(frontend): interview list, detail, question capture, debrief flow (US-27..30)` | Interview pages, guided debrief UI | — | **Debrief timed under 3 min**; RTL tests |
+| P26 | Backend | Backend team | P11, P20, P24 | `chore: deterministic seed data (US-72)` | Flyway `R__seed_dev_data.sql` or a `CommandLineRunner` seeder | — | Seed loads identically twice; marked synthetic |
 
----
-
-## SPRINT 3 — Preparation & Analytics
-
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P27 | P5 | P6 | `feat(db): topics, prerequisites, questions, practice_attempts migration + seed (US-38,35)` | Flyway + seed (≥150 questions, ~40-60 topics) | — | **Cycle-detection test on prerequisite DAG** |
-| P28 | P5 | P6 | `feat(prep): question bank + practice attempt endpoints (US-35..37)` | `/questions/*`, `/questions/{id}/attempts` | — | API tests |
-| P29 | P6 | P7 | `feat(analytics): AnalyticsMetric Template Method base class (US-58)` | Abstract base defining compute→sample-size-gate→format skeleton; concrete subclasses implement only the formula step | **Template Method** | Unit test: a new metric subclass cannot bypass the sample-size gate |
-| P30 | P5 | P7 | `feat(prep): mastery scoring engine with time decay (US-39)` | `MasteryEngine` per §21.4 formula | — | **Golden-file tests against fixed fixtures** |
-| P31 | P5 | P8 | `feat(prep): preparation tasks + progress endpoints/frontend (US-40,41)` | Tasks CRUD, `TopicGrid`, progress bars | — | RTL + API tests |
-| P32 | P9 | — | `spike: 1-day Flower two-client FedAvg spike (risk reduction)` | Throwaway code in `fl-service/spike/`, not on the production path | — | Findings written to `docs/adr/ADR-011-fl-spike-findings.md` |
-| P33 | P6 | P9 | `feat(analytics): funnel, conversions, timeline via Template Method (US-43..45)` | Concrete `AnalyticsMetric` subclasses; formulas exactly per §20.7 | uses **Template Method** | Golden-file tests |
-| P34 | P6 | P9 | `feat(analytics): rejection distribution, dwell times, sample-size gating (US-46,48,50)` | Remaining metric subclasses | uses **Template Method** | Golden-file tests |
-| P35 | P6 | P10 | `feat(frontend): analytics page with Recharts (US-43..50)` | `FunnelChart`, `ConversionCards`, `SampleSizeBadge` | — | RTL tests; chart empty/loading states |
-| P36 | P2 | P10 | `feat(applications): stall detection (US-18)` | Days-in-stage + personal-median flag, reuses `AnalyticsMetric` base for the median calc | uses **Template Method** | Unit test on threshold logic |
-| P37 | P2/P6 | P10 | `feat(frontend): dashboard pipeline strip + action queue (US-49)` | Replaces Sprint-1 basic dashboard | — | RTL tests; capped at 7 items |
-
-**Sprint 3 DoD:** every analytics metric golden-file tested; topic graph acyclic; Flower spike written up.
+**Sprint 2 DoD:** Upload rejects a renamed executable; cross-user file access returns 404; the debrief is timed under 3 minutes; seed data loads identically twice.
 
 ---
 
-## SPRINT 4 — Recommendations & Federated Learning (highest-risk sprint — smallest commits here)
+## SPRINT 3 — Preparation and analytics
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P38 | P7 | P5 | `feat(db): recommendations, recommendation_evidence migration (US-51)` | Flyway scripts | — | Migrates cleanly |
-| P39 | P7 | P5 | `feat(recommendations): candidate generator chain (US-51,56)` | `RecommendationGenerator` interface + ordered chain (weak-topic → prerequisite-gap → decay → coverage → stalled-application → …), one commit per generator is fine as sub-commits | **Chain of Responsibility** | Unit test per generator |
-| P40 | P7 | P6 | `feat(recommendations): prerequisite root-cause routing (US-52)` | `routeToRootCause` per §21.5 | — | Unit test incl. depth cap |
-| P41 | P7 | P6 | `feat(recommendations): evidence tiers, scoring, template registry (US-53,54)` | Tiering (**Strategy** — one scoring strategy per tier A/B/C/D), template registry | **Strategy** | **`test_no_causal_language` linter — must fail build on banned phrase** |
-| P42 | P7 | P8 | `feat(recommendations): RecommendationFacade + accept/snooze/dismiss + frontend (US-55,77)` | Facade hides the multi-step pipeline from the controller | **Facade + Builder** (recommendation card construction) | RTL + API tests |
-| P43 | P8 | P9 | `feat(fl): feature schema v1 — single source of truth (US-58)` | `fl-service/app/common/schema.py` — the 24-feature list, §22.2 | — | Schema test: exactly 24 named floats |
-| P44 | P8 | P9 | `feat(fl): local feature extractor, point-in-time correct (US-58)` | `fl-service/app/client/feature_extractor.py` | — | **Test: no post-`as_of` record leaks into the vector** |
-| P45 | P8 | P9 | `feat(fl): local sklearn trainer (US-59)` | `fl-service/app/client/local_trainer.py` | — | Deterministic under fixed seed |
-| P46 | P8 | P9 | `feat(fl): clipping and Gaussian noise (US-60)` | `fl-service/app/client/privacy.py` | — | Test: transmitted vector ≠ raw update; norm ≤ S |
-| P47 | P9 | P8 | `feat(fl): Flower server, FedAvg strategy, min-cohort refusal (US-61)` | `fl-service/app/server/` | — | **Test: 2-client round refused and logged** |
-| P48 | P9 | P8 | `feat(fl): norm-based poisoning filter (US-84)` | Filter in Flower strategy | — | Test with a crafted over-norm update |
-| P49 | P9 | P8 | `feat(fl): model versioning + distribution endpoint (US-62)` | `/fl/model` in the thin FastAPI control wrapper | — | Failed round leaves previous model servable |
-| P50 | P10 | P9 | `chore: docker-compose fl profile with isolated client schemas/roles (US-58..64)` | Separate compose file; per-client Postgres role, `USAGE` on one schema only | — | **CI job asserts fl-service container has zero DB credentials for user-content schemas** |
-| P51 | P8 | P1 | `feat(api): sanitised feature export job, Java → fl-service (US-58)` | Scheduled/triggered job exporting only the allow-listed 24-feature inputs per opted-in user into the FL service's own store | — | Test: export payload matches allow-list exactly, no free text |
-| P52 | P9 | P10 | `feat(api): FederatedLearningGateway + FlowerServiceAdapter (US-61,62)` | `FederatedLearningGateway` interface, `FlowerServiceAdapter` implementing it against the fl-service REST contract | **Adapter** | Contract test against a stubbed fl-service |
-| P53 | P9 | P10 | `feat(api): Resilience4j circuit breaker + local-only fallback (new — architecture revision)` | Wraps `FlowerServiceAdapter`; on failure, recommendations silently degrade to local-only ranking | **Circuit Breaker** | **Fault-injection test: stop fl-service mid-request, assert 200 with local-only results, not 500** |
-| P54 | P1 | P9 | `feat(fl): opt-in/opt-out endpoints + consent screen (US-57,64)` | `/fl/opt-in`, `/fl/opt-out`, `/fl/schema` | — | Test: opted-out client produces no update; default off |
-| P55 | P9 | P7 | `feat(fl): Privacy Ledger backend — round metadata + per-user entries (US-63)` | `privacy_ledger_entries` migration + write path | — | Real transmitted vector recorded per client per round |
-| P56 | P9 | P7 | `feat(frontend): Privacy Ledger UI with vector inspector (US-63)` | `PrivacyLedgerTable`, `VectorInspector` | — | RTL tests |
-| P57 | P7/P9 | — | `feat(recommendations): Federated Lift viewer (US-65,77)` | Toggle UI showing rank delta; reuses the same local-only path the circuit breaker falls back to | — | Test: adjustment bounded to [0.75,1.25] |
+**Goal:** Recorded history becomes measured preparation progress and a legible campaign picture, with a dashboard that recommends action instead of only displaying numbers.
 
-**Sprint 4 DoD:** payload schema test passes; 2-client refusal test passes; fl-service credential-absence verified in CI; phrasing linter passes; circuit-breaker fault-injection test passes; a Privacy Ledger entry shows a real vector end to end.
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P27 | Backend | Backend team | P23 | `feat(db): topics, prerequisites, questions, practice_attempts migration + seed (US-38,35)` | Flyway + seed (≥150 questions, ~40-60 topics) | — | **Cycle-detection test on prerequisite DAG** |
+| P28 | Backend | Backend team | P27 | `feat(prep): question bank + practice attempt endpoints (US-35..37)` | `/questions/*`, `/questions/{id}/attempts` | — | API tests |
+| P29 | Backend | Backend team | P27, P28 | `feat(prep): real question bank content for all topics (US-90)` | Replaces the templated placeholder prompts with real, original interview problems for all 48 topics (DSA, system design, OS and networking, databases, OOP, behavioural), present from first run through a repeatable migration; existing practice history is preserved | — | Every topic has real questions; no templated prompt text remains; practice attempts referencing old rows still resolve |
+| P30 | Backend | Backend team | P11 | `feat(analytics): AnalyticsMetric Template Method base class (US-58)` | Abstract base defining compute→sample-size-gate→format skeleton; concrete subclasses implement only the formula step | **Template Method** | Unit test: a new metric subclass cannot bypass the sample-size gate |
+| P31 | Backend | Backend team | P28 | `feat(prep): mastery scoring engine with time decay (US-39)` | `MasteryEngine` per §21.4 formula | — | **Golden-file tests against fixed fixtures** |
+| P32 | Backend | Backend team | P31 | `feat(prep): preparation tasks + progress endpoints/frontend (US-40,41)` | Tasks CRUD, `TopicGrid`, progress bars | — | RTL + API tests |
+| P33 | AI/ML | AI/ML team | P02 | `spike: 1-day Flower two-client FedAvg spike (risk reduction)` | Throwaway code in `fl-service/spike/`, not on the production path | — | Findings written to `docs/adr/ADR-011-fl-spike-findings.md` |
+| P34 | Backend | Backend team | P30 | `feat(analytics): funnel, conversions, timeline via Template Method (US-43..45)` | Concrete `AnalyticsMetric` subclasses; formulas exactly per §20.7 | uses **Template Method** | Golden-file tests |
+| P35 | Backend | Backend team | P34 | `feat(analytics): rejection distribution, dwell times, sample-size gating (US-46,48,50)` | Remaining metric subclasses | uses **Template Method** | Golden-file tests |
+| P36 | Frontend | Frontend team | P34, P35 | `feat(frontend): analytics page with Recharts (US-43..50)` | `FunnelChart`, `ConversionCards`, `SampleSizeBadge` | — | RTL tests; chart empty/loading states |
+| P37 | Backend | Backend team | P11, P30 | `feat(applications): stall detection (US-18)` | Days-in-stage + personal-median flag, reuses `AnalyticsMetric` base for the median calc | uses **Template Method** | Unit test on threshold logic |
+| P38 | Frontend | Frontend team | P36, P37 | `feat(frontend): dashboard pipeline strip + action queue (US-49)` | Replaces Sprint-1 basic dashboard | — | RTL tests; capped at 7 items |
+
+**Sprint 3 DoD:** Every analytics metric is golden-file tested; the topic graph is acyclic; every topic has real questions; the Flower spike is written up.
 
 ---
 
-## SPRINT 5 — Notifications, Reports, Hardening & Delivery
+## SPRINT 4 — Recommendations and federated learning
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P58 | P1 | P2 | `feat(db): notifications migration (FR-99..101)` | Flyway script per Architecture Revision §5 | — | Migrates cleanly |
-| P59 | P2 | P1 | `feat(events): domain events for stall/interview/debrief detection (FR-99)` | `StalledApplicationEvent`, `UpcomingInterviewEvent`, `MissingDebriefEvent` published via Spring's `ApplicationEventPublisher` | **Observer** | Unit test: event fires on the right condition, detector doesn't know who listens |
-| P60 | P1 | P2 | `feat(notifications): NotificationChannel strategy + in-app channel (FR-100, NFR-53)` | `NotificationChannel` interface, `InAppNotificationChannel` impl, `NotificationListener` subscribing to the events from P59 | **Strategy** | Unit test: swapping channel doesn't touch the event detector |
-| P61 | P1 | P3 | `feat(notifications): endpoints + bell UI, mark-as-read (US-76..79)` | `/notifications/*`, notification bell component | — | RTL + API tests |
-| P62 | P6 | P7 | `feat(db): report_exports migration (FR-102..104)` | Flyway script | — | Migrates cleanly |
-| P63 | P6 | P7 | `feat(reports): ReportBuilder for PDF/CSV assembly (US-80)` | `ReportBuilder` — fluent `.withDateRange().withApplications().withAnalytics().build()`, reusing existing analytics formulas | **Builder** | Unit test: builder output matches a fixture |
-| P64 | P6 | P8 | `feat(reports): export endpoints + frontend, secured like resume downloads (FR-104)` | Authenticated, expiring, owner-only download — mirrors FR-32 exactly | — | Cross-user download returns 404 |
-| P65 | P1 | P10 | `feat(auth): change password, data export, account deletion (US-06,07,08)` | Endpoints + frontend | — | Deletion orphan-check test across every table |
-| P66–P67 | | | *Moved to Sprint 9, see note below (P68–P69 cut)* | | | |
+**Goal:** Explainable, evidence-tiered recommendations, and a federated learning loop with a user-visible Privacy Ledger. This is the highest-risk sprint, so its commits are the smallest.
 
-**Sprint 5 / project DoD:** all Must stories done; notifications and reports working end to end; coverage gates met; zero critical a11y violations; deletion leaves no orphans; fault-injection test still green; demo rehearsed twice.
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P39 | Backend | Backend team | P27, P32 | `feat(db): recommendations, recommendation_evidence migration (US-51)` | Flyway scripts | — | Migrates cleanly |
+| P40 | Backend | Backend team | P31, P37, P39 | `feat(recommendations): candidate generator chain (US-51,56)` | `RecommendationGenerator` interface + ordered chain (weak-topic → prerequisite-gap → decay → coverage → stalled-application → …), one commit per generator is fine as sub-commits | **Chain of Responsibility** | Unit test per generator |
+| P41 | Backend | Backend team | P40 | `feat(recommendations): prerequisite root-cause routing (US-52)` | `routeToRootCause` per §21.5 | — | Unit test incl. depth cap |
+| P42 | Backend | Backend team | P41 | `feat(recommendations): evidence tiers, scoring, template registry (US-53,54)` | Tiering (**Strategy** — one scoring strategy per tier A/B/C/D), template registry | **Strategy** | **`test_no_causal_language` linter — must fail build on banned phrase** |
+| P43 | Backend | Backend team | P32, P42 | `feat(recommendations): RecommendationFacade + accept/snooze/dismiss + frontend (US-55,77)` | Facade hides the multi-step pipeline from the controller | **Facade + Builder** (recommendation card construction) | RTL + API tests |
+| P44 | AI/ML | AI/ML team | P33 | `feat(fl): feature schema v1 — single source of truth (US-58)` | `fl-service/app/common/schema.py` — the 24-feature list, §22.2 | — | Schema test: exactly 24 named floats |
+| P45 | AI/ML | AI/ML team | P44 | `feat(fl): local feature extractor, point-in-time correct (US-58)` | `fl-service/app/client/feature_extractor.py` | — | **Test: no post-`as_of` record leaks into the vector** |
+| P46 | AI/ML | AI/ML team | P45 | `feat(fl): local sklearn trainer (US-59)` | `fl-service/app/client/local_trainer.py` | — | Deterministic under fixed seed |
+| P47 | AI/ML | AI/ML team | P46 | `feat(fl): clipping and Gaussian noise (US-60)` | `fl-service/app/client/privacy.py` | — | Test: transmitted vector ≠ raw update; norm ≤ S |
+| P48 | AI/ML | AI/ML team | P47 | `feat(fl): Flower server, FedAvg strategy, min-cohort refusal (US-61)` | `fl-service/app/server/` | — | **Test: 2-client round refused and logged** |
+| P49 | AI/ML | AI/ML team | P48 | `feat(fl): norm-based poisoning filter (US-84)` | Filter in Flower strategy | — | Test with a crafted over-norm update |
+| P50 | AI/ML | AI/ML team | P48 | `feat(fl): model versioning + distribution endpoint (US-62)` | `/fl/model` in the thin FastAPI control wrapper | — | Failed round leaves previous model servable |
+| P51 | AI/ML | AI/ML team | P02, P50 | `chore: docker-compose fl profile with isolated client schemas/roles (US-58..64)` | Separate compose file; per-client Postgres role, `USAGE` on one schema only | — | **CI job asserts fl-service container has zero DB credentials for user-content schemas** |
+| P52 | Backend | Backend team | P31, P44, P51 | `feat(api): sanitised feature export job, Java -> fl-service (US-58)` | Scheduled/triggered job exporting only the allow-listed 24-feature inputs per opted-in user into the FL service's own store | — | Test: export payload matches allow-list exactly, no free text |
+| P53 | Backend | Backend team | P50, P52 | `feat(api): FederatedLearningGateway + FlowerServiceAdapter (US-61,62)` | `FederatedLearningGateway` interface, `FlowerServiceAdapter` implementing it against the fl-service REST contract | **Adapter** | Contract test against a stubbed fl-service |
+| P54 | Backend | Backend team | P53 | `feat(api): Resilience4j circuit breaker + local-only fallback (new — architecture revision)` | Wraps `FlowerServiceAdapter`; on failure, recommendations silently degrade to local-only ranking | **Circuit Breaker** | **Fault-injection test: stop fl-service mid-request, assert 200 with local-only results, not 500** |
+| P55 | Backend | Backend team | P06, P44 | `feat(fl): opt-in/opt-out endpoints + consent screen (US-57,64)` | `/fl/opt-in`, `/fl/opt-out`, `/fl/schema` | — | Test: opted-out client produces no update; default off |
+| P56 | Backend | Backend team | P51, P53 | `feat(fl): Privacy Ledger backend — round metadata + per-user entries (US-63)` | `privacy_ledger_entries` migration + write path | — | Real transmitted vector recorded per client per round |
+| P57 | Frontend | Frontend team | P56 | `feat(frontend): Privacy Ledger UI with vector inspector (US-63)` | `PrivacyLedgerTable`, `VectorInspector` | — | RTL tests |
+| P58 | Frontend | Frontend team | P43, P54 | `feat(recommendations): Federated Lift viewer (US-65,77)` | Toggle UI showing rank delta; reuses the same local-only path the circuit breaker falls back to | — | Test: adjustment bounded to [0.75,1.25] |
 
-> **Rescheduled (added after Sprint 4):** P66–P69 (full security suite, accessibility pass) keep their IDs and commit messages but now run in **Sprint 9**, after the extension sprints below, so they cover every feature instead of only the original scope. P68 and P69 were cut in the scope review.
+**Sprint 4 DoD:** The payload schema test passes; the 2-client refusal test passes; fl-service credential absence is verified in CI; the phrasing linter passes; the circuit-breaker fault-injection test passes; a Privacy Ledger entry shows a real vector end to end.
 
 ---
 
-## Extension sprints (added after Sprint 4)
+## SPRINT 5 — Notifications, reports and account
 
-A UI audit and a product review after Sprint 4 found gaps a real job seeker would hit: no way to log practice from the UI, no logout, no board view, no networking/referral tracking, no job-specific readiness, no AI assistance. Sprints 6–8 close those gaps; Sprint 9 is the original hardening work, moved to the end. Same rules as above: one commit per phase, tests in the same commit, cross-user isolation (404) on every new user-owned endpoint.
+**Goal:** In-app notifications driven by domain events, PDF and CSV report export, and complete account self-service: password change, password reset, email verification, data export and account deletion.
 
-### Release milestones
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P59 | Backend | Backend team | P09 | `feat(db): notifications migration (FR-99..101)` | Flyway script per `ARCHITECTURE_REVISION_JAVA.md` §5 | — | Migrates cleanly |
+| P60 | Backend | Backend team | P24, P37 | `feat(events): domain events for stall/interview/debrief detection (FR-99)` | `StalledApplicationEvent`, `UpcomingInterviewEvent`, `MissingDebriefEvent` published via Spring's `ApplicationEventPublisher` | **Observer** | Unit test: event fires on the right condition, detector doesn't know who listens |
+| P61 | Backend | Backend team | P59, P60 | `feat(notifications): NotificationChannel strategy + in-app channel (FR-100, NFR-53)` | `NotificationChannel` interface, `InAppNotificationChannel` impl, `NotificationListener` subscribing to the events from P60 | **Strategy** | Unit test: swapping channel doesn't touch the event detector |
+| P62 | Backend | Backend team | P61 | `feat(notifications): endpoints + bell UI, mark-as-read (US-76..79)` | `/notifications/*`, notification bell component | — | RTL + API tests |
+| P63 | Backend | Backend team | P09 | `feat(db): report_exports migration (FR-102..104)` | Flyway script | — | Migrates cleanly |
+| P64 | Backend | Backend team | P34, P35, P63 | `feat(reports): ReportBuilder for PDF/CSV assembly (US-80)` | `ReportBuilder` — fluent `.withDateRange().withApplications().withAnalytics().build()`, reusing existing analytics formulas | **Builder** | Unit test: builder output matches a fixture |
+| P65 | Backend | Backend team | P20, P64 | `feat(reports): export endpoints + frontend, secured like resume downloads (FR-104)` | Authenticated, expiring, owner-only download — mirrors FR-32 exactly | — | Cross-user download returns 404 |
+| P66 | Backend | Backend team | P05, P06 | `feat(auth): change password, data export, account deletion (US-06,07,08)` | Endpoints + frontend | — | Deletion orphan-check test across every table |
+| P67 | Backend | Backend team | P05 | `fix(auth): Argon2id parameters and refresh-token lifetime per NFR-01/02` | Argon2id ≥64 MiB / ≥3 iterations with transparent rehash on next login; refresh tokens ≤7 days | — | Test asserts hash parameters and TTLs; existing users still log in |
+| P68 | Backend | Backend team | P05, P67 | `feat(auth): password reset + email verification (US-92)` | Expiring single-use tokens; mail sender behind an interface (log/Mailpit in dev) | **Strategy** (mail sender) | Token reuse and expiry rejected; no email enumeration |
 
-Phase IDs do not change, but the build order does, so the project reaches a complete, standalone state before the AI sprint begins.
+**Sprint 5 DoD:** Notifications and reports work end to end; account deletion leaves no orphan rows; Argon2id parameters and token lifetimes are asserted by tests; reset and verification tokens are single-use and expiring; no email enumeration.
 
-| Release | Contents | State when reached |
-|---|---|---|
-| **v1.0 — complete core product** | Sprints 1–6, P121 polish, Sprint 7 (contacts, company pages, offers, search, goals, structured resume editor), then the Sprint 9 hardening phases P104, P122, P123, P66, P67, P114, P119 | A finished job-search campaign manager with federated cohort learning and a Privacy Ledger. Everything works without any AI feature. Security suite, accessibility pass, privacy pages, sample data and guided tour are in. Tagged `v1.0`. |
-| **v1.1 — AI and intelligence** | Sprint 8 (P90–P103, P110, P111) | Adds the local-model assistant and AI features, cohort benchmarks and the budget meter. P66 is re-run so the security suite covers the new endpoints. |
+---
 
-### Extension user stories
+## SPRINT 6 — Experience and core gaps
 
-| ID | Story |
-|---|---|
-| US-85 | As a user, I get a consistent, professional interface in light or dark mode on any screen size |
-| US-86 | As a user, I can see who I'm signed in as, log out, and jump anywhere with a command palette |
-| US-87 | As a user, every action gives clear feedback, and forms tell me what's wrong before I submit |
-| US-88 | As a user, tables, charts and the privacy views are readable on my phone |
-| US-89 | As a user, I can manage applications on a Kanban board; illegal stage moves are refused with a reason |
-| US-90 | As a user, I can browse the question bank and log practice attempts, so my mastery actually changes |
-| US-91 | As a new user, onboarding asks my target role and date and gives me a starter plan |
-| US-92 | As a user, I can reset a forgotten password and verify my email |
-| US-93 | As a user, I can sign in with Google or GitHub |
-| US-95 | As a user, I can track contacts and referrals per company and get nudged when a contact goes cold |
-| US-96 | As a user, each company has a page with all my applications, interviews, questions, contacts and notes |
-| US-99 | As a user, I can search everything from one search box |
-| US-100 | As a user, I can compare offers side by side with deadline countdowns |
-| US-101 | As a user, I set weekly goals and see my activity as a streak heatmap |
-| US-116 | As a new user, I can load realistic sample data and take a short guided tour |
-| US-117 | As a user, errors, missing pages, offline state and expired sessions show clear, helpful screens |
-| US-102 | As an operator, AI runs on a local model by default, with an optional hosted provider behind one interface |
-| US-103 | As a user, I can chat with an AI coach that answers from my own data |
-| US-104 | As a user, pasting a job posting creates a filled-in application |
-| US-105 | As a user, AI turns my rough debrief notes into tagged interview questions that feed my prep |
-| US-106 | As a user, I get "solve next", daily and interview-driven question recommendations, each with a reason |
-| US-107 | As a user, each application shows how ready I am for that specific job |
-| US-108 | As a user, I can check my resume against a job description and get tailoring suggestions |
-| US-109 | As a user, I can take an AI mock interview that grades my answers and records them as practice |
-| US-110 | As a user, I keep a STAR story bank that AI helps me structure |
-| US-111 | As a user, I get a one-page prep pack before each interview |
-| US-112 | As a user, AI drafts follow-up and negotiation emails for me |
-| US-113 | As a user, I get an AI-written weekly review of my search |
-| US-114 | As a user, I can see which resume version performs best and simulate how many applications I need |
-| US-115 | As a user, I see benchmarks learned from the whole cohort without anyone's data being shared |
+**Goal:** One consistent, responsive interface in light and dark themes, with the everyday interactions a job seeker expects: a board view, filters, practice logging from the UI, onboarding, social sign-in, and security headers on every response.
 
-## SPRINT 6 — Experience & Core Gaps
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P69 | Frontend | Frontend team | P07 | `feat(frontend): design system — tokens, typography, light/dark themes (US-85)` | Colour/type/spacing tokens, "calm & precise" visual language (neutral greys, one indigo accent, Geist), system-default theme + toggle | — | Both themes pass contrast checks; RTL theme-toggle test |
+| P70 | Frontend | Frontend team | P08, P69 | `feat(frontend): app shell — user menu, logout, breadcrumbs, command palette (US-86)` | Sidebar user menu with logout, page titles + detail breadcrumbs, ⌘K palette | — | RTL: logout clears session; palette navigates |
+| P71 | Frontend | Frontend team | P69 | `feat(frontend): feedback layer — toasts, label formatting, form validation (US-87)` | Shared toast, one formatter for every enum value, client-side validation with friendly messages, consistent empty/loading/error states | — | RTL: no raw enum strings rendered; invalid form blocked before submit |
+| P72 | Frontend | Frontend team | P36, P57, P69 | `feat(frontend): responsive tables, charts and privacy views (US-88)` | Card rows on mobile, responsive Recharts with legends, conversion-card fixes, mobile vector inspector, plain-language privacy page | — | Playwright screenshots at 390px and 1440px; conversion numbers match the funnel |
+| P73 | Frontend | Frontend team | P10, P12, P71 | `feat(applications): Kanban board with State-guarded moves (US-89)` | Drag between stages; server's State pattern decides, illegal moves snap back with the reason; note prompt for backward moves | uses **State** | RTL + API: illegal drag refused, legal drag persisted with history |
+| P74 | Frontend | Frontend team | P16, P71 | `feat(applications): filters, search, full form fields, status UX fixes (US-16,17)` | Filter bar over the P16 Specification API, all application fields in the form, only legal next statuses offered | — | RTL + MockMvc |
+| P75 | Frontend | Frontend team | P28, P31, P71 | `feat(prep): question bank browser + practice logging (US-90)` | Browse/filter questions, log attempts, topic drill-down; mastery updates visibly | — | RTL + API: logging an attempt changes mastery |
+| P76 | Frontend | Frontend team | P06, P32, P71 | `feat(users): profile page + onboarding starter plan (US-91)` | Profile editing, first-run onboarding (target role/date) seeding tasks and goals | — | RTL; new user lands on onboarding, not an empty dashboard |
+| P77 | Backend | Backend team | P32, P43 | `fix(recommendations): accept creates a task, clear dismiss scope, snoozed view (US-55)` | Visible accepted state, error handling, dismiss warns about type-wide hiding, manage snoozed/dismissed | — | RTL + API |
+| P78 | Backend | Backend team | P05, P68 | `feat(auth): Google and GitHub sign-in (US-93)` | Spring Security OAuth2 client issuing the app's own JWTs; link only on provider-verified email; ADR-012 records the decision | — | Unverified-email linking refused; existing auth tests unchanged |
+| P79 | Frontend | Frontend team | P38, P69, P70, P78 | `feat(frontend): visual polish — landing and auth pages, dashboard, navigation (US-85)` | A bolder visual identity: a public landing page, split-layout sign-in and register with product preview, richer dashboard (progress rings, streak, next actions), refined sidebar and cards, subtle motion that respects reduced-motion, both themes | — | RTL: landing and auth render in both themes; no layout break at 390px and 1440px; axe has no critical violations on landing and auth |
+| P80 | Frontend | Frontend team | P79 | `feat(frontend): consistent professional polish across all application pages (US-85)` | Review and refine every inner page to one visual standard: applications, resumes, interviews, prep, analytics, recommendations, reports, notifications, account; shared page header, table, form, empty-state and chart patterns; no one-off styling | — | RTL for each page in both themes; screenshots at 390px and 1440px reviewed; axe has no critical violations |
+| P81 | Backend | Backend team | P05, P13, P78 | `chore(security): security headers, secret scan, SQL-interpolation gate (NFR-03,08,09)` | CSP/nosniff/Referrer-Policy/HSTS, CI secret scanning, CI check for string-built SQL | — | Header test; CI gates fail on a planted violation |
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P70 | — | — | `feat(frontend): design system — tokens, typography, light/dark themes (US-85)` | Colour/type/spacing tokens, "calm & precise" visual language (neutral greys, one indigo accent, Geist), system-default theme + toggle | — | Both themes pass contrast checks; RTL theme-toggle test |
-| P71 | — | — | `feat(frontend): app shell — user menu, logout, breadcrumbs, command palette (US-86)` | Sidebar user menu with logout, page titles + detail breadcrumbs, ⌘K palette | — | RTL: logout clears session; palette navigates |
-| P72 | — | — | `feat(frontend): feedback layer — toasts, label formatting, form validation (US-87)` | Shared toast, one formatter for every enum value, client-side validation with friendly messages, consistent empty/loading/error states | — | RTL: no raw enum strings rendered; invalid form blocked before submit |
-| P73 | — | — | `feat(frontend): responsive tables, charts and privacy views (US-88)` | Card rows on mobile, responsive Recharts with legends, conversion-card fixes, mobile vector inspector, plain-language privacy page | — | Playwright screenshots at 390px and 1440px; conversion numbers match the funnel |
-| P74 | — | — | `feat(applications): Kanban board with State-guarded moves (US-89)` | Drag between stages; server's State pattern decides, illegal moves snap back with the reason; note prompt for backward moves | uses **State** | RTL + API: illegal drag refused, legal drag persisted with history |
-| P75 | — | — | `feat(applications): filters, search, full form fields, status UX fixes (US-16,17)` | Filter bar over the P16 Specification API, all application fields in the form, only legal next statuses offered | — | RTL + MockMvc |
-| P76 | — | — | `feat(prep): question bank browser + practice logging (US-90)` | Browse/filter questions, log attempts, topic drill-down; mastery updates visibly | — | RTL + API: logging an attempt changes mastery |
-| P77 | — | — | `feat(users): profile page + onboarding starter plan (US-91)` | Profile editing, first-run onboarding (target role/date) seeding tasks and goals | — | RTL; new user lands on onboarding, not an empty dashboard |
-| P78 | — | — | `fix(recommendations): accept creates a task, clear dismiss scope, snoozed view (US-55)` | Visible accepted state, error handling, dismiss warns about type-wide hiding, manage snoozed/dismissed | — | RTL + API |
-| P79 | — | — | `feat(auth): password reset + email verification (US-92)` | Expiring single-use tokens; mail sender behind an interface (log/Mailpit in dev) | **Strategy** (mail sender) | Token reuse and expiry rejected; no email enumeration |
-| P80 | — | — | `feat(auth): Google and GitHub sign-in (US-93)` | Spring Security OAuth2 client issuing the app's own JWTs; link only on provider-verified email; ADR-012 records the scope change | — | Unverified-email linking refused; existing auth tests unchanged |
-| P120 | — | — | `feat(frontend): visual polish — landing and auth pages, dashboard, navigation (US-85)` | Bolder visual identity after review: a public landing page, split-layout sign-in and register with product preview, richer dashboard (progress rings, streak, next actions), refined sidebar and cards, subtle motion that respects reduced-motion, both themes | — | RTL: landing and auth render in both themes; no layout break at 390px and 1440px; axe has no critical violations on landing and auth |
-| P121 | — | — | `feat(frontend): consistent professional polish across all application pages (US-85)` | Review and refine every inner page to one visual standard: applications, resumes, interviews, prep, analytics, recommendations, reports, notifications, account; shared page header, table, form, empty-state and chart patterns; no one-off styling | — | RTL for each page in both themes; screenshots at 390px and 1440px reviewed; axe has no critical violations |
-| P124 | — | — | `feat(prep): real question bank content for all topics (US-90)` | Replaces the templated placeholder prompts with real, original interview problems for all 48 topics (DSA, system design, OS and networking, databases, OOP, behavioural), present from first run through a repeatable migration; existing practice history is preserved | — | Every topic has real questions; no templated prompt text remains; practice attempts referencing old rows still resolve |
-| P105 | — | — | `fix(auth): Argon2id parameters and refresh-token lifetime per NFR-01/02` | Argon2id ≥64 MiB / ≥3 iterations with transparent rehash on next login; refresh tokens ≤7 days | — | Test asserts hash parameters and TTLs; existing users still log in |
+**Sprint 6 DoD:** Both themes and both breakpoints are reviewed with screenshots; logging a practice attempt moves mastery end to end; illegal board moves are refused with a reason; the security header test passes and the CI gates fail on a planted violation.
 
-**Sprint 6 DoD:** every audit "Broken" item fixed; both themes and both breakpoints reviewed with screenshots; practice logging moves mastery end to end.
+---
 
-## SPRINT 7 — Job Search Workflow
+## SPRINT 7 — Job-search workflow
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P82 | — | — | `feat(db): contacts, company notes, offers, goals migration (US-95,96,100,101)` | Flyway scripts + rollbacks | — | Migrates cleanly |
-| P83 | — | — | `feat(contacts): contacts and referrals + cold-contact nudges (US-95)` | CRUD, referral status, nudge via the P59 Observer events | uses **Observer** | Isolation test (404) |
-| P84 | — | — | `feat(companies): company pages (US-96)` | Aggregated view per company | — | API + RTL |
-| P87 | — | — | `feat(search): global search behind the command palette (US-99)` | One endpoint across applications, companies, questions, notes; results appear in the ⌘K palette | — | Results never include another user's data |
-| P88 | — | — | `feat(offers): offer comparison + deadline countdown (US-100)` | Side-by-side compare | — | API + RTL |
-| P89 | — | — | `feat(goals): weekly goals + activity heatmap (US-101)` | Targets, progress, GitHub-style heatmap, streak on the dashboard | — | API + RTL; isolation test |
-| P106 | — | — | `feat(resumes): structured resume section editor (US-23)` | Edit sections (experience, projects, skills); clones carry sections; export a clean PDF resume from the sections | — | Isolation test; clone copies edited sections |
+**Goal:** The networking and decision side of a job search: contacts and referrals, a page per company, offer comparison, weekly goals with an activity heatmap, one search box across everything, and a structured resume editor.
 
-**Sprint 7 DoD:** every new endpoint isolation-tested.
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P82 | Backend | Backend team | P09, P11 | `feat(db): contacts, company notes, offers, goals migration (US-95,96,100,101)` | Flyway scripts + rollbacks | — | Migrates cleanly |
+| P83 | Backend | Backend team | P60, P82 | `feat(contacts): contacts and referrals + cold-contact nudges (US-95)` | CRUD, referral status, nudge via the P60 Observer events | uses **Observer** | Isolation test (404) |
+| P84 | Backend | Backend team | P24, P82, P83 | `feat(companies): company pages (US-96)` | Aggregated view per company | — | API + RTL |
+| P85 | Backend | Backend team | P82 | `feat(offers): offer comparison + deadline countdown (US-100)` | Side-by-side compare | — | API + RTL |
+| P86 | Backend | Backend team | P38, P76, P82 | `feat(goals): weekly goals + activity heatmap (US-101)` | Targets, progress, GitHub-style heatmap, streak on the dashboard | — | API + RTL; isolation test |
+| P87 | Backend | Backend team | P28, P70, P83, P84 | `feat(search): global search behind the command palette (US-99)` | One endpoint across applications, companies, questions, notes; results appear in the ⌘K palette | — | Results never include another user's data |
+| P88 | Backend | Backend team | P17, P21 | `feat(resumes): structured resume section editor (US-23)` | Edit sections (experience, projects, skills); clones carry sections; export a clean PDF resume from the sections | — | Isolation test; clone copies edited sections |
 
-## SPRINT 8 — AI & Intelligence
+**Sprint 7 DoD:** Every new endpoint has a cross-user isolation test (404); search never returns another user's data; a cloned resume carries its edited sections.
 
-AI runs on a local model (Ollama) by default, so user data never leaves the server and AI can be on for everyone; Google Gemini is an optional provider, and the UI discloses when it's active.
+---
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P90 | — | — | `feat(ai): AiProvider strategy — local Ollama default, optional Gemini (US-102)` | Provider interface, Ollama + Gemini implementations, streaming, timeouts, graceful "AI unavailable", per-user rate limits, AI usage log (no prompt content stored); ADR-013 records the LLM scope change and the local-first choice | **Strategy** | Contract tests against stubbed providers; swapping provider touches no feature code |
-| P91 | — | — | `feat(ai): Cohort Coach chat grounded in the user's data (US-103)` | Streaming chat; the app injects the user's own data into context; causal-language linter applied to replies | — | Grounding test: coach never sees another user's data |
-| P92 | — | — | `feat(ai): job posting to application parser (US-104)` | Structured extraction with validation; user confirms before save | — | Malformed model output rejected, never saved |
-| P93 | — | — | `feat(ai): debrief notes to tagged questions (US-33,34,105)` | Extract questions, map to topics, promote to the question bank | — | Fixture-based extraction tests |
-| P94 | — | — | `feat(prep): question recommendations with embeddings (US-106)` | Local embeddings; solve-next, daily picks, interview-driven; each pick states its reason | — | Deterministic ranking tests on fixtures |
-| P95 | — | — | `feat(prep): job readiness score per application (US-107)` | Job skills mapped to topics, weighted by mastery; gated by sample size | uses **Template Method** | Golden-file tests |
-| P96 | — | — | `feat(ai): resume and job description match (US-108)` | Gaps, tailoring suggestions, and a tailored cover letter draft | — | Fixture tests |
-| P97 | — | — | `feat(ai): mock interview with graded answers (US-109)` | Questions from weak topics; grades recorded as practice attempts | — | Attempts recorded with the right topic |
-| P98 | — | — | `feat(ai): STAR story bank (US-110)` | CRUD + AI structuring + competency tags | — | Isolation test |
-| P99 | — | — | `feat(ai): interview prep pack (US-111)` | One-page brief per upcoming interview | — | Content assembled only from the user's data |
-| P100 | — | — | `feat(ai): follow-up and negotiation email drafts (US-112)` | Drafts only; never sent automatically | — | API + RTL |
-| P101 | — | — | `feat(ai): weekly review (US-113)` | Generated from analytics; delivered through the notification channels | — | Fixture tests |
-| P102 | — | — | `feat(analytics): resume performance and funnel simulator (US-26,114)` | Response rate per resume version; applications-needed simulator | uses **Template Method** | Golden-file tests |
-| P103 | — | — | `feat(fl): cohort benchmarks from the federated model (US-115)` | Benchmarks from the global model only; min-cohort rule applies | — | Benchmarks hidden below the min-cohort size |
-| P110 | — | — | `feat(prep): spaced review queue (US-42)` | Daily review queue scheduled from mastery decay | — | Deterministic scheduling tests on fixtures |
-| P111 | — | — | `feat(fl): privacy budget meter (US-66)` | Cumulative ε per user from the ledger, shown against the configured budget | — | Meter total equals the sum of the user's ledger entries |
+## SPRINT 8 — AI and intelligence
 
-**Sprint 8 DoD:** every AI feature works with the local model and degrades gracefully when it's down; no AI prompt contains another user's data; Gemini disclosure shown whenever it's active.
+**Goal:** AI assistance grounded in the user's own data, prep intelligence (question recommendations, readiness, spaced review), and cohort benchmarks and a privacy budget meter built on the federated model. AI runs on a local model (Ollama) by default, so user data never leaves the server; Google Gemini is an optional provider, and the UI discloses when it is active.
 
-## SPRINT 9 — Hardening & Delivery
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P89 | AI/ML | AI/ML team | P03 | `feat(ai): AiProvider strategy — local Ollama default, optional Gemini (US-102)` | Provider interface, Ollama + Gemini implementations, streaming, timeouts, graceful "AI unavailable", per-user rate limits, AI usage log (no prompt content stored); ADR-013 records the local-first AI decision | **Strategy** | Contract tests against stubbed providers; swapping provider touches no feature code |
+| P90 | AI/ML | AI/ML team | P42, P89 | `feat(ai): Cohort Coach chat grounded in the user's data (US-103)` | Streaming chat; the app injects the user's own data into context; causal-language linter applied to replies | — | Grounding test: coach never sees another user's data |
+| P91 | AI/ML | AI/ML team | P11, P89 | `feat(ai): job posting to application parser (US-104)` | Structured extraction with validation; user confirms before save | — | Malformed model output rejected, never saved |
+| P92 | AI/ML | AI/ML team | P24, P28, P89 | `feat(ai): debrief notes to tagged questions (US-33,34,105)` | Extract questions, map to topics, promote to the question bank | — | Fixture-based extraction tests |
+| P93 | AI/ML | AI/ML team | P31, P89 | `feat(prep): question recommendations with embeddings (US-106)` | Local embeddings; solve-next, daily picks, interview-driven; each pick states its reason | — | Deterministic ranking tests on fixtures |
+| P94 | Backend | Backend team | P11, P30, P31 | `feat(prep): job readiness score per application (US-107)` | Job skills mapped to topics, weighted by mastery; gated by sample size | uses **Template Method** | Golden-file tests |
+| P95 | AI/ML | AI/ML team | P20, P88, P89 | `feat(ai): resume and job description match (US-108)` | Gaps, tailoring suggestions, and a tailored cover letter draft | — | Fixture tests |
+| P96 | AI/ML | AI/ML team | P28, P31, P89 | `feat(ai): mock interview with graded answers (US-109)` | Questions from weak topics; grades recorded as practice attempts | — | Attempts recorded with the right topic |
+| P97 | AI/ML | AI/ML team | P89 | `feat(ai): STAR story bank (US-110)` | CRUD + AI structuring + competency tags | — | Isolation test |
+| P98 | AI/ML | AI/ML team | P24, P89, P93 | `feat(ai): interview prep pack (US-111)` | One-page brief per upcoming interview | — | Content assembled only from the user's data |
+| P99 | AI/ML | AI/ML team | P85, P89 | `feat(ai): follow-up and negotiation email drafts (US-112)` | Drafts only; never sent automatically | — | API + RTL |
+| P100 | AI/ML | AI/ML team | P36, P61, P89 | `feat(ai): weekly review (US-113)` | Generated from analytics; delivered through the notification channels | — | Fixture tests |
+| P101 | Backend | Backend team | P21, P30, P36 | `feat(analytics): resume performance and funnel simulator (US-26,114)` | Response rate per resume version; applications-needed simulator | uses **Template Method** | Golden-file tests |
+| P102 | AI/ML | AI/ML team | P48, P50 | `feat(fl): cohort benchmarks from the federated model (US-115)` | Benchmarks from the global model only; min-cohort rule applies | — | Benchmarks hidden below the min-cohort size |
+| P103 | Backend | Backend team | P31, P75 | `feat(prep): spaced review queue (US-42)` | Daily review queue scheduled from mastery decay | — | Deterministic scheduling tests on fixtures |
+| P104 | AI/ML | AI/ML team | P56, P57 | `feat(fl): privacy budget meter (US-66)` | Cumulative ε per user from the ledger, shown against the configured budget | — | Meter total equals the sum of the user's ledger entries |
 
-| # | Owner | Reviewer | Commit message | Scope | Pattern | Verify |
-|---|---|---|---|---|---|---|
-| P104 | — | — | `chore: seed data for the extension features (US-72)` | Demo data for contacts, offers, goals, stories, AI history | — | Seed loads identically twice |
-| P122 | — | — | `feat(onboarding): sample data loader + guided product tour (US-116)` | One-click realistic sample data that is clearly marked and removable; first-run guided tour of the main areas, skippable and replayable from help | — | Sample data only touches the current user's records; removal leaves no orphans; tour skippable |
-| P123 | — | — | `feat(frontend): designed error, 404, offline and session-expired screens (US-117)` | Consistent full-page and inline states with clear next actions and retry; offline banner; graceful token-expiry flow | — | RTL for each state in both themes |
-| P114 | — | — | `chore(security): security headers, secret scan, SQL-interpolation gate (NFR-03,08,09)` | CSP/nosniff/Referrer-Policy/HSTS, CI secret scanning, CI check for string-built SQL | — | Header test; CI gates fail on a planted violation |
-| P119 | — | — | `feat(frontend): privacy policy, AI disclosure, help pages (NFR-16)` | Plain-language data, FL and AI disclosure; keyboard shortcut help | — | Linked from sign-up and settings |
-| P66 | P10 | all | `test: full security suite (US-73)` | Enumerate every endpoint from the OpenAPI schema (springdoc), including all Sprint 6–8 endpoints; assert 401/404 systematically | — | Full suite green |
-| P67 | P10 | P4 | `chore(a11y): accessibility remediation pass (US-74)` | Contrast, focus traps, aria-labels across the redesigned UI in both themes | — | axe-core: zero critical violations |
+**Sprint 8 DoD:** Every AI feature works with the local model and degrades gracefully when it is down; no AI prompt contains another user's data; the Gemini disclosure is shown whenever that provider is active.
 
-**Scope freeze.** After a scope review the feature set is final: tracking (list, board, companies, contacts, offers, global search, weekly goals and heatmap), resumes (files, structured editor, PDF export, versions, performance), interviews (debriefs, prep packs, mock interviews, story bank), preparation (question bank, practice, mastery, spaced review, recommendations, readiness), analytics, in-app notifications, reports, AI assistance, federated learning with a Privacy Ledger and budget meter, and sign-in with email or Google/GitHub. Deliberately excluded: calendar view and .ics export, CSV import, tags and bulk update, recruiter feedback, email notification channel, admin console, structured ops logging, CI quality gates, load and cross-browser tests, production deploy profile, a browser extension, job-board scraping or auto-apply, two-way calendar/email sync, MFA, sharing between users, and mobile apps (the web app is fully responsive instead).
+---
 
-**Project DoD:** everything in the Sprint 5 DoD, plus the Sprint 6–8 DoDs, plus every NFR in `PROJECT_PLAN.md` §8 that is in scope either verified by an automated check or recorded with a manual result (table below). NFRs whose verification phases were cut are listed as not measured.
+## SPRINT 9 — Hardening and delivery
 
-### Requirement traceability
+**Goal:** Demo-ready data, a first-run experience, designed error states, privacy and AI disclosure pages, and the final security and accessibility verification across every feature.
 
-Every user story in `PROJECT_PLAN.md` maps to at least one phase. US-69 (schema and migrations) is delivered by every `feat(db)` phase rather than one commit.
+| # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
+|---|---|---|---|---|---|---|---|
+| P105 | Backend | Backend team | P26, P83, P85, P86, P97 | `chore: seed data for contacts, offers, goals, stories and AI history (US-72)` | Demo data for contacts, offers, goals, stories, AI history | — | Seed loads identically twice |
+| P106 | Frontend | Frontend team | P76, P105 | `feat(onboarding): sample data loader + guided product tour (US-116)` | One-click realistic sample data that is clearly marked and removable; first-run guided tour of the main areas, skippable and replayable from help | — | Sample data only touches the current user's records; removal leaves no orphans; tour skippable |
+| P107 | Frontend | Frontend team | P70, P71 | `feat(frontend): designed error, 404, offline and session-expired screens (US-117)` | Consistent full-page and inline states with clear next actions and retry; offline banner; graceful token-expiry flow | — | RTL for each state in both themes |
+| P108 | Frontend | Frontend team | P55, P89 | `feat(frontend): privacy policy, AI disclosure, help pages (NFR-16)` | Plain-language data, FL and AI disclosure; keyboard shortcut help | — | Linked from sign-up and settings |
+| P109 | Backend | Backend team | P14, P108 | `test: full security suite (US-73)` | Enumerate every endpoint from the OpenAPI schema (springdoc), including all Sprint 6–8 endpoints; assert 401/404 systematically | — | Full suite green |
+| P110 | Frontend | Frontend team | P80, P108 | `chore(a11y): accessibility remediation pass (US-74)` | Contrast, focus traps, aria-labels across the whole UI in both themes | — | axe-core: zero critical violations |
+
+**Sprint 9 DoD:** The full security suite is green across every endpoint; axe-core reports zero critical violations in both themes; sample data and the tour work for a new user; the demo has been rehearsed twice end to end.
+
+---
+
+## Scope
+
+The feature set is: tracking (list, board, companies, contacts, offers, global search, weekly goals and heatmap), resumes (files, structured editor, PDF export, versions, performance), interviews (debriefs, prep packs, mock interviews, story bank), preparation (question bank, practice, mastery, spaced review, recommendations, readiness), analytics, in-app notifications, reports, AI assistance, federated learning with a Privacy Ledger and budget meter, and sign-in with email or Google/GitHub.
+
+**Out of scope.** The product does not include: a calendar view or .ics export, CSV import, tag management and bulk status update, recruiter feedback capture, an email notification channel, an admin console, structured operations logging, CI quality gates beyond the coverage gate (lint, type and import-boundary gates), load and cross-browser testing, a production deployment profile with backups, a browser extension, job-board scraping or auto-apply, two-way calendar or email sync, MFA, sharing between users, and native mobile apps (the web app is fully responsive instead). `PROJECT_PLAN.md` §31.2 holds the full list.
+
+**Project DoD:** every sprint DoD above is met, and every NFR in `PROJECT_PLAN.md` §7 is either verified by the phase listed below or marked "documented, not measured".
+
+## Requirement traceability
+
+Every user story in `PROJECT_PLAN.md` §10.1 lists the phases that deliver it. US-69 (schema and migrations) is delivered by every `feat(db)` phase rather than one commit.
 
 | NFRs | Delivered or verified by |
 |---|---|
-| NFR-01, 02 | P05, corrected in P105 |
-| NFR-03, 08, 09 | P114 |
-| NFR-04, 05 | P66 |
+| NFR-01, 02 | P05, P67 |
+| NFR-03, 08, 09 | P81 |
+| NFR-04, 05 | P109 |
 | NFR-06 | P19, P20 |
 | NFR-07 | P05 |
-| NFR-10–13 | P43–P51, P54 |
-| NFR-14 | P65 |
-| NFR-15, 16 | P41, P91, P119 |
-| NFR-17–22 | Not load-tested (P117 cut from scope) |
-| NFR-23, 24 | Architecture (stateless API; config-driven FL cohort) — documented in `docs/architecture.md` |
-| NFR-25, 29 | Not in scope (P69 cut) |
-| NFR-26, 27 | Migration rollback scripts per `feat(db)` phase; transactional tests in P66 |
-| NFR-28 | P49 |
-| NFR-30, 31 | P25, P77 |
-| NFR-32–35 | P72, P73 |
-| NFR-36–39 | Not enforced in CI (P115 cut from scope) |
-| NFR-40 | ADRs throughout; ADR-012 in P80 |
+| NFR-10–13 | P44–P52, P55 |
+| NFR-14 | P66 |
+| NFR-15, 16 | P42, P90, P108 |
+| NFR-17–22 | Documented, not measured |
+| NFR-23, 24 | Documented in `docs/architecture.md` (P15), not measured |
+| NFR-25, 29 | Documented, not measured |
+| NFR-26, 27 | Rollback script in every `feat(db)` phase; transactional tests in P109 |
+| NFR-28 | P50 |
+| NFR-30, 31 | P25, P76 |
+| NFR-32–35 | P71, P72, P107 |
+| NFR-36, 38, 39 | Documented, not measured |
+| NFR-37 | P13 |
+| NFR-40 | ADRs in P15, P33, P78, P89 |
 | NFR-41, 42 | P02 |
-| NFR-43 | Not in scope (P118 cut) |
-| NFR-44–48 | P70, P73, P67 |
-| NFR-49–51 | Throughout (injected clock/storage/FL gateway; seeded randomness; golden files) |
-| NFR-52 | Not in scope (P116 cut) |
+| NFR-43 | Documented, not measured |
+| NFR-44–48 | P69, P72, P110 |
+| NFR-49–51 | Throughout (injected clock, storage and FL gateway; seeded randomness; golden files) |
+| NFR-52 | Documented, not measured |
+| NFR-53 | P61 |
 
 ---
 
@@ -297,13 +318,13 @@ Every user story in `PROJECT_PLAN.md` maps to at least one phase. US-69 (schema 
 
 - **P10** — the State pattern replacing if/else transition logic
 - **P19** — Decorator + Chain of Responsibility on file upload, and the malicious-upload test
-- **P29** — Template Method structurally enforcing the sample-size rule
-- **P30** — mastery decay golden-file tests
-- **P39/P41** — the recommendation Chain of Responsibility, and the causal-language linter that fails the build
-- **P43–P53** — the entire FL chain, especially **P47** (min-cohort refusal), **P50** (CI proves fl-service has no DB credentials), and **P53** (the circuit breaker fault-injection test — this is the single best "we thought about failure modes" commit in the whole project)
-- **P59/P60** — Observer + Strategy cooperating cleanly on notifications
-- **P74** — the Kanban board, where the P10 State pattern visibly refuses illegal moves
-- **P90/P91** — the AI provider Strategy and a coach grounded strictly in the user's own data, on a local model so privacy holds
-- **P103** — cohort benchmarks: the federated model turned into something users can see
+- **P30** — Template Method structurally enforcing the sample-size rule
+- **P31** — mastery decay golden-file tests
+- **P40/P42** — the recommendation Chain of Responsibility, and the causal-language linter that fails the build
+- **P44–P54** — the entire FL chain, especially **P48** (min-cohort refusal), **P51** (CI proves fl-service has no DB credentials), and **P54** (the circuit breaker fault-injection test, the clearest evidence of designing for failure)
+- **P60/P61** — Observer + Strategy cooperating cleanly on notifications
+- **P73** — the Kanban board, where the P10 State pattern visibly refuses illegal moves
+- **P89/P90** — the AI provider Strategy and a coach grounded strictly in the user's own data, on a local model so privacy holds
+- **P102** — cohort benchmarks: the federated model turned into something users can see
 
-Everything else is solid, necessary engineering — these are the commits that show design judgment, not just working code.
+Everything else is solid, necessary engineering; these are the commits that show design judgment, not just working code.
