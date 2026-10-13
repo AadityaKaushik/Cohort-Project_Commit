@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Briefcase,
+  Building2,
   FileText,
   FileDown,
   LayoutDashboard,
@@ -37,6 +38,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Applications', path: '/applications', icon: Briefcase },
       { label: 'Resumes', path: '/resumes', icon: FileText },
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
+      { label: 'Companies', path: '/companies', icon: Building2 },
       { label: 'Contacts', path: '/contacts', icon: UsersRound },
     ],
   },
@@ -84,6 +86,7 @@ const SECTION_LABELS: Record<string, string> = {
   resumes: 'Resumes',
   interviews: 'Interviews',
   contacts: 'Contacts',
+  companies: 'Companies',
   prep: 'Interview Prep',
   analytics: 'Analytics',
   recommendations: 'Recommendations',

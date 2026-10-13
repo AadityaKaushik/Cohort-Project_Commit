@@ -153,6 +153,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("CONTACT_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(CompanyNoteNotFoundException.class)
+    public ResponseEntity<ApiError> handleCompanyNoteNotFound(CompanyNoteNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("COMPANY_NOTE_NOT_FOUND", ex.getMessage()));
+    }
+
     @ExceptionHandler(CompanyNotFoundException.class)
     public ResponseEntity<ApiError> handleCompanyNotFound(CompanyNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("COMPANY_NOT_FOUND", ex.getMessage()));
