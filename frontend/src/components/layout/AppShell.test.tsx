@@ -38,7 +38,7 @@ describe('AppShell', () => {
   beforeEach(() => {
     logout.mockReset().mockResolvedValue(undefined)
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: '1', email: 'jane@example.com', display_name: 'Jane', target_role: null, graduation_year: null, timezone: null, fl_opt_in: false, fl_privacy_posture: 'balanced', created_at: '' },
+      user: { id: '1', email: 'jane@example.com', display_name: 'Jane', target_role: null, graduation_year: null, target_date: null, onboarded: true, timezone: null, fl_opt_in: false, fl_privacy_posture: 'balanced', created_at: '' },
       isLoading: false,
       isAuthenticated: true,
       sessionMessage: null,
@@ -68,6 +68,29 @@ describe('AppShell', () => {
     await user.keyboard('{Enter}')
 
     await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/resumes'))
+  })
+
+  it('sends a user who has not onboarded to the onboarding page', async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      ...vi.mocked(useAuth)(),
+      user: { id: '1', email: 'new@example.com', display_name: 'New', target_role: null, graduation_year: null, target_date: null, onboarded: false, timezone: null, fl_opt_in: false, fl_privacy_posture: 'balanced', created_at: '' },
+    })
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TooltipProvider>
+          <MemoryRouter initialEntries={['/']}>
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route path="*" element={<Where />} />
+              </Route>
+              <Route path="/onboarding" element={<Where />} />
+            </Routes>
+          </MemoryRouter>
+        </TooltipProvider>
+      </QueryClientProvider>,
+    )
+
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/onboarding'))
   })
 
   it('shows breadcrumbs for detail pages', () => {

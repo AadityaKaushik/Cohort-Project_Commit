@@ -22,6 +22,7 @@ import { AccountPage } from '@/pages/account/AccountPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { OnboardingPage } from '@/pages/onboarding/OnboardingPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage'
@@ -37,6 +38,7 @@ function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="applications">

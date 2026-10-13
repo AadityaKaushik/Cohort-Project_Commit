@@ -39,6 +39,9 @@ public class UserService {
         if (request.targetRole() != null) {
             user.setTargetRole(request.targetRole());
         }
+        if (request.targetDate() != null) {
+            user.setTargetDate(request.targetDate());
+        }
         if (request.graduationYear() != null) {
             user.setGraduationYear(request.graduationYear());
         }

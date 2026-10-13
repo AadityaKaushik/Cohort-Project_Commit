@@ -1,0 +1,2 @@
+ALTER TABLE users DROP COLUMN IF EXISTS onboarded_at;
+ALTER TABLE users DROP COLUMN IF EXISTS target_date;

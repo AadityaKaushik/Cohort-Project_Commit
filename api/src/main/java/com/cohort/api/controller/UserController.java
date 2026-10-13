@@ -1,6 +1,9 @@
 package com.cohort.api.controller;
 
 import com.cohort.api.dto.ChangePasswordRequest;
+import com.cohort.api.dto.OnboardingRequest;
+import com.cohort.api.dto.OnboardingResponse;
+import com.cohort.api.service.OnboardingService;
 import com.cohort.api.dto.DeleteAccountRequest;
 import com.cohort.api.dto.UpdateProfileRequest;
 import com.cohort.api.dto.UserProfileResponse;
@@ -31,10 +34,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final OnboardingService onboardingService;
     private final AccountService accountService;
     private final DataExportService dataExportService;
 
-    public UserController(UserService userService, AccountService accountService, DataExportService dataExportService) {
+    public UserController(UserService userService, AccountService accountService, DataExportService dataExportService,
+                          OnboardingService onboardingService) {
+        this.onboardingService = onboardingService;
         this.userService = userService;
         this.accountService = accountService;
         this.dataExportService = dataExportService;
@@ -49,6 +55,12 @@ public class UserController {
     public UserProfileResponse updateMe(@AuthenticationPrincipal Jwt jwt,
                                          @Valid @RequestBody UpdateProfileRequest request) {
         return userService.updateProfile(userId(jwt), request);
+    }
+
+    @PostMapping("/me/onboarding")
+    public OnboardingResponse completeOnboarding(@AuthenticationPrincipal Jwt jwt,
+                                                  @Valid @RequestBody OnboardingRequest request) {
+        return onboardingService.complete(userId(jwt), request);
     }
 
     @PostMapping("/me/password")

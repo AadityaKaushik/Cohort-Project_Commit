@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ProfileForm } from '@/components/account/ProfileForm'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
 import { saveBlob } from '@/lib/download'
@@ -41,11 +42,13 @@ export function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Account</h2>
+        <h2 className="text-lg font-semibold">Profile</h2>
         <p className="text-sm text-muted-foreground">{user?.email}</p>
       </div>
+
+      <ProfileForm />
 
       <Card>
         <CardHeader>

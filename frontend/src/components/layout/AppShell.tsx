@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
 import { Search } from 'lucide-react'
 import { AppSidebar } from '@/components/layout/AppSidebar'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
@@ -12,6 +13,7 @@ import { breadcrumbsFor, pageTitleFor } from '@/lib/navigation'
 
 export function AppShell() {
   const { pathname } = useLocation()
+  const { user } = useAuth()
   const [paletteOpen, setPaletteOpen] = useState(false)
 
   useEffect(() => {
@@ -28,6 +30,10 @@ export function AppShell() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  if (user?.onboarded === false) {
+    return <Navigate to="/onboarding" replace />
+  }
 
   return (
     <SidebarProvider>
