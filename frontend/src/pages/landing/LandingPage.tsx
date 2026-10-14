@@ -281,9 +281,9 @@ export function LandingPage() {
               <PrivacyStep index={1} icon={Lock} title="Your records stay in your account"
                 body="Resumes, notes, company names and anything you type are never part of the shared model." />
               <PrivacyStep index={2} icon={Sigma} title="Only bounded numbers, with noise"
-                body="If you opt in, a short list of capped summary numbers is blurred with random noise before it is sent, so no single person can be picked out." />
+                body="If you opt in, a short list of capped summary numbers has random noise added before it is sent, so no single person can be picked out." />
               <PrivacyStep index={3} icon={EyeOff} title="Better benchmarks for everyone"
-                body="The combined result sharpens benchmarks and recommendations for people on the same path." />
+                body="The combined result improves benchmarks and recommendations for people on the same path." />
             </ol>
           </div>
         </section>

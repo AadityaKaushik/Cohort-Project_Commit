@@ -19,7 +19,7 @@ const PLAIN_LANGUAGE_POINTS = [
   {
     icon: LockIcon,
     title: 'How it is protected',
-    body: 'Before anything is sent, the numbers are capped to a fixed size and blurred with random noise, so no single person can be picked out of the shared result.',
+    body: 'Before anything is sent, the numbers are capped to a fixed size and have random noise added, so no single person can be picked out of the shared result.',
   },
   {
     icon: SparklesIcon,

@@ -76,7 +76,7 @@ export function ResumesListPage() {
   const header = (
     <PageHeader
       title="Resumes"
-      description={data && data.items.length > 0 ? `${data.total} tailored ${data.total === 1 ? 'version' : 'versions'}` : 'Keep a tailored version for every kind of role.'}
+      description={data && data.items.length > 0 ? `${data.total} ${data.total === 1 ? 'version' : 'versions'}` : 'Keep a version for each kind of role.'}
       actions={
         data && data.items.length > 0 ? (
           <Button asChild>
@@ -115,7 +115,7 @@ export function ResumesListPage() {
         <EmptyState
           icon={FileTextIcon}
           title="No resumes yet"
-          description="Keep multiple tailored versions and attach the right one to each application."
+          description="Keep multiple versions and attach the right one to each application."
           quote={4}
           action={
             <Button asChild>
