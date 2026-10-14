@@ -19,8 +19,7 @@ Examples:
 
 Any commit that adds or changes a pattern-bearing class (see
 `docs/plan/ARCHITECTURE_REVISION_JAVA.md` §4) must say, in one sentence in the PR description,
-which pattern it implements or extends. This is a Definition-of-Done requirement, not optional
-polish — it's how a reviewer tells deliberate design from accidental complexity.
+which pattern it implements or extends. This is part of the Definition of Done and lets a reviewer tell intended design from accidental complexity.
 
 ## Tests
 
@@ -33,6 +32,6 @@ polish — it's how a reviewer tells deliberate design from accidental complexit
 
 ## Process
 
-- One phase from the build-phases document per commit — phases are never merged together, even
-  when a phase looks small.
+- One phase from the build-phases document per commit — phases are not merged together, even
+  when a phase is small.
 - No phase starts before its listed dependency has landed.

@@ -2,10 +2,10 @@
 
 Cohort is a job-search campaign manager: applications, resumes, interview debriefs, and
 preparation tracking in one place, with a **Federated Learning** layer that lets the app get
-smarter across users' preparation patterns without ever centralising anyone's real data.
+learn from users' preparation patterns without centralising anyone's data.
 
-Full plain-language explanation: [`docs/plan/PROJECT_OVERVIEW.md`](docs/plan/PROJECT_OVERVIEW.md).
-Requirements, backlog, and design detail: [`docs/plan/PROJECT_PLAN.md`](docs/plan/PROJECT_PLAN.md)
+Plain-language overview: [`docs/plan/PROJECT_OVERVIEW.md`](docs/plan/PROJECT_OVERVIEW.md).
+Requirements, backlog and design: [`docs/plan/PROJECT_PLAN.md`](docs/plan/PROJECT_PLAN.md)
 and [`docs/plan/ARCHITECTURE_REVISION_JAVA.md`](docs/plan/ARCHITECTURE_REVISION_JAVA.md).
 Build sequencing: [`docs/plan/BUILD_PHASES_JAVA.md`](docs/plan/BUILD_PHASES_JAVA.md).
 
@@ -46,8 +46,7 @@ cp .env.example .env
 docker compose up
 ```
 
-This section will be kept accurate as each phase adds a working piece — it will never describe
-capability that isn't in the repository yet.
+This section is updated as each phase adds a working piece and describes only what is in the repository.
 
 ## Contributing
 
