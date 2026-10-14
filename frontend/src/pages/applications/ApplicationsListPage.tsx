@@ -1,11 +1,14 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useCallback } from 'react'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
 import { BriefcaseIcon, KanbanIcon, PlusIcon, SearchXIcon } from 'lucide-react'
 import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { formatLabel } from '@/lib/labels'
-import { listApplications, type ApplicationSummary } from '@/lib/applications-api'
+import { listApplications, listStalledApplications, type ApplicationSummary } from '@/lib/applications-api'
+import { readPreference, writePreference } from '@/lib/preferences'
+import { exactDate, relativeDate } from '@/lib/relative-date'
+import { QuickStatusMenu } from '@/components/applications/QuickStatusMenu'
+import { ToneBadge } from '@/components/shared/ToneBadge'
 import { Button } from '@/components/ui/button'
 import {
   ApplicationFilterBar,
@@ -25,23 +28,38 @@ const PAGE_SIZE = 25
 
 type SortKey = 'date_applied' | 'status' | 'priority' | 'days_in_stage'
 
+interface ListPreferences {
+  sort: string
+  direction: string
+  filters: ApplicationFilters
+}
+
+const VIEW_KEY = 'applications-view'
+const LIST_KEY = 'applications-list'
+
 export function ApplicationsListPage() {
   const navigate = useNavigate()
   const pendingDeletes = usePendingDeletes()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [remembered] = useState(() => ({
+    view: readPreference<string>(VIEW_KEY),
+    list: readPreference<ListPreferences>(LIST_KEY),
+  }))
+  const stalledQuery = useQuery({ queryKey: ['applications', 'stalled'], queryFn: listStalledApplications })
+  const stalledIds = new Set(stalledQuery.data?.map((item) => item.application_id))
 
   const page = Number(searchParams.get('page') ?? '0')
   const sort = (searchParams.get('sort') as SortKey | null) ?? 'date_applied'
   const direction = (searchParams.get('direction') as 'asc' | 'desc' | null) ?? 'desc'
 
-  const filters: ApplicationFilters = {
+  const filters = useMemo<ApplicationFilters>(() => ({
     q: searchParams.get('q') ?? '',
     status: (searchParams.get('status') as ApplicationFilters['status'] | null) ?? '',
     priority: (searchParams.get('priority') as ApplicationFilters['priority'] | null) ?? '',
     work_mode: (searchParams.get('work_mode') as ApplicationFilters['work_mode'] | null) ?? '',
     date_from: searchParams.get('date_from') ?? '',
     date_to: searchParams.get('date_to') ?? '',
-  }
+  }), [searchParams])
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['applications', page, sort, direction, filters],
@@ -59,6 +77,30 @@ export function ApplicationsListPage() {
         date_to: filters.date_to || undefined,
       }),
   })
+
+  const wantsBoard = remembered.view === 'board' && !searchParams.has('view')
+
+  useEffect(() => {
+    const onlyView = [...searchParams.keys()].every((key) => key === 'view')
+    if (remembered.list && onlyView) {
+      const next = new URLSearchParams(searchParams)
+      next.set('sort', remembered.list.sort)
+      next.set('direction', remembered.list.direction)
+      for (const [key, value] of Object.entries(remembered.list.filters)) {
+        if (value) next.set(key, value as string)
+      }
+      setSearchParams(next, { replace: true })
+    }
+    // restore once, on arrival
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!wantsBoard) {
+      writePreference(VIEW_KEY, 'list')
+      writePreference(LIST_KEY, { sort, direction, filters })
+    }
+  }, [wantsBoard, sort, direction, filters])
 
   const handleFiltersChange = useCallback(
     (next: ApplicationFilters) => {
@@ -93,7 +135,16 @@ export function ApplicationsListPage() {
   }
 
   const columns: DataTableColumn<ApplicationSummary>[] = [
-    { key: 'company', header: 'Company', render: (row) => <CompanyCell name={row.company.name} /> },
+    {
+      key: 'company',
+      header: 'Company',
+      render: (row) => (
+        <span className="flex flex-wrap items-center gap-2">
+          <CompanyCell name={row.company.name} />
+          {stalledIds.has(row.id) && <ToneBadge tone="warning">Needs follow-up</ToneBadge>}
+        </span>
+      ),
+    },
     { key: 'job_title', header: 'Role', render: (row) => row.job_title },
     {
       key: 'status',
@@ -101,6 +152,7 @@ export function ApplicationsListPage() {
       sortKey: 'status',
       render: (row) => <StatusBadge status={row.status} />,
     },
+    { key: 'quick_status', header: 'Change status', render: (row) => <QuickStatusMenu application={row} /> },
     {
       key: 'current_stage',
       header: 'Stage',
@@ -117,7 +169,11 @@ export function ApplicationsListPage() {
       key: 'date_applied',
       header: 'Date applied',
       sortKey: 'date_applied',
-      render: (row) => <span className="text-muted-foreground tabular-nums">{format(new Date(row.date_applied), 'MMM d, yyyy')}</span>,
+      render: (row) => (
+        <time dateTime={row.date_applied} title={exactDate(row.date_applied)} className="text-muted-foreground">
+          Applied {relativeDate(row.date_applied)}
+        </time>
+      ),
     },
     {
       key: 'priority',
@@ -139,6 +195,10 @@ export function ApplicationsListPage() {
       </Link>
     </Button>
   )
+
+  if (wantsBoard) {
+    return <Navigate to="/applications/board" replace />
+  }
 
   if (isEmpty && !filtered) {
     return (
@@ -169,7 +229,7 @@ export function ApplicationsListPage() {
         actions={
           <>
             <Button variant="outline" asChild>
-              <Link to="/applications/board">
+              <Link to="/applications/board" onClick={() => writePreference(VIEW_KEY, 'board')}>
                 <KanbanIcon aria-hidden />
                 Board
               </Link>

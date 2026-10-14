@@ -57,6 +57,7 @@ const interview = {
 }
 
 const FIXTURES: [RegExp, unknown][] = [
+  [/^\/applications\/stalled/, []],
   [/^\/applications/, page([application])],
   [/^\/interviews/, page([interview])],
   [/^\/resumes/, page([{ id: 'r-1', name: 'Platform resume', version_label: 'v2', target_role: 'Backend', is_default: true, has_file: true, parent_resume_id: null, created_at: NOW, updated_at: NOW }])],

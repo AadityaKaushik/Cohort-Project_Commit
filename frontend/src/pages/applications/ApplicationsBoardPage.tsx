@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BriefcaseIcon, ListIcon, PlusIcon } from 'lucide-react'
@@ -10,6 +10,7 @@ import {
 } from '@/lib/applications-api'
 import { ApiError } from '@/lib/api-client'
 import { usePendingDeletes } from '@/hooks/use-undo-delete'
+import { writePreference } from '@/lib/preferences'
 import { formatLabel } from '@/lib/labels'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
@@ -39,6 +40,10 @@ export function ApplicationsBoardPage() {
   const pendingDeletes = usePendingDeletes()
   const [pending, setPending] = useState<PendingCorrection | null>(null)
   const [note, setNote] = useState('')
+
+  useEffect(() => {
+    writePreference('applications-view', 'board')
+  }, [])
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['applications', 'board'],
@@ -93,7 +98,7 @@ export function ApplicationsBoardPage() {
         actions={
           <>
             <Button variant="outline" asChild>
-              <Link to="/applications">
+              <Link to="/applications?view=list">
                 <ListIcon aria-hidden />
                 List
               </Link>
