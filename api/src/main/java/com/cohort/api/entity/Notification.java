@@ -11,18 +11,9 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One in-app notification (FR-100/101, V20). Rows are written by
- * {@code InAppNotificationChannel} -- through a native, deduplicating insert
- * rather than {@code save} -- and the only mutation after that is being
- * marked read. {@code type} and {@code relatedEntityType} are lowercase enums
- * so their {@code name()} is exactly the value V20's CHECK constraints allow,
- * the same convention {@link Interview.Outcome} uses.
- */
 @Entity
 @Table(name = "notifications")
 public class Notification {
-
     public enum Type { stalled_application, upcoming_interview, missing_debrief, new_recommendation, fl_round_result }
 
     public enum RelatedEntityType { application, interview }
@@ -72,7 +63,6 @@ public class Notification {
         // JPA
     }
 
-    /** Marks this notification read; idempotent -- re-reading keeps the original {@code readAt}. */
     public void markRead(Instant when) {
         if (!isRead) {
             isRead = true;

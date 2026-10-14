@@ -8,20 +8,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
-/**
- * Combines {@link EvidenceTierClassifier} with whichever
- * {@link EvidenceTierScoringStrategy} matches the assigned tier -- the one
- * place the Strategy family is actually selected from and invoked, so
- * {@code RecommendationFacade} (P42) never has to know there are four of
- * them.
- */
 @Component
 public class RecommendationScorer {
-
-    /** Federated ranking has no signal to gate on until P52+; always off in this sprint slice. */
     private static final boolean FEDERATED_RANKING_ENABLED = false;
 
-    /** §21.6: "federated_adjustment = 1.0 when federated ranking is off." */
     private static final double FEDERATED_ADJUSTMENT_DISABLED = 1.0;
 
     public record ScoredCandidate(RecommendationCandidate candidate, EvidenceTier tier, double score) {

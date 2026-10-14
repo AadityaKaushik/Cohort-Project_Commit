@@ -12,20 +12,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One entry in the question bank (US-35/36, PROJECT_PLAN.md §17.2 line
- * 1543-ish). A row is either system-owned ({@code isSystem = true},
- * {@code userId = null} — seeded, read-only) or user-owned ({@code
- * isSystem = false}, {@code userId} set — added directly or forked from a
- * system question via {@code sourceQuestionId}); the V14 migration's
- * {@code chk_questions_ownership} CHECK constraint makes the two cases the
- * only ones that can exist. Every question links to exactly one topic
- * (US-38 acceptance criterion, {@code topicId} not-null at the DB level).
- */
 @Entity
 @Table(name = "questions")
 public class Question {
-
     public enum Category { dsa, technical, behavioural, hr, system_design, company_specific }
 
     @Id
@@ -68,7 +57,6 @@ public class Question {
         // JPA
     }
 
-    /** Factory for a user's own question (US-36) — {@code isSystem} is always false through this path. */
     public static Question ownedByUser(UUID userId, UUID topicId, String questionText, Category category) {
         Question question = new Question();
         question.userId = userId;

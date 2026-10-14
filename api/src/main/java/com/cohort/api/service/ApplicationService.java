@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ApplicationService {
-
     private final ApplicationRepository applicationRepository;
     private final CompanyRepository companyRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
@@ -201,15 +200,6 @@ public class ApplicationService {
         return mapper.toDetail(application, company, history, interviews);
     }
 
-    /**
-     * US-24/FR-34: sets, changes, or (given {@code resumeId == null}) clears
-     * the one resume associated with this application. A foreign or missing
-     * {@code resumeId} is rejected with the same {@code ResumeNotFoundException}
-     * a direct resume lookup would throw (FR-95: 404, never 403, and never a
-     * signal that lets one user probe whether a given resume ID belongs to
-     * someone else). {@code updated_at} bumps automatically via
-     * {@code @UpdateTimestamp} once the managed entity's field changes.
-     */
     @Transactional
     public ApplicationDetailResponse attachResume(UUID userId, UUID applicationId, UUID resumeId) {
         Application application = requireOwned(userId, applicationId);
@@ -266,14 +256,6 @@ public class ApplicationService {
         return companiesById;
     }
 
-    /**
-     * A small, explicit allow-list rather than accepting an arbitrary Spring
-     * {@code Sort} expression from the client — every accepted value maps to
-     * exactly one real entity property. "days_in_stage" reuses
-     * {@code stageEnteredAt} with the direction inverted, since more days in
-     * stage means an older {@code stageEnteredAt}; there is no stored
-     * days-in-stage column to sort by directly.
-     */
     private Sort resolveSort(String sort, String direction) {
         boolean descending = !"asc".equalsIgnoreCase(direction);
         Sort.Direction springDirection = descending ? Sort.Direction.DESC : Sort.Direction.ASC;

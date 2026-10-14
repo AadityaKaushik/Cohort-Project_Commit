@@ -4,9 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-/** Composite primary key for {@link ApplicationTag}, mirroring the (application_id, tag_id) PK from the V6 migration. */
 public class ApplicationTagId implements Serializable {
-
     private UUID applicationId;
     private UUID tagId;
 

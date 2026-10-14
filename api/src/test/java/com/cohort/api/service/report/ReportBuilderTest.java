@@ -15,18 +15,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/**
- * P63's verify (Builder): the report {@link ReportBuilder} assembles from
- * {@code fixtures/reports/case1-input.json} matches the expected output
- * fixtures byte for byte once rendered to CSV. The expected numbers were
- * checked by hand against PROJECT_PLAN.md §20.7 (not merely captured from a
- * run): with all seven applications, 5 are resolved at Applied and 4 of
- * those reached at least the online assessment (an interview implies it), so
- * applied-to-OA is 4/5 = 80.0%; only 1 offer, so overall is 1/5 = 20.0%;
- * every other rate has fewer than 5 resolved applications and is withheld.
- */
 class ReportBuilderTest {
-
     private final ReportFixtures.Case fixture = ReportFixtures.load("case1");
     private final CsvReportRenderer csv = new CsvReportRenderer();
 

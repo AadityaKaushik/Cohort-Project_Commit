@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.UUID;
 
-/** One row of the resumes list (US-20): enough to identify and pick a version without the full detail payload. */
 public record ResumeSummary(
         UUID id,
         String name,

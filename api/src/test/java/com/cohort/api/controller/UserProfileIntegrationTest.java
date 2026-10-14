@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MvcResult;
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class UserProfileIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private org.springframework.test.web.servlet.MockMvc mockMvc;
 
@@ -59,7 +58,6 @@ class UserProfileIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.timezone", is("Asia/Kolkata")))
                 .andExpect(jsonPath("$.email", is("profile-owner@example.com")));
 
-        // Change persisted, not just echoed in the response.
         mockMvc.perform(get("/api/v1/users/me").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.display_name", is("Updated Name")));

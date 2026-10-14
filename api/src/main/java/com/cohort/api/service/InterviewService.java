@@ -44,16 +44,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-27..31: interview CRUD, the questions recorded within an interview, and
- * its one-to-one debrief. Every entity here carries a denormalised {@code
- * userId} (V9-V11 migrations) so every isolation lookup — interviews,
- * questions, and feedback alike — is a single-table
- * {@code UserScopedRepository} filter (FR-94/95).
- */
 @Service
 public class InterviewService {
-
     private final InterviewRepository interviewRepository;
     private final InterviewQuestionRepository questionRepository;
     private final InterviewFeedbackRepository feedbackRepository;
@@ -76,13 +68,6 @@ public class InterviewService {
         this.mapper = mapper;
     }
 
-    /**
-     * US-27/FR-38: {@code request.applicationId()} must belong to the
-     * caller — looked up the same way every other cross-entity reference in
-     * this codebase is (e.g. {@code ApplicationService.attachResume}) — a
-     * foreign or missing application is indistinguishable from one that
-     * never existed (FR-95).
-     */
     @Transactional
     public InterviewDetailResponse create(UUID userId, CreateInterviewRequest request) {
         Application application = applicationRepository
@@ -273,12 +258,6 @@ public class InterviewService {
         return mapper.toFeedbackResponse(feedback);
     }
 
-    /**
-     * US-30: upsert so the same endpoint handles the first partial draft
-     * save and every subsequent one, including the final submission —
-     * exactly one round-trip either way, which is what keeps the whole
-     * debrief completable in under three minutes (NFR-31).
-     */
     @Transactional
     public InterviewFeedbackResponse upsertFeedback(UUID userId, UUID interviewId, InterviewFeedbackRequest request) {
         requireOwned(userId, interviewId);
@@ -309,7 +288,6 @@ public class InterviewService {
         return questionRepository.findByIdAndUserId(questionId, userId).orElseThrow(InterviewQuestionNotFoundException::new);
     }
 
-    /** The application is guaranteed owned already, via the interview it's attached to — an internal consistency check, not a user-facing lookup. */
     private Application requireApplication(UUID userId, UUID applicationId) {
         return applicationRepository
                 .findByIdAndUserId(applicationId, userId)
@@ -350,11 +328,6 @@ public class InterviewService {
         return result;
     }
 
-    /**
-     * A small, explicit allow-list, same reasoning as {@code
-     * ApplicationService.resolveSort}: every accepted value maps to exactly
-     * one real entity property.
-     */
     private Sort resolveSort(String sort, String direction) {
         boolean descending = !"asc".equalsIgnoreCase(direction);
         Sort.Direction springDirection = descending ? Sort.Direction.DESC : Sort.Direction.ASC;

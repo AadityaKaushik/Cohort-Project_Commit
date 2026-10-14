@@ -15,27 +15,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * A generated recommendation, US-51..56 / V17. Strictly user-owned, like
- * {@link PreparationTask}: plain denormalised FK columns throughout (no
- * {@code @OneToMany}/{@code @ManyToOne}), matching this codebase's existing
- * convention of resolving relationships through repository queries rather
- * than a JPA object graph.
- *
- * <p>{@code type}/{@code status}/{@code tier} reuse the enums the
- * generation pipeline already depends on
- * ({@link com.cohort.api.service.recommendation.RecommendationType},
- * {@link RecommendationStatus}, {@link EvidenceTier}) rather than each
- * having its own nested duplicate the way {@code PreparationTask.Status} or
- * {@code Topic.Category} do -- those pipeline classes exist independently
- * of this entity (P39-P41 built candidates and scoring before any
- * persistence existed at all), so this entity is what depends on them, not
- * the other way around.
- */
 @Entity
 @Table(name = "recommendations")
 public class Recommendation {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

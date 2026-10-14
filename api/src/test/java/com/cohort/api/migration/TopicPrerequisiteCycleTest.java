@@ -18,22 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-/**
- * US-38 / PROJECT_PLAN.md line 1541: {@code topic_prerequisites} "must
- * remain acyclic — enforced by a seed-time cycle-detection test, since
- * Postgres cannot express this as a constraint." This test loads the real
- * seeded graph from a real Postgres instance (V12/V13 migrations) and runs
- * an actual depth-first traversal with recursion-stack (white/gray/black)
- * colouring to prove it: a topic re-entered while still on the current DFS
- * path (coloured GRAY) means a cycle, which is exactly the classic
- * back-edge detection algorithm, not just an ad-hoc row count check. If any
- * future migration ever adds a prerequisite edge that closes a loop, this
- * test fails the build.
- */
 @SpringBootTest
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class TopicPrerequisiteCycleTest extends AbstractIntegrationTest {
-
     private enum Colour { WHITE, GRAY, BLACK }
 
     @Autowired
@@ -46,7 +33,6 @@ class TopicPrerequisiteCycleTest extends AbstractIntegrationTest {
                 ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM topics")) {
             rs.next();
             int count = rs.getInt(1);
-            // US-38 acceptance criterion: ~40-60 topics.
             assertThat(count).isBetween(40, 60);
         }
     }
@@ -64,7 +50,6 @@ class TopicPrerequisiteCycleTest extends AbstractIntegrationTest {
                 Statement statement = connection.createStatement();
                 ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM questions WHERE is_system = true")) {
             rs.next();
-            // US-35 acceptance criterion: seeded with >= 150 questions.
             assertThat(rs.getInt(1)).isGreaterThanOrEqualTo(150);
         }
     }
@@ -89,13 +74,6 @@ class TopicPrerequisiteCycleTest extends AbstractIntegrationTest {
         }
     }
 
-    /**
-     * Classic DFS cycle detection: a node is GRAY while it is still on the
-     * current recursion path and BLACK once fully explored. Encountering a
-     * GRAY node again is a back edge, i.e. a cycle — the same algorithm
-     * taught for detecting cycles in a directed graph. Returns a
-     * human-readable description of the cycle if one is found, else null.
-     */
     private String dfsFindCycle(
             String node, Map<String, List<String>> graph, Map<String, Colour> colour, ArrayDeque<String> path) {
         colour.put(node, Colour.GRAY);
@@ -118,7 +96,6 @@ class TopicPrerequisiteCycleTest extends AbstractIntegrationTest {
         return null;
     }
 
-    /** Edges point from a topic to its prerequisite, mirroring the FK columns. */
     private Map<String, List<String>> loadGraph() throws Exception {
         Map<String, List<String>> graph = new HashMap<>();
         Set<String> allTopics = new HashSet<>();

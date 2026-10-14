@@ -16,18 +16,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
-/**
- * A single job application (PROJECT_PLAN.md §17.2). {@code status} is the
- * current lifecycle state (may be terminal); {@code currentStage} tracks the
- * furthest/last *non-terminal* stage reached and is deliberately frozen once
- * status becomes terminal — so an application Rejected right after Interview
- * still shows "Interview" as its stage, which is what FR-25/26's dwell-time
- * calculation needs. See {@link #applyStatusChange(ApplicationStatus)}.
- */
 @Entity
 @Table(name = "applications")
 public class Application {
-
     public enum WorkMode { onsite, hybrid, remote }
 
     public enum JobType { internship, full_time, part_time, contract }
@@ -74,10 +65,6 @@ public class Application {
     @Column(name = "salary_max")
     private BigDecimal salaryMax;
 
-    // The DB column is CHAR(3), not VARCHAR — @JdbcTypeCode tells Hibernate's
-    // schema *validator* to expect CHAR too; columnDefinition alone only
-    // affects DDL generation, not validation, and Hibernate defaults a
-    // plain String field to VARCHAR.
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "salary_currency", length = 3)
     private String salaryCurrency;
@@ -144,13 +131,6 @@ public class Application {
         this.stageEnteredAt = Instant.now();
     }
 
-    /**
-     * Applies an already-validated status transition (legality is checked
-     * beforehand by {@code ApplicationStatusStateRegistry} — the State
-     * pattern, not this method, owns that decision). {@code currentStage}
-     * only moves when the new status is non-terminal; a terminal status
-     * freezes it at whatever non-terminal stage the application was last in.
-     */
     public void applyStatusChange(ApplicationStatus newStatus) {
         this.status = newStatus;
         if (!newStatus.isTerminal()) {

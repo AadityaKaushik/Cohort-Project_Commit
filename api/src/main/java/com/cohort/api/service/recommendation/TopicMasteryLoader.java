@@ -20,24 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
-/**
- * Loads a {@link TopicMasterySnapshot} per topic for a user -- the
- * recommendation pipeline's own entry point into P30's {@link MasteryEngine},
- * carrying both the raw and decayed score (US-51/US-52's generators need
- * both; {@code PreparationService#progress} only ever exposed the decayed
- * one to the progress screen).
- *
- * <p>The evidence-loading queries below deliberately mirror
- * {@code PreparationService}'s own private {@code practiceEvidenceByTopic}/
- * {@code interviewEvidenceByTopic} methods rather than extracting a shared
- * component out of already-tested P29/P30 code mid-Sprint-4 ("smallest
- * commits" per BUILD_PHASES_JAVA.md) -- a reasonable follow-up refactor,
- * not a correctness concern, since both copies implement the identical
- * §21.4 evidence-gathering rule.
- */
 @Component
 public class TopicMasteryLoader {
-
     private final TopicRepository topicRepository;
     private final QuestionRepository questionRepository;
     private final PracticeAttemptRepository practiceAttemptRepository;

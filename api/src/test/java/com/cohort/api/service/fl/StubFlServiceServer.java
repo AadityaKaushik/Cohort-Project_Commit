@@ -6,23 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * A hand-rolled HTTP stub for fl-service's {@code /fl/model} and (P55)
- * {@code /fl/round} contracts, used
- * by both P52's adapter contract test and P53's circuit-breaker
- * fault-injection test. Built on the JDK's own {@link HttpServer}
- * (no WireMock/MockWebServer dependency added) — this codebase has no
- * existing precedent for stubbing an external HTTP dependency, and a
- * same-JVM JDK server is the simplest reliable option for a contract this
- * small (one GET endpoint, one JSON body).
- *
- * <p>{@link #stop()} closes the listening socket outright rather than
- * returning an error response — this is what P53's fault-injection test
- * needs to simulate fl-service being actually down (connection refused),
- * not merely answering with a 5xx.
- */
 public final class StubFlServiceServer implements AutoCloseable {
-
     private final HttpServer server;
     private final AtomicReference<String> modelResponseJson = new AtomicReference<>(defaultModelJson());
     private final AtomicReference<String> roundResponseJson = new AtomicReference<>(defaultRoundJson());
@@ -61,12 +45,10 @@ public final class StubFlServiceServer implements AutoCloseable {
         roundResponseJson.set(json);
     }
 
-    /** The raw JSON body of the most recent {@code POST /fl/round}, or null if none has arrived yet. */
     public String lastRoundRequestJson() {
         return lastRoundRequestJson.get();
     }
 
-    /** Simulates fl-service actually being down: further requests get connection-refused, not a slow/error response. */
     public void stop() {
         server.stop(0);
     }

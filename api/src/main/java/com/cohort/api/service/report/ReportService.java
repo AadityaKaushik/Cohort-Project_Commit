@@ -38,24 +38,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-80 / FR-102..104: generates, lists, serves and deletes a user's report
- * exports. Generation loads the user's own data (every query scoped by
- * {@code userId}), hands it to {@link ReportBuilder}, renders it with the
- * requested {@link ReportRenderer}, and stores the bytes through the report
- * {@link FileStorageStrategy}.
- *
- * <p><strong>Download security mirrors resumes (FR-32) exactly</strong> --
- * see {@code ResumeService}: the download endpoint requires the same
- * short-lived bearer JWT as every other endpoint (authenticated, expiring),
- * and the export is looked up by {@code (id, userId)} so another user's ID is
- * indistinguishable from a non-existent one (404, FR-95). On top of that,
- * each export carries its own {@code expires_at}: after it passes, the
- * owner gets a 410 and {@link ReportExpiryJob} removes the row and file.
- */
 @Service
 public class ReportService {
-
     private static final Logger log = LoggerFactory.getLogger(ReportService.class);
 
     private final ReportExportRepository reportExportRepository;
@@ -117,7 +101,6 @@ public class ReportService {
         return ReportExportResponse.from(export);
     }
 
-    /** The caller's exports that can still be downloaded, newest first. */
     @Transactional(readOnly = true)
     public List<ReportExportResponse> list(UUID userId) {
         return reportExportRepository.findAllByUserIdAndExpiresAtAfterOrderByGeneratedAtDesc(userId, Instant.now()).stream()
@@ -141,7 +124,6 @@ public class ReportService {
         reportStorage.delete(export.getFilePath());
     }
 
-    /** FR-104: removes every expired export (row and file) across all users; returns how many were removed. */
     @Transactional
     public int deleteExpired(Instant now) {
         List<ReportExport> expired = reportExportRepository.findAllByExpiresAtLessThanEqual(now);
@@ -191,7 +173,6 @@ public class ReportService {
                 snapshot);
     }
 
-    /** Keeps each user's export history bounded: beyond {@code max-per-user}, the oldest are removed. */
     private void pruneBeyondLimit(UUID userId, Instant now) {
         List<ReportExport> live = reportExportRepository.findAllByUserIdAndExpiresAtAfterOrderByGeneratedAtDesc(userId, now);
         for (ReportExport stale : live.subList(Math.min(maxPerUser, live.size()), live.size())) {
@@ -240,7 +221,6 @@ public class ReportService {
         return base + "-" + range + "." + request.format().extension();
     }
 
-    /** What the controller needs to stream the file back with the right headers. */
     public record DownloadableReport(byte[] content, String fileName, String contentType) {
     }
 }

@@ -12,20 +12,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One question recorded against an interview (PROJECT_PLAN.md §17.2, US-29).
- * {@code questionText} is private by design (DR-10: interview questions are
- * frequently NDA-constrained) — it is returned to its owner like any other
- * field, but this entity is never read by analytics or the FL feature
- * export, so the text itself never leaves the owner's own view of the app.
- * {@code topicId}/{@code linkedQuestionId} are plain columns for now — their
- * FK constraints land with the Sprint 3 prep-bank migration that creates
- * {@code topics}/{@code questions} (V10 migration comment).
- */
 @Entity
 @Table(name = "interview_questions")
 public class InterviewQuestion {
-
     public enum Category { dsa, technical, behavioural, hr, system_design, company_specific }
 
     public enum Difficulty { easy, medium, hard }

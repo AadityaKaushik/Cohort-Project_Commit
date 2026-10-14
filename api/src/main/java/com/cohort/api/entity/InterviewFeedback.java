@@ -10,18 +10,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * The one structured post-interview debrief per interview (PROJECT_PLAN.md
- * §17.2, US-30), one-to-one via the unique {@code interview_id}.
- * {@code selfRating} is nullable, not required, so a partially-filled
- * debrief can be saved as a draft ({@code isDraft = true}) and completed
- * later — the "≤3 minutes" completion target (NFR-31) depends on never
- * forcing every field before the first save.
- */
 @Entity
 @Table(name = "interview_feedback")
 public class InterviewFeedback {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

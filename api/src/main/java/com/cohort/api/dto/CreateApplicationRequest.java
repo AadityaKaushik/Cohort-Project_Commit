@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** FR-12/FR-13: company, job title, status, and date applied are required; everything else is optional. */
 public record CreateApplicationRequest(
         @NotBlank @Size(max = 200) String companyName,
         @NotBlank @Size(max = 300) String jobTitle,

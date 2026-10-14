@@ -11,19 +11,9 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One logged practice session against a question (US-37, PROJECT_PLAN.md
- * §17.2 line 1545). Deliberately append-only — there is no update or
- * delete path in the service/controller layer, matching the schema
- * comment: "repeated attempts create rows, giving a confidence trajectory
- * rather than a single overwritten value," which is exactly the time
- * series {@link com.cohort.api.service.preparation.MasteryEngine} (P30)
- * applies exponential recency weighting over.
- */
 @Entity
 @Table(name = "practice_attempts")
 public class PracticeAttempt {
-
     public enum Status { not_started, in_progress, confident, needs_review }
 
     @Id

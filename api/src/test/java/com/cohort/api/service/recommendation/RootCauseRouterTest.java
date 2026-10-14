@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/** US-52 / PROJECT_PLAN.md §21.5: {@link RootCauseRouter#routeToRootCause} against hand-built prerequisite graphs, including the mandatory depth-cap case. */
 class RootCauseRouterTest {
-
     private final RootCauseRouter router = new RootCauseRouter();
 
     @Test
@@ -24,8 +22,7 @@ class RootCauseRouterTest {
 
     @Test
     void doesNotRouteWhenThePrerequisiteIsNotMeaningfullyWeaker() {
-        // §21.5's own worked example, but with the prerequisite only marginally weaker (within the 0.15 margin) --
-        // routing on noise this small is exactly what the margin exists to prevent.
+        // §21.5's own worked example, but with the prerequisite only marginally weaker (within the 0.15 margin) -- routing on noise this small is exactly what the margin exists to prevent.
         UUID shortestPath = UUID.randomUUID();
         UUID graphTraversal = UUID.randomUUID();
         Map<UUID, Double> mastery = Map.of(shortestPath, 0.46, graphTraversal, 0.40);
@@ -38,7 +35,6 @@ class RootCauseRouterTest {
 
     @Test
     void routesOneHopToAMeaningfullyWeakerPrerequisite() {
-        // §21.5's own worked example: shortest_path (0.46) routes to graph_traversal_bfs_dfs (0.31) -- a 0.15 gap exactly at the boundary, so use 0.30 to be unambiguously past it.
         UUID shortestPath = UUID.randomUUID();
         UUID graphTraversal = UUID.randomUUID();
         UUID graphs = UUID.randomUUID();
@@ -64,21 +60,10 @@ class RootCauseRouterTest {
 
         RootCauseRouter.RoutingResult result = router.routeToRootCause(a, mastery, prerequisites);
 
-        // d (0.3) is the true weakest ancestor, but the depth cap stops routing after 2 hops at c, not d.
         assertThat(result.topicId()).isEqualTo(c);
         assertThat(result.chain()).containsExactly(a, b, c);
     }
 
-    /**
-     * The mandatory pathological-graph case: an artificially long chain of
-     * 21 topics, each strictly weaker than the last by well over the 0.15
-     * margin (so, unlike a real graph, this one keeps satisfying the
-     * routing condition far past where any real mastery score could), plus
-     * a genuine two-node cycle layered on top. If the depth cap were
-     * missing or broken, this would recurse 20 levels deep (or loop
-     * forever around the cycle); with it, routing must still terminate at
-     * exactly depth 2.
-     */
     @Test
     void depthCapTerminatesOnAPathologicallyLongAndCyclicGraph() {
         int chainLength = 21;
@@ -87,12 +72,11 @@ class RootCauseRouterTest {
         Map<UUID, List<UUID>> prerequisites = new HashMap<>();
         for (int i = 0; i < chainLength; i++) {
             topics[i] = UUID.randomUUID();
-            mastery.put(topics[i], 1.0 - (i * 0.2)); // strictly decreasing well past [0,1] by the end -- deliberately adversarial
+            mastery.put(topics[i], 1.0 - (i * 0.2));
         }
         for (int i = 0; i < chainLength - 1; i++) {
             prerequisites.put(topics[i], List.of(topics[i + 1]));
         }
-        // Layer a genuine cycle onto the tail: the last topic's "prerequisite" is the first topic.
         prerequisites.put(topics[chainLength - 1], List.of(topics[0]));
 
         RootCauseRouter.RoutingResult result = router.routeToRootCause(topics[0], mastery, prerequisites);

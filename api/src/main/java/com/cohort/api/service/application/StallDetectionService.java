@@ -20,28 +20,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-18 / §20.7's stall flag: "an application is stalled when
- * {@code days_in_stage > max(user_median_dwell[stage] x 1.5, system_default[stage])},
- * requiring &gt;=5 observations for the personal median; otherwise the
- * system default applies." The personal-median half of that comparison is
- * computed by {@link StageDwellTimeMetric} -- the exact same {@link AnalyticsMetric}
- * Template Method subclass P34 built for US-48's dwell-time medians, reused
- * here rather than reimplemented, so the "&gt;=5 observations" gate is the
- * same {@code final evaluate()} skeleton every other metric in this
- * codebase is bound by, not a bespoke threshold check.
- */
 @Service
 public class StallDetectionService {
-
-    /**
-     * §20.7 doesn't pin numeric system defaults (only that one must exist
-     * "when history is insufficient," FR-26) -- these are this codebase's
-     * documented choice: roughly how long a candidate would typically wait
-     * at each stage before following up is reasonable, front-loaded for
-     * early stages where employers are slower, tightening as a candidate
-     * gets closer to an offer.
-     */
     static final Map<ApplicationStatus, Double> SYSTEM_DEFAULT_DWELL_DAYS = new EnumMap<>(Map.of(
             ApplicationStatus.SAVED, 30.0,
             ApplicationStatus.APPLIED, 14.0,
@@ -50,7 +30,6 @@ public class StallDetectionService {
             ApplicationStatus.FINAL_ROUND, 7.0,
             ApplicationStatus.OFFER, 7.0));
 
-    /** §20.7: "requiring >= 5 observations for the personal median" -- the same threshold {@link AnalyticsMetric#DEFAULT_MINIMUM_SAMPLE_SIZE} enforces everywhere else. */
     static final double PERSONAL_MEDIAN_MULTIPLIER = 1.5;
 
     public static final String BASIS_PERSONAL = "personal";
@@ -59,11 +38,6 @@ public class StallDetectionService {
     public record StallEvaluation(boolean stalled, double daysInStage, double thresholdDays, String basis, int personalSampleSize) {
     }
 
-    /**
-     * {@code stageEnteredAt} identifies <em>which</em> stay in the current
-     * stage is stalled -- P59's {@code StalledApplicationEvent} uses it so
-     * one stall is reported once, not once per detection run.
-     */
     public record StalledApplication(
             UUID applicationId,
             String companyName,
@@ -85,14 +59,6 @@ public class StallDetectionService {
         this.snapshotLoader = snapshotLoader;
     }
 
-    /**
-     * The pure decision at the heart of US-18, isolated from any repository
-     * so it can be unit-tested directly against every combination of
-     * inputs: given how long an application has sat in its current stage,
-     * this user's own historical median dwell for that stage (and how many
-     * observations that median is based on), and the system default for
-     * the stage, decide whether it's stalled and which basis was used.
-     */
     public static StallEvaluation evaluate(
             double daysInStage, double personalMedianDays, int personalSampleSize, double systemDefaultDays) {
         boolean sufficientPersonalData = personalSampleSize >= AnalyticsMetric.DEFAULT_MINIMUM_SAMPLE_SIZE;
@@ -104,12 +70,6 @@ public class StallDetectionService {
         return new StallEvaluation(stalled, daysInStage, threshold, basis, personalSampleSize);
     }
 
-    /**
-     * US-18: every one of this user's non-terminal applications that is
-     * currently stalled, scoped end to end by {@code userId} (FR-94/95).
-     * Personal medians are computed once, across this user's whole history,
-     * and reused for every application sitting in that same stage.
-     */
     @Transactional(readOnly = true)
     public List<StalledApplication> detectStalled(UUID userId) {
         List<ApplicationSnapshot> snapshots = snapshotLoader.load(userId);

@@ -17,20 +17,8 @@ import java.util.UUID;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-/**
- * Observer pattern, subscriber side (ARCHITECTURE_REVISION_JAVA.md §4.1/§4.3,
- * FR-100): subscribes to the three P59 domain events, turns each into
- * user-facing copy, and hands the resulting {@link NotificationMessage} to
- * {@link NotificationService}, which picks the delivery strategy. The
- * detectors that publish these events never learn this class exists; it is
- * discovered purely through Spring's {@code @EventListener} registration.
- *
- * <p>Times are rendered in the user's own profile timezone when one is set
- * (US-05), falling back to UTC -- labelled as such so it's never ambiguous.
- */
 @Component
 public class NotificationListener {
-
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("EEE d MMM, HH:mm", Locale.ENGLISH);
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("EEE d MMM", Locale.ENGLISH);
 

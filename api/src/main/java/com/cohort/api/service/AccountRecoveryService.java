@@ -21,10 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** US-92: password reset and email verification over single-use, expiring tokens. */
 @Service
 public class AccountRecoveryService {
-
     private final UserRepository userRepository;
     private final AuthTokenRepository authTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -57,7 +55,7 @@ public class AccountRecoveryService {
         this.verificationTtl = Duration.ofHours(verificationTtlHours);
     }
 
-    /** Silent for unknown emails so the response never reveals whether an account exists. */
+    // Silent for unknown emails so the response never reveals whether an account exists.
     @Transactional
     public void requestPasswordReset(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {

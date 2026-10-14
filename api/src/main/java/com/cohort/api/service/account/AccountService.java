@@ -23,20 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-06 / US-08: credentials and lifecycle of the caller's own account.
- *
- * <p>Deletion removes the {@code users} row, and every owned table follows
- * through {@code ON DELETE CASCADE} (NFR-14, verified by an orphan check over
- * the whole schema). What the database cannot cascade into is cleaned up
- * first: uploaded resume files, generated report files, and the client
- * state held by fl-service. A fl-service outage never blocks deletion --
- * the user's right to erase their account does not depend on another
- * service being up -- so that call is logged and skipped on failure.
- */
 @Service
 public class AccountService {
-
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
     static final String DELETE_CONFIRMATION = "DELETE";
 

@@ -2,12 +2,6 @@ package com.cohort.api.service.fl;
 
 import java.util.List;
 
-/**
- * Exactly the 24 named, bounded floats {@link FlFeatureSchema} defines, in
- * schema order (US-58). Every field is a primitive {@code double} — by
- * construction there is no field type here that could admit a string, an
- * identifier, or free text; that is what P51's allow-list test checks.
- */
 public record FlFeatureVector(
         double masteryMean,
         double masteryMin,
@@ -33,8 +27,6 @@ public record FlFeatureVector(
         double applicationVolume,
         double resumeVariants,
         double roundTypeOrdinal) {
-
-    /** In {@link FlFeatureSchema#FEATURE_NAMES} order -- the exact wire-format array. */
     public double[] toOrderedArray() {
         return new double[] {
             masteryMean, masteryMin, masteryStd, practiceVolume, topicBreadth, practiceRecency,
@@ -45,7 +37,6 @@ public record FlFeatureVector(
         };
     }
 
-    /** name -&gt; value, in schema order — what the export job actually serialises (P51's "matches the allow-list exactly" test). */
     public java.util.Map<String, Double> toNamedMap() {
         double[] values = toOrderedArray();
         List<String> names = FlFeatureSchema.FEATURE_NAMES;

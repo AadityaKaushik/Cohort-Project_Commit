@@ -16,18 +16,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
-/**
- * One structured entry in a resume — experience, education, project,
- * achievement, or skill (US-23, PROJECT_PLAN.md §17.2/V8 migration). No
- * CRUD endpoint creates these yet (US-23 is out of scope for P20/P21); this
- * entity exists now so the clone operation (US-25/P21) has something to
- * copy, and so the table Hibernate validates against at startup has a
- * mapped counterpart.
- */
 @Entity
 @Table(name = "resume_sections")
 public class ResumeSection {
-
     public enum SectionType { experience, education, project, achievement, skill }
 
     @Id

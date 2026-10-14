@@ -16,11 +16,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
-/** US-93: the provider redirect flow lives in its own filter chain so the API chain stays stateless. */
 @Configuration
 @EnableConfigurationProperties(OAuthProviderProperties.class)
 public class OAuthConfig {
-
     @Bean
     public ConfiguredClientRegistrations clientRegistrationRepository(OAuthProviderProperties properties) {
         return new ConfiguredClientRegistrations(properties);
@@ -53,9 +51,7 @@ public class OAuthConfig {
         return http.build();
     }
 
-    /** An unconfigured provider is simply absent (404), not a server error. */
     static final class KnownProvidersOnlyResolver implements OAuth2AuthorizationRequestResolver {
-
         private final ClientRegistrationRepository registrations;
         private final OAuth2AuthorizationRequestResolver delegate;
 

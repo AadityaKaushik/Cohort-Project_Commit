@@ -13,14 +13,7 @@ import java.util.Map;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * P34's mandatory verify: golden-file test pinning {@link RejectionDistributionMetric}
- * (US-46) against a hand-computed fixture -- case1 has an adequate sample
- * (n=6), case2 is deliberately below FR-67's threshold, proving the
- * distribution is still computed (never hidden) but marked insufficient.
- */
 class RejectionDistributionMetricGoldenFileTest {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final RejectionDistributionMetric metric = new RejectionDistributionMetric();

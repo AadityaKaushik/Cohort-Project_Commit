@@ -11,10 +11,8 @@ import java.util.Set;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-/** FR-03: minimum length plus a common-password blocklist. */
 @Component
 public class PasswordPolicyValidator {
-
     private static final int MIN_LENGTH = 10;
 
     private final Set<String> commonPasswords = new HashSet<>();

@@ -4,7 +4,6 @@ import com.cohort.api.entity.Notification;
 import java.time.Instant;
 import java.util.UUID;
 
-/** US-79: one notification in the bell/list. {@code related_entity_*} is what the UI turns into a link to the application or interview it's about. */
 public record NotificationResponse(
         UUID id,
         Notification.Type type,
@@ -15,7 +14,6 @@ public record NotificationResponse(
         boolean isRead,
         Instant readAt,
         Instant createdAt) {
-
     public static NotificationResponse from(Notification notification) {
         return new NotificationResponse(
                 notification.getId(),

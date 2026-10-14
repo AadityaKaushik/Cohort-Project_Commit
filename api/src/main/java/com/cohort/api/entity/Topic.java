@@ -9,16 +9,9 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * A node in the system-owned prerequisite DAG (US-38, PROJECT_PLAN.md
- * §17.2 line 1539). Seeded and versioned by the V12/V13 migrations; there
- * is no create/update/delete path for topics in the API — the taxonomy is
- * reference data, not user content.
- */
 @Entity
 @Table(name = "topics")
 public class Topic {
-
     public enum Category { dsa, system_design, databases, os_networking, oop, behavioural }
 
     @Id

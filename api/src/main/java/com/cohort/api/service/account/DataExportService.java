@@ -17,15 +17,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-07: everything the user has entered, as one JSON document -- profile,
- * every owned table (see {@link UserDataExportRepository}), and each uploaded
- * resume file base64-encoded under {@code resume_files}. Nothing here is
- * fetched by anything other than the caller's own ID.
- */
 @Service
 public class DataExportService {
-
     private final UserRepository userRepository;
     private final ResumeRepository resumeRepository;
     private final UserDataExportRepository exportRepository;

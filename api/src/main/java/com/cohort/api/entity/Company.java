@@ -10,15 +10,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * User-scoped company record (ADR-004): every user maintains their own
- * companies rather than sharing one global table, so nothing about who is
- * applying where ever leaks across users via a shared row.
- */
 @Entity
 @Table(name = "companies")
 public class Company {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")
@@ -36,10 +30,6 @@ public class Company {
     @Column
     private String industry;
 
-    // Named `userId` (not `createdByUserId`) purely so CompanyRepository can
-    // extend the shared UserScopedRepository<T> base, which requires that
-    // exact property name. The DB column is created_by_user_id (§17.2) —
-    // "creator" and "owner" are the same person for a user-scoped record.
     @Column(name = "created_by_user_id", nullable = false)
     private UUID userId;
 

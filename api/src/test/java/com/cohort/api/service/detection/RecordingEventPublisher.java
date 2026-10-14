@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 
-/** A publisher with no subscribers at all -- it only remembers what it was handed, which is all a detector test needs to see. */
 final class RecordingEventPublisher implements ApplicationEventPublisher {
-
     final List<Object> published = new ArrayList<>();
 
     @Override

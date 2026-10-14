@@ -24,16 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * P51/US-58: Java's local feature extractor must never let a record dated
- * after {@code as_of} influence the vector -- the same point-in-time
- * leakage property P44's Python extractor is tested for
- * ({@code test_feature_extractor.py}). Also checks every value stays
- * within {@link FlFeatureSchema}'s declared bounds.
- */
 @ExtendWith(MockitoExtension.class)
 class FlFeatureExtractionServiceTest {
-
     @Mock
     private PracticeAttemptRepository practiceAttemptRepository;
     @Mock
@@ -78,13 +70,12 @@ class FlFeatureExtractionServiceTest {
         Instant asOf = Instant.parse("2026-01-15T00:00:00Z");
         PracticeAttempt before1 = attempt(asOf.minus(1, ChronoUnit.DAYS));
         PracticeAttempt before2 = attempt(asOf.minusSeconds(1)); // one second before the cutoff: must count
-        PracticeAttempt exactlyAtCutoff = attempt(asOf); // inclusive per the Java-side filter (<=)
+        PracticeAttempt exactlyAtCutoff = attempt(asOf);
         PracticeAttempt after = attempt(asOf.plusSeconds(1)); // one second after: must NOT count
         when(practiceAttemptRepository.findAllByUserId(userId)).thenReturn(List.of(before1, before2, exactlyAtCutoff, after));
 
         FlFeatureVector vector = service.extract(userId, asOf);
 
-        // practice_volume = clip(log1p(count)/log1p(500)) -- back out the count and assert it's 3, not 4.
         double expectedForThreeAttempts = Math.log1p(3) / Math.log1p(500);
         assertThat(vector.practiceVolume()).isCloseTo(expectedForThreeAttempts, org.assertj.core.data.Offset.offset(1e-9));
     }
@@ -133,7 +124,7 @@ class FlFeatureExtractionServiceTest {
         return resume;
     }
 
-    /** createdAt is @CreationTimestamp-managed (only set by Hibernate on persist); these entities are never persisted in this unit test, so it's set via reflection instead. */
+    // createdAt is @CreationTimestamp-managed (only set by Hibernate on persist); these entities are never persisted in this unit test, so it's set via reflection instead.
     private void setCreatedAt(Object entity, Instant createdAt) {
         try {
             java.lang.reflect.Field field = entity.getClass().getDeclaredField("createdAt");

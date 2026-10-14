@@ -15,18 +15,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Decorator + Chain of Responsibility (ARCHITECTURE_REVISION_JAVA.md §4.1).
- * The delegate is mocked so these tests prove two things independently:
- * (1) a bad upload never reaches the underlying storage at all, and (2) the
- * mandatory case for this phase — a renamed executable is caught by
- * magic-byte sniffing specifically, not by the (easily forged) extension or
- * Content-Type checks that run before it.
- */
 class ValidatingFileStorageTest {
-
     private static final byte[] REAL_PDF_BYTES = "%PDF-1.4\n%fake but valid header".getBytes(StandardCharsets.UTF_8);
-    // A Windows PE executable's real header: "MZ" followed by the rest of the DOS stub.
     private static final byte[] WINDOWS_EXECUTABLE_BYTES =
             new byte[] {0x4D, 0x5A, (byte) 0x90, 0x00, 0x03, 0x00, 0x00, 0x00};
 
@@ -54,9 +44,6 @@ class ValidatingFileStorageTest {
 
     @Test
     void aWindowsExecutableRenamedToPdfWithAForgedContentTypeIsRejectedByMagicByteSniffing() {
-        // Passes stage 1 (extension is literally ".pdf") and stage 2 (Content-Type
-        // header is forged to "application/pdf") — only the magic-byte stage,
-        // which inspects the file's real header bytes, catches this.
         FileUpload disguisedExecutable = new FileUpload("resume.pdf", "application/pdf", WINDOWS_EXECUTABLE_BYTES);
 
         assertThatThrownBy(() -> validatingFileStorage.store(UUID.randomUUID(), disguisedExecutable))

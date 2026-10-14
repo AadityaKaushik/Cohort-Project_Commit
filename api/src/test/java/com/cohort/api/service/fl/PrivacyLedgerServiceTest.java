@@ -23,16 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * P55/US-63: {@link PrivacyLedgerService} must persist exactly the vector
- * fl-service reported -- never substitute a placeholder -- and must never
- * let fl-service being unreachable propagate as an exception (this is
- * background orchestration, the same "log and skip" resilience style as
- * {@code FlFeatureExportJob}, P51).
- */
 @ExtendWith(MockitoExtension.class)
 class PrivacyLedgerServiceTest {
-
     @Mock
     private FederatedLearningGateway gateway;
     @Mock

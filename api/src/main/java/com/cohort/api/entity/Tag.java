@@ -9,17 +9,9 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * A user-scoped, free-form label (V6 migration, US-19). Full tag CRUD and
- * the bulk-tagging UI land later (US-19, Sprint 5) — this entity exists now
- * only so {@link com.cohort.api.repository.specification.ApplicationSpecifications#hasTag}
- * can filter applications by tag name (FR-16), which is in scope for this
- * phase even though managing tags isn't yet.
- */
 @Entity
 @Table(name = "tags")
 public class Tag {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

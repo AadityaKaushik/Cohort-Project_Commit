@@ -22,16 +22,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-/**
- * P60's verify (Strategy, cooperating with P59's Observer): the same,
- * unmodified {@link StalledApplicationDetector} is wired into a real Spring
- * context -- real event bus, real {@link NotificationListener}, real
- * {@link NotificationService} -- once with one delivery strategy and once
- * with a different one. The notification reaches whichever strategy is
- * configured, and nothing about the detector changes between the two runs.
- */
 class NotificationStrategySwapTest {
-
     private final UUID userId = UUID.randomUUID();
     private final UUID applicationId = UUID.randomUUID();
 
@@ -105,7 +96,7 @@ class NotificationStrategySwapTest {
                 .hasMessageContaining("sms");
     }
 
-    /** Builds a fresh Spring context around the real detector/listener/service, varying only the channel configuration. */
+    // Builds a fresh Spring context around the real detector/listener/service, varying only the channel configuration.
     private int runDetectionWith(List<NotificationChannel> channels, List<String> enabled) {
         StallDetectionService stallDetectionService = mock(StallDetectionService.class);
         when(stallDetectionService.detectStalled(userId)).thenReturn(List.of(new StalledApplication(

@@ -24,17 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * US-80 / FR-102..104. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2):
- * every method delegates straight to ReportService. The download mirrors
- * {@code ResumeController#downloadFile}: bearer-JWT authenticated, owner-only,
- * served as an attachment -- plus {@code Cache-Control: no-store}, since a
- * report is a bundle of personal data no shared cache should keep.
- */
 @RestController
 @RequestMapping("/api/v1/reports")
 public class ReportController {
-
     private final ReportService reportService;
 
     public ReportController(ReportService reportService) {

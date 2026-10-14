@@ -26,11 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-35..37: question bank browsing/authoring plus practice attempt recording. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2). */
 @RestController
 @RequestMapping("/api/v1/questions")
 public class QuestionController {
-
     private final PreparationService preparationService;
 
     public QuestionController(PreparationService preparationService) {

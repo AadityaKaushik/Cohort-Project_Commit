@@ -7,17 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-/**
- * Adapter pattern (ARCHITECTURE_REVISION_JAVA.md §4.1): the only class in
- * this codebase that knows fl-service's actual REST contract
- * ({@code GET /fl/model}, P49) — translates its JSON shape into
- * {@link FlModelInfo} and its failure modes into one exception type,
- * {@link FlServiceUnavailableException}, that P53's circuit breaker knows
- * how to react to.
- */
 @Component
 public class FlowerServiceAdapter implements FederatedLearningGateway {
-
     private final RestClient flServiceRestClient;
 
     public FlowerServiceAdapter(RestClient flServiceRestClient) {
@@ -67,14 +58,12 @@ public class FlowerServiceAdapter implements FederatedLearningGateway {
         }
     }
 
-    /** Mirrors fl-service's {@code app/control/api.py::_serialise} response shape exactly. */
     private record ModelResponse(int version, int roundNumber, int participantCount, Instant createdAt, List<Double> parameters) {
     }
 
     private record RoundRequest(int roundNumber, List<String> clientIds) {
     }
 
-    /** Mirrors fl-service's {@code POST /fl/round} response shape exactly (app/control/api.py). */
     private record RoundResponse(int roundNumber, boolean accepted, String reason, int cohortSize, List<RoundEntry> entries) {
     }
 

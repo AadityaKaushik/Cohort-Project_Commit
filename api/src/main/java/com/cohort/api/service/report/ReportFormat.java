@@ -1,6 +1,5 @@
 package com.cohort.api.service.report;
 
-/** FR-102: the two export formats, with the HTTP content type and file extension each is served with. */
 public enum ReportFormat {
     pdf("application/pdf", "pdf"),
     csv("text/csv", "csv");

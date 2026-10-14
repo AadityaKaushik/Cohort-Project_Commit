@@ -18,27 +18,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises /analytics/funnel, /analytics/conversions and /analytics/timeline
- * (US-43..45) against a real Postgres instance: builds a small, known
- * application pipeline through the real status-change endpoint (so history
- * rows are the same ones production traffic would create), then checks the
- * funnel/conversion numbers against independently hand-computed expectations
- * -- the same golden-file discipline as {@code FunnelMetricGoldenFileTest}
- * et al., but end to end through the controller and real Postgres-backed
- * repositories this time.
- *
- * <p>Isolation (FR-94/95): these are aggregate, no-path-id endpoints, so
- * there is no single foreign resource to probe for a 404 -- the isolation
- * property that matters here is that a second user's analytics reflect only
- * their own (empty) data, never the first user's, which
- * {@code aSecondUserSeesOnlyItsOwnEmptyAnalytics} checks directly.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class AnalyticsIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private org.springframework.test.web.servlet.MockMvc mockMvc;
 
@@ -50,13 +33,11 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
         String token = registerAndGetAccessToken("analytics-funnel@example.com", "Owner");
         LocalDate today = LocalDate.now();
 
-        // app1: Applied -> OA -> Interview -> Rejected (reached Interview, then rejected there)
         String app1 = createApplication(token, "Acme", today);
         changeStatus(token, app1, "OA", null);
         changeStatus(token, app1, "INTERVIEW", null);
         changeStatus(token, app1, "REJECTED", null);
 
-        // app2: Applied -> OA -> Interview -> Final Round -> Offer -> Accepted (the full pipeline)
         String app2 = createApplication(token, "Globex", today);
         changeStatus(token, app2, "OA", null);
         changeStatus(token, app2, "INTERVIEW", null);
@@ -64,7 +45,6 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
         changeStatus(token, app2, "OFFER", null);
         changeStatus(token, app2, "ACCEPTED", null);
 
-        // app3: still just Applied, waiting -- "still open," not resolved.
         createApplication(token, "Initech", today);
 
         // app4: never applied at all (Saved), excluded from "applied."
@@ -113,12 +93,10 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
         String token = registerAndGetAccessToken("analytics-rejection@example.com", "Owner");
         LocalDate today = LocalDate.now();
 
-        // Rejected after reaching OA only.
         String appRejectedAtOa = createApplication(token, "Acme", today);
         changeStatus(token, appRejectedAtOa, "OA", null);
         changeStatus(token, appRejectedAtOa, "REJECTED", null);
 
-        // Rejected after reaching Interview.
         String appRejectedAtInterview = createApplication(token, "Globex", today);
         changeStatus(token, appRejectedAtInterview, "OA", null);
         changeStatus(token, appRejectedAtInterview, "INTERVIEW", null);
@@ -142,7 +120,6 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
         String token = registerAndGetAccessToken("analytics-dwell@example.com", "Owner");
         LocalDate today = LocalDate.now();
 
-        // One completed Applied->OA transition (a real, if tiny, duration), then still sitting at OA (censored).
         String app = createApplication(token, "Acme", today);
         changeStatus(token, app, "OA", null);
 

@@ -15,24 +15,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
-/**
- * US-72/P26: the dev seed script (db/seed/R__seed_dev_data.sql) must be
- * genuinely idempotent — every ID it inserts is deterministic and every
- * statement ends in {@code ON CONFLICT (id) DO NOTHING} — so this test
- * executes the raw SQL file directly, twice, bypassing Flyway's own
- * checksum-based "don't re-run an unchanged repeatable migration" shortcut,
- * which would otherwise make the test trivially pass without proving the
- * SQL itself is safe to re-apply.
- */
 @SpringBootTest
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class SeedDataIntegrationTest extends AbstractIntegrationTest {
-
-    // The base classpath location (db/migration) already applies via the
-    // default Flyway config; this test only needs to load and execute the
-    // seed script's own SQL directly against the resulting schema, so it
-    // never has to activate the `dev` profile or touch spring.flyway.locations.
-
     @Autowired
     private DataSource dataSource;
 
@@ -49,8 +34,6 @@ class SeedDataIntegrationTest extends AbstractIntegrationTest {
 
             assertThat(secondRun).usingRecursiveComparison().isEqualTo(firstRun);
 
-            // Sanity-check the counts are what the script actually intends,
-            // not just "equal to each other by coincidence."
             assertThat(firstRun.users()).isEqualTo(1);
             assertThat(firstRun.companies()).isEqualTo(8);
             assertThat(firstRun.resumes()).isEqualTo(3);

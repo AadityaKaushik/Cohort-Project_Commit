@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -53,9 +52,6 @@ public class UserService {
     }
 
     private User requireUser(UUID userId) {
-        // The caller's identity comes from a just-validated JWT subject, so
-        // a missing row here means the account was deleted after the token
-        // was issued — not a client error worth its own exception type.
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("Authenticated user " + userId + " no longer exists"));
     }

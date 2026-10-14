@@ -25,18 +25,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/**
- * P60 against real Postgres: a published domain event becomes exactly one
- * {@code notifications} row via the in-app strategy, for the event's user
- * only; republishing the same occurrence is a no-op (V20's dedupe index);
- * and publishing from inside a read-only transaction -- which is where the
- * detectors publish from -- still persists (REQUIRES_NEW).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class InAppNotificationDeliveryIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
@@ -73,7 +65,6 @@ class InAppNotificationDeliveryIntegrationTest extends AbstractIntegrationTest {
         assertThat(row.get("title")).isEqualTo("Your Acme application has stalled");
         assertThat(countFor(otherUserId)).isZero();
 
-        // A later, separate stay in a stage is a genuinely new occurrence.
         eventPublisher.publishEvent(new StalledApplicationEvent(
                 userId, applicationId, "Acme", "Backend Engineer", ApplicationStatus.OA, enteredAt.plusSeconds(3_000_000), 12, 10));
         assertThat(countFor(userId)).isEqualTo(2);

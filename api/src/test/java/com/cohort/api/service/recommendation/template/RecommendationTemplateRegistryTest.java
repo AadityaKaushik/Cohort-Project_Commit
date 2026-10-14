@@ -11,24 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/**
- * US-53/54 / PROJECT_PLAN.md §21.7: exercises every registered
- * {@link RecommendationTemplate} against representative candidates. Three
- * things are checked, matching §21.7's own three tests exactly:
- * <ol>
- *   <li>{@link #test_no_causal_language()} -- no template's rendered copy
- *       matches the banned-phrase list. This is the build-failing linter
- *       named explicitly in BUILD_PHASES_JAVA.md's P41 verify column.</li>
- *   <li>{@link #everyTemplateRendersWithItsDeclaredEvidenceFieldsPresent()}
- *       -- the concrete numbers/names on each candidate actually show up in
- *       its rendered copy, not just placeholder text.</li>
- *   <li>{@link #noTemplateRendersWithoutAnExplanation()} -- covered
- *       structurally too, by {@link RenderedRecommendationCopy}'s own
- *       constructor guard, but re-asserted here against the real registry.</li>
- * </ol>
- */
 class RecommendationTemplateRegistryTest {
-
     private final RecommendationTemplateRegistry registry = new RecommendationTemplateRegistry(List.of(
             new WeakTopicTemplate(), new DecayTemplate(), new PrerequisiteGapTemplate(),
             new StalledApplicationTemplate(), new BaselineTemplate()));
@@ -44,12 +27,7 @@ class RecommendationTemplateRegistryTest {
         }
     }
 
-    /**
-     * Proves the linter used above is not vacuously passing: rendering a
-     * deliberately bad phrase through the exact same checker must be
-     * flagged. If this test failed, {@code test_no_causal_language} passing
-     * would mean nothing.
-     */
+    // Proves the linter used above is not vacuously passing: rendering a deliberately bad phrase through the exact same checker must be flagged.
     @Test
     void theLinterCatchesAnInjectedBannedPhrase() {
         String deliberatelyBadCopy = "This caused your rejection because you failed the interview.";

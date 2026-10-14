@@ -13,15 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-/**
- * Proves the migrations in db/migration apply cleanly to a genuinely empty
- * Postgres 16 instance and produce the expected tables — not just that the
- * SQL parses.
- */
 @SpringBootTest
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class FlywayMigrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private DataSource dataSource;
 
@@ -102,12 +96,6 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
         }
     }
 
-    /**
-     * V20 (FR-99..101): the partial unique index on (user_id, dedupe_key) is
-     * what makes repeated detection runs idempotent -- a second row for the
-     * same occurrence must be rejected, while rows without a dedupe key (and
-     * the same key for a different user) are unaffected.
-     */
     @Test
     void notificationsDedupeKeyIsUniquePerUser() throws Exception {
         try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
@@ -129,10 +117,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
         }
     }
 
-    /**
-     * V21 (FR-102..104): a progress report is PDF-only, a date range can't be
-     * inverted, and exports cascade with their owner (US-08).
-     */
+    // V21 (FR-102..104): a progress report is PDF-only, a date range can't be inverted, and exports cascade with their owner (US-08).
     @Test
     void reportExportsConstraintsHold() throws Exception {
         try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {

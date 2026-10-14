@@ -3,9 +3,7 @@ package com.cohort.api.service.application.state;
 import com.cohort.api.entity.ApplicationStatus;
 import java.util.Set;
 
-/** Accepted: terminal, absorbing. See {@link RejectedState} for the rationale. */
 public final class AcceptedState implements ApplicationStatusState {
-
     @Override
     public ApplicationStatus status() {
         return ApplicationStatus.ACCEPTED;

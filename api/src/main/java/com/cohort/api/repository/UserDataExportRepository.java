@@ -10,16 +10,8 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-/**
- * US-07: reads every row a user owns, table by table, as JSON. Each query is
- * scoped to the caller (directly by {@code user_id}, or through its owning
- * parent row for child tables), so another user's data cannot appear in the
- * result. Internal storage keys ({@code file_path}) are stripped: the export
- * carries file contents, never server paths.
- */
 @Repository
 public class UserDataExportRepository {
-
     private static final String OWNED_APPLICATIONS = "(SELECT id FROM applications WHERE user_id = ?)";
     private static final String OWNED_RESUMES = "(SELECT id FROM resumes WHERE user_id = ?)";
     private static final String OWNED_RECOMMENDATIONS = "(SELECT id FROM recommendations WHERE user_id = ?)";

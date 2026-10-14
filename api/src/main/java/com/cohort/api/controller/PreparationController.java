@@ -21,11 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-40/41: preparation tasks and the mastery-driven progress view. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2). */
 @RestController
 @RequestMapping("/api/v1/preparation")
 public class PreparationController {
-
     private final PreparationService preparationService;
 
     public PreparationController(PreparationService preparationService) {

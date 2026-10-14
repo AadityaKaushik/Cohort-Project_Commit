@@ -20,18 +20,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises the real /applications/* endpoints against a real Postgres 16
- * instance: CRUD, status transitions through the State pattern, the
- * append-only history timeline, and — the mandatory check for every new
- * user-owned-data endpoint (CONTRIBUTING.md) — that a foreign user gets 404,
- * never 403, on every one of them (FR-95).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class ApplicationIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -144,7 +136,6 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
         String token = registerAndGetAccessToken("status-flow@example.com", "Status Flow");
         String applicationId = createApplication(token, "SAVED");
 
-        // Legal forward transition.
         mockMvc.perform(post("/api/v1/applications/" + applicationId + "/status")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -154,7 +145,6 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("APPLIED")));
 
-        // Illegal backward transition without a correction note.
         mockMvc.perform(post("/api/v1/applications/" + applicationId + "/status")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -164,7 +154,6 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error.code", is("INVALID_STATUS_TRANSITION")));
 
-        // The same backward transition succeeds once a correction note is supplied.
         mockMvc.perform(post("/api/v1/applications/" + applicationId + "/status")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -174,8 +163,6 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("SAVED")));
 
-        // Newest first: the correction, then Applied, then the creation entry
-        // (from_status null) — the rejected illegal attempt wrote no row.
         mockMvc.perform(get("/api/v1/applications/" + applicationId + "/history")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -245,7 +232,6 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound());
 
-        // The owner's application and its data are untouched by all of the above.
         mockMvc.perform(get("/api/v1/applications/" + applicationId).header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.job_title", is("Test Job")));

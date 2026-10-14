@@ -10,19 +10,8 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
-/**
- * FR-102: RFC 4180 CSV (CRLF line endings, quoted when needed), UTF-8 with a
- * byte-order mark so spreadsheet apps detect the encoding. A CSV holds one
- * table, so a report must contain exactly one section.
- *
- * <p>Every text cell is neutralised against CSV/formula injection: a value
- * starting with {@code = + - @}, tab or CR -- e.g. a company name typed as
- * {@code =HYPERLINK(...)} -- is prefixed with an apostrophe so a spreadsheet
- * shows it as text instead of evaluating it.
- */
 @Component
 public class CsvReportRenderer implements ReportRenderer {
-
     private static final byte[] UTF8_BOM = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
     private static final String YES = "yes";
     private static final String NO = "no";
@@ -130,7 +119,6 @@ public class CsvReportRenderer implements ReportRenderer {
         return value == null ? "" : value;
     }
 
-    /** Formula-injection guard, then RFC 4180 quoting. */
     static String cell(String raw) {
         String value = raw == null ? "" : raw;
         if (!value.isEmpty() && "=+-@\t\r".indexOf(value.charAt(0)) >= 0) {

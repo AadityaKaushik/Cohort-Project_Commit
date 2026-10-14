@@ -5,25 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * US-48 / §20.7: "median dwell time per stage... completed transitions
- * only... reported with IQR; suppressed below 5 completed observations."
- * A concrete {@link AnalyticsMetric} subclass -- {@link #sampleSize} is the
- * count of <em>completed</em> transitions only (right-censored,
- * still-in-progress applications are excluded per {@link StageDwellCalculator}'s
- * javadoc and never leak into this metric's input), so the inherited,
- * final {@code evaluate()} gates this exactly like every other rate/average
- * in this codebase.
- *
- * <p>PROJECT_PLAN.md does not pin one specific percentile algorithm for
- * "IQR," so this class documents its own, precisely, for reproducibility:
- * Tukey's hinges -- sort the durations, the median is the middle value (or
- * the average of the two middle values for an even count), and the 25th/75th
- * percentiles are the medians of the lower and upper halves respectively
- * (excluding the overall median itself when the count is odd).
- */
 public class StageDwellTimeMetric extends AnalyticsMetric<List<Double>, StageDwellTimeMetric.DwellStats> {
-
     public record DwellStats(double medianDays, double p25Days, double p75Days) {
     }
 

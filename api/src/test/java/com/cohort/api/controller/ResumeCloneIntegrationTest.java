@@ -29,17 +29,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * US-25/FR-35: cloning a resume copies structured content (resume_sections)
- * and records lineage via {@code parent_resume_id}, but never the uploaded
- * file and never the {@code is_default} flag — plus the mandatory
- * cross-user isolation check (FR-95) on the clone endpoint itself.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class ResumeCloneIntegrationTest extends AbstractIntegrationTest {
-
     private static final byte[] REAL_PDF_BYTES = "%PDF-1.4\n%fake resume content".getBytes(StandardCharsets.UTF_8);
 
     @TempDir
@@ -93,7 +86,6 @@ class ResumeCloneIntegrationTest extends AbstractIntegrationTest {
         org.assertj.core.api.Assertions.assertThat(clonedSections.get(0).getTitle()).isEqualTo("Backend Engineer");
         org.assertj.core.api.Assertions.assertThat(clonedSections.get(0).getOrganisation()).isEqualTo("Acme Corp");
 
-        // The original is untouched and still has its file and default flag.
         mockMvc.perform(get("/api/v1/resumes/" + resumeId).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.is_default", is(true)))

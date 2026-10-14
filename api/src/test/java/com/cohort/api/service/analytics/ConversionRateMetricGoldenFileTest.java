@@ -10,23 +10,7 @@ import java.io.InputStream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * P33's mandatory verify: golden-file test pinning {@link ConversionRateMetric}
- * against PROJECT_PLAN.md §20.7 ("reached next stage / reached this stage,
- * over resolved applications only") and FR-67 (denominators under 5 marked
- * low confidence).
- *
- * <ul>
- *   <li>case1: an adequate sample (n=10) -&gt; a confident, formatted rate.</li>
- *   <li>case2: a below-threshold sample (n=3) -&gt; the raw value is still
- *       computed (never hidden), but marked insufficient, per §21.4's
- *       "confidence gating" philosophy applied here to rates instead of mastery.</li>
- *   <li>case3: zero observations -&gt; no division by zero, reported as
- *       insufficient rather than crashing or silently showing 0%.</li>
- * </ul>
- */
 class ConversionRateMetricGoldenFileTest {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final double TOLERANCE = 1e-9;
 

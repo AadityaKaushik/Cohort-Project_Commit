@@ -8,16 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 
-/**
- * The structural half of P59's "the detector doesn't know who listens":
- * a detector may depend on data sources and on Spring's generic
- * {@link ApplicationEventPublisher}, but on nothing from the notification
- * side (or any other subscriber) -- checked against the compiled class
- * itself, so a future change that wires a listener straight into a detector
- * fails this test rather than slipping through review.
- */
 final class DetectorIndependenceAssertions {
-
     private static final List<String> SUBSCRIBER_PACKAGES = List.of(
             "com.cohort.api.service.notification",
             "com.cohort.api.service.report");

@@ -12,20 +12,7 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * P33's mandatory verify: golden-file test pinning {@link ActivityTimelineMetric}
- * (US-45) against a hand-computed fixture.
- *
- * <ul>
- *   <li>case1: a two-week range with applications and interviews landing in
- *       both weeks -&gt; each week's counts pinned exactly.</li>
- *   <li>case2: no activity at all -&gt; US-45's required empty state: a real
- *       bucket list (one empty week), sample size 0, still {@code sufficientData}
- *       (a raw count is never "insufficient," only a rate can be).</li>
- * </ul>
- */
 class ActivityTimelineMetricGoldenFileTest {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final ActivityTimelineMetric metric = new ActivityTimelineMetric();

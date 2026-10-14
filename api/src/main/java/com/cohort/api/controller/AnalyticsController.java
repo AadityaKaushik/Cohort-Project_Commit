@@ -15,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-43..45: funnel, conversion rates, and activity timeline. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2): every method delegates straight to AnalyticsService. */
 @RestController
 @RequestMapping("/api/v1/analytics")
 public class AnalyticsController {
-
     private final AnalyticsService analyticsService;
 
     public AnalyticsController(AnalyticsService analyticsService) {
@@ -36,7 +34,6 @@ public class AnalyticsController {
         return analyticsService.conversions(userId(jwt));
     }
 
-    /** Defaults to the trailing 12 weeks when {@code from}/{@code to} are omitted (US-45's "date-range selector"). */
     @GetMapping("/timeline")
     public TimelineResponse timeline(
             @AuthenticationPrincipal Jwt jwt,

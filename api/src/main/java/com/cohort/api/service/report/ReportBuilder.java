@@ -15,24 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Builder pattern (ARCHITECTURE_REVISION_JAVA.md §4.1/§6.2, US-80): assembles
- * a {@link Report} from a user's applications through a fluent chain --
- * {@code .withDateRange(from, to).withApplications().withAnalytics().build()}
- * -- instead of a constructor with a long run of nullable, easily-swapped
- * arguments. Every part is optional except the data and at least one
- * section; {@link #build()} validates the combination once, in one place.
- *
- * <p>The date range filters the applications by {@code date_applied}
- * (inclusive on both ends), and the analytics section is computed over
- * exactly that filtered set by {@link AnalyticsSummaryCalculator} -- the
- * same code the in-app analytics endpoints call (FR-103), so no formula or
- * sample-size gate is reimplemented here.
- *
- * <p>Not a Spring bean and not thread-safe: one builder per report.
- */
 public final class ReportBuilder {
-
     private final String ownerName;
     private final List<ReportApplicationInput> source;
     private final AnalyticsSummaryCalculator calculator = new AnalyticsSummaryCalculator();
@@ -50,12 +33,10 @@ public final class ReportBuilder {
         this.source = List.copyOf(Objects.requireNonNull(source, "source"));
     }
 
-    /** Starts a report for {@code ownerName} over {@code applications} (all of that one user's applications -- the builder does the filtering). */
     public static ReportBuilder forOwner(String ownerName, List<ReportApplicationInput> applications) {
         return new ReportBuilder(ownerName, applications);
     }
 
-    /** Inclusive on both ends; either bound may be null for an open-ended range. */
     public ReportBuilder withDateRange(LocalDate from, LocalDate to) {
         this.dateFrom = from;
         this.dateTo = to;
@@ -80,19 +61,17 @@ public final class ReportBuilder {
         return this;
     }
 
-    /** Sections implied by a {@link ReportType}; equivalent to the matching {@code with...} calls. */
     public ReportBuilder withSectionsFor(ReportType type) {
         return withApplications(type.includesApplications()).withAnalytics(type.includesAnalytics());
     }
 
-    /** The moment "days in current stage" and the "no response" bucket are measured from, and the zone dates are shown in. Defaults to now, UTC. */
     public ReportBuilder generatedAt(Instant instant, ZoneId zone) {
         this.generatedAt = instant;
         this.zone = zone == null ? ZoneOffset.UTC : zone;
         return this;
     }
 
-    /** Overrides the title otherwise derived from the included sections. */
+    // Overrides the title otherwise derived from the included sections.
     public ReportBuilder titled(String title) {
         this.title = title;
         return this;

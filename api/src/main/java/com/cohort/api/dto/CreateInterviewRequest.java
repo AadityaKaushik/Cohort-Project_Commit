@@ -8,12 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * US-27/FR-38,39: an interview must belong to one of the caller's own
- * applications (server-enforced in {@code InterviewService}, not trusted
- * from the client) and round numbers are unique per application (DB
- * constraint, V9 migration).
- */
 public record CreateInterviewRequest(
         @NotNull UUID applicationId,
         Instant scheduledAt,

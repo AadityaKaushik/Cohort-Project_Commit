@@ -10,17 +10,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * A single resume version (PROJECT_PLAN.md §17.2, US-20). File fields are
- * all nullable: a resume record can exist before a file is ever uploaded to
- * it (US-20 creates the record, US-21/P20 uploads the file). {@code
- * parentResumeId} is the lineage column a clone (US-25/P21) populates —
- * {@code null} for an originally-created resume.
- */
 @Entity
 @Table(name = "resumes")
 public class Resume {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

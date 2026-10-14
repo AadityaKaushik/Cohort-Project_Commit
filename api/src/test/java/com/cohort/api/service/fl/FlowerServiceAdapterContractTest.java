@@ -14,17 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
 
-/**
- * P52 (Adapter pattern): {@link FlowerServiceAdapter} against a stubbed
- * fl-service — a hand-rolled JDK {@code HttpServer} (see
- * {@link StubFlServiceServer}), the simplest reliable stubbing option for
- * this codebase (no existing WireMock/MockWebServer precedent). Proves the
- * adapter correctly parses a real {@code GET /fl/model} response shape and
- * turns any transport failure into {@link FlServiceUnavailableException} —
- * exactly the exception type P53's circuit breaker is configured around.
- */
 class FlowerServiceAdapterContractTest {
-
     private StubFlServiceServer stub;
     private FlowerServiceAdapter adapter;
 
@@ -63,7 +53,7 @@ class FlowerServiceAdapterContractTest {
 
     @Test
     void wrapsAConnectionFailureAsFlServiceUnavailable() {
-        stub.stop(); // simulate fl-service being down before the call is even made
+        stub.stop();
 
         assertThatThrownBy(() -> adapter.fetchCurrentModel()).isInstanceOf(FlServiceUnavailableException.class);
     }
@@ -122,7 +112,7 @@ class FlowerServiceAdapterContractTest {
         assertThatThrownBy(() -> adapter.runRound(1, List.of())).isInstanceOf(FlServiceUnavailableException.class);
     }
 
-    /** Mirrors what FlServiceConfig wires in production -- SNAKE_CASE Jackson naming (application.yml's app-wide convention) plus JavaTimeModule for the ISO timestamp, without needing a full Spring context. */
+    // Mirrors what FlServiceConfig wires in production -- SNAKE_CASE Jackson naming (application.yml's app-wide convention) plus JavaTimeModule for the ISO timestamp, without needing a full Spring context.
     private RestClient restClientFor(String baseUrl) {
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())

@@ -12,22 +12,7 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * P34's mandatory verify: golden-file test pinning {@link StageDwellTimeMetric}
- * against a hand-computed fixture, using the Tukey's-hinges method documented
- * on the class itself.
- *
- * <ul>
- *   <li>case1: n=7 (odd, &gt;= 5) -&gt; confident median/IQR.</li>
- *   <li>case2: n=4 (even, &lt; 5) -&gt; still computed, marked insufficient (§20.7's
- *       "suppressed below 5 completed observations" means hidden by the UI,
- *       not un-computed by this class -- same confidence-gating philosophy
- *       as every other metric here).</li>
- *   <li>case3: n=1 -&gt; degenerate case, median/p25/p75 all equal the one value.</li>
- * </ul>
- */
 class StageDwellTimeMetricGoldenFileTest {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final double TOLERANCE = 1e-9;
 

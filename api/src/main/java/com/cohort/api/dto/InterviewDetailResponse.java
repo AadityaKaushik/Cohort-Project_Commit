@@ -5,7 +5,6 @@ import com.cohort.api.entity.InterviewRoundType;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Full detail view of one interview round (US-28, US-31). */
 public record InterviewDetailResponse(
         UUID id,
         UUID applicationId,

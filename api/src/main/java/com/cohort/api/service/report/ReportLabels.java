@@ -7,9 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-/** Human-readable labels shared by every renderer, so a PDF and a CSV of the same report never disagree on wording. */
+// Human-readable labels shared by every renderer, so a PDF and a CSV of the same report never disagree on wording.
 final class ReportLabels {
-
     private ReportLabels() {
     }
 
@@ -31,7 +30,6 @@ final class ReportLabels {
         };
     }
 
-    /** "remote" -> "Remote"; null/blank -> "". */
     static String capitalised(String value) {
         if (value == null || value.isBlank()) {
             return "";
@@ -39,7 +37,6 @@ final class ReportLabels {
         return value.substring(0, 1).toUpperCase(Locale.ENGLISH) + value.substring(1);
     }
 
-    /** The five §20.7 conversion rates in funnel order, labelled. */
     static Map<String, ConversionRateView> conversions(ConversionRatesResponse rates) {
         Map<String, ConversionRateView> ordered = new LinkedHashMap<>();
         ordered.put("Applied to online assessment", rates.applicationToOa());

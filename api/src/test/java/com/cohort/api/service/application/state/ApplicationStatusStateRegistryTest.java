@@ -13,20 +13,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- * Exhaustively checks every (from, to) pair in both directions of
- * {@link ApplicationStatusStateRegistry#canTransition}, with and without a
- * correction note — 10 x 10 x 2 = 200 cases — against an expected-result
- * table transcribed directly from the state machine diagram in
- * PROJECT_PLAN.md §17.5, independently of the production code under test.
- * This is the check that the State pattern's transition table matches §17.5
- * exactly, which is the Sprint 1 Definition of Done requirement.
- */
 class ApplicationStatusStateRegistryTest {
-
     private final ApplicationStatusStateRegistry registry = new ApplicationStatusStateRegistry();
 
-    /** Forward/exit transitions — always legal, no note required. */
     private static final Map<ApplicationStatus, Set<ApplicationStatus>> EXPECTED_FORWARD = new EnumMap<>(Map.of(
             ApplicationStatus.SAVED, EnumSet.of(
                     ApplicationStatus.APPLIED, ApplicationStatus.OA, ApplicationStatus.INTERVIEW,
@@ -51,7 +40,6 @@ class ApplicationStatusStateRegistryTest {
             ApplicationStatus.ACCEPTED, EnumSet.noneOf(ApplicationStatus.class),
             ApplicationStatus.DECLINED, EnumSet.noneOf(ApplicationStatus.class)));
 
-    /** Backward transitions legal only when a correction note is supplied. */
     private static final Map<ApplicationStatus, Set<ApplicationStatus>> EXPECTED_CORRECTION = new EnumMap<>(Map.of(
             ApplicationStatus.SAVED, EnumSet.noneOf(ApplicationStatus.class),
             ApplicationStatus.APPLIED, EnumSet.of(ApplicationStatus.SAVED),

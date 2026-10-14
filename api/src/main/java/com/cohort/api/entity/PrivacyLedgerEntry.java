@@ -12,19 +12,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
-/**
- * US-63: "a log of everything my client has ever sent" — one row per
- * client per round. {@code transmittedVector} is the REAL post-clip,
- * post-noise vector fl-service's {@code /fl/round} response carried back
- * (itself the direct, unmodified output of {@code app.client.privacy.add_gaussian_noise},
- * P46/P55) — never a placeholder, and never recomputed on this side.
- * Immutable by construction: no setters, no update path in
- * {@code PrivacyLedgerService} — only {@code save} (insert) and reads.
- */
 @Entity
 @Table(name = "privacy_ledger_entries", schema = "fl")
 public class PrivacyLedgerEntry {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

@@ -19,26 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-61/US-63 (P55): triggers a federated round through
- * {@link FederatedLearningGateway} and persists exactly what fl-service
- * reports: round metadata into {@code fl.fl_rounds}, one immutable row
- * per client into {@code fl.privacy_ledger_entries}, carrying the real
- * transmitted vector {@code FlowerServiceAdapter} parsed straight out of
- * fl-service's response (P46's clip-then-noise output, never a
- * placeholder). Rows are never updated after insert. "Entries are
- * immutable" (US-63) is enforced by this service having no update
- * method at all.
- *
- * <p>Only users opted in <em>right now</em> are sent as participants
- * (US-64). fl-service's feature store still holds a withdrawn user's last
- * export, so the participant list, not the store's contents, decides who
- * is in a round. Any entry fl-service returns for someone outside that
- * list is dropped here as a second line of defence.
- */
 @Service
 public class PrivacyLedgerService {
-
     private static final Logger log = LoggerFactory.getLogger(PrivacyLedgerService.class);
 
     private final FederatedLearningGateway gateway;
@@ -57,13 +39,6 @@ public class PrivacyLedgerService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Runs the next round and persists its outcome. Best-effort like
-     * {@code FlFeatureExportJob}: if nobody is opted in, or fl-service is
-     * unreachable, this logs and returns empty rather than throwing. It is
-     * background orchestration, not a user-facing request that P53's
-     * circuit breaker needs to protect.
-     */
     @Transactional
     public Optional<FlRound> runNextRoundAndPersist() {
         Set<UUID> participants = userRepository.findAllByFlOptInTrue().stream()
@@ -109,7 +84,6 @@ public class PrivacyLedgerService {
                 .toList();
     }
 
-    /** FR-95: a missing ID and another user's ID are the same 404. */
     @Transactional(readOnly = true)
     public PrivacyLedgerEntryView getForUser(UUID entryId, UUID userId) {
         PrivacyLedgerEntry entry = ledgerRepository.findByIdAndUserId(entryId, userId)
@@ -129,7 +103,6 @@ public class PrivacyLedgerService {
         }
     }
 
-    /** Pairs a persisted entry with its round number, resolved once per unique round rather than per row. */
     public record PrivacyLedgerEntryView(PrivacyLedgerEntry entry, int roundNumber) {
     }
 }

@@ -8,15 +8,9 @@ import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One immutable entry in an application's status timeline (FR-20). No
- * update endpoint exists for this entity and it carries no updated_at —
- * append-only by design.
- */
 @Entity
 @Table(name = "application_status_history")
 public class ApplicationStatusHistory {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

@@ -22,21 +22,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises GET /applications/stalled (US-18) against real Postgres. There
- * is no API path to backdate {@code stage_entered_at} (every real status
- * change stamps it with {@code Instant.now()}, by design), so this test
- * backdates it directly via {@link JdbcTemplate} after creating the
- * application through the real endpoint -- the same "arrange via the back
- * door, act/assert through the front door" technique time-dependent
- * integration tests need whenever the system deliberately has no
- * "pretend this happened N days ago" endpoint of its own.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class StallDetectionIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -50,7 +39,7 @@ class StallDetectionIntegrationTest extends AbstractIntegrationTest {
     void flagsAnApplicationThatHasSatInStageLongerThanTheSystemDefault() throws Exception {
         String token = registerAndGetAccessToken("stall-flagged@example.com", "Owner");
         String applicationId = createApplication(token, "Acme");
-        backdateStageEnteredAt(applicationId, 20); // APPLIED's system default is 14 days
+        backdateStageEnteredAt(applicationId, 20);
 
         mockMvc.perform(get("/api/v1/applications/stalled").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())

@@ -26,25 +26,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-20..22: resume CRUD plus the file upload/download pair. File I/O goes
- * through {@link FileStorageStrategy}, injected as the interface — Spring
- * wires in {@code ValidatingFileStorage} (the {@code @Primary} bean, P19),
- * so every upload runs the size cap and the extension -&gt; MIME ->
- * magic-byte validation chain without this class knowing that chain exists.
- *
- * <p><strong>"Expiring, authenticated download" (FR-32):</strong> rather
- * than invent a second, parallel token scheme, the download endpoint is
- * secured by the exact same bearer JWT as every other endpoint
- * (SecurityConfig's {@code anyRequest().authenticated()}), and that JWT
- * already expires after {@code app.jwt.access-token-ttl-minutes} (15 min by
- * default, see JwtConfig/TokenService). That satisfies FR-32's "authenticated,
- * expiring" requirement directly and keeps this phase's diff to the
- * resume-specific logic instead of a bespoke signed-URL subsystem.
- */
 @Service
 public class ResumeService {
-
     private static final Pattern VERSION_LABEL_PATTERN = Pattern.compile("(?i)^v(\\d+)$");
 
     private final ResumeRepository resumeRepository;
@@ -137,9 +120,7 @@ public class ResumeService {
         StoredFile stored = fileStorage.store(userId, upload);
         resume.applyStoredFile(stored.storageKey(), stored.originalFilename(), stored.contentType(), stored.sizeBytes());
 
-        // Replacing a file: delete the old blob only after the new one is
-        // safely stored, so a mid-upload failure never leaves the resume
-        // pointing at nothing.
+        // Replacing a file: delete the old blob only after the new one is safely stored, so a mid-upload failure never leaves the resume pointing at nothing.
         if (previousFilePath != null) {
             fileStorage.delete(previousFilePath);
         }
@@ -157,14 +138,6 @@ public class ResumeService {
         return new DownloadableFile(content, resume.getFileOriginalName(), resume.getFileMime());
     }
 
-    /**
-     * US-25/FR-35: duplicates a resume's structured content and metadata as
-     * a new version, recording lineage via {@code parent_resume_id}. The
-     * file is deliberately <em>not</em> copied — cloning is for tailoring
-     * content into a new version, not for duplicating the uploaded document
-     * — and the clone never inherits the {@code is_default} flag, so
-     * cloning a resume can never silently change which resume is default.
-     */
     @Transactional
     public ResumeDetailResponse clone(UUID userId, UUID resumeId) {
         Resume source = requireOwned(userId, resumeId);
@@ -192,12 +165,6 @@ public class ResumeService {
         return mapper.toDetail(clone);
     }
 
-    /**
-     * "Version label auto-increments" (US-25): {@code "v1"} (any case) ->
-     * {@code "v2"}, and so on. A label that doesn't follow that convention
-     * — including none at all — gets a {@code " copy"} suffix instead of a
-     * guessed number, since there is nothing to increment.
-     */
     private String nextVersionLabel(String currentLabel) {
         if (currentLabel == null || currentLabel.isBlank()) {
             return "v2";
@@ -224,7 +191,6 @@ public class ResumeService {
         };
     }
 
-    /** What the controller needs to stream a stored file back with the right headers. */
     public record DownloadableFile(byte[] content, String originalFilename, String contentType) {
     }
 }

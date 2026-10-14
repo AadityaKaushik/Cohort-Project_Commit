@@ -17,24 +17,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-43..46, 48: assembles the per-user analytics views from real repository
- * data and hands the formula work to the {@link com.cohort.api.service.preparation.analytics.AnalyticsMetric}
- * subclasses in this package ({@link FunnelMetric}, {@link ConversionRateMetric},
- * {@link ActivityTimelineMetric}, {@link RejectionDistributionMetric},
- * {@link StageDwellTimeMetric}) -- thin by design (ARCHITECTURE_REVISION_JAVA.md
- * §4.2), like every other service in this codebase: this class's job is
- * fetching and shaping data, never computing a formula itself. The
- * snapshot-based computations live in {@link AnalyticsSummaryCalculator}
- * (extracted in P63) so the exported report reuses them verbatim.
- *
- * <p>Every method takes {@code userId} and scopes every query through it
- * (FR-94/95) -- {@code applicationRepository.findAllByUserId} first, then
- * history rows only for that user's own application IDs.
- */
 @Service
 public class AnalyticsService {
-
     private final ApplicationRepository applicationRepository;
     private final ApplicationSnapshotLoader snapshotLoader;
     private final InterviewRepository interviewRepository;

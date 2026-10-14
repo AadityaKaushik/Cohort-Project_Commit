@@ -13,17 +13,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One generated report file (US-80, V21). Immutable once written: the file
- * is never regenerated in place -- a new export is a new row -- so the
- * download always serves exactly what was generated at {@code generatedAt}.
- * {@code filePath} is the server-generated storage key under the report
- * storage root, exactly as {@link Resume#getFilePath()} is for resumes.
- */
 @Entity
 @Table(name = "report_exports")
 public class ReportExport {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

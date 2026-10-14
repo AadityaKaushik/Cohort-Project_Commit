@@ -14,13 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/**
- * P59's verify (Observer): the event fires on exactly the stall condition
- * US-18 already defines, and the detector publishes into a bus it knows
- * nothing about -- here, a publisher with no subscribers at all.
- */
 class StalledApplicationDetectorTest {
-
     private final StallDetectionService stallDetectionService = mock(StallDetectionService.class);
     private final RecordingEventPublisher publisher = new RecordingEventPublisher();
     private final StalledApplicationDetector detector = new StalledApplicationDetector(stallDetectionService, publisher);

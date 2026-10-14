@@ -50,16 +50,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-35..41: the question bank (topics + questions, mixed shared/owned
- * data), practice attempts, preparation tasks (strictly user-owned), and
- * the mastery-driven progress view. Topics are read-only system data —
- * there is no create/update/delete path for them here, only for questions,
- * attempts, and tasks (FR-94/95 apply to the latter three).
- */
 @Service
 public class PreparationService {
-
     private final TopicRepository topicRepository;
     private final QuestionRepository questionRepository;
     private final PracticeAttemptRepository attemptRepository;
@@ -124,7 +116,6 @@ public class PreparationService {
         return mapper.toResponse(question, topic.getName());
     }
 
-    /** US-36: seeded questions are read-only but can be forked into a personal copy. */
     @Transactional
     public QuestionResponse forkQuestion(UUID userId, UUID questionId) {
         Question source = questionRepository.findById(questionId).orElseThrow(QuestionNotFoundException::new);
@@ -184,7 +175,6 @@ public class PreparationService {
                 .toList();
     }
 
-    /** A question is visible if it is seeded (system) or owned by the caller — read access, US-35. */
     private Question requireVisible(UUID userId, UUID questionId) {
         Question question = questionRepository.findById(questionId).orElseThrow(QuestionNotFoundException::new);
         if (!question.isSystem() && !userId.equals(question.getUserId())) {
@@ -193,7 +183,7 @@ public class PreparationService {
         return question;
     }
 
-    /** Write access (update/delete) is always own-only, even for a caller who could otherwise see the row (US-36: "seeded questions are read-only"). */
+    // Write access (update/delete) is always own-only, even for a caller who could otherwise see the row (US-36: "seeded questions are read-only").
     private Question requireOwned(UUID userId, UUID questionId) {
         return questionRepository.findByIdAndUserId(questionId, userId).orElseThrow(QuestionNotFoundException::new);
     }
@@ -209,8 +199,6 @@ public class PreparationService {
                         question, topicNames.computeIfAbsent(question.getTopicId(), this::topicName)))
                 .toList();
     }
-
-    // ---- US-40: preparation tasks ----
 
     @Transactional
     public PreparationTaskResponse createTask(UUID userId, CreatePreparationTaskRequest request) {
@@ -252,7 +240,6 @@ public class PreparationService {
         if (request.estimatedEffortMinutes() != null) {
             task.setEstimatedEffortMinutes(request.estimatedEffortMinutes());
         }
-        // US-40: "completion updates progress" -- flipping to completed stamps completedAt exactly once.
         if (request.status() != null && request.status() != task.getStatus()) {
             task.setStatus(request.status());
             task.setCompletedAt(request.status() == PreparationTask.Status.completed ? Instant.now() : null);
@@ -270,8 +257,6 @@ public class PreparationService {
     private PreparationTask requireOwnedTask(UUID userId, UUID taskId) {
         return taskRepository.findByIdAndUserId(taskId, userId).orElseThrow(PreparationTaskNotFoundException::new);
     }
-
-    // ---- US-41: progress view, built on the P30 MasteryEngine ----
 
     @Transactional(readOnly = true)
     public PreparationProgressResponse progress(UUID userId) {
@@ -352,14 +337,6 @@ public class PreparationService {
         return result;
     }
 
-    /**
-     * Evidence date is the interview question's own {@code createdAt}
-     * (when the debrief captured it), not the interview's scheduled/
-     * completed date — a deliberate simplification for this phase's scope,
-     * since debrief capture (US-30) happens close in time to the interview
-     * itself and avoids a second join against {@code interviews} purely to
-     * read a timestamp.
-     */
     private Map<UUID, List<InterviewEvidence>> interviewEvidenceByTopic(UUID userId) {
         Map<UUID, List<InterviewEvidence>> result = new HashMap<>();
         for (InterviewQuestion question :

@@ -17,16 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * US-57/US-58/US-64: the export job's whole privacy contract is "only
- * opted-in users are ever exported, and an opt-out takes effect on the
- * next run" — enforced here by never even asking {@link FlFeatureExtractionService}/
- * {@link FlExportClient} about a user {@link UserRepository#findAllByFlOptInTrue()}
- * didn't return, not by filtering after the fact.
- */
 @ExtendWith(MockitoExtension.class)
 class FlFeatureExportJobTest {
-
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -88,7 +80,7 @@ class FlFeatureExportJobTest {
         return user;
     }
 
-    /** id is @UuidGenerator-managed (only set by Hibernate on persist); this user is never persisted in this unit test, so it's set via reflection instead. */
+    // id is @UuidGenerator-managed (only set by Hibernate on persist); this user is never persisted in this unit test, so it's set via reflection instead.
     private void setId(User user, UUID id) {
         try {
             java.lang.reflect.Field field = User.class.getDeclaredField("id");

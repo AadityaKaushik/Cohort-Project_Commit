@@ -23,23 +23,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * P55's Sprint 4 DoD line: "a Privacy Ledger entry shows a real vector end
- * to end." Drives the real HTTP contract (a stubbed fl-service response
- * shaped exactly like {@code app/control/api.py}'s real {@code /fl/round}
- * output -- see {@code fl-service/app/server/test_round_orchestrator.py}
- * for the proof that fl-service's own vector is genuinely
- * {@code app.client.privacy}'s real output, not this test's concern),
- * through {@code FlowerServiceAdapter} (P52), {@code PrivacyLedgerService}
- * (P55)'s persistence, and back out through {@code GET /fl/privacy-ledger} --
- * asserting the vector that comes back out is bit-identical to what
- * fl-service reported, never a placeholder or a zeroed stand-in.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class PrivacyLedgerIntegrationTest extends AbstractIntegrationTest {
-
     private static StubFlServiceServer stubFlService;
 
     @DynamicPropertySource
@@ -101,7 +88,6 @@ class PrivacyLedgerIntegrationTest extends AbstractIntegrationTest {
         optIn(participantToken);
         mockMvc.perform(post("/api/v1/fl/opt-out").header("Authorization", "Bearer " + withdrawnToken)).andExpect(status().isOk());
 
-        // fl-service misbehaving (a stale export) and returning the withdrawn user anyway.
         stubFlService.respondToRoundWith("""
                 {"round_number": 1, "accepted": true, "reason": null, "cohort_size": 3, "entries": [
                     {"client_id": "%s", "schema_version": 1, "pre_clip_norm": 1.0, "post_clip_norm": 1.0,

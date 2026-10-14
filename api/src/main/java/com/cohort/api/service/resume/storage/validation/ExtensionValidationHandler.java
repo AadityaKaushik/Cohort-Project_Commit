@@ -4,9 +4,7 @@ import com.cohort.api.exception.InvalidFileException;
 import com.cohort.api.service.resume.storage.FileUpload;
 import java.util.Set;
 
-/** Stage 1 of the validation chain: the cheapest, weakest check — a client can lie about this trivially, which is exactly why two more stages follow it. */
 public class ExtensionValidationHandler extends UploadValidationHandler {
-
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "doc", "docx");
 
     @Override

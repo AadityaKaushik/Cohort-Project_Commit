@@ -7,17 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
-/**
- * P51's core privacy guarantee, checked structurally rather than by
- * inspecting one example payload: {@link FlFeatureVector} can only ever
- * carry exactly the 24 allow-listed, bounded {@code double} fields — there
- * is no field type here a string, identifier, or free-text value could
- * ever occupy. "No free text/PII fields leak through" is therefore not
- * just true of today's fields, it is true of every value this record can
- * ever hold.
- */
 class FlFeatureVectorSchemaTest {
-
     @Test
     void hasExactlyTwentyFourFields() {
         assertThat(FlFeatureVector.class.getRecordComponents()).hasSize(FlFeatureSchema.FEATURE_COUNT);

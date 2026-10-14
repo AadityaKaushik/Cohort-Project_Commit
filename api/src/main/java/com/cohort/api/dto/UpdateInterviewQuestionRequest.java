@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.UUID;
 
-/** US-29: partial update — a null field means "leave unchanged." */
 public record UpdateInterviewQuestionRequest(
         String questionText,
         UUID topicId,

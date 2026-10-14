@@ -18,19 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * US-24/FR-34: attaching, changing, and clearing the one resume associated
- * with an application via {@code POST /applications/{id}/resume}, plus the
- * mandatory cross-user isolation check (FR-95) — including the case where
- * the application is the caller's own but the referenced resume belongs to
- * someone else, which must still 404 rather than silently succeed or leak
- * whether that resume ID exists.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class ApplicationResumeAssociationIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -53,7 +44,6 @@ class ApplicationResumeAssociationIntegrationTest extends AbstractIntegrationTes
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resume_id", is(firstResumeId)));
 
-        // Changing it is allowed.
         mockMvc.perform(post("/api/v1/applications/" + applicationId + "/resume")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +53,6 @@ class ApplicationResumeAssociationIntegrationTest extends AbstractIntegrationTes
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resume_id", is(secondResumeId)));
 
-        // A null resume_id clears the association.
         mockMvc.perform(post("/api/v1/applications/" + applicationId + "/resume")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)

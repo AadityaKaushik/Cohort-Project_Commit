@@ -5,17 +5,8 @@ import com.cohort.api.service.recommendation.RecommendationType;
 import com.cohort.api.service.recommendation.tiering.EvidenceTier;
 import org.springframework.stereotype.Component;
 
-/**
- * PROJECT_PLAN.md §21.5's own Tier D example: "You have no interviews
- * logged. Start with a broad baseline." Required evidence field:
- * {@code observationCount} (here, the interview count) -- there is
- * deliberately no topic/application evidence to cite, and the copy says so
- * plainly rather than inventing specificity (§21.3: "None -- heuristic, and
- * says so").
- */
 @Component
 public class BaselineTemplate implements RecommendationTemplate {
-
     @Override
     public RecommendationType type() {
         return RecommendationType.baseline;

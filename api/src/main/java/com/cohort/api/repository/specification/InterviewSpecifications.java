@@ -6,19 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
-/**
- * Specification pattern (ARCHITECTURE_REVISION_JAVA.md §4.1), reusing the
- * same composable-filter approach {@code ApplicationSpecifications}
- * established in P16: each method tolerates a {@code null} filter value by
- * returning a {@code null} predicate, so {@link #combine} can chain every
- * filter unconditionally.
- */
 public final class InterviewSpecifications {
-
     private InterviewSpecifications() {
     }
 
-    /** Every composed specification starts here, mirroring {@code UserScopedRepository}'s guarantee. */
     public static Specification<Interview> ownedBy(UUID userId) {
         return (root, query, cb) -> cb.equal(root.get("userId"), userId);
     }
@@ -31,11 +22,6 @@ public final class InterviewSpecifications {
         return (root, query, cb) -> roundType == null ? null : cb.equal(root.get("roundType"), roundType);
     }
 
-    /**
-     * US-28: "split into upcoming and completed." Upcoming means a
-     * scheduled time in the future; {@code upcoming = false} is everything
-     * else (unscheduled or already in the past), not "outcome recorded."
-     */
     public static Specification<Interview> isUpcoming(Boolean upcoming) {
         return (root, query, cb) -> {
             if (upcoming == null) {

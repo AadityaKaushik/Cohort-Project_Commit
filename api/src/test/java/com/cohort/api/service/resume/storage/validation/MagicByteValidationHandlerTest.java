@@ -7,9 +7,7 @@ import com.cohort.api.exception.InvalidFileException;
 import com.cohort.api.service.resume.storage.FileUpload;
 import org.junit.jupiter.api.Test;
 
-/** Exercises stage 3 of the chain in isolation — "independently testable" (ARCHITECTURE_REVISION_JAVA.md §4.1) is a claim this test backs up. */
 class MagicByteValidationHandlerTest {
-
     private final MagicByteValidationHandler handler = new MagicByteValidationHandler();
 
     @Test

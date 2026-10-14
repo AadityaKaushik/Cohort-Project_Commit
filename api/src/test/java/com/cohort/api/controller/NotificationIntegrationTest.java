@@ -29,19 +29,10 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * US-76..79 end to end against real Postgres: the scheduled detection job's
- * work (called directly rather than waiting for the timer) turns a stalled
- * application, an interview due in a few hours, and an interview that
- * happened without a debrief into three notifications -- exactly three, no
- * matter how many times detection runs -- which the bell's endpoints list,
- * count, and mark read, all strictly scoped to their owner (FR-95).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class NotificationIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -86,7 +77,6 @@ class NotificationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(post("/api/v1/notifications/" + stalledNotificationId + "/read").header("Authorization", bearer(owner)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.is_read", is(true)));
-        // Marking an already-read notification read again is harmless.
         mockMvc.perform(post("/api/v1/notifications/" + stalledNotificationId + "/read").header("Authorization", bearer(owner)))
                 .andExpect(status().isOk());
 
@@ -97,7 +87,6 @@ class NotificationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.items", hasSize(1)))
                 .andExpect(jsonPath("$.items[0].id", is(stalledNotificationId)))
                 .andExpect(jsonPath("$.items[0].read_at").isNotEmpty());
-        // "all" lists unread before read.
         mockMvc.perform(get("/api/v1/notifications").header("Authorization", bearer(owner)))
                 .andExpect(jsonPath("$.items[2].id", is(stalledNotificationId)));
 
@@ -133,7 +122,6 @@ class NotificationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/v1/notifications/unread-count").header("Authorization", bearer(intruder)))
                 .andExpect(jsonPath("$.unread_count", is(0)));
 
-        // The owner's notification is untouched by any of the above.
         mockMvc.perform(get("/api/v1/notifications/unread-count").header("Authorization", bearer(owner)))
                 .andExpect(jsonPath("$.unread_count", is(1)));
     }

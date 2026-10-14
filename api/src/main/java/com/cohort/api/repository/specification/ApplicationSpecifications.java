@@ -12,26 +12,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
-/**
- * Specification pattern (ARCHITECTURE_REVISION_JAVA.md §4.1): each method
- * returns one small, independently testable {@link Specification}, and
- * {@link #combine} composes them with {@code .and()} rather than a
- * hand-rolled dynamic-query builder with a growing parameter list — adding a
- * new filterable field (FR-16) means adding one new method here, never
- * editing an existing one or the repository interface.
- *
- * <p>Every individual specification tolerates a {@code null}/blank filter
- * value by returning a {@code null} predicate from its lambda, which Spring
- * Data JPA's {@code Specification} composition treats as "no restriction" —
- * so {@link #combine} can unconditionally chain every filter without a
- * branch per field.
- */
 public final class ApplicationSpecifications {
-
     private ApplicationSpecifications() {
     }
 
-    /** Every composed specification starts here — the one non-optional filter, mirroring {@code UserScopedRepository}'s guarantee. */
     public static Specification<Application> ownedBy(UUID userId) {
         return (root, query, cb) -> cb.equal(root.get("userId"), userId);
     }
@@ -66,13 +50,6 @@ public final class ApplicationSpecifications {
         };
     }
 
-    /**
-     * FR-15: case-insensitive substring match across job title and the
-     * owning company's name. {@code Application} deliberately stores
-     * {@code companyId} as a plain column rather than a JPA association
-     * (UserScopedRepository.java's javadoc), so the company-name half of
-     * this match is a correlated subquery rather than a join.
-     */
     public static Specification<Application> keywordMatches(UUID userId, String keyword) {
         return (root, query, cb) -> {
             if (keyword == null || keyword.isBlank()) {
@@ -92,7 +69,6 @@ public final class ApplicationSpecifications {
         };
     }
 
-    /** FR-16: filter to applications carrying a tag with this exact (case-insensitive) name, owned by the same user. */
     public static Specification<Application> hasTag(UUID userId, String tagName) {
         return (root, query, cb) -> {
             if (tagName == null || tagName.isBlank()) {
@@ -115,7 +91,6 @@ public final class ApplicationSpecifications {
         };
     }
 
-    /** Combines every filter in {@code criteria} onto the owning user's applications with AND semantics (US-17). */
     public static Specification<Application> combine(UUID userId, ApplicationSearchCriteria criteria) {
         return ownedBy(userId)
                 .and(hasStatus(criteria.status()))

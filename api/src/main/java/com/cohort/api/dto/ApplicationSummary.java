@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-/** One row of the applications list (US-10): company, role, status, stage, days in stage, date applied, priority. */
 public record ApplicationSummary(
         UUID id,
         CompanySummary company,
