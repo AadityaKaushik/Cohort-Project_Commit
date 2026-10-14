@@ -30,7 +30,7 @@ export function PipelineStrip({ applications }: { applications: ApplicationSumma
           >
             <span className="flex items-center justify-between text-xs text-muted-foreground">
               {label}
-              <span className="font-mono text-[10px] opacity-60">{String(index + 1).padStart(2, '0')}</span>
+              <span className="font-mono text-[10px]">{String(index + 1).padStart(2, '0')}</span>
             </span>
             <span className="text-3xl font-semibold tracking-tight tabular-nums">{count}</span>
             <span className="h-1 overflow-hidden rounded-full bg-muted" aria-hidden>

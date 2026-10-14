@@ -27,7 +27,7 @@ function PanelShell({ children }: { children: ReactNode }) {
       aria-label="About Cohort"
       className="relative isolate hidden overflow-hidden border-l bg-surface-2 lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-14"
     >
-      <div aria-hidden className="aurora hero-glow absolute -inset-x-1/4 -top-1/4 -z-10 h-[80%] opacity-70" />
+      <div aria-hidden className="aurora hero-glow absolute -inset-x-1/4 -top-1/4 -z-10 h-[80%] opacity-60" />
       {children}
     </aside>
   )

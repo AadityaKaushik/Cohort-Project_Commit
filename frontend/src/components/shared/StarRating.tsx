@@ -27,7 +27,7 @@ export function StarRating({ value, onChange, label, disabled = false }: StarRat
             <StarIcon
               className={cn(
                 'size-6 transition-colors duration-150',
-                value !== null && star <= value ? 'fill-warning text-warning' : 'text-muted-foreground/40',
+                value !== null && star <= value ? 'fill-warning text-warning' : 'text-muted-foreground/70',
               )}
             />
           </button>
