@@ -4,6 +4,7 @@ import {
   Building2,
   FileText,
   FileDown,
+  HandCoins,
   LayoutDashboard,
   MessagesSquare,
   PencilLine,
@@ -40,6 +41,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
       { label: 'Companies', path: '/companies', icon: Building2 },
       { label: 'Contacts', path: '/contacts', icon: UsersRound },
+      { label: 'Offers', path: '/offers', icon: HandCoins },
     ],
   },
   {
@@ -86,6 +88,7 @@ const SECTION_LABELS: Record<string, string> = {
   resumes: 'Resumes',
   interviews: 'Interviews',
   contacts: 'Contacts',
+  offers: 'Offers',
   companies: 'Companies',
   prep: 'Interview Prep',
   analytics: 'Analytics',

@@ -153,6 +153,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("CONTACT_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(OfferNotFoundException.class)
+    public ResponseEntity<ApiError> handleOfferNotFound(OfferNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("OFFER_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateOfferException.class)
+    public ResponseEntity<ApiError> handleDuplicateOffer(DuplicateOfferException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("DUPLICATE_OFFER", ex.getMessage()));
+    }
+
     @ExceptionHandler(CompanyNoteNotFoundException.class)
     public ResponseEntity<ApiError> handleCompanyNoteNotFound(CompanyNoteNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("COMPANY_NOTE_NOT_FOUND", ex.getMessage()));

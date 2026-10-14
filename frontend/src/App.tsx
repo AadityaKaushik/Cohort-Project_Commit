@@ -22,6 +22,7 @@ const InterviewDetailPage = lazy(() => import('@/pages/interviews/InterviewDetai
 const InterviewFormPage = lazy(() => import('@/pages/interviews/InterviewFormPage').then((module) => ({ default: module.InterviewFormPage })))
 const InterviewsListPage = lazy(() => import('@/pages/interviews/InterviewsListPage').then((module) => ({ default: module.InterviewsListPage })))
 const ContactsPage = lazy(() => import('@/pages/contacts/ContactsPage').then((module) => ({ default: module.ContactsPage })))
+const OffersPage = lazy(() => import('@/pages/offers/OffersPage').then((module) => ({ default: module.OffersPage })))
 const CompaniesPage = lazy(() => import('@/pages/companies/CompaniesPage').then((module) => ({ default: module.CompaniesPage })))
 const CompanyDetailPage = lazy(() => import('@/pages/companies/CompanyDetailPage').then((module) => ({ default: module.CompanyDetailPage })))
 const PrepPage = lazy(() => import('@/pages/prep/PrepPage').then((module) => ({ default: module.PrepPage })))
@@ -111,6 +112,7 @@ function App() {
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
           </Route>
           <Route path="contacts" element={<ContactsPage />} />
+          <Route path="offers" element={<OffersPage />} />
           <Route path="companies">
             <Route index element={<CompaniesPage />} />
             <Route path=":id" element={<CompanyDetailPage />} />
