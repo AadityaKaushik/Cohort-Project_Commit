@@ -13,7 +13,6 @@ import { SectionCard } from '@/components/shared/SectionCard'
 import { StatGrid, StatTile } from '@/components/shared/StatTile'
 import { cn } from '@/lib/utils'
 
-/** US-43..50: funnel, conversion rates, activity timeline, and rejection distribution -- every number sample-size-gated (FR-67/US-50). */
 export function AnalyticsPage() {
   const funnelQuery = useQuery({ queryKey: ['analytics-funnel'], queryFn: getFunnel })
   const conversionsQuery = useQuery({ queryKey: ['analytics-conversions'], queryFn: getConversionRates })

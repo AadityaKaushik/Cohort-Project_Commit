@@ -1,16 +1,8 @@
 interface VectorInspectorProps {
   vector: number[]
-  /** Schema feature names, in order. Used as labels only when their count matches the vector's length. */
   featureNames?: string[]
 }
 
-/**
- * US-63: "the exact transmitted vector, expandable." Shows every value in
- * the client's real post-clip-post-noise contribution — not a summary
- * statistic, the actual numbers, labelled with the schema's feature names
- * (or plain indexes if no matching schema is available) so they can be
- * cross-checked against the allow-list on the Privacy page above.
- */
 export function VectorInspector({ vector, featureNames }: VectorInspectorProps) {
   const labels = featureNames && featureNames.length === vector.length ? featureNames : null
   return (

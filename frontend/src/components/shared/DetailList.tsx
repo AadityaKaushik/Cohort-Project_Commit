@@ -7,7 +7,6 @@ export interface DetailItem {
   wide?: boolean
 }
 
-/** Label-over-value pairs for a record's facts; long-form text spans the full row. */
 export function DetailList({ items, className }: { items: DetailItem[]; className?: string }) {
   return (
     <dl className={cn('grid gap-x-6 gap-y-5 sm:grid-cols-2', className)}>

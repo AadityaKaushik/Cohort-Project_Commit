@@ -13,12 +13,6 @@ interface PrivacyLedgerTableProps {
   featureNames?: string[]
 }
 
-/**
- * US-63: "a log of everything my client has ever sent, so that I can
- * verify the privacy claim instead of trusting it." One immutable row per
- * round; expanding a row reveals the real transmitted vector via
- * {@link VectorInspector} rather than just the summary norms/epsilon.
- */
 export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const isMobile = useIsMobile()

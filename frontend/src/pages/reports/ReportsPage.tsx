@@ -23,7 +23,6 @@ import {
   type ReportType,
 } from '@/lib/reports-api'
 
-/** US-80 / FR-102..104: generate a PDF or CSV export and download it before it expires. */
 export function ReportsPage() {
   const queryClient = useQueryClient()
   const [reportType, setReportType] = useState<ReportType>('applications')

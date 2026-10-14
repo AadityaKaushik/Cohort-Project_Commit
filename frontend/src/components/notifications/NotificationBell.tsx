@@ -18,17 +18,10 @@ import {
 } from '@/lib/notifications-api'
 
 const BELL_PAGE_SIZE = 10
-/** How often the badge re-checks for new notifications while the app is open. */
 const UNREAD_POLL_MS = 60_000
 
 type BellView = 'unread' | 'all'
 
-/**
- * US-79: the notification centre in the app shell header -- an unread
- * badge that polls, a dropdown with Unread / All views (FR-101), mark-one
- * (by opening it) and mark-all, and a link from every notification to the
- * application or interview it's about.
- */
 export function NotificationBell() {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)

@@ -3,7 +3,6 @@ import { apiFetch, apiFetchBlob } from '@/lib/api-client'
 export type ReportType = 'applications' | 'analytics_summary' | 'progress_report'
 export type ReportFormat = 'pdf' | 'csv'
 
-/** Mirrors com.cohort.api.dto.ReportExportResponse (US-80). */
 export interface ReportExport {
   id: string
   report_type: ReportType

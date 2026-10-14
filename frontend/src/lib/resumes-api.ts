@@ -1,7 +1,6 @@
 import { apiFetch, apiFetchBlob } from '@/lib/api-client'
 import type { PagedResponse } from '@/lib/applications-api'
 
-/** Mirrors com.cohort.api.dto.ResumeSummary (one row of the resumes list, US-20). */
 export interface ResumeSummary {
   id: string
   name: string
@@ -14,7 +13,6 @@ export interface ResumeSummary {
   updated_at: string
 }
 
-/** Mirrors com.cohort.api.dto.ResumeDetailResponse. */
 export interface ResumeDetail {
   id: string
   name: string
@@ -73,8 +71,6 @@ export function deleteResume(id: string) {
   return apiFetch<void>(`/resumes/${id}`, { method: 'DELETE' })
 }
 
-/** POST /resumes/{id}/file — multipart upload, matches ResumeController's
- * `@RequestPart("file") MultipartFile` contract exactly: one part named "file". */
 export function uploadResumeFile(id: string, file: File) {
   const formData = new FormData()
   formData.append('file', file)

@@ -19,7 +19,6 @@ interface ToneBadgeProps extends Omit<ComponentProps<typeof Badge>, 'variant'> {
   children: ReactNode
 }
 
-/** A semantic badge: the label carries the meaning, the tone only reinforces it. */
 export function ToneBadge({ tone, dot = false, className, children, ...props }: ToneBadgeProps) {
   return (
     <Badge variant="outline" className={cn('border-transparent font-medium ring-1 ring-inset', TONE_CLASSES[tone], className)} {...props}>

@@ -25,7 +25,6 @@ interface StatTileProps {
   muted?: boolean
 }
 
-/** One headline number with its label and a line of context; real values count up on first view, a missing value shows a dash. */
 export function StatTile({ label, value, decimals = 0, suffix, hint, icon: Icon, tone = 'primary', loading = false, muted = false }: StatTileProps) {
   return (
     <div className="surface-raised flex min-w-0 flex-col gap-3 rounded-xl border p-4 sm:p-5">

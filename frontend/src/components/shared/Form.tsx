@@ -12,7 +12,6 @@ interface FormFieldProps {
   children: ReactElement<Record<string, unknown>>
 }
 
-/** Label, control, then either the hint or the error; the control is wired to both through aria attributes. */
 export function FormField({ id, label, hint, error, className, children }: FormFieldProps) {
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
@@ -51,7 +50,6 @@ interface FormSectionProps {
   children: ReactNode
 }
 
-/** A labelled group of fields: the heading and its context sit beside the fields on wide screens and above them on narrow ones. */
 export function FormSection({ title, description, columns = 2, children }: FormSectionProps) {
   const headingId = useId()
   return (

@@ -33,7 +33,6 @@ function PanelShell({ children }: { children: ReactNode }) {
   )
 }
 
-/** A still-life of the product that quietly moves: each application advances a stage on a slow loop. */
 function PipelinePreview() {
   const reduced = useReducedMotion()
   const [tick, setTick] = useState(0)
@@ -132,7 +131,6 @@ function FormColumn({ children }: { children: ReactNode }) {
   )
 }
 
-/** The calm two-column frame for every signed-out form: the form leads, a quiet brand panel sits beside it on wide screens. */
 export function AuthFrame({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-2">
@@ -142,7 +140,7 @@ export function AuthFrame({ children }: { children: ReactNode }) {
   )
 }
 
-/** Holds the split layout in place while an auth route's chunk loads, so the swap never flashes a blank page. */
+// Holds the split layout in place while an auth route's chunk loads, so the swap never flashes a blank page.
 export function AuthFrameSkeleton() {
   return (
     <div role="status" aria-label="Loading" className="grid min-h-screen bg-background lg:grid-cols-2">
@@ -180,7 +178,6 @@ export function AuthFrameSkeleton() {
   )
 }
 
-/** The heading block every signed-out form opens with: a display title and one line of context, typed once per session. */
 export function AuthIntro({ title, subtitle, eyebrow }: { title: string; subtitle?: string; eyebrow?: string }) {
   return (
     <div className="mb-8 space-y-2">

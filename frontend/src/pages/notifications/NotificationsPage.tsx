@@ -42,7 +42,6 @@ const EMPTY_COPY: Record<NotificationFilter, { title: string; description: strin
   },
 }
 
-/** US-79 / FR-101: the full notification centre, with unread and read shown as separate views. */
 export function NotificationsPage() {
   const queryClient = useQueryClient()
   const [filter, setFilter] = useState<NotificationFilter>('unread')

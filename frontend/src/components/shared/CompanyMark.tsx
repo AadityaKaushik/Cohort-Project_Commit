@@ -4,7 +4,6 @@ function initialOf(name: string): string {
   return name.replace(/^\[[^\]]*\]\s*/, '').match(/[\p{L}\p{N}]/u)?.[0]?.toUpperCase() ?? '?'
 }
 
-/** A company's initial in a soft tile, so rows and cards scan by shape before text. */
 export function CompanyMark({ name, className }: { name: string; className?: string }) {
   return (
     <span

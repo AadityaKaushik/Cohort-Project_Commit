@@ -1,11 +1,5 @@
 import { ToneBadge } from '@/components/shared/ToneBadge'
 
-/**
- * US-50: "a shared low-confidence badge component is used consistently"
- * across every analytics number in the app. Sample size is always shown as
- * plain text, never colour-only, and the insufficient-data styling matches
- * MasteryBadge so "not enough data yet" reads the same everywhere.
- */
 interface SampleSizeBadgeProps {
   sampleSize: number
   sufficientData: boolean

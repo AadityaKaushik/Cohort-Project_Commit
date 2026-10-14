@@ -29,10 +29,6 @@ describe('FunnelChart', () => {
     const chart = screen.getByTestId('funnel-chart')
     expect(chart).toBeInTheDocument()
     expect(screen.queryByText(/no applications yet/i)).not.toBeInTheDocument()
-    // Recharts renders each stage name as an axis tick; jsdom doesn't lay out
-    // real SVG geometry, so the plain-text summary list underneath the chart
-    // (itself a deliberate accessible/table-view equivalent, not just a test
-    // hook) is what's asserted against here.
     const summary = within(screen.getByTestId('funnel-summary'))
     expect(summary.getByText('Applied')).toBeInTheDocument()
     expect(summary.getByText('Offer')).toBeInTheDocument()

@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { matchJob, SAMPLE_JOB_DESCRIPTION, SAMPLE_RESUME_SKILLS } from '@/lib/job-match'
 
-/** Keyword overlap between a pasted job description and a fixed sample resume, computed in the browser. */
 export function JobMatchDemo() {
   const inputId = useId()
   const [text, setText] = useState('')

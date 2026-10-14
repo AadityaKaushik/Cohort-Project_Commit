@@ -72,7 +72,6 @@ const STEPS: Step[] = [
   },
 ]
 
-/** The four-step journey on a vertical line that draws itself as the section enters the viewport. */
 export function JourneyTimeline() {
   return (
     <Reveal className="relative">

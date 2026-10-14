@@ -3,7 +3,6 @@ import { useFrameThrottle, useReducedMotion } from '@/hooks/use-motion'
 
 const PULL = 0.18
 
-/** Leans its child a few pixels towards a mouse pointer; still for touch and reduced motion. */
 export function Magnetic({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()

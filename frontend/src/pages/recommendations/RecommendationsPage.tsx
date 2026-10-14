@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/button'
 import { RecommendationCard } from '@/components/recommendations/RecommendationCard'
 import { FederatedLiftToggle } from '@/components/recommendations/FederatedLiftToggle'
 
-/** US-51..56,77,65: the ranked recommendations list, each card carrying its own evidence tier and accept/snooze/dismiss actions, plus the Federated Lift toggle (US-65). */
 export function RecommendationsPage() {
   const queryClient = useQueryClient()
   const { toast } = useToast()

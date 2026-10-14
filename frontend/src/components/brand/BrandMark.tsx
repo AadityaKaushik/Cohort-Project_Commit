@@ -5,7 +5,6 @@ interface GlyphProps {
   animated?: boolean
 }
 
-/** Two concentric open arcs around a point: one person inside a wider cohort. */
 export function BrandGlyph({ className, animated = false }: GlyphProps) {
   return (
     <span

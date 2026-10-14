@@ -30,7 +30,7 @@ describe('PipelineStrip', () => {
             application({ id: '1', status: 'APPLIED' }),
             application({ id: '2', status: 'APPLIED' }),
             application({ id: '3', status: 'OA' }),
-            application({ id: '4', status: 'REJECTED' }), // terminal -- not part of the pipeline strip
+            application({ id: '4', status: 'REJECTED' }),
           ]}
         />
       </MemoryRouter>,

@@ -10,7 +10,6 @@ export interface TimelineEntry {
   timestamp: string
 }
 
-/** Newest-first vertical timeline (US-15): each entry shows relative and absolute time. */
 export function Timeline({ entries }: { entries: TimelineEntry[] }) {
   if (entries.length === 0) {
     return (

@@ -16,7 +16,6 @@ interface SegmentedProps<T extends string> {
   className?: string
 }
 
-/** A pill-shaped set of mutually exclusive toggles; each option reports its state through aria-pressed. */
 export function Segmented<T extends string>({ label, value, options, onChange, disabled, className }: SegmentedProps<T>) {
   return (
     <div role="group" aria-label={label} className={cn('inline-flex items-center gap-0.5 rounded-lg border bg-surface-2 p-0.5', className)}>

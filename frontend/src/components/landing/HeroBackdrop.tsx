@@ -3,7 +3,6 @@ import { useReducedMotion } from '@/hooks/use-motion'
 
 const SPOTLIGHT_SIZE = 560
 
-/** Soft aurora light, a faint grid, and a spotlight that follows the pointer. Transform and opacity only. */
 export function HeroBackdrop() {
   const rootRef = useRef<HTMLDivElement>(null)
   const spotRef = useRef<HTMLDivElement>(null)

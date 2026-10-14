@@ -26,10 +26,6 @@ function Chip({ className, depth, duration, delay, children }: ChipProps) {
   )
 }
 
-/**
- * Small sample UI pieces that drift around the hero preview. They use only transform, follow the pointer
- * slightly on wide screens, and stay put under reduced motion. Decorative, so hidden from assistive tech.
- */
 export function FloatingChips({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()

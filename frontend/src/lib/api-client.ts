@@ -2,8 +2,6 @@ import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '@/lib/a
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
 
-/** Mirrors the error envelope every endpoint uses (PROJECT_PLAN.md §18):
- * {"error": {"code", "message", "field_errors"}}. */
 export class ApiError extends Error {
   readonly status: number
   readonly code?: string
@@ -18,21 +16,8 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Dispatched when the refresh token itself turns out to be invalid, expired,
- * or revoked — i.e. refreshing cannot save this session. apiFetch has no
- * React context of its own, so it hands off via a DOM event; AuthProvider is
- * the one listener, and it clears state and routes to /login with an
- * explanation (US-04 acceptance criterion).
- */
 export const SESSION_EXPIRED_EVENT = 'cohort:session-expired'
 
-/**
- * Single-flight refresh: every 401 that arrives while a refresh is already
- * in progress awaits the same promise instead of firing its own /auth/refresh
- * call (US-04: "concurrent requests during a refresh do not trigger multiple
- * refresh calls").
- */
 let refreshPromise: Promise<string | null> | null = null
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -65,25 +50,14 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 interface ApiFetchOptions extends Omit<RequestInit, 'body' | 'headers'> {
-  /** A `FormData` body (multipart upload) is sent as-is, with no
-   * `Content-Type` set, so the browser fills in the multipart boundary
-   * itself — anything else is JSON-stringified, matching every other
-   * endpoint's contract. */
   body?: unknown
   headers?: Record<string, string>
-  /** Set on calls the interceptor must never try to refresh/retry for —
-   * register, login, and refresh itself. */
+  // Set on calls the interceptor must never try to refresh/retry for — register, login, and refresh itself.
   skipAuth?: boolean
-  /** Internal: prevents an infinite retry loop after one refresh attempt. */
+  // Internal: prevents an infinite retry loop after one refresh attempt.
   _retried?: boolean
 }
 
-/**
- * The shared auth/refresh round-trip every request in this app goes
- * through, whether it wants a JSON body back (apiFetch) or a binary one
- * (apiFetchBlob for resume downloads, P22) — one interceptor, two thin
- * callers, instead of a second fetch client.
- */
 async function apiFetchRaw(path: string, options: ApiFetchOptions = {}): Promise<Response> {
   const { body, skipAuth, _retried, headers, ...rest } = options
   const accessToken = getAccessToken()
@@ -135,12 +109,6 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   return data as T
 }
 
-/**
- * For the one family of endpoints that return a binary body instead of
- * JSON (resume file download, US-22): runs through the same auth/refresh
- * interceptor as apiFetch, then hands back the raw bytes plus whatever
- * filename the server's Content-Disposition header names.
- */
 export async function apiFetchBlob(path: string, options: ApiFetchOptions = {}): Promise<{ blob: Blob; filename: string | null }> {
   const response = await apiFetchRaw(path, options)
 

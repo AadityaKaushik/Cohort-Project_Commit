@@ -5,22 +5,12 @@ import { buttonVariants } from '@/components/ui/button'
 
 interface UploadDropzoneProps {
   onFileSelected: (file: File) => void
-  /** Comma-separated accept list, mirrors the backend's extension check
-   * (ValidatingFileStorage, P19) — client-side only as a UX hint, since the
-   * server re-validates extension, MIME, and magic bytes regardless. */
   accept?: string
   disabled?: boolean
-  /** Shown while an upload triggered by this dropzone is in flight. */
   isUploading?: boolean
   helperText?: string
 }
 
-/**
- * Drag-and-drop or click-to-browse file picker (US-21). It never uploads
- * anything itself — it only ever hands the chosen `File` back to the
- * caller, which is what actually calls `uploadResumeFile` — so this
- * component stays reusable for any future upload surface.
- */
 export function UploadDropzone({
   onFileSelected,
   accept = '.pdf,.doc,.docx',

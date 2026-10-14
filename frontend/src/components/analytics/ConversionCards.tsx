@@ -10,11 +10,6 @@ const RATE_LABELS: { key: keyof ConversionRates; label: string }[] = [
   { key: 'overall_success', label: 'Overall (Applied → Offer)' },
 ]
 
-/**
- * US-44 / FR-67: one card per §20.7 conversion rate, each showing its own
- * value, denominator, and a {@link SampleSizeBadge}. Low-confidence rates
- * are de-emphasised (a dash and muted ink) rather than hidden outright.
- */
 export function ConversionCards({ rates }: { rates: ConversionRates }) {
   return (
     <div className="stagger grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">

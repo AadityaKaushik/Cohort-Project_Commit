@@ -26,7 +26,6 @@ describe('ConversionCards', () => {
   it('de-emphasises a low-confidence rate instead of showing a misleading percentage', () => {
     render(<ConversionCards rates={sampleRates()} />)
 
-    // interview_to_final is insufficient -- the dash placeholder, not its computed rate, is shown.
     const heading = screen.getByText('Interview → Final Round')
     const card = heading.closest('[data-slot="card"]') ?? heading.parentElement!.parentElement!
     expect(within(card as HTMLElement).getByText('1 / 2')).toBeInTheDocument()

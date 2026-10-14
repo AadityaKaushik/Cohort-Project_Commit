@@ -14,11 +14,6 @@ interface EmptyStateProps {
   quote?: number
 }
 
-/**
- * The one empty-state shape used everywhere (PROJECT_PLAN.md §20.3):
- * icon, one sentence of explanation, and a clear next action. A short
- * line of encouragement appears only where a page opts in with `quote`.
- */
 export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false, quote }: EmptyStateProps) {
   return (
     <div

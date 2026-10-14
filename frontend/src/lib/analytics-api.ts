@@ -1,6 +1,5 @@
 import { apiFetch } from '@/lib/api-client'
 
-/** Mirrors com.cohort.api.dto.FunnelResponse (US-43). Every count is "ever reached," from history, not current status. */
 export interface Funnel {
   applied: number
   reached_oa: number
@@ -10,18 +9,15 @@ export interface Funnel {
   sample_size: number
 }
 
-/** Mirrors com.cohort.api.dto.ConversionRateView (US-44, FR-67). */
 export interface ConversionRate {
   value: number
   formatted: string
   numerator: number
   denominator: number
-  /** Reached the source stage and still waiting there: in neither numerator nor denominator. */
   still_open: number
   sufficient_data: boolean
 }
 
-/** Mirrors com.cohort.api.dto.ConversionRatesResponse. */
 export interface ConversionRates {
   application_to_oa: ConversionRate
   oa_to_interview: ConversionRate
@@ -30,7 +26,6 @@ export interface ConversionRates {
   overall_success: ConversionRate
 }
 
-/** Mirrors com.cohort.api.dto.TimelineResponse (US-45). */
 export interface TimelineBucket {
   week_start: string
   applications: number
@@ -42,7 +37,6 @@ export interface Timeline {
   sample_size: number
 }
 
-/** Mirrors com.cohort.api.entity.ApplicationStatus's non-terminal, pipeline-ordered members plus the four terminal outcomes. */
 export type ApplicationStatusValue =
   | 'SAVED'
   | 'APPLIED'
@@ -55,7 +49,6 @@ export type ApplicationStatusValue =
   | 'ACCEPTED'
   | 'DECLINED'
 
-/** Mirrors com.cohort.api.dto.RejectionDistributionResponse (US-46). */
 export interface RejectionDistribution {
   by_stage: Partial<Record<ApplicationStatusValue, number>>
   no_response_count: number
@@ -63,7 +56,6 @@ export interface RejectionDistribution {
   sufficient_data: boolean
 }
 
-/** Mirrors com.cohort.api.dto.DwellTimesResponse.DwellView (US-48). */
 export interface DwellView {
   median_days: number
   p25_days: number

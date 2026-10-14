@@ -8,7 +8,6 @@ interface StarRatingProps {
   disabled?: boolean
 }
 
-/** A 1-5 star picker (self-rating / perceived difficulty, US-29/US-30) — one click, no typing, which is what keeps the debrief fast (NFR-31). */
 export function StarRating({ value, onChange, label, disabled = false }: StarRatingProps) {
   return (
     <div className="space-y-1">

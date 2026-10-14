@@ -1,21 +1,15 @@
 import { apiFetch } from '@/lib/api-client'
 
-/** Mirrors com.cohort.api.entity.Topic.Category. */
 export type TopicCategory = 'dsa' | 'system_design' | 'databases' | 'os_networking' | 'oop' | 'behavioural'
 
-/** Mirrors com.cohort.api.entity.Difficulty. */
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
-/** Mirrors com.cohort.api.entity.Question.Category. */
 export type QuestionCategory = 'dsa' | 'technical' | 'behavioural' | 'hr' | 'system_design' | 'company_specific'
 
-/** Mirrors com.cohort.api.entity.PracticeAttempt.Status. */
 export type PracticeAttemptStatus = 'not_started' | 'in_progress' | 'confident' | 'needs_review'
 
-/** Mirrors com.cohort.api.entity.PreparationTask.Status. */
 export type PreparationTaskStatus = 'open' | 'completed'
 
-/** Mirrors com.cohort.api.dto.TopicResponse (US-38). */
 export interface Topic {
   id: string
   name: string
@@ -27,13 +21,11 @@ export interface Topic {
   created_at: string
 }
 
-/** Mirrors com.cohort.api.dto.TopicGraphResponse. */
 export interface TopicGraph {
   nodes: Topic[]
   edges: { topic_id: string; prerequisite_topic_id: string }[]
 }
 
-/** Mirrors com.cohort.api.dto.QuestionResponse. */
 export interface QuestionBankItem {
   id: string
   topic_id: string
@@ -54,7 +46,6 @@ export interface PagedResponse<T> {
   size: number
 }
 
-/** Mirrors com.cohort.api.dto.PracticeAttemptResponse. */
 export interface PracticeAttempt {
   id: string
   question_id: string
@@ -66,7 +57,6 @@ export interface PracticeAttempt {
   created_at: string
 }
 
-/** Mirrors com.cohort.api.dto.PreparationTaskResponse (US-40). */
 export interface PreparationTask {
   id: string
   topic_id: string
@@ -89,7 +79,6 @@ export interface PreparationTaskInput {
   estimated_effort_minutes?: number | null
 }
 
-/** Mirrors com.cohort.api.dto.TopicMasteryView (US-41). */
 export interface TopicMasteryView {
   topic_id: string
   topic_name: string
@@ -100,7 +89,6 @@ export interface TopicMasteryView {
   sufficient_evidence: boolean
 }
 
-/** Mirrors com.cohort.api.dto.CategoryProgress. */
 export interface CategoryProgress {
   category: TopicCategory
   total_topics: number
@@ -109,7 +97,6 @@ export interface CategoryProgress {
   average_mastery: number | null
 }
 
-/** Mirrors com.cohort.api.dto.PreparationProgressResponse. */
 export interface PreparationProgress {
   categories: CategoryProgress[]
   topics: TopicMasteryView[]

@@ -19,7 +19,6 @@ function messageOf(cause: unknown, fallback: string) {
   return cause instanceof ApiError ? cause.message : fallback
 }
 
-/** US-06/07/08: change password, export everything, delete the account. */
 export function AccountPage() {
   const { logout, user } = useAuth()
   const [currentPassword, setCurrentPassword] = useState('')

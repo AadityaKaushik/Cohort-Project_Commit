@@ -14,7 +14,6 @@ interface PageHeaderProps {
   className?: string
 }
 
-/** The single page heading pattern: optional back link or eyebrow, a display title, one line of context, and the page's actions on the right. */
 export function PageHeader({ title, description, eyebrow, back, actions, meta, className }: PageHeaderProps) {
   return (
     <header className={cn('flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between', className)}>

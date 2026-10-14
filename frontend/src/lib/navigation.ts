@@ -16,9 +16,7 @@ export interface NavItem {
   label: string
   path: string
   icon: LucideIcon
-  /** Live counts (open applications, upcoming interviews, ...) are wired
-   * up once the relevant feature ships — a badge that never changes is
-   * decoration, not information (PROJECT_PLAN.md §20.2). */
+  // Live counts (open applications, upcoming interviews, ...) are wired up once the relevant feature ships — a badge that never changes is decoration, not information (PROJECT_PLAN.md §20.2).
   count?: number
 }
 
@@ -59,7 +57,6 @@ export const navGroups: NavGroup[] = [
 
 export const primaryNavItems: NavItem[] = navGroups.flatMap((group) => group.items)
 
-/** The four destinations a phone user reaches for most; everything else lives in the drawer. */
 export const mobileNavItems: NavItem[] = ['/', '/applications', '/interviews', '/prep'].map(
   (path) => primaryNavItems.find((item) => item.path === path)!,
 )
@@ -134,7 +131,6 @@ const PAGE_TITLES: Record<string, string> = {
   debrief: 'Interview debrief',
 }
 
-/** A descriptive tab title for the route, e.g. "New application" or "Interview details", without the brand suffix. */
 export function pageTitleFor(pathname: string): string {
   const segments = pathname.split('/').filter(Boolean)
   const crumbs = breadcrumbsFor(pathname)

@@ -10,7 +10,6 @@ interface ChartFrameProps {
   children: (animate: boolean) => ReactNode
 }
 
-/** Mounts a chart only once it scrolls into view so its draw animation is seen; under reduced motion the chart appears fully drawn. */
 export function ChartFrame({ height, testId, className, label, children }: ChartFrameProps) {
   const [ref, inView] = useInView<HTMLDivElement>()
   const reduced = useReducedMotion()
@@ -39,7 +38,6 @@ export function ChartLegend({ items }: { items: LegendItem[] }) {
   )
 }
 
-/** An empty chart placeholder with the same footprint as the chart it stands in for. */
 export function ChartEmpty({ icon, message, height }: { icon: ReactNode; message: string; height: number }) {
   return (
     <div

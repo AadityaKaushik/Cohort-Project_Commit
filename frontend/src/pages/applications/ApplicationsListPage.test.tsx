@@ -87,7 +87,6 @@ describe('ApplicationsListPage', () => {
 
     expect(await screen.findByText('Acme Corp')).toBeInTheDocument()
     expect(screen.getByText('Backend Engineer')).toBeInTheDocument()
-    // Status badge and stage column both read "Applied" for this fixture.
     expect(within(screen.getByRole('table')).getAllByText('Applied')).toHaveLength(2)
   })
 })

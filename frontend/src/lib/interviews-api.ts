@@ -1,14 +1,11 @@
 import { apiFetch, ApiError } from '@/lib/api-client'
 import type { CompanySummary, PagedResponse } from '@/lib/applications-api'
 
-/** Mirrors com.cohort.api.entity.InterviewRoundType. */
 export type InterviewRoundType = 'OA' | 'PHONE_SCREEN' | 'TECHNICAL' | 'SYSTEM_DESIGN' | 'BEHAVIOURAL' | 'HR' | 'FINAL'
 
-/** Mirrors com.cohort.api.entity.Interview.Mode / Outcome. */
 export type InterviewMode = 'onsite' | 'video' | 'phone'
 export type InterviewOutcome = 'passed' | 'failed' | 'pending' | 'unknown'
 
-/** Mirrors com.cohort.api.entity.InterviewQuestion.Category / Difficulty. */
 export type QuestionCategory = 'dsa' | 'technical' | 'behavioural' | 'hr' | 'system_design' | 'company_specific'
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard'
 
@@ -165,7 +162,6 @@ export function deleteInterviewQuestion(questionId: string) {
   return apiFetch<void>(`/interview-questions/${questionId}`, { method: 'DELETE' })
 }
 
-/** Returns `null` instead of throwing on a 404 — no debrief has been started yet is a normal state, not an error. */
 export async function getInterviewFeedbackOrNull(interviewId: string): Promise<InterviewFeedback | null> {
   try {
     return await apiFetch<InterviewFeedback>(`/interviews/${interviewId}/feedback`)

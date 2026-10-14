@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { setTokens } from '@/lib/auth-storage'
 import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 
-/** Receives the application's own tokens from the provider round trip and starts a normal session. */
 export function OAuthCallbackPage() {
   const [failed, setFailed] = useState(false)
 

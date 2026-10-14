@@ -10,15 +10,6 @@ const PIPELINE_STAGES: { status: ApplicationStatusValue; label: string }[] = [
   { status: 'OFFER', label: 'Offer' },
 ]
 
-/**
- * US-49: "a compact pipeline strip with live counts" -- how many
- * applications are sitting at each non-terminal status *right now*
- * (current status, not "ever reached" like the funnel on the analytics
- * page). Each tile links to the applications list (status filtering on
- * that list is not yet built -- see ApplicationsListPage -- so the link
- * targets the list itself rather than a filter query param that would
- * silently do nothing).
- */
 export function PipelineStrip({ applications }: { applications: ApplicationSummary[] }) {
   const countsByStatus = new Map<ApplicationStatusValue, number>()
   for (const application of applications) {

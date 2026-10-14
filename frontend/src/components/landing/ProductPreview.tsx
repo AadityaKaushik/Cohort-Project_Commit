@@ -17,7 +17,6 @@ const STEP_MS = 2600
 const PREP_TOTAL = 20
 const MAX_TILT_DEG = 3
 
-/** A slice of the real dashboard: a board you can actually drag, plus progress and next actions, all on fixed sample data. */
 export function ProductPreview() {
   const reduced = useReducedMotion()
   const [step, setStep] = useState(0)

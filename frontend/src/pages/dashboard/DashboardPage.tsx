@@ -30,7 +30,6 @@ function greetingFor(hour: number): string {
   return 'Good evening'
 }
 
-/** US-49: the dashboard tells me what to do today. Greeting, progress at a glance, the live pipeline, a ranked and capped action queue, and the next interviews. */
 export function DashboardPage() {
   const { user } = useAuth()
   const applicationsQuery = useQuery({
@@ -296,4 +295,3 @@ function UpcomingInterviews({ interviews }: { interviews: InterviewSummary[] }) 
     </ul>
   )
 }
-

@@ -18,7 +18,6 @@ const VALUE_OVERRIDES: Record<string, string> = {
   company_specific: 'Company specific',
 }
 
-/** The single formatter for every enum value the API returns: FINAL_ROUND, system_design, needs_review. */
 export function formatLabel(value: string | null | undefined): string {
   if (value === null || value === undefined || value === '') {
     return '—'

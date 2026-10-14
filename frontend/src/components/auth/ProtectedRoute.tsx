@@ -4,11 +4,6 @@ import { useAuth } from '@/hooks/use-auth'
 import { BrandGlyph } from '@/components/brand/BrandMark'
 import { RotatingQuote } from '@/components/shared/RotatingQuote'
 
-/** Gate for any route tree that requires a logged-in user (US-01..04).
- * Renders a loading placeholder while the session is being resolved (token
- * present but profile not yet fetched/refreshed). A signed-out visitor at the
- * site root sees the public home page; anywhere else they are sent to /login,
- * preserving the attempted location so login can return there. */
 export function ProtectedRoute({ signedOutHome }: { signedOutHome?: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
   const location = useLocation()

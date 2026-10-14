@@ -32,7 +32,6 @@ export const positiveInteger =
   (value) =>
     value.trim() === '' || (/^\d+$/.test(value.trim()) && Number(value) > 0) ? null : `${label} must be a whole number above zero.`
 
-/** Runs each field's rules in order and keeps the first message per field. */
 export function validate<T extends string>(
   values: Record<T, string>,
   rules: Partial<Record<T, Rule[]>>,

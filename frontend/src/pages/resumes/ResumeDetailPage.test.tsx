@@ -7,11 +7,6 @@ import { ResumeDetailPage } from '@/pages/resumes/ResumeDetailPage'
 import { getResume, type ResumeDetail } from '@/lib/resumes-api'
 import { setTokens, clearTokens } from '@/lib/auth-storage'
 
-// Only getResume/cloneResume/deleteResume are stubbed directly; uploadResumeFile
-// is left as the real implementation so the test below exercises the actual
-// FormData construction against a mocked `fetch`, proving the request shape
-// matches ResumeController's `@RequestPart("file") MultipartFile` contract
-// (P20) — a single part literally named "file".
 vi.mock('@/lib/resumes-api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/resumes-api')>('@/lib/resumes-api')
   return {

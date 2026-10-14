@@ -22,13 +22,11 @@ const ICONS: Record<NotificationType, LucideIcon> = {
 
 interface NotificationItemProps {
   notification: AppNotification
-  /** Called when the user follows the notification's link (or clicks an unlinked one). */
   onOpen: (notification: AppNotification) => void
-  /** Show the full body instead of clamping it to two lines (the full page does; the bell doesn't). */
+  // Show the full body instead of clamping it to two lines (the full page does; the bell doesn't).
   expanded?: boolean
 }
 
-/** One notification row, shared by the bell's dropdown and the full notifications page. */
 export function NotificationItem({ notification, onOpen, expanded = false }: NotificationItemProps) {
   const Icon = ICONS[notification.type] ?? BellIcon
   const href = notificationHref(notification)

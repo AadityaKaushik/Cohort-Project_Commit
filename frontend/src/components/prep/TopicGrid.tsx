@@ -1,13 +1,6 @@
 import type { TopicMasteryView } from '@/lib/prep-api'
 import { MasteryBadge } from '@/components/prep/MasteryBadge'
 
-/**
- * US-41: "a topic grid coloured by mastery with an accessible non-colour
- * indicator; drill-down from category to topic to questions." The colour
- * reinforcement lives entirely in {@link MasteryBadge} (which always pairs
- * it with a percentage and a plain-language band); this component is just
- * the grid layout plus the click-through hook.
- */
 export function TopicGrid({ topics, onSelectTopic }: { topics: TopicMasteryView[]; onSelectTopic?: (topic: TopicMasteryView) => void }) {
   if (topics.length === 0) {
     return <p className="rounded-lg border border-dashed bg-surface-2/50 p-6 text-center text-sm text-muted-foreground">No topics yet.</p>

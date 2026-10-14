@@ -10,7 +10,6 @@ interface SectionCardProps {
   children?: ReactNode
 }
 
-/** The one card treatment for page sections: raised surface, heading row with an optional action, and a padded body. */
 export function SectionCard({ title, description, action, tone = 'default', className, children }: SectionCardProps) {
   const headingId = useId()
   return (

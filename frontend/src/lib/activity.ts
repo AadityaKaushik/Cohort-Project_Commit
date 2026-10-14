@@ -27,12 +27,6 @@ function dayKey(iso: string): string {
   return format(parseISO(iso), 'yyyy-MM-dd')
 }
 
-/**
- * Activity is counted only from things already recorded: an application's
- * applied date, an interview that has happened, and a prep task marked done.
- * The streak runs back from today, or from yesterday when today has nothing
- * yet, so a streak is not lost before the day is over.
- */
 export function summariseActivity(input: ActivityInput, now: Date = new Date()): ActivitySummary {
   const counts = new Map<string, number>()
   const bump = (iso: string | null) => {

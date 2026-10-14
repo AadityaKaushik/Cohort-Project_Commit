@@ -9,8 +9,6 @@ interface AuthContextValue {
   user: UserProfile | undefined
   isLoading: boolean
   isAuthenticated: boolean
-  /** Set once, when a request comes back and the refresh token itself is
-   * dead (US-04) — cleared again on the next successful login. */
   sessionMessage: string | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName: string) => Promise<void>
@@ -61,8 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setHasToken(false)
     queryClient.removeQueries({ queryKey: ['me'] })
     if (refreshToken) {
-      // Best-effort server-side revocation (US-03) — client state is already
-      // cleared regardless of whether this call succeeds.
       await logoutRequest(refreshToken).catch(() => undefined)
     }
   }

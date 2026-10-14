@@ -1,12 +1,5 @@
 import { ToneBadge, type Tone } from '@/components/shared/ToneBadge'
 
-/**
- * Mastery is never conveyed by colour alone (US-41: "an accessible
- * non-colour indicator") — the percentage and a plain-language band are
- * always in the label text; colour is secondary reinforcement, the same
- * convention {@code StatusBadge} already established for application
- * status.
- */
 function band(score: number): { label: string; tone: Tone } {
   if (score >= 0.7) {
     return { label: 'Strong', tone: 'success' }

@@ -3,7 +3,6 @@ import { formatLabel } from '@/lib/labels'
 import type { InterviewSummary } from '@/lib/interviews-api'
 import type { PreparationTask } from '@/lib/prep-api'
 
-/** US-49: "the queue is capped at 7 items to stay actionable." */
 export const ACTION_QUEUE_CAP = 7
 
 export type ActionItemType = 'stalled' | 'upcoming_interview' | 'missing_debrief' | 'due_task'
@@ -23,20 +22,6 @@ export interface ActionQueueInput {
   dueTasks: PreparationTask[]
 }
 
-/**
- * US-49's ranked action queue: mixes four sources of "things to do today,"
- * each ranked most-urgent-first within its own category, then concatenated
- * in a fixed priority order (a stalled application has been silently dying
- * for longer than a task with a due date, so it's ranked first) and capped
- * at {@link ACTION_QUEUE_CAP} -- "every item is one click from its action"
- * is satisfied by every item's {@code href} pointing straight at the
- * record it concerns.
- *
- * <p>Pure and dependency-free on purpose: it takes plain arrays already
- * fetched by the page and returns a plain array, so the "capped at 7 even
- * with more than 7 actionable items" requirement can be unit-tested
- * directly without rendering anything.
- */
 export function buildActionQueue(input: ActionQueueInput): ActionItem[] {
   const stalledItems: ActionItem[] = [...input.stalled]
     .sort((a, b) => b.days_in_stage - a.days_in_stage)

@@ -9,7 +9,6 @@ const TYPE_MS = 110
 const HOLD_MS = 1500
 const PRESS_MS = 450
 
-/** A self-playing command palette: the query types itself, results filter, and the top match is chosen. */
 export function PaletteDemo() {
   const reduced = useReducedMotion()
   const [ref, inView] = useInView<HTMLDivElement>()

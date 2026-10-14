@@ -31,11 +31,7 @@ function canDrop(application: ApplicationSummary | undefined, target: Applicatio
   return application.allowed_next_statuses.includes(target) || application.correction_statuses.includes(target)
 }
 
-/**
- * The server's State pattern decides every move: a drop is only previewed as
- * legal from the transitions the API returned, and the final say is still the
- * server's response, so an illegal move can never be persisted.
- */
+// The server's State pattern decides every move: a drop is only previewed as legal from the transitions the API returned, and the final say is still the server's response, so an illegal move can never be persisted.
 export function KanbanBoard({ applications, onMove }: KanbanBoardProps) {
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [overColumn, setOverColumn] = useState<ApplicationStatusValue | null>(null)
@@ -120,7 +116,6 @@ interface KanbanCardProps {
   onMove: (application: ApplicationSummary, target: ApplicationStatusValue) => void
 }
 
-/** Memoised so a drag only re-renders the card being dragged, not the whole board. */
 const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStart, onDragEnd, onMove }: KanbanCardProps) {
   return (
     <li

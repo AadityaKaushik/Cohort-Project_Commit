@@ -9,12 +9,6 @@ const CATEGORY_LABELS: Record<CategoryProgress['category'], string> = {
   behavioural: 'Behavioural',
 }
 
-/**
- * US-41: "progress bars per category." The numeric label is always present
- * next to the bar (never colour-only), and the bar itself uses a plain
- * `role="progressbar"` div rather than a chart library — a single filled
- * track needs no more than that.
- */
 export function CategoryProgressBar({ progress }: { progress: CategoryProgress }) {
   const completionPercent = progress.tasks_total === 0 ? 0 : Math.round((progress.tasks_completed / progress.tasks_total) * 100)
   const masteryLabel = progress.average_mastery === null ? 'not enough data yet' : `${Math.round(progress.average_mastery * 100)}% avg. mastery`

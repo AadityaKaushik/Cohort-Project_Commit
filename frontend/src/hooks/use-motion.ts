@@ -22,7 +22,6 @@ export function useReducedMotion(): boolean {
   return reduced
 }
 
-/** True once the element has scrolled into view; immediately true where IntersectionObserver is unavailable. */
 export function useInView<T extends Element>(): [RefObject<T | null>, boolean] {
   const ref = useRef<T>(null)
   const [inView, setInView] = useState(() => typeof IntersectionObserver === 'undefined')
@@ -54,10 +53,7 @@ function formatCount(value: number, decimals: number, suffix: string): string {
   return `${value.toFixed(decimals)}${suffix}`
 }
 
-/**
- * Eases a number from zero to the target on first render by writing straight to the element each frame,
- * so React never re-renders mid-animation. Under reduced motion the target is rendered straight away.
- */
+// Eases a number from zero to the target on first render by writing straight to the element each frame, so React never re-renders mid-animation.
 export function useCountUp<T extends HTMLElement>(target: number, decimals = 0, suffix = ''): { ref: RefObject<T | null>; text: string } {
   const ref = useRef<T>(null)
   const reduced = useReducedMotion()
@@ -84,7 +80,6 @@ export function useCountUp<T extends HTMLElement>(target: number, decimals = 0, 
   return { ref, text: formatCount(animatable ? 0 : target, decimals, suffix) }
 }
 
-/** Coalesces a high-frequency handler (pointer moves, scrolls) into at most one call per animation frame, using the latest event. */
 export function useFrameThrottle<E>(handler: (event: E) => void): (event: E) => void {
   const handlerRef = useRef(handler)
   const latest = useRef<E | null>(null)

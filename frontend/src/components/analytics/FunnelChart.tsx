@@ -7,13 +7,6 @@ import { CHART_ANIMATION_MS, SERIES_COLORS, axisProps, gridProps, tooltipProps }
 const STAGE_LABELS = ['Applied', 'OA', 'Interview', 'Final Round', 'Offer'] as const
 const HEIGHT = 248
 
-/**
- * US-43: the application funnel, one bar per stage, each count "ever
- * reached" (not current status). A single series needs one consistent hue,
- * not a categorical palette: the five stage names are the categorical axis.
- * Every bar carries its count as a direct label, a tooltip repeats it, and a
- * plain-text summary below makes it readable without the chart at all.
- */
 export function FunnelChart({ funnel }: { funnel: Funnel }) {
   if (funnel.sample_size === 0) {
     return <ChartEmpty icon={<FunnelIcon aria-hidden className="size-4" />} message="No applications yet — once you log one, your funnel appears here." height={HEIGHT} />

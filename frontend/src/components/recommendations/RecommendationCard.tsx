@@ -27,11 +27,9 @@ interface RecommendationCardProps {
   onSnooze: (id: string) => void
   onDismiss: (id: string, reason: string) => void
   isBusy?: boolean
-  /** US-65: shows this recommendation's rank_delta badge when the Federated Lift toggle is on. */
   showRankDelta?: boolean
 }
 
-/** US-51..56,65: one recommendation, its evidence tier, the observations behind it, the accept/snooze/dismiss actions, and (when toggled) its federated rank delta. */
 export function RecommendationCard({
   recommendation,
   onAccept,

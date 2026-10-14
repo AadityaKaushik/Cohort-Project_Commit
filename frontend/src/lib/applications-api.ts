@@ -1,6 +1,5 @@
 import { apiFetch } from '@/lib/api-client'
 
-/** Mirrors com.cohort.api.entity.ApplicationStatus (PROJECT_PLAN.md §17.5). */
 export type ApplicationStatusValue =
   | 'SAVED'
   | 'APPLIED'
@@ -34,9 +33,7 @@ export interface ApplicationSummary {
   date_applied: string
   priority: Priority | null
   archived: boolean
-  /** Statuses the State pattern allows next without a note. */
   allowed_next_statuses: ApplicationStatusValue[]
-  /** Backward moves that are legal only with an explanatory note. */
   correction_statuses: ApplicationStatusValue[]
 }
 
@@ -48,7 +45,6 @@ export interface ApplicationStatusHistoryEntry {
   changed_at: string
 }
 
-/** Mirrors com.cohort.api.dto.ApplicationInterviewSummary — the small slice embedded in ApplicationDetail (FR-17). */
 export interface ApplicationInterviewEntry {
   id: string
   round_number: number
@@ -176,7 +172,6 @@ export function getApplicationHistory(id: string) {
   return apiFetch<ApplicationStatusHistoryEntry[]>(`/applications/${id}/history`)
 }
 
-/** POST /applications/{id}/resume (US-24): `resumeId: null` clears the association. */
 export function attachResumeToApplication(id: string, resumeId: string | null) {
   return apiFetch<ApplicationDetail>(`/applications/${id}/resume`, {
     method: 'POST',
@@ -184,7 +179,6 @@ export function attachResumeToApplication(id: string, resumeId: string | null) {
   })
 }
 
-/** Mirrors com.cohort.api.dto.StalledApplicationResponse (US-18). */
 export interface StalledApplication {
   application_id: string
   company_name: string

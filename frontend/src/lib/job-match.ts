@@ -1,4 +1,3 @@
-/** Skills the demo knows how to spot, each with the phrases that count as a mention. */
 const SKILL_PATTERNS: Record<string, RegExp> = {
   Java: /\bjava\b(?!script)/i,
   'Spring Boot': /\bspring(\s*boot)?\b/i,
@@ -47,10 +46,6 @@ export interface JobMatch {
   score: number
 }
 
-/**
- * Deterministic keyword overlap: find which known skills the job mentions, then check each against the
- * sample resume. The score is simply matched / mentioned, rounded to a whole percent.
- */
 export function matchJob(jobDescription: string, resumeSkills: readonly string[] = SAMPLE_RESUME_SKILLS): JobMatch {
   const required = Object.entries(SKILL_PATTERNS)
     .filter(([, pattern]) => pattern.test(jobDescription))

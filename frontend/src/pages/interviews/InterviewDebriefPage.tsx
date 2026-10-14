@@ -14,14 +14,6 @@ import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
 
-/**
- * The guided post-interview debrief (US-30). Deliberately a single screen
- * with three short prompts and a star rating — no multi-step wizard, no
- * required fields beyond what the caller can reliably produce from memory
- * (DR-07) — because that is what keeps it completable in under three
- * minutes (NFR-31): every extra screen or mandatory field is a minute a
- * candidate will not spend before the memory decays.
- */
 export function InterviewDebriefPage() {
   const { id } = useParams()
   const queryClient = useQueryClient()

@@ -18,7 +18,6 @@ const TONES: Record<ActionItemType, string> = {
   due_task: 'bg-muted text-muted-foreground',
 }
 
-/** US-49: "every item is one click from its action" -- each row is a `Link` straight to the record it concerns. */
 export function ActionQueueList({ items, label = 'Next actions' }: { items: ActionItem[]; label?: string }) {
   if (items.length === 0) {
     return (

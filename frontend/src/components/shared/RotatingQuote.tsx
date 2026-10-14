@@ -12,7 +12,6 @@ interface RotatingQuoteProps {
   offset?: number
 }
 
-/** An understated line of encouragement. It changes with a soft fade, and holds still under reduced motion. */
 export function RotatingQuote({ className, rotate = true, offset = 0 }: RotatingQuoteProps) {
   const reduced = useReducedMotion()
   const [index, setIndex] = useState(() => quoteOfTheDay() + offset)

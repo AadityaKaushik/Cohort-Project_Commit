@@ -135,7 +135,6 @@ describe('PrivacyPage', () => {
 
     expect(screen.getByText('0.250000')).toBeInTheDocument()
     expect(screen.getByText('-0.750000')).toBeInTheDocument()
-    // mastery_mean appears in the schema list and again as the inspector's label.
     expect(screen.getAllByText('mastery_mean')).toHaveLength(2)
   })
 

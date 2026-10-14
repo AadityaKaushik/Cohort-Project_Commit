@@ -67,7 +67,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             window.localStorage.setItem(THEME_STORAGE_KEY, next)
           }
         } catch {
-          // Persistence is a convenience; the choice still applies for this session.
         }
       },
     }),

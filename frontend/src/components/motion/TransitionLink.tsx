@@ -9,7 +9,6 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
 }
 
-/** A link that prefetches its route on intent and navigates inside a shared route transition. */
 export function TransitionLink({ to, onClick, onMouseEnter, onFocus, onTouchStart, replace, state, ...props }: TransitionLinkProps) {
   const navigate = useNavigate()
   return (

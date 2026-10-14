@@ -9,7 +9,6 @@ export interface DataTableColumn<T> {
   key: string
   header: string
   render: (row: T) => ReactNode
-  /** Present only for columns the caller can sort server-side by. */
   sortKey?: string
   className?: string
   align?: 'start' | 'end'
@@ -33,11 +32,6 @@ function activateOnKey<T>(event: KeyboardEvent, row: T, onRowClick?: (row: T) =>
   }
 }
 
-/**
- * A dense, sortable data table — the PROJECT_PLAN.md §2.3 anti-similarity
- * checklist explicitly prefers this over a Trello-style board as the
- * primary application view. On a phone each row becomes a card.
- */
 export function DataTable<T>({ columns, data, getRowId, onRowClick, rowLabel, sort, direction, onSortChange }: DataTableProps<T>) {
   const isMobile = useIsMobile()
 

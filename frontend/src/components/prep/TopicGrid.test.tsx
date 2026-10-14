@@ -26,7 +26,6 @@ describe('TopicGrid', () => {
   it('renders a mastery badge that never relies on colour alone', () => {
     render(<TopicGrid topics={[topic()]} />)
     expect(screen.getByText('Arrays')).toBeInTheDocument()
-    // The label text always carries the number and a plain-language band, not colour alone (US-41).
     expect(screen.getByTitle('80% mastery from 6 observations')).toBeInTheDocument()
   })
 

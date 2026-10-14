@@ -54,22 +54,14 @@ function Caret({ blinking, className }: { blinking: boolean; className?: string 
 }
 
 interface TypingTextProps {
-  /** One string types once; several strings type, hold and erase in turn. */
   text: string | readonly string[]
-  /** Types this string only once per browser session; later visits show it already written. */
   sessionKey?: string
-  /** Loops through several strings; ignored for a single string. */
   loop?: boolean
   startDelay?: number
   className?: string
   caretClassName?: string
 }
 
-/**
- * The one typing effect. The full text always occupies its final space (so nothing shifts) and is what
- * screen readers and text search see; the moving letters are drawn as generated content on top. It starts
- * when scrolled into view, pauses while the tab is hidden, and under reduced motion simply shows the text.
- */
 export function TypingText({ text, sessionKey, loop = true, startDelay = 0, className, caretClassName }: TypingTextProps) {
   if (typeof text !== 'string' && text.length > 1) {
     return <CyclingText phrases={text} loop={loop} className={className} caretClassName={caretClassName} />

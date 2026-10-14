@@ -28,17 +28,6 @@ const PLAIN_LANGUAGE_POINTS = [
   },
 ]
 
-/**
- * US-57/US-64: the opt-in consent screen. Shows the exact feature schema
- * (not a paraphrase of it) so "what is sent" is verifiable, not just
- * claimed, and a companion "what is never sent" list right next to it.
- * Default is off — {@code opted_in: false} until the user explicitly
- * flips this toggle (enforced at the DB level too, V1's
- * {@code fl_opt_in NOT NULL DEFAULT false}).
- *
- * US-63: below that, the Privacy Ledger. Every round this account took
- * part in, with the exact vector that left it.
- */
 export function PrivacyPage() {
   const queryClient = useQueryClient()
 

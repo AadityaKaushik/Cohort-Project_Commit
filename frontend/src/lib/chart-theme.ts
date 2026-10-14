@@ -1,4 +1,3 @@
-/** Series colours in fixed order: the first entity is always violet, the second always blue-teal; validated for colour-vision separation in both themes. */
 export const SERIES_COLORS = ['var(--color-series-1)', 'var(--color-series-2)'] as const
 
 export const CHART_ANIMATION_MS = 900
