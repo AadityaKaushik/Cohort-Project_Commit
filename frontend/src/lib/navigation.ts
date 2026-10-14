@@ -5,6 +5,7 @@ import {
   FileText,
   FileDown,
   HandCoins,
+  Target,
   LayoutDashboard,
   MessagesSquare,
   PencilLine,
@@ -55,6 +56,7 @@ export const navGroups: NavGroup[] = [
     label: 'Insights',
     items: [
       { label: 'Analytics', path: '/analytics', icon: BarChart3 },
+      { label: 'Goals', path: '/goals', icon: Target },
       { label: 'Reports', path: '/reports', icon: FileDown },
       { label: 'Privacy / FL', path: '/privacy', icon: ShieldCheck },
     ],
@@ -89,6 +91,7 @@ const SECTION_LABELS: Record<string, string> = {
   interviews: 'Interviews',
   contacts: 'Contacts',
   offers: 'Offers',
+  goals: 'Goals',
   companies: 'Companies',
   prep: 'Interview Prep',
   analytics: 'Analytics',
