@@ -5,6 +5,7 @@ import { CalendarClockIcon, ClockIcon, MessagesSquareIcon, NotebookPenIcon, Plus
 import { listInterviews, type InterviewSummary } from '@/lib/interviews-api'
 import { Button } from '@/components/ui/button'
 import { DataTable, type DataTableColumn } from '@/components/shared/DataTable'
+import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { CompanyCell } from '@/components/shared/CompanyMark'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -93,7 +94,9 @@ function InterviewSection({
   upcoming: boolean
 }) {
   const navigate = useNavigate()
-  const { data, isLoading, isError, refetch } = useQuery(interviewsQuery(upcoming))
+  const { data: loaded, isLoading, isError, refetch } = useQuery(interviewsQuery(upcoming))
+  const pendingDeletes = usePendingDeletes()
+  const data = loaded && { ...loaded, items: loaded.items.filter((row) => !pendingDeletes.has(row.id)) }
 
   return (
     <section aria-label={title} className="space-y-3">

@@ -13,6 +13,7 @@ import {
 import { listResumes } from '@/lib/resumes-api'
 import { ApiError } from '@/lib/api-client'
 import { formatLabel } from '@/lib/labels'
+import { useUndoableDelete } from '@/hooks/use-undo-delete'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
@@ -70,17 +71,19 @@ export function ApplicationDetailPage() {
     },
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteApplication(id!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['applications'] })
-      toast({ title: 'Application deleted' })
-      navigate('/applications')
-    },
-    onError: () => {
-      toast({ title: 'Could not delete the application', variant: 'error' })
-    },
-  })
+  const undoableDelete = useUndoableDelete()
+
+  function handleDelete() {
+    setDeleteOpen(false)
+    undoableDelete({
+      id: id!,
+      title: 'Application deleted',
+      send: () => deleteApplication(id!),
+      onSettled: () => queryClient.invalidateQueries({ queryKey: ['applications'] }),
+      errorTitle: 'Could not delete the application',
+    })
+    navigate('/applications')
+  }
 
   const resumesQuery = useQuery({
     queryKey: ['resumes', 'for-attach'],
@@ -195,8 +198,8 @@ export function ApplicationDetailPage() {
                   <Button variant="outline" onClick={() => setDeleteOpen(false)}>
                     Cancel
                   </Button>
-                  <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
-                    {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+                  <Button variant="destructive" onClick={handleDelete}>
+                    Delete
                   </Button>
                 </DialogFooter>
               </DialogContent>

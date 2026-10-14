@@ -28,7 +28,9 @@ export function isTypingTarget(target: EventTarget | null): boolean {
 
 export function useShortcuts(onAction: (action: ShortcutAction) => void) {
   const handler = useRef(onAction)
-  handler.current = onAction
+  useEffect(() => {
+    handler.current = onAction
+  })
 
   useEffect(() => {
     let chordStartedAt = 0

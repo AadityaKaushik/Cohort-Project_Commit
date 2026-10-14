@@ -8,6 +8,7 @@ import { DataTable, Pagination, type DataTableColumn } from '@/components/shared
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
 import { ToneBadge } from '@/components/shared/ToneBadge'
+import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { EmptyState } from '@/components/shared/EmptyState'
 
 const PAGE_SIZE = 25
@@ -22,10 +23,12 @@ export function ResumesListPage() {
   const sort = (searchParams.get('sort') as SortKey | null) ?? 'created_at'
   const direction = (searchParams.get('direction') as 'asc' | 'desc' | null) ?? 'desc'
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const pendingDeletes = usePendingDeletes()
+  const { data: loaded, isLoading, isError, refetch } = useQuery({
     queryKey: ['resumes', page, sort, direction],
     queryFn: () => listResumes({ page, size: PAGE_SIZE, sort, direction }),
   })
+  const data = loaded && { ...loaded, items: loaded.items.filter((row) => !pendingDeletes.has(row.id)) }
 
   function updateParams(next: Record<string, string>) {
     const params = new URLSearchParams(searchParams)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2Icon, NotebookPenIcon, SearchXIcon } from 'lucide-react'
@@ -13,6 +13,15 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
+import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
+import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
+
+interface DebriefDraft {
+  selfRating: number | null
+  whatWentWell: string
+  whatWentPoorly: string
+  improvementAreas: string
+}
 
 export function InterviewDebriefPage() {
   const { id } = useParams()
@@ -36,14 +45,39 @@ export function InterviewDebriefPage() {
   const [improvementAreas, setImprovementAreas] = useState('')
   const [justSubmitted, setJustSubmitted] = useState(false)
 
+  const draftKey = `debrief-${id}`
+  const [saved, setSaved] = useState<DebriefDraft>({ selfRating: null, whatWentWell: '', whatWentPoorly: '', improvementAreas: '' })
+  const current = useMemo<DebriefDraft>(
+    () => ({ selfRating, whatWentWell, whatWentPoorly, improvementAreas }),
+    [selfRating, whatWentWell, whatWentPoorly, improvementAreas],
+  )
+  const dirty = JSON.stringify(current) !== JSON.stringify(saved)
+  const { guard, markSaved } = useUnsavedChanges(dirty && !justSubmitted)
+
   useEffect(() => {
-    if (feedbackQuery.data) {
-      setSelfRating(feedbackQuery.data.self_rating)
-      setWhatWentWell(feedbackQuery.data.what_went_well ?? '')
-      setWhatWentPoorly(feedbackQuery.data.what_went_poorly ?? '')
-      setImprovementAreas(feedbackQuery.data.improvement_areas ?? '')
+    if (feedbackQuery.isLoading) {
+      return
     }
-  }, [feedbackQuery.data])
+    const data = feedbackQuery.data
+    const fromServer: DebriefDraft = {
+      selfRating: data?.self_rating ?? null,
+      whatWentWell: data?.what_went_well ?? '',
+      whatWentPoorly: data?.what_went_poorly ?? '',
+      improvementAreas: data?.improvement_areas ?? '',
+    }
+    setSaved(fromServer)
+    const draft = readDraft<DebriefDraft>(draftKey) ?? fromServer
+    setSelfRating(draft.selfRating)
+    setWhatWentWell(draft.whatWentWell)
+    setWhatWentPoorly(draft.whatWentPoorly)
+    setImprovementAreas(draft.improvementAreas)
+  }, [feedbackQuery.data, feedbackQuery.isLoading, draftKey])
+
+  useEffect(() => {
+    if (dirty) {
+      writeDraft(draftKey, current)
+    }
+  }, [dirty, current, draftKey])
 
   const saveMutation = useMutation({
     mutationFn: (isDraft: boolean) =>
@@ -57,7 +91,10 @@ export function InterviewDebriefPage() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['interview-feedback', id] })
       queryClient.invalidateQueries({ queryKey: ['interview', id] })
+      clearDraft(draftKey)
+      setSaved(current)
       if (!result.is_draft) {
+        markSaved()
         setJustSubmitted(true)
       }
     },
@@ -108,6 +145,7 @@ export function InterviewDebriefPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
+      {guard}
       <PageHeader
         back={{ to: `/interviews/${interview.id}`, label: 'Interview' }}
         title="Post-interview debrief"

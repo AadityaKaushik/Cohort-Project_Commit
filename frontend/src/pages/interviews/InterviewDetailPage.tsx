@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { useUndoableDelete } from '@/hooks/use-undo-delete'
 import { NotebookPenIcon, PencilIcon, PlusIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
 import {
   addInterviewQuestion,
@@ -65,13 +66,19 @@ export function InterviewDetailPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['interview', id] }),
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteInterview(id!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['interviews'] })
-      navigate('/interviews')
-    },
-  })
+  const undoableDelete = useUndoableDelete()
+
+  function handleDelete() {
+    setDeleteOpen(false)
+    undoableDelete({
+      id: id!,
+      title: 'Interview deleted',
+      send: () => deleteInterview(id!),
+      onSettled: () => queryClient.invalidateQueries({ queryKey: ['interviews'] }),
+      errorTitle: 'Could not delete the interview',
+    })
+    navigate('/interviews')
+  }
 
   const addQuestionMutation = useMutation({
     mutationFn: () => addInterviewQuestion(id!, { question_text: questionText, category, difficulty: difficulty || null }),
@@ -176,8 +183,8 @@ export function InterviewDetailPage() {
                   <Button variant="outline" onClick={() => setDeleteOpen(false)}>
                     Cancel
                   </Button>
-                  <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
-                    {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+                  <Button variant="destructive" onClick={handleDelete}>
+                    Delete
                   </Button>
                 </DialogFooter>
               </DialogContent>

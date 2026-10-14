@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { BriefcaseIcon, KanbanIcon, PlusIcon, SearchXIcon } from 'lucide-react'
+import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { formatLabel } from '@/lib/labels'
 import { listApplications, type ApplicationSummary } from '@/lib/applications-api'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ type SortKey = 'date_applied' | 'status' | 'priority' | 'days_in_stage'
 
 export function ApplicationsListPage() {
   const navigate = useNavigate()
+  const pendingDeletes = usePendingDeletes()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const page = Number(searchParams.get('page') ?? '0')
@@ -125,6 +127,7 @@ export function ApplicationsListPage() {
     },
   ]
 
+  const items = data?.items.filter((row) => !pendingDeletes.has(row.id)) ?? []
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.size)) : 1
   const filtered = hasActiveFilters(filters)
   const isEmpty = !isLoading && !isError && data !== undefined && data.items.length === 0
@@ -194,11 +197,11 @@ export function ApplicationsListPage() {
         />
       )}
 
-      {data && data.items.length > 0 && (
+      {data && items.length > 0 && (
         <>
           <DataTable
             columns={columns}
-            data={data.items}
+            data={items}
             getRowId={(row) => row.id}
             rowLabel={(row) => `${row.company.name}, ${row.job_title}`}
             onRowClick={(row) => navigate(`/applications/${row.id}`)}

@@ -15,6 +15,8 @@ import { ApiError } from '@/lib/api-client'
 import { formatLabel } from '@/lib/labels'
 import { email as emailRule, hasErrors, positiveInteger, required, url, validate } from '@/lib/validation'
 import { useToast } from '@/hooks/use-toast'
+import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
+import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -88,7 +90,11 @@ export function ApplicationFormPage() {
     enabled: isEditing,
   })
 
-  const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const draftKey = 'application-new'
+  const [form, setForm] = useState<FormState>(() => (isEditing ? EMPTY_FORM : { ...EMPTY_FORM, ...readDraft<Partial<FormState>>(draftKey) }))
+  const [baseline, setBaseline] = useState<FormState>(EMPTY_FORM)
+  const dirty = JSON.stringify(form) !== JSON.stringify(baseline)
+  const { guard, markSaved } = useUnsavedChanges(dirty)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
@@ -99,7 +105,7 @@ export function ApplicationFormPage() {
   useEffect(() => {
     const data = detailQuery.data
     if (data) {
-      setForm({
+      const loaded: FormState = {
         companyName: data.company.name,
         jobTitle: data.job_title,
         dateApplied: data.date_applied,
@@ -120,13 +126,17 @@ export function ApplicationFormPage() {
         recruiterEmail: data.recruiter_email ?? '',
         notes: data.notes ?? '',
         coverLetter: data.cover_letter ?? '',
-      })
+      }
+      setForm(loaded)
+      setBaseline(loaded)
     }
   }, [detailQuery.data])
 
   const mutation = useMutation({
     mutationFn: (input: ApplicationFormInput) => (isEditing ? updateApplication(id!, input) : createApplication(input)),
     onSuccess: (result) => {
+      markSaved()
+      clearDraft(draftKey)
       queryClient.invalidateQueries({ queryKey: ['applications'] })
       queryClient.invalidateQueries({ queryKey: ['application', result.id] })
       toast({ title: isEditing ? 'Application updated' : 'Application created' })
@@ -141,6 +151,12 @@ export function ApplicationFormPage() {
       }
     },
   })
+
+  useEffect(() => {
+    if (!isEditing && dirty) {
+      writeDraft(draftKey, form)
+    }
+  }, [isEditing, dirty, form])
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -216,6 +232,7 @@ export function ApplicationFormPage() {
 
   return (
     <div className="max-w-4xl space-y-6">
+      {guard}
       <PageHeader
         back={backTo}
         title={isEditing ? 'Edit application' : 'Create an application'}

@@ -9,6 +9,7 @@ import {
   type ApplicationSummary,
 } from '@/lib/applications-api'
 import { ApiError } from '@/lib/api-client'
+import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { formatLabel } from '@/lib/labels'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,7 @@ interface PendingCorrection {
 export function ApplicationsBoardPage() {
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const pendingDeletes = usePendingDeletes()
   const [pending, setPending] = useState<PendingCorrection | null>(null)
   const [note, setNote] = useState('')
 
@@ -123,7 +125,7 @@ export function ApplicationsBoardPage() {
           }
         />
       )}
-      {data && data.items.length > 0 && <KanbanBoard applications={data.items} onMove={handleMove} />}
+      {data && data.items.length > 0 && <KanbanBoard applications={data.items.filter((item) => !pendingDeletes.has(item.id))} onMove={handleMove} />}
 
       <Dialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <DialogContent>

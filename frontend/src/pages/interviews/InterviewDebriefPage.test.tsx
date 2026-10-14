@@ -62,6 +62,7 @@ describe('InterviewDebriefPage', () => {
     vi.mocked(getInterview).mockReset()
     vi.mocked(getInterviewFeedbackOrNull).mockReset()
     vi.mocked(upsertInterviewFeedback).mockReset()
+    window.localStorage.clear()
   })
 
   it('renders a single-screen guided form with no existing feedback', async () => {
@@ -164,5 +165,30 @@ describe('InterviewDebriefPage', () => {
 
     expect(await screen.findByText('Draft in progress')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Good start')).toBeInTheDocument()
+  })
+
+  it('keeps an unsent debrief in local storage and restores it after a reload', async () => {
+    const user = userEvent.setup()
+    vi.mocked(getInterview).mockResolvedValue(sampleInterview())
+    vi.mocked(getInterviewFeedbackOrNull).mockResolvedValue(null)
+
+    const first = renderPage()
+    await user.type(await screen.findByLabelText('What went well?'), 'Clear answers')
+    first.unmount()
+
+    renderPage()
+    expect(await screen.findByLabelText('What went well?')).toHaveValue('Clear answers')
+  })
+
+  it('still works when local storage is unavailable', async () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    vi.mocked(getInterview).mockResolvedValue(sampleInterview())
+    vi.mocked(getInterviewFeedbackOrNull).mockResolvedValue(null)
+
+    renderPage()
+    expect(await screen.findByLabelText('What went well?')).toHaveValue('')
+    getItem.mockRestore()
   })
 })

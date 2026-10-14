@@ -10,6 +10,7 @@ import {
   getResume,
   uploadResumeFile,
 } from '@/lib/resumes-api'
+import { useUndoableDelete } from '@/hooks/use-undo-delete'
 import { ApiError } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
 import {
@@ -84,13 +85,19 @@ export function ResumeDetailPage() {
     },
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteResume(id!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['resumes'] })
-      navigate('/resumes')
-    },
-  })
+  const undoableDelete = useUndoableDelete()
+
+  function handleDelete() {
+    setDeleteOpen(false)
+    undoableDelete({
+      id: id!,
+      title: 'Resume deleted',
+      send: () => deleteResume(id!),
+      onSettled: () => queryClient.invalidateQueries({ queryKey: ['resumes'] }),
+      errorTitle: 'Could not delete the resume',
+    })
+    navigate('/resumes')
+  }
 
   if (isLoading) {
     return <PageSkeleton label="Loading resume" />
@@ -156,8 +163,8 @@ export function ResumeDetailPage() {
                   <Button variant="outline" onClick={() => setDeleteOpen(false)}>
                     Cancel
                   </Button>
-                  <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
-                    {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
+                  <Button variant="destructive" onClick={handleDelete}>
+                    Delete
                   </Button>
                 </DialogFooter>
               </DialogContent>

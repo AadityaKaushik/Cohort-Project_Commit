@@ -8,6 +8,8 @@ export interface ToastInput {
   title: string
   description?: string
   variant?: ToastVariant
+  action?: { label: string; onClick: () => void }
+  durationMs?: number
 }
 
 interface ToastItem extends ToastInput {
@@ -38,7 +40,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     (input: ToastInput) => {
       const id = nextId++
       setItems((current) => [...current.slice(-3), { ...input, id }])
-      window.setTimeout(() => dismiss(id), DISMISS_AFTER_MS)
+      window.setTimeout(() => dismiss(id), input.durationMs ?? DISMISS_AFTER_MS)
     },
     [dismiss],
   )
@@ -70,6 +72,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               </p>
               {item.description && <p className="text-muted-foreground">{item.description}</p>}
             </div>
+            {item.action && (
+              <button
+                type="button"
+                onClick={() => {
+                  item.action?.onClick()
+                  dismiss(item.id)
+                }}
+                className="rounded px-1.5 py-0.5 text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                {item.action.label}
+              </button>
+            )}
             <button
               type="button"
               aria-label="Dismiss notification"
