@@ -92,7 +92,7 @@ Patterns not yet landed (Specification, Chain of Responsibility, Strategy, Obser
 | `companies` | `created_by_user_id` | Per-user, not global — [ADR-004](adr/ADR-004-user-scoped-companies.md) |
 | `applications` | `user_id` | `status` (full domain incl. terminal) vs `current_stage` (non-terminal only, frozen once terminal) kept as two columns — see `Application.applyStatusChange()` |
 | `application_status_history` | (via `application_id`) | Append-only, no `updated_at`, no update endpoint |
-| `tags` / `application_tags` | `user_id` (on `tags`) | Migrated in Sprint 1, CRUD endpoints land with tagging in Sprint 5 (US-19) |
+| `tags` / `application_tags` | `user_id` (on `tags`) | Migrated in Sprint 1, CRUD endpoints (US-19) are planned for a later sprint |
 
 Every mutable, user-owned table has a matching rollback script in `db/rollback/` (`db/rollback/README.md` has the reverse-order replay instructions) — Flyway Community has no undo, so these are written by hand and verified by `FlywayMigrationTest`.
 

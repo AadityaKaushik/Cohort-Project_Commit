@@ -1,7 +1,7 @@
 # Cohort
 
 Cohort is a job-search campaign manager: applications, resumes, interview debriefs, and
-preparation tracking in one place, with a **Federated Learning** layer that lets the app get
+preparation tracking in one place, with a **Federated Learning** layer that lets the app
 learn from users' preparation patterns without centralising anyone's data.
 
 Plain-language overview: [`docs/plan/PROJECT_OVERVIEW.md`](docs/plan/PROJECT_OVERVIEW.md).
