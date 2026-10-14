@@ -15,6 +15,8 @@ import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
 import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
 import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
+import { OUTCOME_CHIPS, ROUND_TOPICS, readTopics, withTopics } from '@/lib/debrief-topics'
+import { cn } from '@/lib/utils'
 
 interface DebriefDraft {
   selfRating: number | null
@@ -44,6 +46,8 @@ export function InterviewDebriefPage() {
   const [whatWentPoorly, setWhatWentPoorly] = useState('')
   const [improvementAreas, setImprovementAreas] = useState('')
   const [justSubmitted, setJustSubmitted] = useState(false)
+  const [chosenTopics, setChosenTopics] = useState<string[] | null>(null)
+  const [outcomeChosen, setOutcomeChosen] = useState(false)
 
   const draftKey = `debrief-${id}`
   const [saved, setSaved] = useState<DebriefDraft>({ selfRating: null, whatWentWell: '', whatWentPoorly: '', improvementAreas: '' })
@@ -71,6 +75,7 @@ export function InterviewDebriefPage() {
     setWhatWentWell(draft.whatWentWell)
     setWhatWentPoorly(draft.whatWentPoorly)
     setImprovementAreas(draft.improvementAreas)
+    setChosenTopics(readTopics(draft.improvementAreas))
   }, [feedbackQuery.data, feedbackQuery.isLoading, draftKey])
 
   useEffect(() => {
@@ -79,13 +84,20 @@ export function InterviewDebriefPage() {
     }
   }, [dirty, current, draftKey])
 
+  const roundTopics = interviewQuery.data ? ROUND_TOPICS[interviewQuery.data.round_type] ?? [] : []
+  const topics = chosenTopics ?? roundTopics
+
+  function toggleTopic(topic: string) {
+    setChosenTopics(topics.includes(topic) ? topics.filter((item) => item !== topic) : [...topics, topic])
+  }
+
   const saveMutation = useMutation({
     mutationFn: (isDraft: boolean) =>
       upsertInterviewFeedback(id!, {
         self_rating: selfRating,
         what_went_well: whatWentWell || null,
         what_went_poorly: whatWentPoorly || null,
-        improvement_areas: improvementAreas || null,
+        improvement_areas: (outcomeChosen ? withTopics(improvementAreas, topics) : improvementAreas) || null,
         is_draft: isDraft,
       }),
     onSuccess: (result) => {
@@ -160,7 +172,40 @@ export function InterviewDebriefPage() {
         </Alert>
       )}
 
-      <SectionCard title="How do you think it went overall?" description="Every field is optional. A few words now beat a perfect write-up later.">
+      <SectionCard title="How did it go?" description="One tap is enough. The date, round and company are already filled in.">
+        <div className="space-y-4">
+          <div role="group" aria-label="Outcome" className="flex flex-wrap gap-2">
+            {OUTCOME_CHIPS.map((chip) => (
+              <Chip
+                key={chip.key}
+                selected={outcomeChosen && selfRating === chip.rating}
+                onClick={() => {
+                  setSelfRating(chip.rating)
+                  setOutcomeChosen(true)
+                }}
+              >
+                {chip.label}
+              </Chip>
+            ))}
+          </div>
+          <div role="group" aria-label="Topics that came up" className="flex flex-wrap gap-2">
+            {roundTopics
+              .concat(topics.filter((topic) => !roundTopics.includes(topic)))
+              .map((topic) => (
+                <Chip key={topic} selected={topics.includes(topic)} onClick={() => toggleTopic(topic)}>
+                  {topic}
+                </Chip>
+              ))}
+          </div>
+          {outcomeChosen && (
+            <Button onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? 'Saving…' : 'Save debrief'}
+            </Button>
+          )}
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Add more detail" description="All optional. A few words now beat a perfect write-up later.">
         <div className="space-y-5">
           <StarRating value={selfRating} onChange={setSelfRating} label="Overall self-rating" />
           <FormField id="whatWentWell" label="What went well?">
@@ -189,5 +234,21 @@ export function InterviewDebriefPage() {
         </div>
       </SectionCard>
     </div>
+  )
+}
+
+function Chip({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: string }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={cn(
+        'rounded-full border px-3 py-1 text-sm transition-colors',
+        selected ? 'border-primary bg-primary/10 text-primary' : 'bg-card text-muted-foreground hover:border-primary/40',
+      )}
+    >
+      {children}
+    </button>
   )
 }

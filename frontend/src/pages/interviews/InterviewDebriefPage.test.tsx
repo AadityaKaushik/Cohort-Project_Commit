@@ -191,4 +191,40 @@ describe('InterviewDebriefPage', () => {
     expect(await screen.findByLabelText('What went well?')).toHaveValue('')
     getItem.mockRestore()
   })
+
+  it('preselects topics from the round type and saves with one outcome tap', async () => {
+    vi.mocked(getInterview).mockResolvedValue(sampleInterview())
+    vi.mocked(getInterviewFeedbackOrNull).mockResolvedValue(null)
+    vi.mocked(upsertInterviewFeedback).mockResolvedValue({
+      id: 'feedback-1',
+      interview_id: 'interview-1',
+      self_rating: 3,
+      what_went_well: null,
+      what_went_poorly: null,
+      improvement_areas: null,
+      external_feedback: null,
+      is_draft: false,
+      submitted_at: '2026-02-01T12:00:00Z',
+      created_at: '2026-02-01T11:59:00Z',
+      updated_at: '2026-02-01T12:00:00Z',
+    })
+    const user = userEvent.setup()
+    renderPage()
+
+    await screen.findByText('Post-interview debrief')
+    expect(screen.getByRole('button', { name: 'Algorithms' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: 'Debugging' }))
+    await user.click(screen.getByRole('button', { name: 'Okay' }))
+    await user.click(screen.getByRole('button', { name: 'Save debrief' }))
+
+    await waitFor(() =>
+      expect(upsertInterviewFeedback).toHaveBeenCalledWith('interview-1', {
+        self_rating: 3,
+        what_went_well: null,
+        what_went_poorly: null,
+        improvement_areas: 'Came up: Data structures, Algorithms, Complexity, Code quality',
+        is_draft: false,
+      }),
+    )
+  })
 })

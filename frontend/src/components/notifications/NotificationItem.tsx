@@ -50,6 +50,7 @@ export function NotificationItem({ notification, onOpen, expanded = false }: Not
           {notification.title}
         </span>
         <span className={cn('block text-xs text-muted-foreground', !expanded && 'line-clamp-2')}>{notification.body}</span>
+        {notification.type === 'missing_debrief' && <span className="block text-xs font-medium text-primary">How did it go? Add a quick debrief.</span>}
         <span className="block text-xs text-muted-foreground">
           <time dateTime={notification.created_at}>
             {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}

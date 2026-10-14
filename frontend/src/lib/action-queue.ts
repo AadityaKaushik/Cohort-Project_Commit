@@ -48,7 +48,7 @@ export function buildActionQueue(input: ActionQueueInput): ActionItem[] {
     .map((interview) => ({
       id: `debrief-${interview.id}`,
       type: 'missing_debrief',
-      title: `Debrief: ${interview.company_name} interview`,
+      title: `How did it go? ${interview.company_name} interview`,
       subtitle: interview.scheduled_at ? `Happened ${formatDate(interview.scheduled_at)} — no debrief yet` : 'No debrief yet',
       href: `/interviews/${interview.id}/debrief`,
     }))
