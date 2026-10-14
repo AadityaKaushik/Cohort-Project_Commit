@@ -34,8 +34,9 @@ scripts/        CI helper scripts
 
 ## Status
 
-Built phase by phase, one commit per phase; `docs/plan/BUILD_PHASES_JAVA.md` has the 110-phase,
-nine-sprint sequence and `git log` shows what has landed.
+The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one commit per phase.
+Sprints 1 to 7 are built; Sprints 8 (AI) and 9 (hardening and delivery) are planned.
+`docs/implementation-overview.md` summarises the build and `docs/poster.html` is the project poster.
 
 ## Running locally
 

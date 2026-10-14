@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cohort poster</title>
+<style>
+  @page { size: A2; margin: 0; }
+  :root { --ink: #1f2933; --muted: #52606d; --line: #d9dee3; --accent: #3b4cca; --bg: #ffffff; --panel: #f5f7f9; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: system-ui, "Segoe UI", Arial, sans-serif; line-height: 1.45; }
+  .sheet { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: grid; gap: 24px; }
+  header { border-bottom: 3px solid var(--accent); padding-bottom: 16px; }
+  h1 { font-size: 44px; }
+  header p { color: var(--muted); font-size: 18px; margin-top: 4px; }
+  h2 { font-size: 20px; margin-bottom: 10px; }
+  section { border: 1px solid var(--line); border-radius: 6px; padding: 16px 20px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  ul, ol { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  pre { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 12px; font-size: 13px; overflow-x: auto; }
+  .status { font-size: 14px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+  @media (max-width: 800px) { .two, .three { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <h1>Cohort</h1>
+    <p>A job application tracker with interview preparation and privacy-preserving federated learning.</p>
+  </header>
+
+  <div class="two">
+    <section>
+      <h2>Problem</h2>
+      <p>A student applying for jobs keeps the state of the search in a spreadsheet, a notes app and memory.</p>
+      <ul>
+        <li>Applications stall and nothing points them out.</li>
+        <li>What was asked in an interview is forgotten within days.</li>
+        <li>Preparation follows a generic question list, not the topics that went badly.</li>
+        <li>Learning from other candidates needs data that is personal and should not be shared.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>What Cohort does</h2>
+      <ul>
+        <li>Tracks applications with a status workflow and a full history.</li>
+        <li>Records interviews, questions and a short debrief.</li>
+        <li>Scores topic mastery and recommends what to practise next, with the evidence shown.</li>
+        <li>Trains a shared model by federated learning: only clipped, noised updates leave a user's partition, and a privacy ledger lists them.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section>
+    <h2>Flow</h2>
+    <ol>
+      <li>Add an application and move it through its stages.</li>
+      <li>Schedule interviews and write a debrief afterwards.</li>
+      <li>Questions go into the question bank and weak topics show up in the mastery graph.</li>
+      <li>Recommendations suggest practice, follow-ups and stalled applications.</li>
+      <li>Analytics show how the search is going, with sample sizes.</li>
+    </ol>
+  </section>
+
+  <div class="three">
+    <section>
+      <h2>Main features</h2>
+      <table>
+        <tr><th>Feature</th><th>Detail</th></tr>
+        <tr><td>Status workflow</td><td>Illegal moves are refused and every change is kept in the history.</td></tr>
+        <tr><td>Data isolation</td><td>Another user's record returns 404, not 403.</td></tr>
+        <tr><td>Mastery graph</td><td>Topics have prerequisites; mastery decays over time.</td></tr>
+        <tr><td>Stall detection</td><td>Uses the user's own median time in a stage.</td></tr>
+        <tr><td>Recommendations</td><td>Each one has an evidence tier and a reason.</td></tr>
+        <tr><td>Privacy ledger</td><td>Lists every federated round the user took part in.</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>Architecture</h2>
+<pre>React + TypeScript
+      |  REST + JWT
+Spring Boot 3 / Java 21
+controller > service > repository
+      |              |
+PostgreSQL 16     FL gateway
+(Flyway)       (circuit breaker)
+                     |
+                 fl-service
+          Flower + scikit-learn</pre>
+    </section>
+    <section>
+      <h2>Technology</h2>
+      <table>
+        <tr><th>Layer</th><th>Choice</th></tr>
+        <tr><td>API</td><td>Java 21, Spring Boot 3, Spring Security</td></tr>
+        <tr><td>Auth</td><td>JWT, Argon2id, refresh tokens</td></tr>
+        <tr><td>Data</td><td>PostgreSQL 16, Flyway, JPA</td></tr>
+        <tr><td>Web</td><td>React 19, TypeScript, Vite, Tailwind</td></tr>
+        <tr><td>ML</td><td>Python, Flower, scikit-learn</td></tr>
+        <tr><td>Resilience</td><td>Resilience4j</td></tr>
+        <tr><td>Tests</td><td>JUnit, Testcontainers, Vitest, pytest</td></tr>
+      </table>
+    </section>
+  </div>
+
+  <section>
+    <h2>Plan <span class="status">9 sprints, 110 phases. Sprints 1 to 7 are built, 8 and 9 are planned.</span></h2>
+    <table>
+      <tr><th>Sprint</th><th>Theme</th><th>Phases</th><th>Content</th><th>Status</th></tr>
+      <tr><td>1</td><td>Foundation</td><td>P01-P15</td><td>Auth, applications, status history, frontend shell, CI, Docker</td><td>Built</td></tr>
+      <tr><td>2</td><td>Resumes and interviews</td><td>P16-P26</td><td>Resume versions and upload, interviews, questions, debrief</td><td>Built</td></tr>
+      <tr><td>3</td><td>Preparation and analytics</td><td>P27-P38</td><td>Question bank, mastery, funnel and stage analytics, dashboard</td><td>Built</td></tr>
+      <tr><td>4</td><td>Recommendations and federated learning</td><td>P39-P58</td><td>Recommendation chain, FL client and server, privacy ledger</td><td>Built</td></tr>
+      <tr><td>5</td><td>Notifications, reports, account</td><td>P59-P68</td><td>Notifications, PDF and CSV reports, password reset, verification</td><td>Built</td></tr>
+      <tr><td>6</td><td>Experience and core gaps</td><td>P69-P81</td><td>Design system, board, filters, onboarding, social sign-in, security headers</td><td>Built</td></tr>
+      <tr><td>7</td><td>Job-search workflow</td><td>P82-P88</td><td>Contacts, company pages, offers, goals, search, resume editor</td><td>Built</td></tr>
+      <tr><td>8</td><td>AI and intelligence</td><td>P89-P104</td><td>Local AI assistant, parsers, mock interviews, benchmarks</td><td>Planned</td></tr>
+      <tr><td>9</td><td>Hardening and delivery</td><td>P105-P110</td><td>Sample data, error screens, help pages, security and accessibility pass</td><td>Planned</td></tr>
+    </table>
+  </section>
+
+  <footer>Full phase list: docs/plan/BUILD_PHASES_JAVA.md</footer>
+</div>
+</body>
+</html>

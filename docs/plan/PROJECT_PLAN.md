@@ -2547,7 +2547,7 @@ cohort/
 │   └── app/common/schema.py         # FEATURE_SCHEMA_V1 — single source of truth
 ├── frontend/                        # React + TypeScript SPA, feature-first
 └── docs/
-    ├── architecture.md  concept-poster.md
+    ├── architecture.md  poster.html  implementation-overview.md
     ├── adr/                         # one file per decision
     └── plan/                        # this document set
 ```
