@@ -1,100 +1,100 @@
 # Cohort — Project Overview
 
-**A plain-language guide to what we are building, why, and how.** Read this first. The other documents (`PROJECT_PLAN.md`, `ARCHITECTURE_REVISION_JAVA.md`, `BUILD_PHASES_JAVA.md`) go deeper on specific parts; this one explains the whole project end to end and is meant to be read once, fully, by every team member.
+**A plain-language guide to what the project is, why it exists and how it is built.** The other documents (`PROJECT_PLAN.md`, `ARCHITECTURE_REVISION_JAVA.md`, `BUILD_PHASES_JAVA.md`) cover specific parts in more depth. This one describes the whole project and is intended for every team member.
 
 ---
 
 ## 1. What is Cohort, in one paragraph
 
-Cohort is a web application that helps students and job seekers manage their entire job-search campaign (every application, interview, contact, offer and resume version) in one place, and turns what they learn from each interview into targeted preparation instead of generic practice. Its standout feature is **Federated Learning**: the app learns from many users' preparation patterns at once *without collecting anyone's actual data on a server*. Each user's data is used for training privately, and only a small, deliberately blurred summary is shared, never the real data.
+Cohort is a web application that helps students and job seekers manage a job search (every application, interview, contact, offer and resume version) in one place, and turns what they learn from each interview into targeted preparation. Its main technical feature is **Federated Learning**: the app learns from many users' preparation patterns without collecting anyone's data on a server. Each user's data is used for training privately, and only a small, noised summary is shared.
 
-That is the whole pitch. Everything else in this document is detail behind that paragraph.
+This summary is expanded in the sections below.
 
 ---
 
 ## 2. The problem, in plain terms
 
-If you have ever job-hunted seriously, you have lived this:
+A typical job search has three problems:
 
-- You apply to 40, 80, 150 places. A spreadsheet or a notes app tracks *some* of it, until it doesn't; applications go quiet, and you don't notice which ones stalled until it is too late to follow up.
-- You have an interview. The most useful thing that came out of it (what was actually asked, what you struggled with) evaporates within a day or two because nobody writes it down in a structured way.
-- You prepare for the next interview the same generic way everyone does, grinding a popular question list, instead of targeting the specific things that have been tripping *you* up.
+- Applications reach 40, 80 or 150 places. A spreadsheet or notes app tracks some of it, then applications go quiet and the stalled ones are noticed too late to follow up.
+- After an interview, the most useful information (what was asked, what went badly) is forgotten within a day or two because it is not written down in a structured way.
+- Preparation uses a generic, popular question list instead of targeting the specific topics that have caused problems.
 
-Spreadsheets and generic trackers solve the first problem as a status board and ignore the other two. Cohort closes all three gaps in one system.
+Spreadsheets and generic trackers handle the first problem as a status board and ignore the other two. Cohort addresses all three in one system.
 
 ---
 
 ## 3. What the app does — every feature, explained
 
 ### 3.1 Accounts and authentication
-You register with an email and password, or sign in with Google or GitHub. Passwords are never stored in readable form: they are hashed with Argon2id, a deliberately slow, memory-hungry algorithm, so even a stolen database cannot practically be cracked. Login gives you a short-lived access pass plus a longer-lived refresh pass that can be revoked, so logging out on a shared computer really ends the session. You can reset a forgotten password, verify your email, change your password, export all your data, and delete your account.
+A user registers with an email and password, or signs in with Google or GitHub. Passwords are hashed with Argon2id, a slow, memory-hard algorithm, so a stolen database cannot practically be cracked. Login issues a short-lived access token and a longer-lived refresh token that can be revoked, so logging out on a shared computer ends the session. Users can reset a forgotten password, verify their email, change their password, export all their data and delete their account.
 
 ### 3.2 Application tracking
-The core, daily-use part of the app. You record a company, a role and a status, and the app tracks it from `Applied` through `Offer` or `Rejected`, with every status change permanently logged, so you get a real timeline. You can work in a table or on a Kanban board (illegal moves are refused with a reason), search and filter, and the app flags applications that have gone quiet longer than your own typical wait for that stage.
+The core, daily-use part of the app. The user records a company, a role and a status, and the app tracks it from `Applied` through `Offer` or `Rejected`. Every status change is logged, which gives a timeline. Applications can be shown as a table or on a Kanban board (illegal moves are refused with a reason), searched and filtered. The app flags applications that have been quiet longer than the user's own typical wait for that stage.
 
 ### 3.3 Job-search workflow
-Beyond single applications: contacts and referrals per company (with a nudge when a contact goes cold), a page per company that gathers every application, interview, question, contact and note, side-by-side offer comparison with deadline countdowns, weekly goals with an activity heatmap and streak, and one search box that finds anything you have entered.
+Beyond single applications: contacts and referrals per company (with a reminder when a contact goes cold), a page per company that gathers every application, interview, question, contact and note, side-by-side offer comparison with deadline countdowns, weekly goals with an activity heatmap and streak, and one search box that finds anything the user has entered.
 
 ### 3.4 Resume management
-Keep multiple resume versions, edit their sections (experience, projects, skills), attach the right one to each application, export a clean PDF, and, once there is enough data, see which version is landing more interviews. Below a minimum sample size the app says so honestly instead of showing a misleading percentage.
+Users keep multiple resume versions, edit their sections (experience, projects, skills), attach a version to each application, export a PDF and, once there is enough data, see which version is leading to more interviews. Below a minimum sample size the app says so instead of showing a misleading percentage.
 
 ### 3.5 Interview tracking and debrief
-After an interview, a short guided flow (designed to take under 3 minutes) captures what was asked, how it went and what you would do differently. This is the single most valuable data source in the app; everything in preparation builds on it.
+After an interview, a short guided flow (designed to take under 3 minutes) captures what was asked, how it went and what the user would do differently. Everything in preparation builds on this data.
 
 ### 3.6 Interview preparation
-A question bank of real, original interview problems across every topic, plus your own questions; practice logging with a confidence rating; and a **topic mastery score** that fades if you stop practising, the way real skill does. Topics have prerequisite relationships (shortest-path algorithms need graph traversal first), so when you struggle with something advanced the app points you at the root gap instead of the symptom. A daily spaced-review queue resurfaces topics as they fade, and each application shows how ready you are for that specific job.
+A question bank of original interview problems across every topic, plus the user's own questions; practice logging with a confidence rating; and a **topic mastery score** that decays when the user stops practising. Topics have prerequisite relationships (shortest-path algorithms need graph traversal first), so a struggle with an advanced topic points to the root gap. A daily spaced-review queue resurfaces topics as they fade, and each application shows how ready the user is for that job.
 
 ### 3.7 Analytics
-A funnel showing where your applications go (applied → screening → interview → final round → offer), conversion rates between stages, activity over time, and resume performance. Every number shows its own sample size and is flagged as low-confidence when it rests on too little data. A conversion rate from 2 data points looks exactly like one from 200 unless the app tells you otherwise, so it always does.
+A funnel showing where applications go (applied → screening → interview → final round → offer), conversion rates between stages, activity over time and resume performance. Every number shows its sample size and is flagged as low-confidence when it rests on too little data.
 
 ### 3.8 Recommendations
-Ranked, personalised suggestions for what to work on next. Every recommendation shows *why* it was generated and how confident the app is, using a four-tier evidence system (from "backed by your own solid history" down to "a starting-point guess because you have no data yet"). The language is never causal: the app never claims something *caused* an outcome, only that a pattern was observed. An automated test fails the build if banned phrasing (like "this will get you the job") ever appears.
+Ranked, personalised suggestions for what to work on next. Every recommendation shows why it was generated and how confident the app is, using a four-tier evidence system (from "backed by your own solid history" down to "a starting-point guess because you have no data yet"). The wording is never causal: the app does not claim that something caused an outcome, only that a pattern was observed. An automated test fails the build if banned phrasing (like "this will get you the job") appears.
 
 ### 3.9 Federated learning and privacy
-Covered in §5 below. Users also see cohort benchmarks learned from the shared model and a privacy budget meter showing how much privacy cost their participation has used.
+Covered in §5 below. Users also see cohort benchmarks learned from the shared model and a privacy budget meter showing how much of the privacy budget their participation has used.
 
 ### 3.10 Notifications
-An in-app notification centre: a nudge when an application stalls, when an interview is coming up, or when a past interview has no debrief. The detection logic is separate from how you are notified, so further channels can be added without touching detection.
+An in-app notification centre: a notice when an application stalls, when an interview is coming up, or when a past interview has no debrief. The detection logic is separate from how the user is notified, so further channels can be added without changing detection.
 
 ### 3.11 Report export
-Export your applications and analytics summary as PDF or CSV, for a mentor or career advisor or an offline record. Exports reuse the exact in-app formulas, so the numbers never disagree.
+Applications and an analytics summary can be exported as PDF or CSV, for a mentor, a career advisor or an offline record. Exports reuse the in-app formulas, so the numbers match.
 
 ### 3.12 AI assistance
-An AI coach that answers questions from your own data, a job-posting parser that fills in a new application, debrief notes turned into tagged interview questions, resume and job-description matching, mock interviews that record graded practice, a STAR story bank, one-page interview prep packs, follow-up and negotiation email drafts (never sent automatically), and a weekly review. AI runs on a **local model by default**, so your data never leaves the server; a hosted provider is optional and clearly disclosed when active.
+An AI coach that answers questions from the user's own data, a job-posting parser that fills in a new application, debrief notes turned into tagged interview questions, resume and job-description matching, mock interviews that record graded practice, a STAR story bank, one-page interview prep packs, follow-up and negotiation email drafts (never sent automatically), and a weekly review. AI runs on a **local model by default**, so data stays on the server; a hosted provider is optional and disclosed when active.
 
 ### 3.13 First run and help
-Onboarding asks for your target role and date and builds a starter plan; you can load clearly marked sample data and take a short guided tour; errors, missing pages, offline state and expired sessions show clear, helpful screens; privacy, AI disclosure and help pages explain what the app does with your data.
+Onboarding asks for the user's target role and date and builds a starter plan. Users can load sample data (clearly marked) and take a short guided tour. Error, missing-page, offline and expired-session states have their own screens. Privacy, AI disclosure and help pages explain how the app uses data.
 
 ---
 
-## 4. What makes this different from "just another job tracker"
+## 4. What sets the design apart
 
-- **The Federated Learning is real, not simulated.** Training happens on isolated data, and the FL server has zero database credentials for any user's content, provably rather than by promise.
-- **A Privacy Ledger** shows each user exactly what was ever sent on their behalf: not a privacy *policy*, a privacy *log* they can inspect.
-- **Recommendations carry honest uncertainty**, with a linter that fails the build if the copy ever oversells a correlation as a cause.
-- **Analytics never hide their own sample size.**
-- **AI is grounded and private**: it answers from your own data on a local model.
-- **A dashboard that tells you what to do**, not only a report of what already happened.
+- **Federated Learning runs on isolated data.** The FL server has no database credentials for any user's content.
+- **Privacy Ledger.** Each user can inspect exactly what was sent on their behalf.
+- **Recommendations carry their uncertainty.** A test fails the build if the wording presents a correlation as a cause.
+- **Analytics show their sample size.**
+- **AI is grounded and private.** It answers from the user's own data on a local model.
+- **The dashboard suggests next actions** as well as reporting past activity.
 
 ---
 
 ## 5. The Federated Learning idea, explained without jargon
 
-Imagine five friends each trying to improve their fitness. They don't want to share their diaries, which are too personal, but as a group they would like to know whether eating breakfast seems to help.
+Take five friends who each want to improve their fitness. They do not want to share their diaries, but as a group they would like to know whether eating breakfast seems to help.
 
-Instead of sharing diaries, each friend privately looks at *their own* data and writes down one small conclusion: "for me, it seemed to help a bit." They share only that small number. Someone averages the five numbers, and the group has a shared insight without any diary leaving its owner's hands.
+Instead of sharing diaries, each friend looks at their own data and writes down one small conclusion: "for me, it seemed to help a bit." Only that number is shared. Someone averages the five numbers, and the group has a shared result without any diary leaving its owner.
 
 That is federated learning. In Cohort:
 
 1. The server sends out the current shared model.
 2. For every opted-in user, the model is improved slightly using *only that user's* data, which is never sent anywhere.
-3. Before anything is sent back, two safety steps happen: the update is capped so no one person can dominate, and it is deliberately blurred with statistical noise so it cannot be reverse-engineered.
+3. Before anything is sent back, two safety steps happen: the update is clipped so no one person can dominate, and statistical noise is added so it cannot be reverse-engineered.
 4. Only that capped, blurred summary is sent.
 5. The server waits for a minimum group (fewer than 3 would not hide anyone), averages what it received, and the improved shared model goes back out to everyone.
 
 This repeats in rounds, each making the shared model slightly better, with nobody's job-search history leaving their own data partition.
 
-**What is learned:** whether a user is likely to feel confident (self-rated 4–5 out of 5) after an interview round, based on their preparation beforehand. Deliberately not "will you get the job"; that would be a bigger, more ethically fraught claim than the data supports, and the project is explicit about not making it.
+**What is learned:** whether a user is likely to feel confident (self-rated 4–5 out of 5) after an interview round, based on their preparation beforehand. The model does not predict whether the user will get the job, because the data does not support that claim.
 
 ---
 
@@ -200,4 +200,4 @@ Plain CRUD controllers and services stay plain; no pattern is forced onto code t
 | "Which design pattern goes where, and why?" | `ARCHITECTURE_REVISION_JAVA.md`, §4 |
 | "What is the exact build sequence, phase by phase, and who owns it?" | `BUILD_PHASES_JAVA.md` |
 
-**One thing every team member should be able to do after reading this document:** explain, in your own words, what federated learning is doing in this project and why it is not "we pooled everyone's data and called it AI." If you can't yet, re-read §5.
+**Every team member should be able to explain** what federated learning does in this project and why it is not pooled data under another name (see §5).

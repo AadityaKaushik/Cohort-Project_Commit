@@ -91,7 +91,7 @@ The API contract in `PROJECT_PLAN.md` §18 is implemented exactly as written by 
 
 ## 4. Design patterns — where and why
 
-Every pattern below is tied to a real piece of functionality; nothing is added just to demonstrate a pattern, and some parts of the system are deliberately plain (§4.2), because forcing a pattern onto a plain service method is its own kind of bad design.
+Each pattern below is tied to a concrete piece of functionality. Some parts of the system are left plain (§4.2), because a pattern on a simple service method only adds complexity.
 
 ### 4.1 Pattern catalogue
 
@@ -111,7 +111,7 @@ Every pattern below is tied to a real piece of functionality; nothing is added j
 | **DTO + Mapper** | Mappers between JPA entities and API DTOs | JPA entities never cross the controller boundary, preventing lazy-loading exceptions and accidental over-exposure of internal fields |
 | **Circuit Breaker** *(resilience pattern, not GoF)* | Resilience4j around `FlowerServiceAdapter` | Covered in §3: the FL service being slow or down never breaks the Recommendations page |
 
-### 4.2 Deliberately *not* patterned
+### 4.2 Not patterned
 
 `ApplicationController`, `ResumeController`, `InterviewController` and their services stay **plain CRUD**. A service method that does "validate, save, return" in five lines does not need a Factory, a Strategy or a Command wrapping it. Over-applying patterns to simple operations ("pattern-itis") is a real anti-pattern, and a marker who knows design patterns notices restraint as much as correct application.
 
@@ -265,8 +265,8 @@ The Sprint 4 circuit breaker belongs with the rest of the FL integration because
 |---|---|---|---|---|
 | R14 | Java/Python interop friction at the FL boundary (serialisation mismatches, contract drift) | Medium | Medium | `FederatedLearningGateway` is the single point of contact; the contract is defined once and tested on both sides |
 | R15 | Uneven Java and Python depth across the team | Medium | Medium | Spring Boot fundamentals front-loaded in Sprint 1; the fl-service is kept small (Flower + scikit-learn only) |
-| R16 | Pattern over-application drifting the codebase toward unnecessary complexity | Low–medium | Low | §4.2's "deliberately not patterned" list is a standing review checklist |
-| R17 | Circuit breaker fallback hiding a genuinely broken FL service | Low | Medium | The fallback emits a logged event even though the user-facing response degrades gracefully: graceful is not the same as silent |
+| R16 | Pattern over-application drifting the codebase toward unnecessary complexity | Low–medium | Low | §4.2's "not patterned" list is used as a review checklist |
+| R17 | Circuit breaker fallback hiding a broken FL service | Low | Medium | The fallback emits a logged event while the user-facing response degrades gracefully |
 | R18 | Local model too slow or unavailable on a team machine | Medium | Medium | Every AI feature has a timeout and a graceful "AI unavailable" state; the rest of the product works without AI |
 
 ---

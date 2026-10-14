@@ -314,17 +314,17 @@ Every user story in `PROJECT_PLAN.md` §10.1 lists the phases that deliver it. U
 
 ---
 
-## Quick reference: the commits worth walking an evaluator through personally
+## Quick reference: key commits
 
 - **P10** — the State pattern replacing if/else transition logic
 - **P19** — Decorator + Chain of Responsibility on file upload, and the malicious-upload test
 - **P30** — Template Method structurally enforcing the sample-size rule
 - **P31** — mastery decay golden-file tests
 - **P40/P42** — the recommendation Chain of Responsibility, and the causal-language linter that fails the build
-- **P44–P54** — the entire FL chain, especially **P48** (min-cohort refusal), **P51** (CI proves fl-service has no DB credentials), and **P54** (the circuit breaker fault-injection test, the clearest evidence of designing for failure)
+- **P44–P54** — the entire FL chain, especially **P48** (min-cohort refusal), **P51** (CI proves fl-service has no DB credentials), and **P54** (the circuit breaker fault-injection test, the failure-handling test)
 - **P60/P61** — Observer + Strategy cooperating cleanly on notifications
 - **P73** — the Kanban board, where the P10 State pattern visibly refuses illegal moves
-- **P89/P90** — the AI provider Strategy and a coach grounded strictly in the user's own data, on a local model so privacy holds
+- **P89/P90** — the AI provider Strategy and a coach that answers only from the user's own data, on a local model
 - **P102** — cohort benchmarks: the federated model turned into something users can see
 
-Everything else is solid, necessary engineering; these are the commits that show design judgment, not just working code.
+These are the commits that carry the main design decisions.

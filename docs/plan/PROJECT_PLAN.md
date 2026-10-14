@@ -45,7 +45,7 @@ Nine sprints. Sprints 1–4 deliver the core loop (tracking, interviews, prepara
 A student applying for internships or graduate roles typically runs 40–150 applications across a season. The state of that campaign lives in a spreadsheet, a notes app, three email threads, and memory. Three specific failures follow:
 
 1. **Pipeline amnesia.** Applications stall silently. Nobody follows up because nobody notices.
-2. **Post-interview evaporation.** The single most valuable artifact a candidate produces is the memory of what was actually asked, and it decays within 48 hours. It is almost never captured in a structured way, so it cannot inform the next round of preparation.
+2. **Post-interview evaporation.** The memory of what was actually asked decays within 48 hours. It is rarely captured in a structured way, so it cannot inform the next round of preparation.
 3. **Blind preparation.** Students prepare by grinding a generic list, not by targeting the topics that actually cost them interviews.
 
 Existing tools solve (1) as a Kanban board and ignore (2) and (3) entirely.
@@ -54,27 +54,21 @@ Existing tools solve (1) as a Kanban board and ignore (2) and (3) entirely.
 
 A web application that closes the loop: **track → interview → capture what happened → convert that into a targeted preparation plan → measure whether it worked**. Then, and this is the innovative part, learn *which preparation patterns are associated with better outcomes across many users* — without any user's raw data ever leaving their own data partition, using Federated Learning.
 
-### 2.3 Why this project will not look like everyone else's
+### 2.3 What sets the design apart
 
-The default version of this project is a CRUD board with status columns, four stat cards, a pie chart, and an "AI" feature that is a single call to a hosted LLM. Below are seven design decisions that make this build structurally different. Each one is cheap enough for a student team and each one is visible in a five-minute demo.
+Seven design decisions shape the project. Each is small enough for a student team to build.
 
----
+**D1. Federated Learning runs on separated data.**
 
-**D1 — The Federated Learning is real, not simulated on pooled data.**
+Each FL client is a separate OS process with its own data store (its own Postgres schema, with credentials scoped to that schema only). The Flower server has no database credentials, so it cannot read user data. Only a fixed-length float vector of clipped, noised model parameters crosses the boundary. Stopping the server container and inspecting its filesystem shows that it holds no user data.
 
-The common shortcut is to keep all user data in one database, then run a script that *pretends* to split it into clients, average some weights, and call it FL. That demonstrates nothing, because the privacy property was never tested.
+**D2. Privacy Ledger.**
 
-In this design each FL client is a **separate OS process with its own isolated data store** (its own Postgres schema, credentials scoped to that schema only). The Flower server has **no database credentials at all** — architecturally it cannot read user data even if compromised. The only thing crossing the boundary is a fixed-length float vector of clipped, noised model parameters. When the demo runs, you can `docker compose stop` the server, dump its container filesystem, and show the evaluator there is no user data in it. That is a demonstrable claim, not a slide.
+Each user has a page that logs every federated round the user's client took part in. For each round it shows the round ID, timestamp, feature schema used, L2 norm of the update before and after clipping, noise multiplier, number of peer clients in the cohort, and a "what was NOT sent" list. The user can expand a round to see the 24-float vector that was sent, revoke participation per round, and export the whole ledger as JSON.
 
-**D2 — The Privacy Ledger (glass-box FL).**
+**D3. Evidence-tiered recommendations.**
 
-Every user gets a page that is not a privacy *policy* but a privacy *log*. For each federated round the user's client participated in, it shows: round ID, timestamp, the exact feature schema that was used, the L2 norm of the update before and after clipping, the noise multiplier applied, the number of peer clients in the cohort, and a "what was NOT sent" list. The user can expand any round to see the actual 24-float vector that left their machine. They can revoke participation per round, and export the whole ledger as JSON.
-
-It inverts the usual dynamic where privacy is asserted rather than shown. It also makes an excellent poster panel.
-
-**D3 — Evidence-tiered recommendations with honest uncertainty.**
-
-Every recommendation carries a visible evidence badge, and the language changes with the tier:
+Every recommendation carries an evidence badge, and the wording depends on the tier:
 
 | Tier | Source | Example phrasing |
 |---|---|---|
@@ -83,44 +77,40 @@ Every recommendation carries a visible evidence badge, and the language changes 
 | Tier C — Federated | Global model, cohort ≥ k | "Across the federated cohort, users who logged ≥10 practice reps on a weak topic before a repeat round reported higher confidence. This is an association, not a guarantee." |
 | Tier D — Heuristic | Rules, no data yet | "You have no interviews logged. Start with a broad baseline." |
 
-The system is explicitly forbidden from causal phrasing. There is a linter test in the suite (`test_no_causal_language`) that fails the build if a recommendation template contains banned strings like "will get you", "guarantees", "because of this you were rejected". Encoding intellectual honesty as a **failing unit test** is a genuinely unusual thing to show an examiner.
+Causal phrasing is not allowed. A test in the suite (`test_no_causal_language`) fails the build if a recommendation template contains banned strings such as "will get you", "guarantees" or "because of this you were rejected".
 
-**D4 — Topic Mastery Graph with time decay, not a checkbox list.**
+**D4. Topic mastery graph with time decay.**
 
-Prep topics are nodes in a directed prerequisite graph (Arrays → Two Pointers → Sliding Window; Recursion → Trees → Graphs → Shortest Path). Each user has a **mastery score per topic in [0,1]** that:
+Prep topics are nodes in a directed prerequisite graph (Arrays → Two Pointers → Sliding Window; Recursion → Trees → Graphs → Shortest Path). Each user has a mastery score per topic in [0,1] that:
 - rises with successful practice reps and good interview outcomes on that topic,
-- decays exponentially with time since last touch (a forgetting curve, half-life configurable per difficulty),
-- **propagates weakness backwards**: if you fail Shortest Path, the engine checks whether Graphs and BFS/DFS mastery are the actual root cause and recommends the prerequisite rather than the symptom.
+- decays exponentially with time since the last touch (a forgetting curve, half-life configurable per difficulty),
+- propagates weakness backwards: after a failure on Shortest Path, the engine checks whether Graphs and BFS/DFS mastery is the root cause and recommends the prerequisite.
 
-Root-cause routing is the differentiator. Everyone else recommends "practice graphs". This recommends "your shortest-path failures trace back to weak BFS traversal — start two levels down."
+**D5. Pipeline health with stall detection.**
 
-**D5 — Pipeline health: stall detection, not just a funnel.**
+Besides the funnel, the app computes the time-to-transition distribution for each stage from the user's own history. It flags applications that have exceeded the median dwell time for their stage. The dashboard shows entries such as "3 applications are stalled past your usual OA turnaround" with a suggested follow-up, and adds a sample-size caveat when history is thin.
 
-Every other project ships the same static funnel bar chart. This one also computes, per stage, the **empirical time-to-transition distribution from the user's own history** and flags applications that have exceeded their stage's median dwell time. The dashboard surfaces "3 applications are stalled past your usual OA turnaround" with a suggested follow-up action, and does so with explicit sample-size caveats when history is thin. Analytics that produce an *action* rather than a *number*.
+**D6. Federated Lift viewer.**
 
-**D6 — Federated Lift viewer.**
+The Recommendations page has a "Local only" / "Local + Federated" toggle. Switching it re-ranks the recommendations and shows which items moved and by how much.
 
-A side-by-side control on the Recommendations page: **"Local only"** vs **"Local + Federated"**. Toggling it re-ranks the recommendations live and shows which items moved and by how much. This makes the FL contribution *visible and measurable* instead of an invisible backend claim, and it is the single best 30 seconds of the demo.
+**D7. Privacy budget in the UI.**
 
-**D7 — Privacy budget as a first-class UI object.**
+The user sees a budget meter with total ε allocated, ε spent per round, rounds remaining before the budget is exhausted, and what happens at that point (the client stops contributing and says so). The user also picks a privacy posture (Strict / Balanced / Contributor), which sets the noise multiplier and clipping norm.
 
-Differential privacy epsilon is not buried in a config file. The user sees a budget meter: total ε allocated, ε spent per round, rounds remaining before the budget is exhausted, and what happens when it is (the client stops contributing and says so). Users can choose a privacy posture — Strict / Balanced / Contributor — which sets the noise multiplier and clipping norm.
-
----
-
-**Design guardrails.** The team deliberately avoids these commodity patterns:
+**Design guardrails.** The project avoids these patterns:
 
 - A board as the only view: the primary UI is a dense, sortable, filterable data table with a detail view, and the Kanban board is a second view whose moves are checked by the server's state machine.
-- Four generic stat cards across the top of a dashboard (use one pipeline-health strip and one action queue instead).
+- Four generic stat cards across the top of a dashboard (one pipeline-health strip and one action queue are used instead).
 - A pie chart of application statuses.
-- "AI" that is one prompt to a hosted model: AI features run on a local model by default, answer only from the user's own data, and are disclosed when a hosted provider is active.
-- Purple gradient hero, default shadcn theme, Inter everywhere.
-- Recommendations phrased as prophecy.
-- FL as a diagram on a slide with no running processes behind it.
+- AI as a single prompt to a hosted model: AI features run on a local model by default, answer only from the user's own data, and are disclosed when a hosted provider is active.
+- A default shadcn theme with a purple gradient hero and a single font.
+- Recommendations phrased as predictions.
+- FL shown only as a diagram, with no running processes behind it.
 
 ### 2.4 Naming
 
-`Cohort` works on three levels: the peer cohort you are job hunting alongside, the FL client cohort, and the minimum-cohort-size privacy guarantee.
+`Cohort` works on three levels: the peer cohort of job seekers, the FL client cohort, and the minimum-cohort-size privacy guarantee.
 
 ---
 
@@ -168,7 +158,7 @@ Differential privacy epsilon is not buried in a config file. The user sees a bud
 | S6 | **Database / system maintainer** (operational role, played by team) | Schema, migrations, integrity, performance | Normalized schema, safe migrations, indexed queries | Flyway migrations, FK constraints, per-user isolation enforced in the data layer | Medium | Design walkthroughs |
 | S7 | **University / institution** (indirect) | Provides infrastructure, governs conduct | Academic integrity; no misuse of student data; licensing | Data handling within institutional norms; open-source licence compliance | Low–medium, but a hard constraint | Document analysis of institutional policy |
 
-**Deliberately excluded** (and why — do not pad the list): *Recruiters and employers* are not stakeholders; they never touch the system and have no interface to it. *Career services staff* would be a plausible future stakeholder for a cohort-analytics dashboard, but that feature is outside the product scope, so including them would generate requirements the project does not build. Both are recorded in Future Scope (§32).
+**Excluded stakeholders:** *Recruiters and employers* never touch the system and have no interface to it. *Career services staff* would be a possible future stakeholder for a cohort-analytics dashboard, but that feature is outside the product scope, so including them would add requirements the project does not build. Both are recorded in Future Scope (§32).
 
 ---
 
@@ -182,7 +172,7 @@ Requirements come from three asymmetric sources: the project brief (authoritativ
 
 | Technique | Used with | Gathers | Why suitable | Expected output |
 |---|---|---|---|---|
-| **Document analysis** | S3, S7, FL/DP literature, competitor tools (Teal, Huntr, Simplify) | Mandatory deliverables; grading criteria; established FL algorithms (FedAvg), DP mechanisms, secure-aggregation constraints; feature baselines and their gaps | The brief is non-negotiable and must be traced; FL correctness cannot be invented from intuition | Requirement traceability matrix; FL parameter defaults; competitive gap analysis feeding §2.3 |
+| **Document analysis** | S3, S7, FL/DP literature, competitor tools (Teal, Huntr, Simplify) | Mandatory deliverables; grading criteria; established FL algorithms (FedAvg), DP mechanisms, secure-aggregation constraints; feature baselines and their gaps | The brief is fixed and must be traced; FL correctness cannot be derived from intuition | Requirement traceability matrix; FL parameter defaults; competitive gap analysis feeding §2.3 |
 | **Semi-structured interviews** (6–8 × 30 min) | S1 students who are actively applying | The real workflow, the actual pain, what they currently record after interviews, what they refuse to type into a computer, privacy attitudes | Depth on motivations and privacy sensitivity, which surveys cannot reach | Interview transcripts; pain-point inventory; a "sensitive data" list that constrains the FL feature schema |
 | **Survey** (target 30–50 responses) | S1 broader student population | Frequency distributions: applications per season, tools used, drop-off stages, willingness to share anonymised model updates, feature demand ranking | Cheap validation of whether interview findings generalise; gives quantitative backing for prioritisation | Prioritised feature demand table; the willingness-to-federate percentage, which directly justifies opt-in defaults |
 | **Observation / artefact study** | 3–4 S1 volunteers | How their existing spreadsheet or Notion board is actually structured; which columns they created themselves | Users under-report their own workarounds; the columns they invented *are* requirements | Field-derived list of application attributes → validates the §21 data model |
@@ -521,7 +511,7 @@ Domain requirements are constraints imposed by the **problem domain itself** —
 
 | ID | Domain requirement | Rationale / consequence |
 |---|---|---|
-| DR-18 | Job-search data is **career-sensitive**: disclosure that a user is interviewing elsewhere can cause real-world harm. Users know this and behave accordingly. | Privacy is not a compliance checkbox but a functional prerequisite for the product working at all; a user who does not trust the system will not enter honest data, which destroys the analytics. |
+| DR-18 | Job-search data is **career-sensitive**: disclosure that a user is interviewing elsewhere can cause real-world harm. Users know this and behave accordingly. | Privacy is a functional prerequisite for the product: a user who does not trust the system will not enter accurate data, which breaks the analytics. |
 | DR-19 | Federated learning requires the learning task to be **learnable from a fixed-schema numeric vector**; anything requiring raw text or cross-user joins is out of scope for FL. | Task selection is constrained before design begins — this rules out, for example, federated learning over question text. |
 | DR-20 | Federated data is **non-IID**: each user's distribution reflects their own field, seniority, and geography. | FedAvg convergence will be uneven; evaluation must report per-client as well as global metrics, and the plan must not assume clean convergence curves. |
 | DR-21 | Model updates can leak information about training data (gradient inversion, membership inference); transmitting raw updates is not automatically private. | Clipping plus calibrated noise is mandatory, not optional. "We use FL therefore it is private" is a false claim and must not appear in the report or poster. |
@@ -1436,7 +1426,7 @@ See §29 for full layout. Sprint 1 task: produce the finished A1 poster as PDF p
 
 ### 13.11 The FL spike (Sprint 3)
 
-A **timeboxed 1-day Flower spike** (P33) runs in Sprint 3: two hard-coded clients, a trivial 3-feature logistic regression, one FedAvg round, nothing else. Its only purpose is to surface Flower version and API friction a full sprint before Sprint 4 depends on it. It is the highest-leverage risk reduction in the plan.
+A **timeboxed 1-day Flower spike** (P33) runs in Sprint 3: two hard-coded clients, a trivial 3-feature logistic regression and one FedAvg round. It surfaces Flower version and API problems a full sprint before Sprint 4 depends on it.
 
 ### 13.12 Sprint 1 Definition of Done
 
@@ -1470,7 +1460,7 @@ Project-wide DoD (§30), plus:
 **Why they conflict:** Centralised training over a single database is dramatically simpler, converges faster, and produces better metrics. FL adds a server, N client processes, orchestration, DP noise, and non-IID convergence problems, for a strictly worse accuracy number.
 **Decision:** **FL, unconditionally.** It is the project's stated innovation and a mandatory requirement; simulating it over pooled data would be dishonest.
 **Resolution:** The prototype FL is a *real* Flower deployment with genuinely isolated client data stores (§22), sized down rather than faked: small model, few clients, few rounds, synthetic cohort peers. Success is redefined as **architectural correctness and demonstrable privacy**, not accuracy. This redefinition is agreed with the evaluator in advance so the criterion is not contested at the end.
-**Impact:** Higher engineering cost, concentrated in Sprint 4, mitigated by the Sprint 3 spike. Model quality will be modest and must be reported honestly, including the FL-vs-centralised gap — which is itself a good result to discuss in the report.
+**Impact:** Higher engineering cost, concentrated in Sprint 4, mitigated by the Sprint 3 spike. Model quality will be modest and is reported as measured, including the FL-vs-centralised gap.
 
 ### C3 — Feature richness vs deliverability
 
@@ -1526,7 +1516,7 @@ Project-wide DoD (§30), plus:
 | Components | **shadcn/ui** | Accessible Radix primitives delivered as owned source. NFR-44…NFR-47 come largely for free, and the components can be restyled away from the default look (§2.3). |
 | Charts | **Recharts** | Declarative React charts covering funnel, bar, line, and area needs, composable enough for the sample-size annotations FR-67 requires. |
 | Backend framework | **Spring Boot 3 (Java 21)** | Owns everything user-facing. Mature dependency injection makes per-user scoping and every pattern in `ARCHITECTURE_REVISION_JAVA.md` §4 clean; Bean Validation satisfies FR-96; springdoc generates the OpenAPI contract. |
-| Database | **PostgreSQL 16** | The domain is genuinely relational — users own applications own interviews own questions — and the isolation requirement is best enforced with real foreign keys and constraints. Also gives JSONB for semi-structured resume content, window functions for dwell-time and funnel queries, and role-based privilege separation, which makes the FL isolation in §22 architecturally real. |
+| Database | **PostgreSQL 16** | The domain is relational (users own applications, which own interviews, which own questions), and isolation is best enforced with foreign keys and constraints. It also provides JSONB for semi-structured resume content, window functions for dwell-time and funnel queries, and role-based privilege separation, which makes the FL isolation in §22 enforceable. |
 | ORM and migrations | **Spring Data JPA + Hibernate; Flyway** | Parameterised queries by default (NFR-03); a repository layer where per-user scoping is enforced once (FR-94); versioned migrations with rollback scripts (NFR-27). |
 | Auth | **Spring Security: JWT + Argon2id; OAuth2 client for Google and GitHub** | JWT keeps the API stateless (NFR-23) while server-side refresh tokens keep logout revocable (FR-06). **Argon2id over bcrypt**: memory-hard, resistant to GPU cracking, and the current OWASP recommendation (ADR-001). |
 | ML | **scikit-learn** | Right-sized for the task. Linear models expose `coef_` and `intercept_` as plain arrays, which is exactly what FedAvg averages. |
@@ -1923,7 +1913,7 @@ Every recommendation object carries `evidence_tier`, `observation_count`, `expla
 | `GET /fl/rounds` | Round history with participant counts | User (metadata only) | |
 | `GET /fl/schema` | The current feature schema, human-readable | Public | Shown on the opt-in screen — the schema is documentation |
 
-**`POST /fl/update` is deliberately absent.** Client updates travel over Flower's gRPC channel to the Flower server, not through the application API. Routing updates through the app backend would put user-linked model updates in the same process that holds database credentials, weakening exactly the boundary the design exists to create. Recorded as ADR-007.
+**`POST /fl/update` is intentionally absent.** Client updates travel over Flower's gRPC channel to the Flower server, not through the application API. Routing updates through the app backend would put user-linked model updates in the same process that holds database credentials and weaken the boundary the design relies on. Recorded as ADR-007.
 
 ### 18.10 Further endpoints
 
@@ -2043,7 +2033,7 @@ Counts are live and meaningful: open applications, upcoming interviews, active r
 2. **Application detail timeline** — proves history is captured, not overwritten.
 3. **Topic mastery grid** — a colour-and-value grid of ~50 topics that reads at a glance, with prerequisite edges revealed on hover.
 4. **Recommendation card with the evidence drawer open** — proves explainability.
-5. **Privacy Ledger with a vector expanded** — the single most distinctive screen in the project.
+5. **Privacy Ledger with a vector expanded**
 
 ### 20.5 Responsive behaviour
 
@@ -2201,7 +2191,7 @@ federated_adjust   = 1.0 when federated ranking is off
                    = 0.75 + 0.5 · σ(global_model · features) when on
 ```
 
-The federated adjustment is bounded in [0.75, 1.25] — deliberately constrained so the shared model can *reorder* recommendations but never invent or suppress one. A user's own evidence always dominates. This is both a privacy-conscious and a product-quality decision, and it is what makes the lift viewer show interesting but not alarming movement.
+The federated adjustment is bounded in [0.75, 1.25]. This lets the shared model reorder recommendations but never create or suppress one, and a user's own evidence always dominates. It also keeps the movement shown by the lift viewer small.
 
 ### 21.7 Template registry and phrasing enforcement
 
@@ -2209,7 +2199,7 @@ All user-facing recommendation copy lives in one registry module. Each template 
 
 The test `test_no_causal_language` iterates every template and fails on any match against the prohibited list: *guarantees, will get you, ensures, because of this you were rejected, caused, proven to, always leads to, you failed because*. A second test asserts every template renders with its declared evidence fields present. A third asserts no template renders without an explanation.
 
-Encoding an epistemic standard as a build gate is unusual, cheap, and exactly the kind of detail that reads well in a viva.
+The phrasing rule is enforced as a build gate, so a banned phrase cannot reach a release.
 
 ### 21.8 What the machine-learning model actually is
 
@@ -2221,7 +2211,7 @@ Encoding an epistemic standard as a build gate is unusual, cheap, and exactly th
 | Why linear | Parameters are a flat, fixed-length float array, which is what FedAvg averages; coefficients are inspectable, so the global model can be discussed rather than merely reported; it is robust with tiny per-client datasets, where anything deeper would simply memorise |
 | Training example | One completed interview round |
 | Features | The 24 features in §22.2, computed **as of that round's date** |
-| Point-in-time correctness | Feature extraction takes an `as_of` timestamp and excludes all later records. Without this, mastery computed today would leak the outcome into a round from three months ago — the classic silent leakage bug, and one an examiner may well probe |
+| Point-in-time correctness | Feature extraction takes an `as_of` timestamp and excludes all later records. Without this, mastery computed today would leak the outcome into a round from three months ago (label leakage) |
 | Parameters exchanged | `coef_` (24 floats) + `intercept_` (1 float) = **25 floats per round, per client** |
 
 ### 21.9 Evaluation
@@ -2239,7 +2229,7 @@ Encoding an epistemic standard as a build gate is unusual, cheap, and exactly th
 
 **What is learned:** the association between a user's *preparation state* (a 24-dimensional derived feature vector) and *self-reported interview round performance*.
 
-**Why this task and not another.** It satisfies DR-19 — it is learnable from a fixed numeric vector, needs no raw text, and requires no cross-user joins. It is genuinely useful: knowing which preparation patterns correlate with better-rated rounds is exactly the cross-user insight no single user can obtain alone, since each has only their own handful of interviews. And it is honestly bounded: the label is self-reported, which is disclosed everywhere the model is surfaced.
+**Why this task.** It satisfies DR-19: it is learnable from a fixed numeric vector, needs no raw text and requires no cross-user joins. Knowing which preparation patterns correlate with better-rated rounds is a cross-user insight that no single user can obtain alone, since each has only a handful of interviews. The label is self-reported, which is disclosed wherever the model is surfaced.
 
 **Rejected alternatives, and why:** learning over question *text* (would require raw text transmission — violates the core constraint); predicting hiring outcomes (labels too sparse, too confounded, and would invite exactly the causal claims §14/C6 forbids); learning company-specific patterns (would identify companies and, transitively, users).
 
@@ -2333,19 +2323,19 @@ Round r, coordinated by the Flower server:
 | Model | Logistic regression, 25 parameters | Larger models, personalisation layers, per-cohort specialisation |
 | Accounting | Approximate per-round ε, displayed honestly as approximate | Rigorous RDP composition with a formal ε–δ guarantee |
 
-**The prototype is a scale reduction, not a fidelity reduction.** Every architectural property that matters — data never moves, updates are clipped and noised, small cohorts are refused, the server has no data access — is genuinely present. What is reduced is the number of clients, the size of the model, and the cryptographic sophistication. That is exactly the right kind of compromise for a student project, and it is defensible under questioning in a way that a simulated-on-pooled-data version would not be.
+**The prototype reduces scale, not fidelity.** The architectural properties that matter are present: data never moves, updates are clipped and noised, small cohorts are refused, and the server has no data access. What is reduced is the number of clients, the size of the model and the cryptographic sophistication.
 
 ### 22.6 How the prototype demonstrates the concept without distributed infrastructure
 
 The obstacle is real: a student project has one real user and no cohort. Three mechanisms handle it honestly.
 
-1. **Synthetic cohort clients.** A seeded generator produces 4–7 plausible job-search histories with *deliberately different* distributions — a DSA-heavy candidate, a behavioural-heavy candidate, a high-volume applicant, a low-volume one — which makes the data non-IID, matching DR-20 and giving a realistic (i.e. imperfect) convergence curve. Each history is loaded into its own client schema. Everything is clearly labelled synthetic in the UI, the report, and the poster.
-2. **Real containerised separation.** The clients are real processes with real credential isolation, so the privacy property is demonstrated rather than asserted. The demo includes opening a shell in the FL server container and showing there are no database credentials in it.
-3. **Flower simulation mode as a fallback.** If containerised deployment fights back near the deadline, `flwr.simulation` runs the same client code in-process. This is a documented degradation, not a substitute: the report would state plainly that the isolation property was demonstrated in the containerised configuration and the convergence results in simulation.
+1. **Synthetic cohort clients.** A seeded generator produces 4–7 job-search histories with different distributions (a DSA-heavy candidate, a behavioural-heavy candidate, a high-volume applicant, a low-volume one). This makes the data non-IID, matching DR-20, and gives a realistic convergence curve. Each history is loaded into its own client schema. Everything is labelled synthetic in the UI, the report and the poster.
+2. **Containerised separation.** The clients are separate processes with separate credentials, so the privacy property can be checked directly. The demo includes opening a shell in the FL server container and showing there are no database credentials in it.
+3. **Flower simulation mode as a fallback.** If containerised deployment cannot be finished before the deadline, `flwr.simulation` runs the same client code in-process. This is a documented degradation: the report would state that the isolation property was shown in the containerised configuration and the convergence results in simulation.
 
 **The five-minute demo sequence:** show the Privacy page and a user's feature vector → start round *r* → watch clients train locally → show the server refusing a 2-client round → show a 5-client round aggregating → show the new model version live → open the Privacy Ledger and expand the exact 25 floats that were sent → toggle Federated Lift and watch the recommendations re-rank.
 
-### 22.7 Threat model — stated honestly, including what this does *not* defend against
+### 22.7 Threat model and its limits
 
 **Defended:**
 - A compromised FL server cannot read user data; it has no credentials and no data path (D1, NFR-11).
@@ -2485,7 +2475,7 @@ main            protected · always deployable · squash-merge only
         └── chore/upgrade-flyway
 ```
 
-Branch names carry the story ID, which makes the board, the branches, the commits, and the PRs mutually traceable — precisely what an evaluator checking individual contribution needs.
+Branch names carry the story ID, so the board, branches, commits and PRs can be traced to each other and to individual contributors.
 
 **Protection on `main`:** no direct pushes; PR required; at least one approving review from someone other than the author; all CI checks passing; branch up to date before merge.
 
@@ -2503,7 +2493,7 @@ chore(ci): add coverage gate at 70%
 
 Types: `feat`, `fix`, `test`, `docs`, `refactor`, `chore`, `perf`, `style`.
 
-**Commit hygiene rules that matter for grading:** commit at a working-increment granularity (several per day, not one per week); never commit under another member's account; never let one person merge everyone's work as their own; write messages that describe intent rather than mechanics. A history of 400 commits from one account and 6 from another is the single most common way student teams lose marks on this criterion, and it is entirely avoidable.
+**Commit hygiene rules:** commit at working-increment granularity (several per day, not one per week); never commit under another member's account; never let one person merge everyone's work; write messages that describe intent rather than mechanics. A history of 400 commits from one account and 6 from another does not show individual contribution.
 
 ### 25.4 Pull requests
 
@@ -2581,7 +2571,7 @@ docker compose up
   └── web     frontend/Dockerfile · vite dev · mounts ./frontend
 ```
 
-`docker compose up` is the only command a new team member needs. Migrations run automatically on API start in dev via an entrypoint script that waits on the db healthcheck. `make seed` loads demo data. Verified independently on every member's OS in Sprint 1 (NFR-41), because "works on my machine" discovered in Sprint 4 is a lost week.
+`docker compose up` is the only command a new team member needs. Migrations run automatically on API start in dev via an entrypoint script that waits on the db healthcheck. `make seed` loads demo data. Each member verifies this on their own OS in Sprint 1 (NFR-41) so that environment problems surface early.
 
 ### 27.3 FL profile (Sprint 4 onward)
 
@@ -2592,7 +2582,7 @@ docker compose -f docker-compose.yml -f docker-compose.fl.yml up
   ├── fl-client-2 … each with its own schema and role
 ```
 
-Kept in a separate compose file so the FL stack starts only when needed, and so the credential asymmetry between server and clients is visible in one readable file — which makes it a demo artefact rather than a configuration detail.
+Kept in a separate compose file so the FL stack starts only when needed and the credential difference between server and clients is visible in one file.
 
 ### 27.4 Production profile
 
@@ -2722,7 +2712,7 @@ A1 portrait, readable from two metres, viewed for roughly ninety seconds. That c
 
 ### 29.3 Design notes
 
-One accent colour, used only for the privacy boundary and the FL arrows, so the eye goes to the innovation. Two screenshots maximum — the dashboard action queue and the Privacy Ledger. Every claim on the poster must be one the team can defend if asked; nothing aspirational stated in the present tense. The FL panel occupies the visual centre because it is what distinguishes the project, and the sentence *"raw user data never leaves the user's client"* should be the single most legible line on the sheet.
+One accent colour is used only for the privacy boundary and the FL arrows. At most two screenshots: the dashboard action queue and the Privacy Ledger. Every claim on the poster must be one the team can defend; nothing aspirational is stated in the present tense. The FL panel is at the visual centre, and the sentence *"raw user data never leaves the user's client"* is the most legible line on the sheet.
 
 ---
 
