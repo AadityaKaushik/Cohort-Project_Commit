@@ -31,22 +31,21 @@ One system that closes the loop: **track → interview → capture what happened
 ```
 React + TS SPA  →  Spring Boot 3 / Java 21 API  →  PostgreSQL 16
                           │
-                          └── (Sprint 4) FederatedLearningGateway → fl-service (Python: Flower + scikit-learn)
+                          └── FederatedLearningGateway → fl-service (Python: Flower + scikit-learn)
                                           no user-content DB credentials, ever
 ```
 
-Design patterns (each one addresses a specific coupling problem): **State** (status transitions), **Repository** (`userId`-required-by-signature isolation), **DTO + Mapper**, and — arriving through the rest of the build — Specification, Chain of Responsibility, Strategy, Observer, Template Method, Adapter, Facade, Builder, Decorator, Circuit Breaker. Full rationale in `docs/architecture.md` and `ARCHITECTURE_REVISION_JAVA.md` §4.
+Design patterns (each one addresses a specific coupling problem): State, Repository, DTO + Mapper, Strategy, Chain of Responsibility, Template Method, Observer, Adapter, Facade, Builder, Decorator and Circuit Breaker. Rationale in `docs/architecture.md` and `ARCHITECTURE_REVISION_JAVA.md` section 4.
 
-## Where the build stands (Sprint 1 — "Foundation")
+## Where the build stands
 
-- Auth (register/login/logout/refresh) — JWT + Argon2id, rate-limited, no account-enumeration timing leak.
-- Applications — full CRUD, a State-pattern-enforced status machine (`Saved → … → Offer → Accepted/Declined`, terminal exits from any non-terminal stage), an immutable status-history timeline.
-- Frontend — protected routes, a token-refresh interceptor, and a dense sortable applications table (the Kanban board is a second view; see `PROJECT_PLAN.md` §2.3).
-- 238 backend tests, ~87% line coverage (JaCoCo-gated in CI), including a mandatory cross-user isolation check on every owned-data endpoint.
+- Auth: register, login, logout, refresh, password reset, email verification and optional social sign-in; JWT + Argon2id, rate-limited.
+- Applications: CRUD, a State-pattern status machine and an immutable status-history timeline.
+- Resumes, interview debriefs, preparation graph, analytics, recommendations, notifications, reports and the Privacy Ledger.
+- Federated learning: the `fl-service` pipeline, the Java gateway with a circuit breaker, opt-in consent and the Federated Lift viewer.
+- Every owned-data endpoint has a cross-user isolation test that expects 404.
 
-## What's next
-
-Sprint 2 (resumes, interview capture, seed data) → Sprint 3 (prep graph, analytics, the Flower spike) → Sprint 4 (the FL boundary itself, circuit breaker, Privacy Ledger) → Sprint 5 (notifications, reports, hardening, delivery). Full phase-by-phase plan: `docs/plan/BUILD_PHASES_JAVA.md`.
+The phase-by-phase plan (110 phases, nine sprints) is in `docs/plan/BUILD_PHASES_JAVA.md`.
 
 ---
 
