@@ -50,7 +50,7 @@ class PrivacyLedgerIntegrationTest extends AbstractIntegrationTest {
     private PrivacyLedgerService privacyLedgerService;
 
     @Test
-    void aRealTransmittedVectorRoundTripsThroughPersistenceAndTheReadEndpoint() throws Exception {
+    void transmittedVectorIsStoredAndReadBack() throws Exception {
         String ownerToken = registerAndGetAccessToken("ledger-owner@example.com", "Owner");
         String ownerId = currentUserId(ownerToken);
         optIn(ownerToken);

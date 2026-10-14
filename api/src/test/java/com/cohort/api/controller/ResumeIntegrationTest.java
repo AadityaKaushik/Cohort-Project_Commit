@@ -179,7 +179,7 @@ class ResumeIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void crossUserAccessReturns404NeverExposingAnotherUsersResumeOrItsFile() throws Exception {
+    void anotherUserGetsNotFoundForResumeOrItsFile() throws Exception {
         String ownerToken = registerAndGetAccessToken("resume-owner-isolation@example.com", "Owner");
         String intruderToken = registerAndGetAccessToken("resume-intruder-isolation@example.com", "Intruder");
         String resumeId = createResume(ownerToken, "Private Resume", false);

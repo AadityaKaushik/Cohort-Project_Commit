@@ -137,7 +137,7 @@ class RecommendationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void crossUserAccessToAnyActionReturns404NeverExposingAnotherUsersRecommendation() throws Exception {
+    void anotherUserGetsNotFoundForRecommendation() throws Exception {
         String ownerToken = registerAndGetAccessToken("rec-owner-isolation@example.com", "Owner");
         String intruderToken = registerAndGetAccessToken("rec-intruder-isolation@example.com", "Intruder");
         String recommendationId = firstRecommendationId(ownerToken);

@@ -11,11 +11,6 @@ import com.cohort.api.entity.InterviewFeedback;
 import com.cohort.api.entity.InterviewQuestion;
 import org.springframework.stereotype.Component;
 
-/**
- * DTO + Mapper pattern (ARCHITECTURE_REVISION_JAVA.md §4.1), matching
- * ApplicationMapper/ResumeMapper's style: hand-written, no MapStruct. JPA
- * entities never cross the controller boundary.
- */
 @Component
 public class InterviewMapper {
 

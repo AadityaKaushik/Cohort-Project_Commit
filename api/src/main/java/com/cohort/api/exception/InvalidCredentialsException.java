@@ -1,10 +1,6 @@
 package com.cohort.api.exception;
 
-/**
- * 401 — wrong password or unknown email. Deliberately the same exception,
- * same message, for both cases (FR-02): a client cannot distinguish "no
- * such account" from "wrong password" from the response alone.
- */
+/** Same message for an unknown email and a wrong password, so the response does not say which. */
 public class InvalidCredentialsException extends RuntimeException {
 
     public InvalidCredentialsException() {

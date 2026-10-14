@@ -8,11 +8,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Single source of truth for CORS, consumed by Spring Security's filter
- * chain (see SecurityConfig) so preflight requests are handled before
- * authentication runs, rather than duplicating this in a WebMvcConfigurer.
- */
 @Configuration
 public class CorsConfig {
 

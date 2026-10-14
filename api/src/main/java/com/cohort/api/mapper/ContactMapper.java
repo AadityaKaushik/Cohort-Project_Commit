@@ -6,7 +6,6 @@ import com.cohort.api.service.detection.ColdContactDetector;
 import java.time.Instant;
 import org.springframework.stereotype.Component;
 
-/** DTO + Mapper pattern: hand-written, entities never cross the controller boundary. */
 @Component
 public class ContactMapper {
 

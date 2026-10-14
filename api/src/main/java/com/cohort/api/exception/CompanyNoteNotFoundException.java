@@ -1,6 +1,6 @@
 package com.cohort.api.exception;
 
-/** Thrown for both a missing note ID and one belonging to another user: always 404, never 403. */
+/** Missing or owned by another user: 404, never 403. */
 public class CompanyNoteNotFoundException extends RuntimeException {
 
     public CompanyNoteNotFoundException() {

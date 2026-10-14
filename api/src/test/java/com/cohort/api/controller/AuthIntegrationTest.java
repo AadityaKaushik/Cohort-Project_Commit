@@ -147,7 +147,7 @@ class AuthIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void protectedEndpointRejectsUnauthenticatedRequestWithJsonEnvelope() throws Exception {
+    void protectedEndpointRejectsUnauthenticatedRequest() throws Exception {
         mockMvc.perform(post("/api/v1/does-not-exist-yet"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error.code", is("UNAUTHENTICATED")));

@@ -79,7 +79,7 @@ public final class ReportBuilder {
 
     public Report build() {
         if (!includeApplications && !includeAnalytics) {
-            throw new IllegalStateException("A report needs at least one section: call withApplications() and/or withAnalytics().");
+            throw new IllegalStateException("A report needs at least one section.");
         }
         if (dateFrom != null && dateTo != null && dateFrom.isAfter(dateTo)) {
             throw new IllegalStateException("The report's date range starts (" + dateFrom + ") after it ends (" + dateTo + ").");

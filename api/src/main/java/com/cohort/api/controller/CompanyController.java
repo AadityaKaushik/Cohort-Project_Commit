@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-96: company pages. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2). */
+/** US-96: company pages. */
 @RestController
 @RequestMapping("/api/v1/companies")
 public class CompanyController {

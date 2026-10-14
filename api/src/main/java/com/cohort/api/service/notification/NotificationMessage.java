@@ -18,7 +18,7 @@ public record NotificationMessage(
         Objects.requireNonNull(title, "title");
         Objects.requireNonNull(body, "body");
         if ((relatedEntityType == null) != (relatedEntityId == null)) {
-            throw new IllegalArgumentException("relatedEntityType and relatedEntityId must be both set or both null");
+            throw new IllegalArgumentException("Related entity type and id must be set together.");
         }
     }
 }

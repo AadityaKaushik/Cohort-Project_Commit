@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-95: contacts and referrals. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2). */
+/** US-95: contacts and referrals. */
 @RestController
 @RequestMapping("/api/v1/contacts")
 public class ContactController {

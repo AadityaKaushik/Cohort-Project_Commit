@@ -163,7 +163,7 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void crossUserAccessReturns404NeverExposingAnotherUsersQuestionOrAttempts() throws Exception {
+    void anotherUserGetsNotFoundForQuestionOrAttempts() throws Exception {
         String ownerToken = registerAndGetAccessToken("prep-owner-isolation@example.com", "Owner");
         String intruderToken = registerAndGetAccessToken("prep-intruder-isolation@example.com", "Intruder");
         String topicId = firstTopicId(ownerToken);

@@ -5,11 +5,6 @@ import com.cohort.api.dto.ResumeSummary;
 import com.cohort.api.entity.Resume;
 import org.springframework.stereotype.Component;
 
-/**
- * DTO + Mapper pattern (ARCHITECTURE_REVISION_JAVA.md §4.1), matching
- * ApplicationMapper's style: hand-written, no MapStruct. JPA entities never
- * cross the controller boundary.
- */
 @Component
 public class ResumeMapper {
 

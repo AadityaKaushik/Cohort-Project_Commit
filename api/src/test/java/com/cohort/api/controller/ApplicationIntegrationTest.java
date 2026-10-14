@@ -98,7 +98,7 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void createReusesAnExistingCompanyForTheSameUserRegardlessOfCasingOrWhitespace() throws Exception {
+    void createReusesCompanyIgnoringCaseAndWhitespace() throws Exception {
         String token = registerAndGetAccessToken("company-reuse@example.com", "Reuser");
 
         String first = """
@@ -200,7 +200,7 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void crossUserAccessReturns404NeverExposingAnotherUsersApplication() throws Exception {
+    void anotherUserGetsNotFoundForApplication() throws Exception {
         String ownerToken = registerAndGetAccessToken("owner-isolation@example.com", "Owner");
         String intruderToken = registerAndGetAccessToken("intruder-isolation@example.com", "Intruder");
         String applicationId = createApplication(ownerToken, "APPLIED");

@@ -47,7 +47,7 @@ class RecommendationFederatedFaultInjectionIntegrationTest extends AbstractInteg
     private ObjectMapper objectMapper;
 
     @Test
-    void federatedRecommendationsGracefullyDegradeToLocalOnlyWhenFlServiceGoesDownMidRequest() throws Exception {
+    void recommendationsFallBackToLocalOnlyWhenFlServiceIsDown() throws Exception {
         String token = registerAndGetAccessToken("rec-fl-fault@example.com", "Owner");
 
         mockMvc.perform(get("/api/v1/recommendations?federated=true").header("Authorization", "Bearer " + token))

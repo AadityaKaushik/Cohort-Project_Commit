@@ -39,7 +39,7 @@ class ApplicationFilterIntegrationTest extends AbstractIntegrationTest {
     private ApplicationTagRepository applicationTagRepository;
 
     @Test
-    void combinesStatusPriorityWorkModeAndDateRangeWithAndSemantics() throws Exception {
+    void combinesFiltersWithAnd() throws Exception {
         String token = registerAndGetAccessToken("filter-combo@example.com", "Filterer");
 
         String matching = createApplication(

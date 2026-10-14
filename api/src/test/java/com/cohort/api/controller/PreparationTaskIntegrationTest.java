@@ -120,7 +120,7 @@ class PreparationTaskIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void crossUserAccessReturns404NeverExposingAnotherUsersTask() throws Exception {
+    void anotherUserGetsNotFoundForTask() throws Exception {
         String ownerToken = registerAndGetAccessToken("prep-task-owner-isolation@example.com", "Owner");
         String intruderToken = registerAndGetAccessToken("prep-task-intruder-isolation@example.com", "Intruder");
         String topicId = firstTopicId(ownerToken);

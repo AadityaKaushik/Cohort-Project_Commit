@@ -16,12 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Observer pattern, subject side (US-95): publishes a {@link ColdContactEvent}
- * for every contact the user has not touched for {@link #COLD_AFTER}. Like the
- * other detectors it depends only on repositories and the generic event
- * publisher, and never learns who subscribes.
- */
+/** Publishes a ColdContactEvent for each contact not touched within COLD_AFTER. */
 @Component
 public class ColdContactDetector {
 

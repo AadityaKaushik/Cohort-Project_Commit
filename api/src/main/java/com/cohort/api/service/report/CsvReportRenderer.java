@@ -24,7 +24,7 @@ public class CsvReportRenderer implements ReportRenderer {
     @Override
     public byte[] render(Report report) {
         if (report.includesApplications() == report.includesAnalytics()) {
-            throw new IllegalArgumentException("A CSV export holds exactly one table: include either applications or analytics, not both.");
+            throw new IllegalArgumentException("A CSV export holds one table: applications or analytics.");
         }
         List<List<String>> rows = report.includesApplications() ? applicationRows(report) : analyticsRows(report);
         StringBuilder csv = new StringBuilder();

@@ -30,12 +30,7 @@ public class AuthService {
     private final LoginRateLimiter loginRateLimiter;
     private final AccountRecoveryService accountRecoveryService;
 
-    /**
-     * Computed once at startup so a login attempt against a non-existent
-     * email still pays the same Argon2 verification cost as a real one —
-     * otherwise the response time itself would reveal whether the account
-     * exists (FR-02).
-     */
+    // Fixed hash so an unknown email costs the same Argon2 check as a real one.
     private final String dummyHashForTimingSafety;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,

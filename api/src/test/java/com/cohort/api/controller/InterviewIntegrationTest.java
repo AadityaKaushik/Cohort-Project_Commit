@@ -212,7 +212,7 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void crossUserAccessReturns404NeverExposingAnotherUsersInterviewQuestionsOrFeedback() throws Exception {
+    void anotherUserGetsNotFoundForInterviewQuestionsOrFeedback() throws Exception {
         String ownerToken = registerAndGetAccessToken("interview-owner-isolation@example.com", "Owner");
         String intruderToken = registerAndGetAccessToken("interview-intruder-isolation@example.com", "Intruder");
         String applicationId = createApplication(ownerToken);

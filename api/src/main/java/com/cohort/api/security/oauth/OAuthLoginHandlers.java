@@ -20,10 +20,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-/**
- * Ends the provider round trip by issuing the application's own access and refresh tokens, exactly as
- * password login does, and handing them to the single-page app in a URL fragment (never sent to a server).
- */
+/** Issues the app's own tokens after provider sign-in and passes them to the SPA in a URL fragment. */
 @Component
 public class OAuthLoginHandlers implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
 

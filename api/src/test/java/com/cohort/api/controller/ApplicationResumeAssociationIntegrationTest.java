@@ -29,7 +29,7 @@ class ApplicationResumeAssociationIntegrationTest extends AbstractIntegrationTes
     private ObjectMapper objectMapper;
 
     @Test
-    void attachingChangingAndClearingTheResumeAssociationAllSucceedForTheOwner() throws Exception {
+    void ownerCanAttachChangeAndClearResume() throws Exception {
         String token = registerAndGetAccessToken("resume-assoc-owner@example.com", "Owner");
         String applicationId = createApplication(token);
         String firstResumeId = createResume(token, "Resume A");
