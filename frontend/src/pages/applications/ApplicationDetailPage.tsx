@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { CalendarPlusIcon, PencilIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
+import { CalendarPlusIcon, CopyIcon, PencilIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
 import {
   attachResumeToApplication,
   changeApplicationStatus,
@@ -177,6 +177,12 @@ export function ApplicationDetailPage() {
               <Link to={`/applications/${data.id}/edit`}>
                 <PencilIcon aria-hidden />
                 Edit
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to={`/applications/new?from=${data.id}`}>
+                <CopyIcon aria-hidden />
+                Duplicate
               </Link>
             </Button>
             <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>

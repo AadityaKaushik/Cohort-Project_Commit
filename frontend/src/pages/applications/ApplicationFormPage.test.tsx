@@ -40,6 +40,7 @@ describe('ApplicationFormPage validation', () => {
 
     await user.type(screen.getByLabelText('Company'), 'Acme')
     await user.type(screen.getByLabelText('Job title'), 'Engineer')
+    await user.clear(screen.getByLabelText('Date applied'))
     await user.type(screen.getByLabelText('Date applied'), '2026-01-05')
     await user.type(screen.getByLabelText('Job URL'), 'not a link')
     await user.click(screen.getByRole('button', { name: /create application/i }))
@@ -55,6 +56,7 @@ describe('ApplicationFormPage validation', () => {
 
     await user.type(screen.getByLabelText('Company'), 'Acme')
     await user.type(screen.getByLabelText('Job title'), 'Engineer')
+    await user.clear(screen.getByLabelText('Date applied'))
     await user.type(screen.getByLabelText('Date applied'), '2026-01-05')
     await user.selectOptions(screen.getByLabelText('Work mode'), 'remote')
     await user.selectOptions(screen.getByLabelText('Priority'), 'high')
@@ -86,6 +88,7 @@ describe('ApplicationFormPage validation', () => {
 
     await user.type(screen.getByLabelText('Company'), 'Acme')
     await user.type(screen.getByLabelText('Job title'), 'Engineer')
+    await user.clear(screen.getByLabelText('Date applied'))
     await user.type(screen.getByLabelText('Date applied'), '2026-01-05')
     await user.type(screen.getByLabelText('Minimum salary'), '100')
     await user.type(screen.getByLabelText('Maximum salary'), '50')

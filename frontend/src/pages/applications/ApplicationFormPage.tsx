@@ -1,10 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState, type ClipboardEvent, type FormEvent } from 'react'
+import { format } from 'date-fns'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   createApplication,
   getApplication,
+  listApplications,
   updateApplication,
+  type ApplicationDetail,
   type ApplicationFormInput,
   type ApplicationStatusValue,
   type JobType,
@@ -12,6 +15,8 @@ import {
   type WorkMode,
 } from '@/lib/applications-api'
 import { ApiError } from '@/lib/api-client'
+import { guessCompanyFromUrl } from '@/lib/company-guess'
+import { listCompanies } from '@/lib/companies-api'
 import { formatLabel } from '@/lib/labels'
 import { email as emailRule, hasErrors, positiveInteger, required, url, validate } from '@/lib/validation'
 import { useToast } from '@/hooks/use-toast'
@@ -58,7 +63,7 @@ const EMPTY_FORM: FormState = {
   companyName: '',
   jobTitle: '',
   dateApplied: '',
-  status: 'SAVED',
+  status: 'APPLIED',
   location: '',
   workMode: '',
   jobType: '',
@@ -77,22 +82,65 @@ const EMPTY_FORM: FormState = {
   coverLetter: '',
 }
 
+function toFormState(data: ApplicationDetail): FormState {
+  return {
+    companyName: data.company.name,
+    jobTitle: data.job_title,
+    dateApplied: data.date_applied,
+    status: data.status,
+    location: data.location ?? '',
+    workMode: data.work_mode ?? '',
+    jobType: data.job_type ?? '',
+    jobUrl: data.job_url ?? '',
+    jobDescription: data.job_description ?? '',
+    salaryMin: data.salary_min === null ? '' : String(data.salary_min),
+    salaryMax: data.salary_max === null ? '' : String(data.salary_max),
+    salaryCurrency: data.salary_currency ?? '',
+    priority: data.priority ?? '',
+    source: data.source ?? '',
+    isReferral: data.is_referral,
+    deadline: data.deadline ?? '',
+    recruiterName: data.recruiter_name ?? '',
+    recruiterEmail: data.recruiter_email ?? '',
+    notes: data.notes ?? '',
+    coverLetter: data.cover_letter ?? '',
+  }
+}
+
 export function ApplicationFormPage() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const duplicateId = searchParams.get('from')
   const isEditing = Boolean(id)
+  const sourceId = id ?? duplicateId
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
   const detailQuery = useQuery({
-    queryKey: ['application', id],
-    queryFn: () => getApplication(id!),
-    enabled: isEditing,
+    queryKey: ['application', sourceId],
+    queryFn: () => getApplication(sourceId!),
+    enabled: Boolean(sourceId),
   })
 
+  const lastUsedQuery = useQuery({
+    queryKey: ['applications', 'last-used'],
+    queryFn: async () => {
+      const latest = await listApplications({ size: 1, sort: 'date_applied', direction: 'desc' })
+      return latest.items[0] ? getApplication(latest.items[0].id) : null
+    },
+    enabled: !sourceId,
+  })
+
+  const companiesQuery = useQuery({ queryKey: ['companies', 'list', ''], queryFn: () => listCompanies('') })
+
   const draftKey = 'application-new'
-  const [form, setForm] = useState<FormState>(() => (isEditing ? EMPTY_FORM : { ...EMPTY_FORM, ...readDraft<Partial<FormState>>(draftKey) }))
-  const [baseline, setBaseline] = useState<FormState>(EMPTY_FORM)
+  const today = format(new Date(), 'yyyy-MM-dd')
+  const [form, setForm] = useState<FormState>(() => {
+    const start = { ...EMPTY_FORM, dateApplied: today }
+    return sourceId ? start : { ...start, ...readDraft<Partial<FormState>>(draftKey) }
+  })
+  const [baseline, setBaseline] = useState<FormState>({ ...EMPTY_FORM, dateApplied: today })
   const dirty = JSON.stringify(form) !== JSON.stringify(baseline)
   const { guard, markSaved } = useUnsavedChanges(dirty)
   const [error, setError] = useState<string | null>(null)
@@ -104,33 +152,32 @@ export function ApplicationFormPage() {
 
   useEffect(() => {
     const data = detailQuery.data
-    if (data) {
-      const loaded: FormState = {
-        companyName: data.company.name,
-        jobTitle: data.job_title,
-        dateApplied: data.date_applied,
-        status: data.status,
-        location: data.location ?? '',
-        workMode: data.work_mode ?? '',
-        jobType: data.job_type ?? '',
-        jobUrl: data.job_url ?? '',
-        jobDescription: data.job_description ?? '',
-        salaryMin: data.salary_min === null ? '' : String(data.salary_min),
-        salaryMax: data.salary_max === null ? '' : String(data.salary_max),
-        salaryCurrency: data.salary_currency ?? '',
-        priority: data.priority ?? '',
-        source: data.source ?? '',
-        isReferral: data.is_referral,
-        deadline: data.deadline ?? '',
-        recruiterName: data.recruiter_name ?? '',
-        recruiterEmail: data.recruiter_email ?? '',
-        notes: data.notes ?? '',
-        coverLetter: data.cover_letter ?? '',
-      }
-      setForm(loaded)
-      setBaseline(loaded)
+    if (!data) return
+    const loaded = toFormState(data)
+    const next = isEditing ? loaded : { ...loaded, status: 'APPLIED' as const, dateApplied: today }
+    setForm(next)
+    setBaseline(next)
+  }, [detailQuery.data, isEditing, today])
+
+  useEffect(() => {
+    const last = lastUsedQuery.data
+    if (!last) return
+    const fill = (current: FormState): FormState => ({
+      ...current,
+      source: current.source || (last.source ?? ''),
+      location: current.location || (last.location ?? ''),
+      workMode: current.workMode || (last.work_mode ?? ''),
+    })
+    setForm(fill)
+    setBaseline(fill)
+  }, [lastUsedQuery.data])
+
+  function handleUrlPaste(event: ClipboardEvent<HTMLInputElement>) {
+    const guess = guessCompanyFromUrl(event.clipboardData.getData('text'))
+    if (guess && form.companyName.trim() === '') {
+      set('companyName', guess)
     }
-  }, [detailQuery.data])
+  }
 
   const mutation = useMutation({
     mutationFn: (input: ApplicationFormInput) => (isEditing ? updateApplication(id!, input) : createApplication(input)),
@@ -214,11 +261,11 @@ export function ApplicationFormPage() {
     })
   }
 
-  if (isEditing && detailQuery.isLoading) {
+  if (sourceId && detailQuery.isLoading) {
     return <PageSkeleton label="Loading application" variant="form" />
   }
 
-  if (isEditing && detailQuery.isError) {
+  if (sourceId && detailQuery.isError) {
     return (
       <ErrorState
         title="Couldn't load this application"
@@ -235,14 +282,19 @@ export function ApplicationFormPage() {
       {guard}
       <PageHeader
         back={backTo}
-        title={isEditing ? 'Edit application' : 'Create an application'}
+        title={isEditing ? 'Edit application' : duplicateId ? 'Duplicate application' : 'Create an application'}
         description={isEditing ? 'Update the details you track for this role.' : 'Only the company, role and date are required. Add the rest whenever you have it.'}
       />
       <SectionCard>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <FormSection title="The role" description="What you applied for and where it stands.">
             <FormField id="companyName" label="Company" error={fieldErrors.companyName}>
-              <Input id="companyName" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
+              <Input id="companyName" list="company-options" autoComplete="off" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
+              <datalist id="company-options">
+                {companiesQuery.data?.map((company) => (
+                  <option key={company.id} value={company.name} />
+                ))}
+              </datalist>
             </FormField>
             <FormField id="jobTitle" label="Job title" error={fieldErrors.jobTitle}>
               <Input id="jobTitle" value={form.jobTitle} onChange={(e) => set('jobTitle', e.target.value)} required />
@@ -285,7 +337,7 @@ export function ApplicationFormPage() {
               </NativeSelect>
             </FormField>
             <FormField id="jobUrl" label="Job URL" error={fieldErrors.jobUrl}>
-              <Input id="jobUrl" type="url" placeholder="https://" value={form.jobUrl} onChange={(e) => set('jobUrl', e.target.value)} />
+              <Input id="jobUrl" type="url" placeholder="https://" value={form.jobUrl} onPaste={handleUrlPaste} onChange={(e) => set('jobUrl', e.target.value)} />
             </FormField>
           </FormSection>
 

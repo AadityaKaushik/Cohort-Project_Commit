@@ -106,6 +106,12 @@ describe('ApplicationDetailPage status controls', () => {
     expect(options).toEqual(['Choose a status', 'Interview', 'Rejected', 'Applied'])
   })
 
+  it('links Duplicate to the prefilled form', async () => {
+    renderDetail()
+
+    expect(await screen.findByRole('link', { name: 'Duplicate' })).toHaveAttribute('href', '/applications/new?from=a1')
+  })
+
   it('requires a note for a backward move and keeps a readable placeholder afterwards', async () => {
     vi.mocked(applicationsApi.changeApplicationStatus).mockResolvedValue({ ...detail, status: 'APPLIED' })
     const user = userEvent.setup()

@@ -139,6 +139,13 @@ const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStar
           </Link>
           <p className="truncate text-xs text-muted-foreground">{application.job_title}</p>
         </div>
+        <Link
+          to={`/applications/new?from=${application.id}`}
+          aria-label={`Duplicate ${application.company.name}, ${application.job_title}`}
+          className="ml-auto shrink-0 text-xs text-muted-foreground hover:text-primary"
+        >
+          Duplicate
+        </Link>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2 border-t pt-2.5 text-xs text-muted-foreground">
         <span className="tabular-nums">{application.days_in_stage}d in stage</span>
