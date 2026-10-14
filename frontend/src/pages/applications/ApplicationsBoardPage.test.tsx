@@ -65,6 +65,7 @@ describe('ApplicationsBoardPage', () => {
     renderBoard()
 
     await drag('Interview')
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Move without interview' }))
 
     await waitFor(() =>
       expect(applicationsApi.changeApplicationStatus).toHaveBeenCalledWith('a1', {
@@ -112,6 +113,7 @@ describe('ApplicationsBoardPage', () => {
     renderBoard()
 
     await drag('Interview')
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Move without interview' }))
 
     expect(await screen.findByText('An application cannot move from OA to Interview.')).toBeInTheDocument()
   })

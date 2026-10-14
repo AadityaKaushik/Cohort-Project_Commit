@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
+import { InterviewMoveDialog } from '@/components/applications/InterviewMoveDialog'
 import { KanbanBoard } from '@/components/applications/KanbanBoard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/QueryStates'
@@ -40,6 +41,7 @@ export function ApplicationsBoardPage() {
   const pendingDeletes = usePendingDeletes()
   const [pending, setPending] = useState<PendingCorrection | null>(null)
   const [note, setNote] = useState('')
+  const [interviewFor, setInterviewFor] = useState<ApplicationSummary | null>(null)
 
   useEffect(() => {
     writePreference('applications-view', 'board')
@@ -68,7 +70,9 @@ export function ApplicationsBoardPage() {
   })
 
   function handleMove(application: ApplicationSummary, target: ApplicationStatusValue) {
-    if (application.allowed_next_statuses.includes(target)) {
+    if (target === 'INTERVIEW' && application.allowed_next_statuses.includes(target)) {
+      setInterviewFor(application)
+    } else if (application.allowed_next_statuses.includes(target)) {
       moveMutation.mutate({ id: application.id, to_status: target })
     } else if (application.correction_statuses.includes(target)) {
       setNote('')
@@ -131,6 +135,14 @@ export function ApplicationsBoardPage() {
         />
       )}
       {data && data.items.length > 0 && <KanbanBoard applications={data.items.filter((item) => !pendingDeletes.has(item.id))} onMove={handleMove} />}
+
+      {interviewFor && (
+        <InterviewMoveDialog
+          applicationId={interviewFor.id}
+          companyName={interviewFor.company.name}
+          onClose={() => setInterviewFor(null)}
+        />
+      )}
 
       <Dialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <DialogContent>

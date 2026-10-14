@@ -16,6 +16,7 @@ import { formatLabel } from '@/lib/labels'
 import { useUndoableDelete } from '@/hooks/use-undo-delete'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
+import { InterviewMoveDialog } from '@/components/applications/InterviewMoveDialog'
 import {
   Dialog,
   DialogContent,
@@ -54,6 +55,7 @@ export function ApplicationDetailPage() {
   const [note, setNote] = useState('')
   const [statusError, setStatusError] = useState<string | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [interviewDialogOpen, setInterviewDialogOpen] = useState(false)
 
   const statusMutation = useMutation({
     mutationFn: () =>
@@ -166,6 +168,18 @@ export function ApplicationDetailPage() {
 
   return (
     <div className="space-y-6">
+      {interviewDialogOpen && (
+        <InterviewMoveDialog
+          applicationId={data.id}
+          companyName={data.company.name}
+          note={note || undefined}
+          onClose={() => setInterviewDialogOpen(false)}
+          onMoved={() => {
+            setNextStatus('')
+            setNote('')
+          }}
+        />
+      )}
       <PageHeader
         back={{ to: '/applications', label: 'Applications' }}
         title={data.job_title}
@@ -306,7 +320,7 @@ export function ApplicationDetailPage() {
               <Button
                 className="w-full"
                 disabled={!nextStatus || statusMutation.isPending || (needsNote && note.trim() === '')}
-                onClick={() => statusMutation.mutate()}
+                onClick={() => (nextStatus === 'INTERVIEW' && !needsNote ? setInterviewDialogOpen(true) : statusMutation.mutate())}
               >
                 {statusMutation.isPending ? 'Updating…' : 'Update status'}
               </Button>

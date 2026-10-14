@@ -5,10 +5,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ApplicationDetailPage } from '@/pages/applications/ApplicationDetailPage'
 import * as applicationsApi from '@/lib/applications-api'
+import * as interviewsApi from '@/lib/interviews-api'
 import * as resumesApi from '@/lib/resumes-api'
 
 vi.mock('@/lib/applications-api')
 vi.mock('@/lib/resumes-api')
+vi.mock('@/lib/interviews-api')
 
 const detail: applicationsApi.ApplicationDetail = {
   id: 'a1',
@@ -104,6 +106,18 @@ describe('ApplicationDetailPage status controls', () => {
     const select = await screen.findByLabelText('New status')
     const options = Array.from(select.querySelectorAll('option')).map((option) => option.textContent)
     expect(options).toEqual(['Choose a status', 'Interview', 'Rejected', 'Applied'])
+  })
+
+  it('opens the add interview dialog when moving to Interview', async () => {
+    vi.mocked(interviewsApi.listInterviews).mockResolvedValue({ items: [], total: 0, page: 0, size: 100 })
+    const user = userEvent.setup()
+    renderDetail()
+
+    await user.selectOptions(await screen.findByLabelText('New status'), 'INTERVIEW')
+    await user.click(screen.getByRole('button', { name: 'Update status' }))
+
+    expect(await screen.findByRole('dialog', { name: 'Add interview' })).toBeInTheDocument()
+    expect(applicationsApi.changeApplicationStatus).not.toHaveBeenCalled()
   })
 
   it('links Duplicate to the prefilled form', async () => {
