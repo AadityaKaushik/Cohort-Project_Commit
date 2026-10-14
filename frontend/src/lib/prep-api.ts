@@ -106,10 +106,6 @@ export function listTopics() {
   return apiFetch<Topic[]>('/topics')
 }
 
-export function getTopicGraph() {
-  return apiFetch<TopicGraph>('/topics/graph')
-}
-
 export interface ListQuestionsParams {
   category?: QuestionCategory
   topic_id?: string

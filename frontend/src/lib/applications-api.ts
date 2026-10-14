@@ -168,10 +168,6 @@ export function changeApplicationStatus(id: string, input: { to_status: Applicat
   return apiFetch<ApplicationDetail>(`/applications/${id}/status`, { method: 'POST', body: input })
 }
 
-export function getApplicationHistory(id: string) {
-  return apiFetch<ApplicationStatusHistoryEntry[]>(`/applications/${id}/history`)
-}
-
 export function attachResumeToApplication(id: string, resumeId: string | null) {
   return apiFetch<ApplicationDetail>(`/applications/${id}/resume`, {
     method: 'POST',

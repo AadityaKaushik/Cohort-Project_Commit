@@ -94,6 +94,3 @@ export function getRejectionDistribution() {
   return apiFetch<RejectionDistribution>('/analytics/rejections')
 }
 
-export function getDwellTimes() {
-  return apiFetch<DwellTimes>('/analytics/dwell-times')
-}

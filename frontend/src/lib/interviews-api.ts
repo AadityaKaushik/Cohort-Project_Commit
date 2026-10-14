@@ -154,10 +154,6 @@ export function addInterviewQuestion(interviewId: string, input: InterviewQuesti
   return apiFetch<InterviewQuestion>(`/interviews/${interviewId}/questions`, { method: 'POST', body: input })
 }
 
-export function updateInterviewQuestion(questionId: string, input: Partial<InterviewQuestionInput>) {
-  return apiFetch<InterviewQuestion>(`/interview-questions/${questionId}`, { method: 'PATCH', body: input })
-}
-
 export function deleteInterviewQuestion(questionId: string) {
   return apiFetch<void>(`/interview-questions/${questionId}`, { method: 'DELETE' })
 }
