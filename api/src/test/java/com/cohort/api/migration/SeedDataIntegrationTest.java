@@ -46,6 +46,23 @@ class SeedDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void extraSeedAddsContactsOffersAndGoalsOnceEvenWhenAppliedTwice() throws Exception {
+        String extra = readScript("db/seed/R__seed_dev_data_extra.sql");
+
+        try (Connection connection = dataSource.getConnection()) {
+            executeScript(connection, readSeedScript());
+            executeScript(connection, extra);
+            executeScript(connection, extra);
+
+            assertThat(count(connection, "contacts", "user_id = 'deadbeef-0001-4000-8000-000000000001'")).isEqualTo(6);
+            assertThat(count(connection, "offers", "user_id = 'deadbeef-0001-4000-8000-000000000001'")).isEqualTo(3);
+            assertThat(count(connection, "goals", "user_id = 'deadbeef-0001-4000-8000-000000000001'")).isEqualTo(4);
+            assertThat(count(connection, "contacts", "name NOT LIKE '[SEED]%' AND user_id = 'deadbeef-0001-4000-8000-000000000001'"))
+                    .isZero();
+        }
+    }
+
+    @Test
     void theSeededUserIsClearlyMarkedAsSynthetic() throws Exception {
         try (Connection connection = dataSource.getConnection()) {
             executeScript(connection, readSeedScript());
@@ -61,7 +78,11 @@ class SeedDataIntegrationTest extends AbstractIntegrationTest {
     }
 
     private String readSeedScript() throws Exception {
-        ClassPathResource resource = new ClassPathResource("db/seed/R__seed_dev_data.sql");
+        return readScript("db/seed/R__seed_dev_data.sql");
+    }
+
+    private String readScript(String path) throws Exception {
+        ClassPathResource resource = new ClassPathResource(path);
         return StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
     }
 
