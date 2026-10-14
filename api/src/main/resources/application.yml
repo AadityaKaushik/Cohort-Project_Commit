@@ -100,6 +100,23 @@ app:
       # always runs against freshly-exported features, not a race with them.
       cron: ${APP_FL_ROUND_CRON:0 30 */6 * * *}
 
+  ai:
+    # US-102: local Ollama by default. Gemini is used only when
+    # AI_PROVIDER=gemini and a key is set; prompts then leave the server.
+    provider: ${AI_PROVIDER:ollama}
+    connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:2000}
+    read-timeout-ms: ${AI_READ_TIMEOUT_MS:90000}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: ${OLLAMA_MODEL:llama3.2:3b}
+    gemini:
+      base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-2.0-flash}
+    rate-limit:
+      max-requests: ${AI_RATE_LIMIT_MAX_REQUESTS:30}
+      window-minutes: ${AI_RATE_LIMIT_WINDOW_MINUTES:60}
+
 resilience4j:
   circuitbreaker:
     instances:

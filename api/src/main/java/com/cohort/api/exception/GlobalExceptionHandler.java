@@ -60,6 +60,24 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("RATE_LIMITED", ex.getMessage()));
     }
 
+    @ExceptionHandler(AiRateLimitExceededException.class)
+    public ResponseEntity<ApiError> handleAiRateLimit(AiRateLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ApiError.of("AI_RATE_LIMITED", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AiUnavailableException.class)
+    public ResponseEntity<ApiError> handleAiUnavailable(AiUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiError.of("AI_UNAVAILABLE", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AiOutputInvalidException.class)
+    public ResponseEntity<ApiError> handleAiOutputInvalid(AiOutputInvalidException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ApiError.of("AI_OUTPUT_INVALID", ex.getMessage()));
+    }
+
     @ExceptionHandler(ApplicationNotFoundException.class)
     public ResponseEntity<ApiError> handleApplicationNotFound(ApplicationNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
