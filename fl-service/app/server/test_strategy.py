@@ -65,7 +65,7 @@ def test_four_clients_above_min_cohort_is_accepted() -> None:
     assert result.participant_count == 4
 
 def test_aggregation_is_uniform_weighted_ignoring_num_examples() -> None:
-    """Deliberately NOT weighted by client sample count (§22.4's rationale: that would leak each client's job-search volume)."""
+    """Not weighted by client sample count, which would leak each client's job-search volume."""
     strategy = MinCohortFedAvg(min_cohort=3)
     deltas = [np.full(25, 0.1), np.full(25, 0.2), np.full(25, 0.3)]
     client_updates = [("a", deltas[0], 1), ("b", deltas[1], 100_000), ("c", deltas[2], 1)]

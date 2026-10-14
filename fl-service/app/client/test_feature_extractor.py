@@ -114,8 +114,7 @@ def test_an_interview_round_one_second_after_as_of_does_not_leak() -> None:
     leaky_vector = extract_features(leaky, AS_OF, TARGET)
 
     assert leaky_vector == baseline_vector
-    # In particular, the leaky round's topic overlap with TARGET must not
-    # inflate repeat_topic_ratio -- the most tempting place for this bug to hide.
+    # The leaky round's topic overlap with TARGET must not inflate repeat_topic_ratio.
     assert leaky_vector.repeat_topic_ratio == baseline_vector.repeat_topic_ratio
 
 def test_a_record_exactly_at_as_of_is_included_not_excluded() -> None:

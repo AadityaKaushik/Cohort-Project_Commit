@@ -1,11 +1,7 @@
-"""A real `flwr.client.NumPyClient` wrapping an `SGDClassifier` local model.
+"""A `flwr.client.NumPyClient` around an `SGDClassifier`.
 
-This is the client-side shape Sprint 4's `app/client/local_trainer.py` (P45)
-will refine: a linear model whose entire parameter set is exactly two numpy
-arrays (`coef_`, `intercept_`), which is what makes it FedAvg-friendly --
-`flwr.server.strategy.aggregate.aggregate` averages same-shaped ndarray
-lists, so the model family has to be chosen with that in mind (a decision
-tree or anything with a non-fixed-shape parameter set would NOT work here).
+The parameters are two arrays (`coef_`, `intercept_`), which FedAvg can average.
+A model with non-fixed-shape parameters, such as a decision tree, would not work.
 """
 
 from __future__ import annotations
@@ -30,10 +26,7 @@ class SklearnFedAvgClient(NumPyClient):
     def __init__(self, shard: ClientShard) -> None:
         self.shard = shard
         self.model = new_local_model()
-        # SGDClassifier has no coef_/intercept_ until the first partial_fit call
-        # that declares the class set -- so every client "primes" its own model
-        # once at construction, independent of whatever global parameters it
-        # later receives (get_parameters/fit still overwrite these afterwards).
+        # SGDClassifier has no coef_ until the first partial_fit, so prime it here.
         self.model.partial_fit(self.shard.x_train[:1], self.shard.y_train[:1], classes=CLASSES)
 
     def get_parameters(self, config: dict) -> list[np.ndarray]:  # noqa: ARG002 -- Flower's fixed signature
@@ -45,8 +38,7 @@ class SklearnFedAvgClient(NumPyClient):
 
     def fit(self, parameters: list[np.ndarray], config: dict) -> tuple[list[np.ndarray], int, dict]:
         self.set_parameters(parameters)
-        # One local epoch over this client's own shard only -- the whole point
-        # of FL is that `shard.x_train`/`shard.y_train` never leave this object.
+        # One local epoch; the shard never leaves this object.
         self.model.partial_fit(self.shard.x_train, self.shard.y_train, classes=CLASSES)
         return self.get_parameters(config), len(self.shard.x_train), {}
 

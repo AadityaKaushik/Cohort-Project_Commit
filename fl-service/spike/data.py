@@ -1,12 +1,7 @@
-"""Synthetic, non-IID two-client data for the P32 FedAvg spike.
+"""Synthetic, non-IID data for two clients, for the P33 spike.
 
-Deliberately synthetic (sklearn.datasets.make_classification) -- this spike's
-job is to de-risk the FedAvg *mechanics*, not to reproduce Cohort's real
-feature schema (that's Sprint 4's US-58, `app/common/schema.py`). The two
-client shards are drawn with different `flip_y`/class-balance settings so
-they are non-IID, which is the realistic case federated averaging has to
-handle -- an IID split would make every risk this spike is meant to surface
-invisible.
+The shards differ in class balance and label noise, since an IID split would hide
+the problems this spike is meant to find.
 """
 
 from __future__ import annotations
@@ -48,9 +43,7 @@ def build_two_client_dataset() -> SpikeDataset:
         x, y, test_size=0.25, random_state=RANDOM_SEED, stratify=y
     )
 
-    # Non-IID split: client 0 gets a class-skewed slice, client 1 gets the rest.
-    # This is the shape real Cohort users would have too -- one heavy user, one
-    # light one, neither with the same label balance as the population.
+    # Non-IID split: client 0 gets a class-skewed slice, client 1 the rest.
     rng = np.random.default_rng(RANDOM_SEED)
     order = rng.permutation(len(x_train_full))
     x_shuffled, y_shuffled = x_train_full[order], y_train_full[order]

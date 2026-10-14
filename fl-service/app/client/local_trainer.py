@@ -15,12 +15,7 @@ CLASSES = np.array([0, 1])
 MIN_LOCAL_EXAMPLES = 5
 
 class InsufficientLocalDataError(RuntimeError):
-    """Raised when a client has too few local examples to train this round.
-
-    Per §22.4 step 2b this is an abstention, not a crash: the caller is
-    expected to catch this, skip the round for this client, and let the
-    server proceed (or refuse) based on whoever else participated.
-    """
+    """Too few local examples: the client skips this round instead of failing."""
 
 def new_local_model(seed: int) -> SGDClassifier:
     return SGDClassifier(loss="log_loss", random_state=seed, warm_start=True)

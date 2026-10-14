@@ -113,7 +113,7 @@ class MinCohortFedAvg(Strategy):
                 "filtered_count": participant_count,
             }
 
-        # Uniform weighting over the *surviving* deltas -- deliberately NOT weighted by num_examples (§22.4's rationale: that would leak each client's sample count).
+        # Uniform weighting over the surviving deltas; num_examples would leak each client's sample count.
         mean_delta = np.mean(deltas, axis=0)
 
         previous_flat = flatten(self.previous_parameters)
