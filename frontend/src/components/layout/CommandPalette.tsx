@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search, type LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { primaryNavItems, secondaryNavItems } from '@/lib/navigation'
+import { search } from '@/lib/search-api'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 
 interface Command {
   id: string
   label: string
-  group: 'Go to' | 'Create' | 'Account'
+  group: 'Go to' | 'Create' | 'Account' | 'Applications' | 'Companies' | 'Questions' | 'Notes'
   icon: LucideIcon
   run: () => void
 }
@@ -45,10 +47,46 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
     ]
   }, [navigate, logout])
 
+  const [debounced, setDebounced] = useState('')
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(query.trim()), 200)
+    return () => clearTimeout(timer)
+  }, [query])
+  const found = useQuery({
+    queryKey: ['search', debounced],
+    queryFn: () => search(debounced),
+    enabled: open && debounced.length >= 2,
+  })
+
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return needle ? commands.filter((command) => command.label.toLowerCase().includes(needle)) : commands
-  }, [commands, query])
+    const matching = needle ? commands.filter((command) => command.label.toLowerCase().includes(needle)) : commands
+    if (!found.data || needle.length < 2) {
+      return matching
+    }
+    const hit = (group: Command['group'], path: (id: string, parent: string | null) => string) =>
+      (group === 'Applications'
+        ? found.data.applications
+        : group === 'Companies'
+          ? found.data.companies
+          : group === 'Questions'
+            ? found.data.questions
+            : found.data.notes
+      ).map<Command>((result) => ({
+        id: `${group}-${result.id}`,
+        label: result.subtitle ? `${result.title} · ${result.subtitle}` : result.title,
+        group,
+        icon: Search,
+        run: () => navigate(path(result.id, result.parent_id)),
+      }))
+    return [
+      ...matching,
+      ...hit('Applications', (id) => `/applications/${id}`),
+      ...hit('Companies', (id) => `/companies/${id}`),
+      ...hit('Questions', () => '/prep/questions'),
+      ...hit('Notes', (_id, parent) => `/companies/${parent}`),
+    ]
+  }, [commands, query, found.data, navigate])
 
   useEffect(() => {
     if (!open) {
@@ -79,7 +117,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false} className="top-[20%] translate-y-0 gap-0 p-0 sm:max-w-lg">
         <DialogTitle className="sr-only">Command palette</DialogTitle>
-        <DialogDescription className="sr-only">Search for a page or an action.</DialogDescription>
+        <DialogDescription className="sr-only">Search for a page, an action or your own records.</DialogDescription>
         <div className="flex items-center gap-2 border-b px-3">
           <Search aria-hidden className="size-4 text-muted-foreground" />
           <input
@@ -88,7 +126,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
             aria-expanded
             aria-controls="command-results"
             aria-label="Search commands"
-            placeholder="Search pages and actions"
+            placeholder="Search pages, applications, companies and notes"
             value={query}
             onChange={(event) => {
               setQuery(event.target.value)
