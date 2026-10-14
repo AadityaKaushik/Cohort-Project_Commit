@@ -81,11 +81,11 @@ describe('LandingPage', () => {
     expect(within(screen.getByRole('list', { name: 'Missing skills' })).getByText('Kubernetes')).toBeInTheDocument()
   })
 
-  it('shows the full typed phrase and keeps everything still under reduced motion', () => {
+  it('shows the use cases as plain text and keeps everything still under reduced motion', () => {
     mockReducedMotion(true)
     renderLanding()
 
-    expect(screen.getByTestId('typing-text')).toHaveAttribute('data-typed', 'Track every application.')
+    expect(screen.getByText(/Track every application\. Prepare for every interview\./)).toBeInTheDocument()
     expect(screen.getByRole('progressbar', { name: 'Prep tasks completed' })).toHaveAttribute('aria-valuenow', '75')
   })
 })

@@ -372,24 +372,9 @@
     }
 }
 
-@keyframes caret {
-    0%,
-    45% {
-        opacity: 1;
-    }
-    55%,
-    100% {
-        opacity: 0;
-    }
-}
-
 @utility animate-float {
     animation: float 8s ease-in-out infinite;
     will-change: translate;
-}
-
-@utility animate-caret {
-    animation: caret 1.05s steps(1, end) infinite;
 }
 
 @utility parallax-layer {

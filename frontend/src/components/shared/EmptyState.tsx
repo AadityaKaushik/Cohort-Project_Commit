@@ -1,7 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { TypingText } from '@/components/motion/TypingText'
-import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { cn } from '@/lib/utils'
 
 interface EmptyStateProps {
@@ -11,10 +9,9 @@ interface EmptyStateProps {
   action?: ReactNode
   secondaryAction?: ReactNode
   compact?: boolean
-  quote?: number
 }
 
-export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false, quote }: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false }: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -29,7 +26,7 @@ export function EmptyState({ icon: Icon, title, description, action, secondaryAc
       <div className="space-y-1.5">
         <h2 className="font-heading text-base font-semibold tracking-tight">{title}</h2>
         <p className="max-w-sm text-sm text-pretty text-muted-foreground">
-          <TypingText text={description} sessionKey={`empty:${title}`} />
+          {description}
         </p>
       </div>
       {(action || secondaryAction) && (
@@ -38,7 +35,6 @@ export function EmptyState({ icon: Icon, title, description, action, secondaryAc
           {secondaryAction}
         </div>
       )}
-      {quote !== undefined && <RotatingQuote rotate={false} offset={quote} className="mt-2 max-w-xs text-left text-xs" />}
     </div>
   )
 }

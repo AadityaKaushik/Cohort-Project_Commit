@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon } from 'lucide-react'
-import { TypingText } from '@/components/motion/TypingText'
 import { cn } from '@/lib/utils'
 
 interface PageHeaderProps {
@@ -31,7 +30,7 @@ export function PageHeader({ title, description, eyebrow, back, actions, meta, c
         <h2 className="text-display text-[1.75rem] text-balance break-words sm:text-[2rem]">{title}</h2>
         {description && (
           <p className="max-w-2xl text-sm text-pretty text-muted-foreground">
-            {typeof description === 'string' ? <TypingText text={description} sessionKey={`subtitle:${typeof title === 'string' ? title : description}`} /> : description}
+            {description}
           </p>
         )}
         {meta && <div className="flex flex-wrap items-center gap-2 pt-1">{meta}</div>}

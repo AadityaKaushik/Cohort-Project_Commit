@@ -11,7 +11,6 @@ import { FormError, FormField } from '@/components/shared/Form'
 import { TransitionLink } from '@/components/motion/TransitionLink'
 import { finishSignIn } from '@/lib/route-transition'
 import { prefetchRoute } from '@/lib/route-chunks'
-import { TypingText } from '@/components/motion/TypingText'
 import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 
@@ -118,7 +117,7 @@ export function RegisterPage() {
             required
           />
         </FormField>
-        <FormField id="password" label="Password" hint={<TypingText text="At least 10 characters." sessionKey="register-password-hint" startDelay={900} />} error={fieldErrors.password}>
+        <FormField id="password" label="Password" hint="At least 10 characters." error={fieldErrors.password}>
           <PasswordInput
             id="password"
             autoComplete="new-password"

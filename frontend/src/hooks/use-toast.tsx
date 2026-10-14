@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { CheckCircle2, CircleAlert, X } from 'lucide-react'
-import { TypingText } from '@/components/motion/TypingText'
 import { cn } from '@/lib/utils'
 
 export type ToastVariant = 'success' | 'error' | 'info'
@@ -67,7 +66,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             )}
             <div className="min-w-0 flex-1">
               <p className="font-medium">
-                <TypingText text={item.title} />
+                {item.title}
               </p>
               {item.description && <p className="text-muted-foreground">{item.description}</p>}
             </div>

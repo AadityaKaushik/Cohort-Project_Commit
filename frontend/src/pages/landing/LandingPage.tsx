@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BarChart3,
   Briefcase,
-  Command,
   Compass,
   EyeOff,
   Lock,
@@ -22,11 +21,9 @@ import { FloatingChips } from '@/components/landing/FloatingChips'
 import { HeroBackdrop } from '@/components/landing/HeroBackdrop'
 import { JobMatchDemo } from '@/components/landing/JobMatchDemo'
 import { JourneyTimeline } from '@/components/landing/JourneyTimeline'
-import { PaletteDemo } from '@/components/landing/PaletteDemo'
 import { Magnetic } from '@/components/motion/Magnetic'
 import { TransitionLink } from '@/components/motion/TransitionLink'
 import { ProductPreview } from '@/components/landing/ProductPreview'
-import { TypingText } from '@/components/motion/TypingText'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Reveal } from '@/components/motion/Reveal'
 import { Button } from '@/components/ui/button'
@@ -162,7 +159,7 @@ export function LandingPage() {
               className="animate-enter mt-5 font-heading text-lg font-medium tracking-tight text-primary sm:text-2xl"
               style={stagger(2)}
             >
-              <TypingText text={USE_CASES} />
+              {USE_CASES.join(' ')}
             </p>
             <p
               className="animate-enter mx-auto mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg"
@@ -187,7 +184,7 @@ export function LandingPage() {
             <Reveal className="lg:sticky lg:top-28 lg:self-start">
               <p className="text-sm font-medium text-primary">The journey</p>
               <h2 id="journey-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                <TypingText text="Four steps, one place." sessionKey="landing-journey-title" />
+                Four steps, one place.
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Most searches live in a spreadsheet, a notes app and memory. Cohort keeps each step connected, so
@@ -203,7 +200,7 @@ export function LandingPage() {
             <Reveal className="max-w-2xl">
               <p className="text-sm font-medium text-primary">How it works</p>
               <h2 id="modules-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                <TypingText text="One loop, from first application to signed offer." sessionKey="landing-modules-title" />
+                One loop, from first application to signed offer.
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Applications create interviews, interviews create prep, and prep shows up in your numbers.
@@ -235,10 +232,6 @@ export function LandingPage() {
                 body="See how your pace compares with people on the same path. Benchmarks are learned with federated learning, so individual records never leave their accounts.">
                 <CohortCompare />
               </ModuleCard>
-              <ModuleCard className="md:col-span-2" delay={80} icon={Command} name="Keyboard first" title="Everything, one shortcut away"
-                body="Press Ctrl K anywhere to jump to any page.">
-                <PaletteDemo />
-              </ModuleCard>
             </div>
           </div>
         </section>
@@ -248,7 +241,7 @@ export function LandingPage() {
             <Reveal className="max-w-2xl">
               <p className="text-sm font-medium text-primary">Try it</p>
               <h2 id="match-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                <TypingText text="How well does a job fit?" sessionKey="landing-match-title" />
+                How well does a job fit?
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Paste a job description to see which skills a sample resume covers and which it is missing. It runs
@@ -266,7 +259,7 @@ export function LandingPage() {
             <Reveal>
               <p className="text-sm font-medium text-primary">Privacy by design</p>
               <h2 id="privacy-title" className="text-display mt-3 text-3xl sm:text-5xl">
-                <TypingText text="The model travels. Your data stays." sessionKey="landing-privacy-title" />
+                The model travels. Your data stays.
               </h2>
               <p className="mt-4 text-muted-foreground sm:text-lg">
                 Federated learning lets a shared model learn from many people without anyone handing over their
@@ -292,7 +285,7 @@ export function LandingPage() {
           <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 sm:py-28">
             <Reveal>
               <h2 id="faq-title" className="text-display text-3xl sm:text-5xl">
-                <TypingText text="Questions, answered." sessionKey="landing-faq-title" />
+                Questions, answered.
               </h2>
               <div className="mt-8">
                 <FaqTabs />
@@ -304,7 +297,7 @@ export function LandingPage() {
         <section aria-labelledby="cta-title" className="defer-render border-t">
           <Reveal className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 sm:py-24">
             <h2 id="cta-title" className="text-display mx-auto max-w-3xl text-3xl text-balance sm:text-5xl">
-              <TypingText text="Start with one application. See the whole picture." sessionKey="landing-cta-title" />
+              Start with one application. See the whole picture.
             </h2>
             <PrimaryActions className="mt-8" />
           </Reveal>

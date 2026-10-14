@@ -17,8 +17,6 @@ import { PipelineStrip } from '@/components/dashboard/PipelineStrip'
 import { ActionQueueList } from '@/components/dashboard/ActionQueueList'
 import { ProgressRing } from '@/components/dashboard/ProgressRing'
 import { CountUp } from '@/components/motion/Reveal'
-import { RotatingQuote } from '@/components/shared/RotatingQuote'
-import { TypingText } from '@/components/motion/TypingText'
 import { cn } from '@/lib/utils'
 
 const TERMINAL_STATUSES = new Set(['REJECTED', 'WITHDRAWN', 'ACCEPTED', 'DECLINED'])
@@ -88,9 +86,8 @@ export function DashboardPage() {
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE d MMMM')}</p>
           <h2 id="dashboard-greeting" className="text-display text-3xl sm:text-4xl">
-            <TypingText text={`${greetingFor(new Date().getHours())}${firstName ? `, ${firstName}` : ''}.`} sessionKey="dashboard-greeting" />
+            {`${greetingFor(new Date().getHours())}${firstName ? `, ${firstName}` : ''}.`}
           </h2>
-          <RotatingQuote className="text-sm" />
         </div>
         <Button variant="cta" size="lg" asChild className="self-start sm:self-auto">
           <Link to="/applications/new">

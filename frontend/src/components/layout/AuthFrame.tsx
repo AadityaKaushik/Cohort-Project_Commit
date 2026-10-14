@@ -4,10 +4,8 @@ import { BrandMark } from '@/components/brand/BrandMark'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { RouteProgress } from '@/components/motion/RouteProgress'
 import { CountUp } from '@/components/motion/Reveal'
-import { TypingText } from '@/components/motion/TypingText'
 import { useReducedMotion } from '@/hooks/use-motion'
 import { CompanyMark } from '@/components/shared/CompanyMark'
-import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { ApplicationStatusValue } from '@/lib/applications-api'
@@ -93,10 +91,10 @@ function BrandPanel() {
       <div className="max-w-md space-y-8">
         <div className="space-y-4">
           <h2 className="text-display text-4xl text-balance">
-            <TypingText text="Your job search, kept in order." sessionKey="auth-panel-headline" />
+            Your job search, kept in order.
           </h2>
           <p className="font-heading text-lg font-medium tracking-tight text-primary">
-            <TypingText text={USE_LINES} />
+            {USE_LINES.join(' · ')}
           </p>
           <p className="text-base text-pretty text-muted-foreground">
             Applications, interviews and preparation in one calm place. What you write stays private to you.
@@ -104,7 +102,6 @@ function BrandPanel() {
         </div>
         <PipelinePreview />
       </div>
-      <RotatingQuote className="max-w-sm text-sm" />
     </PanelShell>
   )
 }
@@ -183,11 +180,11 @@ export function AuthIntro({ title, subtitle, eyebrow }: { title: string; subtitl
     <div className="mb-8 space-y-2">
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
       <h1 className="text-display text-[2rem] text-balance">
-        <TypingText text={title} sessionKey={`auth-title:${title}`} />
+        {title}
       </h1>
       {subtitle && (
         <p className="text-sm text-pretty text-muted-foreground">
-          <TypingText text={subtitle} sessionKey={`auth-subtitle:${subtitle}`} startDelay={350} />
+          {subtitle}
         </p>
       )}
     </div>

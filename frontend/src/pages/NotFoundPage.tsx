@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon, CompassIcon } from 'lucide-react'
 import { BrandMark } from '@/components/brand/BrandMark'
-import { TypingText } from '@/components/motion/TypingText'
 import { Button } from '@/components/ui/button'
 
 export function NotFoundPage() {
@@ -22,7 +21,7 @@ export function NotFoundPage() {
         <p className="eyebrow">Error 404</p>
         <h1 className="text-display text-3xl">This page doesn't exist</h1>
         <p className="text-sm text-muted-foreground">
-          <TypingText text="The link may be broken, or the page may have moved." sessionKey="not-found" />
+          The link may be broken, or the page may have moved.
         </p>
       </div>
       <Button asChild>
