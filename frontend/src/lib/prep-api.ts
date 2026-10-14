@@ -159,3 +159,23 @@ export function deletePreparationTask(id: string) {
 export function getPreparationProgress() {
   return apiFetch<PreparationProgress>('/preparation/progress')
 }
+
+export interface ReadinessTopic {
+  topic_id: string
+  topic_name: string
+  weight: number
+  mastery_score: number
+  has_evidence: boolean
+}
+
+export interface Readiness {
+  score: number | null
+  formatted: string
+  sample_size: number
+  sufficient_data: boolean
+  topics: ReadinessTopic[]
+}
+
+export function getReadiness(applicationId: string) {
+  return apiFetch<Readiness>(`/applications/${applicationId}/readiness`)
+}

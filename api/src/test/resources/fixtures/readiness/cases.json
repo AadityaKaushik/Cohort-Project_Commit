@@ -1,0 +1,32 @@
+[
+  {
+    "name": "weighted average over topics with evidence",
+    "topics": [
+      {"name": "Arrays", "weight": 3, "mastery": 0.8, "evidence": true},
+      {"name": "Graphs", "weight": 1, "mastery": 0.4, "evidence": true}
+    ],
+    "expected": {"value": 0.7, "formatted": "70%", "sampleSize": 2, "sufficientData": true}
+  },
+  {
+    "name": "topics without evidence are ignored",
+    "topics": [
+      {"name": "Arrays", "weight": 2, "mastery": 0.5, "evidence": true},
+      {"name": "Heaps", "weight": 5, "mastery": 0.0, "evidence": false},
+      {"name": "Trees", "weight": 2, "mastery": 1.0, "evidence": true}
+    ],
+    "expected": {"value": 0.75, "formatted": "75%", "sampleSize": 2, "sufficientData": true}
+  },
+  {
+    "name": "a single topic with evidence is not enough",
+    "topics": [
+      {"name": "Arrays", "weight": 4, "mastery": 0.9, "evidence": true},
+      {"name": "Heaps", "weight": 1, "mastery": 0.0, "evidence": false}
+    ],
+    "expected": {"value": 0.9, "formatted": "insufficient data", "sampleSize": 1, "sufficientData": false}
+  },
+  {
+    "name": "no mapped topics",
+    "topics": [],
+    "expected": {"value": 0.0, "formatted": "insufficient data", "sampleSize": 0, "sufficientData": false}
+  }
+]
