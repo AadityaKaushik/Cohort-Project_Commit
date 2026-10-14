@@ -71,4 +71,13 @@ describe('OnboardingPage', () => {
 
     await waitFor(() => expect(usersApi.completeOnboarding).toHaveBeenCalledWith({ skip: true }))
   })
+
+  it('offers the spreadsheet import without leaving the page', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(screen.getByRole('button', { name: 'Import applications from a spreadsheet' }))
+
+    expect(screen.getByLabelText('CSV file')).toBeInTheDocument()
+  })
 })

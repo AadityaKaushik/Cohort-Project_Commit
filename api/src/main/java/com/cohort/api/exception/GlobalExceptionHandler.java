@@ -84,6 +84,11 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("INVALID_FILE", ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidImportException.class)
+    public ResponseEntity<ApiError> handleInvalidImport(InvalidImportException ex) {
+        return ResponseEntity.badRequest().body(ApiError.of("INVALID_IMPORT", ex.getMessage()));
+    }
+
     @ExceptionHandler(FileTooLargeException.class)
     public ResponseEntity<ApiError> handleFileTooLarge(FileTooLargeException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)

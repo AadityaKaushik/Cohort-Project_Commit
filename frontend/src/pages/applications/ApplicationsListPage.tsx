@@ -1,7 +1,8 @@
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { BriefcaseIcon, KanbanIcon, PlusIcon, SearchXIcon } from 'lucide-react'
+import { format } from 'date-fns'
+import { BriefcaseIcon, KanbanIcon, PlusIcon, SearchXIcon, UploadIcon } from 'lucide-react'
 import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { formatLabel } from '@/lib/labels'
 import { listApplications, listStalledApplications, type ApplicationSummary } from '@/lib/applications-api'
@@ -216,6 +217,11 @@ export function ApplicationsListPage() {
               </Link>
             </Button>
           }
+          secondaryAction={
+            <Button variant="outline" asChild>
+              <Link to="/applications/import">Import a spreadsheet</Link>
+            </Button>
+          }
         />
       </div>
     )
@@ -232,6 +238,12 @@ export function ApplicationsListPage() {
               <Link to="/applications/board" onClick={() => writePreference(VIEW_KEY, 'board')}>
                 <KanbanIcon aria-hidden />
                 Board
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/applications/import">
+                <UploadIcon aria-hidden />
+                Import CSV
               </Link>
             </Button>
             {newApplication}

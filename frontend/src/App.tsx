@@ -12,6 +12,7 @@ const LoginPage = lazy(() => loadLoginPage().then((module) => ({ default: module
 const RegisterPage = lazy(() => loadRegisterPage().then((module) => ({ default: module.RegisterPage })))
 const ApplicationDetailPage = lazy(() => import('@/pages/applications/ApplicationDetailPage').then((module) => ({ default: module.ApplicationDetailPage })))
 const ApplicationFormPage = lazy(() => import('@/pages/applications/ApplicationFormPage').then((module) => ({ default: module.ApplicationFormPage })))
+const ApplicationsImportPage = lazy(() => import('@/pages/applications/ApplicationsImportPage').then((module) => ({ default: module.ApplicationsImportPage })))
 const ApplicationsBoardPage = lazy(() => import('@/pages/applications/ApplicationsBoardPage').then((module) => ({ default: module.ApplicationsBoardPage })))
 const ApplicationsListPage = lazy(() => import('@/pages/applications/ApplicationsListPage').then((module) => ({ default: module.ApplicationsListPage })))
 const ResumeDetailPage = lazy(() => import('@/pages/resumes/ResumeDetailPage').then((module) => ({ default: module.ResumeDetailPage })))
@@ -96,6 +97,7 @@ function App() {
             <Route index element={<ApplicationsListPage />} />
             <Route path="new" element={<ApplicationFormPage />} />
             <Route path="board" element={<ApplicationsBoardPage />} />
+            <Route path="import" element={<ApplicationsImportPage />} />
             <Route path=":id" element={<ApplicationDetailPage />} />
             <Route path=":id/edit" element={<ApplicationFormPage />} />
           </Route>

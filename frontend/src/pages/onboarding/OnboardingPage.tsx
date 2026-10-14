@@ -10,6 +10,7 @@ import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormError, FormField } from '@/components/shared/Form'
+import { CsvImport } from '@/components/applications/CsvImport'
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -24,6 +25,7 @@ export function OnboardingPage() {
   const [targetDate, setTargetDate] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [serverError, setServerError] = useState<string | null>(null)
+  const [showImport, setShowImport] = useState(false)
 
   useEffect(() => {
     document.title = 'Get started · Cohort'
@@ -87,6 +89,15 @@ export function OnboardingPage() {
           </Button>
         </div>
       </form>
+      <div className="mt-6 space-y-3 border-t pt-5">
+        {showImport ? (
+          <CsvImport />
+        ) : (
+          <Button type="button" variant="outline" className="w-full" onClick={() => setShowImport(true)}>
+            Import applications from a spreadsheet
+          </Button>
+        )}
+      </div>
     </AuthFrame>
   )
 }
