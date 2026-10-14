@@ -1,8 +1,3 @@
-"""P47's mandatory (and critical) verify (BUILD_PHASES_JAVA.md): a 2-client
-round is refused, and the refusal is logged, when the minimum cohort size
-is higher than 2. This protects against small-cohort re-identification
-risk (§22.4 step 3a) and must never be relaxed to make a test pass."""
-
 from __future__ import annotations
 
 import logging
@@ -13,7 +8,6 @@ import pytest
 from app.common.parameters import flatten, zero_parameters
 from app.server.round_runner import run_round
 from app.server.strategy import MinCohortFedAvg
-
 
 def test_two_client_round_is_refused_when_min_cohort_is_three(caplog: pytest.LogCaptureFixture) -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
@@ -31,7 +25,6 @@ def test_two_client_round_is_refused_when_min_cohort_is_three(caplog: pytest.Log
     assert result.reason is not None and "refused" in result.reason.lower()
     assert any("refused" in record.message.lower() for record in caplog.records)
 
-
 def test_refused_round_leaves_the_previous_parameters_unchanged() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     previous = [np.full((1, 24), 0.7), np.array([0.4])]
@@ -45,21 +38,15 @@ def test_refused_round_leaves_the_previous_parameters_unchanged() -> None:
     assert result.accepted is False
     assert all(np.array_equal(p, prev_p) for p, prev_p in zip(result.parameters, previous))
 
-
 def test_one_client_round_is_refused_too() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     result = run_round(strategy, 1, zero_parameters(), [("solo", np.ones(25), 3)])
     assert result.accepted is False
     assert result.participant_count == 1
 
-
 def test_round_with_exactly_min_cohort_participants_is_accepted() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     previous = zero_parameters()
-    # Per-dimension magnitudes kept small enough that each delta's L2 norm
-    # (sqrt(25) * value) stays well under an honestly clipped update's norm
-    # bound -- see app/server/test_poisoning_filter.py for the norm-based
-    # filter itself; this test is purely about the averaging arithmetic.
     deltas = [np.full(25, 0.03), np.full(25, 0.06), np.full(25, 0.09)]
     client_updates = [(f"client-{i}", d, 10) for i, d in enumerate(deltas)]
 
@@ -70,7 +57,6 @@ def test_round_with_exactly_min_cohort_participants_is_accepted() -> None:
     expected_flat = np.mean(deltas, axis=0)  # previous is zero, so theta(r) = mean(delta)
     assert flatten(result.parameters) == pytest.approx(expected_flat)
 
-
 def test_four_clients_above_min_cohort_is_accepted() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     client_updates = [(f"c{i}", np.full(25, 0.1 * i), 5) for i in range(1, 5)]
@@ -78,11 +64,8 @@ def test_four_clients_above_min_cohort_is_accepted() -> None:
     assert result.accepted is True
     assert result.participant_count == 4
 
-
 def test_aggregation_is_uniform_weighted_ignoring_num_examples() -> None:
-    """Deliberately NOT weighted by client sample count (§22.4's rationale:
-    that would leak each client's job-search volume). Wildly different
-    num_examples must not change the aggregated result."""
+    """Deliberately NOT weighted by client sample count (§22.4's rationale: that would leak each client's job-search volume)."""
     strategy = MinCohortFedAvg(min_cohort=3)
     deltas = [np.full(25, 0.1), np.full(25, 0.2), np.full(25, 0.3)]
     client_updates = [("a", deltas[0], 1), ("b", deltas[1], 100_000), ("c", deltas[2], 1)]
@@ -91,7 +74,6 @@ def test_aggregation_is_uniform_weighted_ignoring_num_examples() -> None:
 
     expected_flat = np.mean(deltas, axis=0)
     assert flatten(result.parameters) == pytest.approx(expected_flat)
-
 
 def test_aggregation_adds_the_mean_delta_to_the_previous_parameters() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
@@ -103,7 +85,6 @@ def test_aggregation_adds_the_mean_delta_to_the_previous_parameters() -> None:
 
     expected_flat = flatten(previous) + np.mean(deltas, axis=0)
     assert flatten(result.parameters) == pytest.approx(expected_flat)
-
 
 def test_aggregate_fit_requires_previous_parameters_to_be_set_first() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)

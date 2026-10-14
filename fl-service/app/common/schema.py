@@ -1,36 +1,9 @@
-"""Feature schema v1 -- the single source of truth for what a Cohort FL
-client is allowed to compute and transmit (US-58, PROJECT_PLAN.md §22.2).
-
-Fixed length: exactly 24 `float32` features, each bounded to [0,1] or
-[-1,1], each derived locally from one client's own data, each bucketed or
-log-scaled so no raw count is recoverable from a value alone (a raw count of
-137 applications is close to a fingerprint; `log1p(137)/log1p(300)` is not).
-Published verbatim at `GET /fl/schema` (Sprint 4, P54+) and shown on the
-opt-in screen.
-
-This module is deliberately the *only* place the 24 names, their order, and
-their bounds are declared. Everything downstream -- the extractor
-(`app/client/feature_extractor.py`), the local trainer
-(`app/client/local_trainer.py`), and the server's expected parameter shape
-(`app/server/`) -- consumes `FEATURE_NAMES` / `FeatureVector` rather than
-re-typing the list, which is exactly the kind of drift the schema test
-below exists to catch.
-
-What is provably absent from this schema, by construction: no strings, no
-user or record identifiers, no company names, no job titles, no dates or
-timestamps, no free text, no interviewer names, no resume content, no
-question text, no salary, no location. Every field is a bounded float.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
 
 import numpy as np
 
-# name -> (lower_bound, upper_bound), in PROJECT_PLAN.md §22.2 order. This
-# dict's key order IS the schema order -- `FEATURE_NAMES` is derived from it
-# rather than declared a second time.
 FEATURE_BOUNDS: dict[str, tuple[float, float]] = {
     "mastery_mean": (0.0, 1.0),
     "mastery_min": (0.0, 1.0),
@@ -63,16 +36,8 @@ FEATURE_COUNT = 24
 
 _BOUND_EPSILON = 1e-6
 
-
 @dataclass(frozen=True)
 class FeatureVector:
-    """Exactly the 24 named, bounded floats of schema v1, in schema order.
-
-    Field order below is not cosmetic: `to_array()` and every downstream
-    consumer (the local trainer's `X` matrix columns, the server's expected
-    parameter shape) rely on this exact ordering matching `FEATURE_NAMES`.
-    """
-
     mastery_mean: float
     mastery_min: float
     mastery_std: float
@@ -108,7 +73,6 @@ class FeatureVector:
                 raise ValueError(f"{name}={value!r} out of bounds [{lo}, {hi}]")
 
     def to_array(self) -> np.ndarray:
-        """The exact 24-float payload that leaves the client, in schema order."""
         return np.array([getattr(self, name) for name in FEATURE_NAMES], dtype=np.float32)
 
     @staticmethod

@@ -1,8 +1,3 @@
-"""P48's mandatory verify (BUILD_PHASES_JAVA.md, US-84): a crafted
-over-norm client update is filtered out of aggregation, not averaged in.
-An honestly clipped update (app/client/privacy.py) can never exceed norm
-S=1.0, so anything above S * tau is treated as poisoning evidence."""
-
 from __future__ import annotations
 
 import logging
@@ -17,7 +12,6 @@ from app.server.strategy import (
     DEFAULT_POISONING_NORM_MULTIPLIER,
     MinCohortFedAvg,
 )
-
 
 def test_an_over_norm_update_is_filtered_out_of_aggregation() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
@@ -37,7 +31,6 @@ def test_an_over_norm_update_is_filtered_out_of_aggregation() -> None:
     expected_flat = np.mean(honest_deltas, axis=0)
     assert flatten(result.parameters) == pytest.approx(expected_flat)
 
-
 def test_filtering_a_poisoned_update_is_logged(caplog: pytest.LogCaptureFixture) -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     client_updates = [
@@ -50,7 +43,6 @@ def test_filtering_a_poisoned_update_is_logged(caplog: pytest.LogCaptureFixture)
         run_round(strategy, 1, zero_parameters(), client_updates)
 
     assert any("dropping client attacker" in record.message for record in caplog.records)
-
 
 def test_an_update_exactly_at_the_threshold_is_kept() -> None:
     strategy = MinCohortFedAvg(
@@ -70,7 +62,6 @@ def test_an_update_exactly_at_the_threshold_is_kept() -> None:
     assert result.accepted is True
     assert result.filtered_count == 0
 
-
 def test_an_update_just_above_the_threshold_is_filtered() -> None:
     strategy = MinCohortFedAvg(
         min_cohort=3, clip_norm=DEFAULT_CLIP_NORM, poisoning_norm_multiplier=DEFAULT_POISONING_NORM_MULTIPLIER
@@ -89,7 +80,6 @@ def test_an_update_just_above_the_threshold_is_filtered() -> None:
     assert result.accepted is True
     assert result.filtered_count == 1
 
-
 def test_round_is_refused_if_filtering_removes_every_participant() -> None:
     strategy = MinCohortFedAvg(min_cohort=3)
     poisoned = np.full(25, 100.0)
@@ -100,12 +90,7 @@ def test_round_is_refused_if_filtering_removes_every_participant() -> None:
     assert result.accepted is False
     assert result.reason is not None and "filtered" in result.reason.lower()
 
-
 def test_min_cohort_check_runs_before_poisoning_filter_uses_raw_count() -> None:
-    """§22.4's ordering: 3a (min-cohort, on the raw participant count) runs
-    before 3b (poisoning filter). Two participants must be refused for
-    being too few, even if neither is poisoned -- filtering never changes
-    whether the min-cohort gate itself fires."""
     strategy = MinCohortFedAvg(min_cohort=3)
     client_updates = [("a", np.full(25, 0.1), 5), ("b", np.full(25, 0.1), 5)]
 

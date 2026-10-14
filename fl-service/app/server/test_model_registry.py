@@ -1,8 +1,3 @@
-"""P49's mandatory (and critical) verify (BUILD_PHASES_JAVA.md): a failed
-or refused round leaves the previous model version still servable --
-versioning is append-only/immutable, and a bad round must never overwrite a
-good model."""
-
 from __future__ import annotations
 
 import numpy as np
@@ -12,12 +7,10 @@ from app.common.parameters import zero_parameters
 from app.server.model_registry import ModelRegistry, run_and_publish_round
 from app.server.strategy import MinCohortFedAvg
 
-
 def test_registry_starts_at_version_zero() -> None:
     registry = ModelRegistry(zero_parameters())
     assert registry.current.version == 0
     assert registry.current.round_number == 0
-
 
 def test_publish_appends_a_new_version_without_touching_the_old_one() -> None:
     registry = ModelRegistry(zero_parameters())
@@ -31,7 +24,6 @@ def test_publish_appends_a_new_version_without_touching_the_old_one() -> None:
     assert registry.get(0) == version_zero
     assert len(registry.history) == 2
 
-
 def test_a_refused_round_does_not_publish_any_new_version() -> None:
     registry = ModelRegistry(zero_parameters())
     strategy = MinCohortFedAvg(min_cohort=3)
@@ -42,7 +34,6 @@ def test_a_refused_round_does_not_publish_any_new_version() -> None:
     assert result.accepted is False
     assert registry.current.version == 0
     assert len(registry.history) == 1
-
 
 def test_an_accepted_round_publishes_a_new_version() -> None:
     registry = ModelRegistry(zero_parameters())
@@ -55,12 +46,7 @@ def test_an_accepted_round_publishes_a_new_version() -> None:
     assert registry.current.version == 1
     assert registry.current.round_number == 1
 
-
 def test_a_failed_round_after_a_successful_one_still_serves_the_successful_version() -> None:
-    """The critical property: a bad round never overwrites a good model.
-    Round 1 succeeds and publishes version 1; round 2 is refused (too few
-    participants); afterwards `current` must still be version 1, untouched,
-    and no phantom "version 2" from the failed round exists anywhere."""
     registry = ModelRegistry(zero_parameters())
     strategy = MinCohortFedAvg(min_cohort=3)
 
@@ -77,7 +63,6 @@ def test_a_failed_round_after_a_successful_one_still_serves_the_successful_versi
     assert registry.current.version == 1
     assert len(registry.history) == 2  # version 0 (seed) + version 1 (round 1) only
 
-
 def test_a_fully_poisoned_round_after_a_successful_one_also_leaves_the_model_untouched() -> None:
     registry = ModelRegistry(zero_parameters())
     strategy = MinCohortFedAvg(min_cohort=3)
@@ -91,7 +76,6 @@ def test_a_fully_poisoned_round_after_a_successful_one_also_leaves_the_model_unt
 
     assert result.accepted is False
     assert registry.current == version_after_round_one
-
 
 def test_get_an_unknown_version_raises_key_error() -> None:
     registry = ModelRegistry(zero_parameters())

@@ -1,11 +1,3 @@
-"""P44's mandatory (and critical) verify (BUILD_PHASES_JAVA.md): no record
-dated after `as_of` may influence the extracted feature vector. This is a
-data-leakage correctness test, not a fuzzy one -- a record timestamped a
-single second after the cutoff must be excluded, and every adversarial case
-below is built to fail loudly (a changed float, not an exception) if the
-extractor ever lets it through.
-"""
-
 from __future__ import annotations
 
 from dataclasses import replace
@@ -28,7 +20,6 @@ AS_OF = datetime(2026, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 ONE_SECOND = timedelta(seconds=1)
 
 TARGET = TargetRound(round_type="TECHNICAL", topics_tested=("dynamic_programming", "graphs"))
-
 
 def _baseline_dataset() -> ClientDataset:
     return ClientDataset(
@@ -64,7 +55,6 @@ def _baseline_dataset() -> ClientDataset:
         ),
     )
 
-
 def test_a_practice_attempt_one_second_after_as_of_does_not_leak() -> None:
     baseline = _baseline_dataset()
     leaky_attempt = PracticeAttemptRecord(
@@ -81,7 +71,6 @@ def test_a_practice_attempt_one_second_after_as_of_does_not_leak() -> None:
 
     assert leaky_vector == baseline_vector
 
-
 def test_a_task_completed_one_second_after_as_of_does_not_count() -> None:
     baseline = _baseline_dataset()
     leaky_task = TaskRecord(
@@ -93,13 +82,8 @@ def test_a_task_completed_one_second_after_as_of_does_not_count() -> None:
     baseline_vector = extract_features(baseline, AS_OF, TARGET)
     leaky_vector = extract_features(leaky, AS_OF, TARGET)
 
-    # The leaky task's created_at IS before as_of, so it does affect the
-    # denominator (created-task count) -- but its completed_at must NOT
-    # count toward the numerator. Assert the completion rate reflects that,
-    # not that the whole vector is untouched.
     assert leaky_vector.task_completion_rate < baseline_vector.task_completion_rate
     assert leaky_vector.task_completion_rate == pytest.approx(1 / 2)
-
 
 def test_an_application_created_one_second_after_as_of_does_not_leak() -> None:
     baseline = _baseline_dataset()
@@ -108,14 +92,12 @@ def test_an_application_created_one_second_after_as_of_does_not_leak() -> None:
 
     assert extract_features(leaky, AS_OF, TARGET) == extract_features(baseline, AS_OF, TARGET)
 
-
 def test_a_resume_variant_created_one_second_after_as_of_does_not_leak() -> None:
     baseline = _baseline_dataset()
     leaky_variant = ResumeVariantRecord(created_at=AS_OF + ONE_SECOND)
     leaky = replace(baseline, resume_variants=baseline.resume_variants + (leaky_variant,))
 
     assert extract_features(leaky, AS_OF, TARGET) == extract_features(baseline, AS_OF, TARGET)
-
 
 def test_an_interview_round_one_second_after_as_of_does_not_leak() -> None:
     baseline = _baseline_dataset()
@@ -136,7 +118,6 @@ def test_an_interview_round_one_second_after_as_of_does_not_leak() -> None:
     # inflate repeat_topic_ratio -- the most tempting place for this bug to hide.
     assert leaky_vector.repeat_topic_ratio == baseline_vector.repeat_topic_ratio
 
-
 def test_a_record_exactly_at_as_of_is_included_not_excluded() -> None:
     baseline = _baseline_dataset()
     boundary_attempt = PracticeAttemptRecord(
@@ -148,7 +129,6 @@ def test_a_record_exactly_at_as_of_is_included_not_excluded() -> None:
     boundary_vector = extract_features(with_boundary, AS_OF, TARGET)
 
     assert boundary_vector.practice_volume > baseline_vector.practice_volume
-
 
 def test_coverage_ratio_reflects_only_practiced_topics_before_as_of() -> None:
     dataset = ClientDataset(
@@ -165,14 +145,12 @@ def test_coverage_ratio_reflects_only_practiced_topics_before_as_of() -> None:
     vector = extract_features(dataset, AS_OF, TARGET)  # TARGET wants dynamic_programming + graphs
     assert vector.coverage_ratio == pytest.approx(0.5)
 
-
 def test_round_type_ordinal_matches_declared_order() -> None:
     oa = extract_features(ClientDataset(), AS_OF, TargetRound(round_type="OA", topics_tested=()))
     final = extract_features(ClientDataset(), AS_OF, TargetRound(round_type="FINAL", topics_tested=()))
 
     assert oa.round_type_ordinal == 0.0
     assert final.round_type_ordinal == 1.0
-
 
 def test_empty_dataset_produces_a_valid_all_zero_vector() -> None:
     vector = extract_features(ClientDataset(), AS_OF, TargetRound(round_type="OA", topics_tested=()))

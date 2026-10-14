@@ -1,21 +1,3 @@
-"""Thin FastAPI control wrapper (US-62, P49; extended P51/P54/P55).
-
-Deliberately small, per `fl-service/README.md`'s own framing ("Spring Boot
-owns the whole application, and this directory exists only for the Flower
-client/server processes and their scikit-learn training code"): a
-distribution endpoint for the current global model (P49), a receiving
-endpoint for Java's sanitised feature export (P51), and the feature schema
-itself (P54) so both sides read the allow-list from one HTTP-reachable
-place. No opt-in/opt-out here -- that is a user-account concept and lives
-Java-side (P54), gating whether `FlFeatureExportJob` ever calls
-`PUT /fl/client-features` for a given user in the first place.
-
-P55 adds `POST /fl/round`: Java's trigger for one privacy-ledger round
-(`app/server/round_orchestrator.py`). The response carries each
-participant's REAL post-clip, post-noise vector so Java can persist it
-verbatim into the Privacy Ledger.
-"""
-
 from __future__ import annotations
 
 import numpy as np
@@ -26,7 +8,6 @@ from app.common.schema import FEATURE_BOUNDS, FEATURE_COUNT
 from app.control.client_store import ClientFeatureStore
 from app.server.model_registry import ModelRegistry
 from app.server.round_orchestrator import RoundOutcome, run_privacy_round
-
 
 class ClientFeaturesPayload(BaseModel):
     schema_version: int = Field(default=1)
@@ -39,29 +20,15 @@ class ClientFeaturesPayload(BaseModel):
             raise ValueError(f"expected exactly {FEATURE_COUNT} features, got {len(value)}")
         return value
 
-
 class RoundRequest(BaseModel):
     round_number: int = Field(ge=1)
-    # US-64: the clients Java currently has opted in. Only these are drawn
-    # from the store -- a client that withdrew after its last export still
-    # has a stale vector sitting here, and must not be included. `None`
-    # means "every stored client" (tests and manual runs only; Java always
-    # sends the list).
     client_ids: list[str] | None = None
-
 
 def create_app(
     registry: ModelRegistry,
     client_store: ClientFeatureStore | None = None,
     rng: np.random.Generator | None = None,
 ) -> FastAPI:
-    """Builds a FastAPI app bound to one `ModelRegistry` (+ one
-    `ClientFeatureStore`) instance. A factory rather than module-level
-    singletons so tests can each use their own isolated state instead of
-    sharing global state. `client_store` defaults to a fresh store so
-    existing `create_app(registry)` callers (P49's tests) are unaffected.
-    `rng` drives the Gaussian noise in `/fl/round`; tests pass a seeded one.
-    """
     app = FastAPI(title="Cohort FL control wrapper")
     store = client_store if client_store is not None else ClientFeatureStore()
     noise_rng = rng if rng is not None else np.random.default_rng()
@@ -81,8 +48,6 @@ def create_app(
 
     @app.get("/fl/schema")
     def get_schema() -> dict:
-        """US-58/US-57: the exact allow-list shown on the opt-in consent
-        screen, published verbatim rather than described in prose."""
         return {
             "schema_version": 1,
             "feature_count": FEATURE_COUNT,
@@ -98,8 +63,6 @@ def create_app(
 
     @app.put("/fl/client-features/{client_id}")
     def put_client_features(client_id: str, payload: ClientFeaturesPayload = Body(...)) -> dict:
-        """P51: Java's export job calls this once per opted-in user per
-        export cycle. Always overwrites -- see `ClientFeatureStore.put`."""
         if payload.schema_version != 1:
             raise HTTPException(status_code=422, detail=f"unsupported schema_version {payload.schema_version}")
         store.put(client_id, payload.schema_version, np.array(payload.features, dtype=np.float64))
@@ -118,17 +81,12 @@ def create_app(
 
     @app.delete("/fl/client-features/{client_id}", status_code=204)
     def delete_client_features(client_id: str) -> Response:
-        """US-08 (P65): account deletion removes this client's exported
-        state. Idempotent -- deleting a client that never exported, or was
-        already deleted, is still a 204, so Java can call it unconditionally."""
+        """US-08 (P65): account deletion removes this client's exported state."""
         store.delete(client_id)
         return Response(status_code=204)
 
     @app.post("/fl/round")
     def run_round(request: RoundRequest = Body(...)) -> dict:
-        """P55 (US-61/US-63): runs one privacy round over the participating
-        clients' exported features and returns round metadata plus each
-        client's actual transmitted vector."""
         stored = store.all()
         if request.client_ids is not None:
             wanted = set(request.client_ids)
@@ -138,7 +96,6 @@ def create_app(
         return _serialise_round(outcome)
 
     return app
-
 
 def _serialise_round(outcome: RoundOutcome) -> dict:
     return {
@@ -159,7 +116,6 @@ def _serialise_round(outcome: RoundOutcome) -> dict:
             for entry in outcome.entries
         ],
     }
-
 
 def _serialise(model_version) -> dict:  # noqa: ANN001 -- ModelVersion, kept loose to avoid a circular import hint
     flat_parameters = [float(x) for array in model_version.parameters for x in array.reshape(-1)]
