@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from 'react'
-import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { Search } from 'lucide-react'
 import { BrandGlyph } from '@/components/brand/BrandMark'
@@ -7,6 +7,8 @@ import { AppSidebar } from '@/components/layout/AppSidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { CommandPalette } from '@/components/layout/CommandPalette'
+import { ShortcutsDialog } from '@/components/layout/ShortcutsDialog'
+import { useShortcuts, type ShortcutAction } from '@/hooks/use-shortcuts'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Separator } from '@/components/ui/separator'
@@ -24,7 +26,30 @@ function prefersExpandedSidebar(): boolean {
 export function AppShell() {
   const { pathname } = useLocation()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
+
+  useShortcuts((action: ShortcutAction) => {
+    if (action === 'help') {
+      setShortcutsOpen(true)
+    } else if (action === 'search') {
+      const filter = document.getElementById('filter-q')
+      if (filter) {
+        filter.focus()
+      } else {
+        setPaletteOpen(true)
+      }
+    } else if (action === 'new-application') {
+      navigate('/applications/new')
+    } else if (action === 'go-applications') {
+      navigate('/applications')
+    } else if (action === 'go-dashboard') {
+      navigate('/')
+    } else {
+      navigate('/prep')
+    }
+  })
 
   useEffect(() => {
     document.title = `${pageTitleFor(pathname)} · Cohort`
@@ -84,6 +109,7 @@ export function AppShell() {
       </SidebarInset>
       <MobileNav />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </SidebarProvider>
   )
 }

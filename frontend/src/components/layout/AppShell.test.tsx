@@ -70,6 +70,51 @@ describe('AppShell', () => {
     await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/resumes'))
   })
 
+  it('opens the shortcuts dialog with ? and lists the shortcuts', async () => {
+    const user = userEvent.setup()
+    renderShell('/')
+
+    await user.keyboard('?')
+
+    const dialog = await screen.findByRole('dialog', { name: 'Keyboard shortcuts' })
+    expect(dialog).toHaveTextContent('New application')
+    expect(dialog).toHaveTextContent('Go to prep')
+  })
+
+  it('goes to a page with g then a letter', async () => {
+    const user = userEvent.setup()
+    renderShell('/')
+
+    await user.keyboard('ga')
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/applications'))
+    await user.keyboard('n')
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/applications/new'))
+  })
+
+  it('ignores shortcuts while typing in a field', async () => {
+    const user = userEvent.setup()
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TooltipProvider>
+          <MemoryRouter initialEntries={['/']}>
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route path="*" element={<><Where /><input aria-label="Notes" /></>} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </TooltipProvider>
+      </QueryClientProvider>,
+    )
+
+    await user.click(screen.getByLabelText('Notes'))
+    await user.keyboard('?ngp')
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByTestId('where').textContent).toBe('/')
+    expect(screen.getByLabelText('Notes')).toHaveValue('?ngp')
+  })
+
   it('sends a user who has not onboarded to the onboarding page', async () => {
     vi.mocked(useAuth).mockReturnValue({
       ...vi.mocked(useAuth)(),
