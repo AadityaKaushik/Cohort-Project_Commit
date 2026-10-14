@@ -79,14 +79,6 @@ public class Resume {
         this.fileUploadedAt = Instant.now();
     }
 
-    public void clearStoredFile() {
-        this.filePath = null;
-        this.fileOriginalName = null;
-        this.fileMime = null;
-        this.fileSizeBytes = null;
-        this.fileUploadedAt = null;
-    }
-
     public boolean hasFile() {
         return filePath != null;
     }

@@ -45,8 +45,4 @@ public class NotificationService {
         }
         return delivered;
     }
-
-    public List<String> activeChannelIds() {
-        return activeChannels.stream().map(NotificationChannel::id).toList();
-    }
 }

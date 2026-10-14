@@ -24,8 +24,4 @@ public class RecommendationTemplateRegistry {
         }
         return template.render(candidate, tier);
     }
-
-    public List<RecommendationTemplate> allTemplates() {
-        return List.copyOf(templatesByType.values());
-    }
 }
