@@ -1,7 +1,6 @@
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
 import { BriefcaseIcon, KanbanIcon, PlusIcon, SearchXIcon, UploadIcon } from 'lucide-react'
 import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { formatLabel } from '@/lib/labels'
