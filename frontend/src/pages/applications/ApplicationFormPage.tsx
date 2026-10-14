@@ -290,12 +290,12 @@ export function ApplicationFormPage() {
           <FormSection title="The role" description="What you applied for and where it stands.">
             <FormField id="companyName" label="Company" error={fieldErrors.companyName}>
               <Input id="companyName" list="company-options" autoComplete="off" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
-              <datalist id="company-options">
-                {companiesQuery.data?.map((company) => (
-                  <option key={company.id} value={company.name} />
-                ))}
-              </datalist>
             </FormField>
+            <datalist id="company-options">
+              {companiesQuery.data?.map((company) => (
+                <option key={company.id} value={company.name} />
+              ))}
+            </datalist>
             <FormField id="jobTitle" label="Job title" error={fieldErrors.jobTitle}>
               <Input id="jobTitle" value={form.jobTitle} onChange={(e) => set('jobTitle', e.target.value)} required />
             </FormField>
