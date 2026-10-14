@@ -46,7 +46,7 @@ Design patterns (each one addresses a specific coupling problem): **State** (sta
 
 ## What's next
 
-Sprint 2 (resumes, interview capture, seed data) → Sprint 3 (prep graph, analytics, the Flower spike) → Sprint 4 (the FL boundary itself, circuit breaker, Privacy Ledger) → Sprint 5 (notifications, reports, hardening, delivery). Full phase-by-phase plan: `docs/plan/BUILD_PHASES_JAVA.md`.
+The build has nine sprints and 110 phases: Sprint 1 foundation (P01-P15), Sprint 2 resumes and interview capture (P16-P26), Sprint 3 preparation and analytics (P27-P38), Sprint 4 recommendations and federated learning (P39-P58), Sprint 5 notifications, reports and account (P59-P68), Sprint 6 experience and core gaps (P69-P81), Sprint 7 job-search workflow (P82-P88), Sprint 8 AI and intelligence (P89-P104), Sprint 9 hardening and delivery (P105-P110). Full phase-by-phase plan: `docs/plan/BUILD_PHASES_JAVA.md`.
 
 ---
 
