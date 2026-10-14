@@ -1,5 +1,3 @@
-# React + Vite frontend — development image (hot reload via bind mount)
-
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./

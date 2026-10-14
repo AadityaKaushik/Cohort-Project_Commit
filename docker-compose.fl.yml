@@ -1,16 +1,6 @@
-# P50 (US-58..64): the fl profile. Additive on top of docker-compose.yml --
-# run with:
+# Additive layer on docker-compose.yml:
 #   docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d
-#
-# fl-service is deliberately given none of the main application's Postgres
-# credentials (POSTGRES_USER/POSTGRES_PASSWORD/SPRING_DATASOURCE_URL) --
-# scripts/verify-fl-db-isolation.sh and FlSchemaIsolationIntegrationTest
-# (api/) both prove this. The FL_POSTGRES_* vars below are provisioned
-# (V19's migration creates the `cohort_fl` role/`fl` schema they'd
-# authenticate against) but unused by fl-service's current code -- see
-# V19's migration docstring for why the actual round/ledger persistence in
-# this batch is done by Java instead, which already holds full DB
-# credentials as the app owner.
+# fl-service gets no main-database credentials; scripts/verify-fl-db-isolation.sh checks this.
 services:
   fl-service:
     build:
@@ -21,7 +11,6 @@ services:
       FL_MIN_COHORT_SIZE: ${FL_MIN_COHORT_SIZE:-3}
       FL_CLIPPING_NORM: ${FL_CLIPPING_NORM:-1.0}
       FL_NOISE_MULTIPLIER: ${FL_NOISE_MULTIPLIER:-1.0}
-      # Provisioned, not used at runtime today -- see the module comment above.
       FL_POSTGRES_USER: ${FL_POSTGRES_USER:-cohort_fl}
       FL_POSTGRES_PASSWORD: ${FL_POSTGRES_PASSWORD:-change_me_too}
       FL_POSTGRES_SCHEMA: ${FL_POSTGRES_SCHEMA:-fl}

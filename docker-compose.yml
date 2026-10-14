@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${POSTGRES_HOST_PORT:-5432}:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - cohort_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,9 +27,6 @@ services:
       - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      # dev by default so `docker compose up` alone loads the seed dataset
-      # (US-72, P26); override to a non-`dev` value in .env for anything
-      # resembling a production deploy, which must never seed demo data.
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
     ports:
       - "${API_PORT:-8080}:8080"
@@ -46,15 +43,10 @@ services:
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app:z
       - /app/node_modules
 
-  # fl-service (Python + Flower + scikit-learn) now has a real app (Sprint
-  # 4, P43-P57) but is deliberately kept out of the base compose file --
-  # it lives in the separate `fl` profile, docker-compose.fl.yml, so that
-  # its isolated Postgres role/schema (V19) and DB-credential-absence CI
-  # check (P50, scripts/verify-fl-db-isolation.sh) stay easy to reason
-  # about as one additive layer. Run both files together:
+  # fl-service lives in docker-compose.fl.yml:
   #   docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d
 
 volumes:
