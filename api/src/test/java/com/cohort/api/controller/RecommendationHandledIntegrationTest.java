@@ -22,12 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/** P78: accepting is visible and idempotent, and snoozed/dismissed items can be reviewed and restored. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class RecommendationHandledIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 

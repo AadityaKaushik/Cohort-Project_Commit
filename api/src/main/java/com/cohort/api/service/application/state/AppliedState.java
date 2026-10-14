@@ -3,9 +3,7 @@ package com.cohort.api.service.application.state;
 import com.cohort.api.entity.ApplicationStatus;
 import java.util.Set;
 
-/** Applied: submitted. */
 public final class AppliedState implements ApplicationStatusState {
-
     @Override
     public ApplicationStatus status() {
         return ApplicationStatus.APPLIED;

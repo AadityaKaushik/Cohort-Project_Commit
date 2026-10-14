@@ -9,21 +9,9 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One observation behind a {@link Recommendation} (US-51, V18) --
- * {@link com.cohort.api.service.recommendation.EvidenceItem} persisted.
- * Owned indirectly through {@code recommendation_id}, not by a direct
- * {@code user_id} column (same rationale as {@code Topic} not extending
- * {@code UserScopedRepository}); access is always mediated by first loading
- * the owning {@link Recommendation} through {@code RecommendationRepository}.
- * Deleting a {@code Recommendation} row cascades to these at the database
- * level (V18's {@code ON DELETE CASCADE}), so nothing here needs an
- * explicit bulk-delete method for that case.
- */
 @Entity
 @Table(name = "recommendation_evidence")
 public class RecommendationEvidence {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

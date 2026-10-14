@@ -5,17 +5,8 @@ import com.cohort.api.service.recommendation.RecommendationType;
 import com.cohort.api.service.recommendation.tiering.EvidenceTier;
 import org.springframework.stereotype.Component;
 
-/**
- * US-51/53: renders a {@link RecommendationType#weak_topic} candidate.
- * Required evidence fields: {@code targetTopicName}, {@code masteryScore},
- * {@code observationCount}. Tier B gets the "early signal only" framing
- * from PROJECT_PLAN.md's tier table example; Tier A states the observation
- * count plainly, since it is already backed by enough evidence to not need
- * hedging.
- */
 @Component
 public class WeakTopicTemplate implements RecommendationTemplate {
-
     @Override
     public RecommendationType type() {
         return RecommendationType.weak_topic;

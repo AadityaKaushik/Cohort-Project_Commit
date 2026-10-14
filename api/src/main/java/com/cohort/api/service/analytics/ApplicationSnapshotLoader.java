@@ -10,18 +10,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
-/**
- * Loads every one of a user's applications plus each one's full status
- * history, scoped end to end by {@code userId} (FR-94/95), as the shared
- * {@link ApplicationSnapshot} shape every {@code AnalyticsMetric} in this
- * package -- and, since P36, {@code StallDetectionService} -- computes
- * from. Pulled out of {@code AnalyticsService} once a second consumer
- * needed the exact same loading logic, rather than each service querying
- * the repositories itself.
- */
 @Component
 public class ApplicationSnapshotLoader {
-
     private final ApplicationRepository applicationRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
 

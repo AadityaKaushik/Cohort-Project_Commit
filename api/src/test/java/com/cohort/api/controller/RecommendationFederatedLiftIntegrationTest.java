@@ -22,19 +22,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * P57/US-65: the Federated Lift viewer's plumbing end to end over HTTP --
- * {@code ?federated=true} actually reaches fl-service, marks every
- * response {@code federated_applied}, and carries a {@code rank_delta}.
- * The bounded-multiplier property itself is proven directly and
- * exhaustively by {@code FederatedLiftCalculatorTest}; this test only
- * needs to prove the wiring, not re-derive the bound.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class RecommendationFederatedLiftIntegrationTest extends AbstractIntegrationTest {
-
     private static StubFlServiceServer stubFlService;
 
     @DynamicPropertySource
@@ -56,9 +47,6 @@ class RecommendationFederatedLiftIntegrationTest extends AbstractIntegrationTest
 
     @Test
     void federatedRequestMarksEveryResponseAndCarriesARankDelta() throws Exception {
-        // A deliberately extreme model -- proves in the same request that even a huge
-        // parameter set still produces a plumbed-through, bounded outcome (the bound
-        // itself is FederatedLiftCalculatorTest's job to prove exhaustively).
         stubFlService.respondWith("""
                 {"version": 9, "round_number": 9, "participant_count": 5, "created_at": "2026-01-01T00:00:00Z", "parameters": [50.0, -50.0, 25.0]}
                 """);

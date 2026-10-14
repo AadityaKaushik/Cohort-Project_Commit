@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-/** Full detail view (US-11): every stored field plus the status timeline and, since P24, its interviews (FR-17). */
 public record ApplicationDetailResponse(
         UUID id,
         CompanySummary company,

@@ -7,12 +7,10 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import java.util.UUID;
 
-/** The application &lt;-&gt; tag join row (V6 migration). Plain association row; no lifecycle of its own beyond insert/delete. */
 @Entity
 @Table(name = "application_tags")
 @IdClass(ApplicationTagId.class)
 public class ApplicationTag {
-
     @Id
     @Column(name = "application_id")
     private UUID applicationId;

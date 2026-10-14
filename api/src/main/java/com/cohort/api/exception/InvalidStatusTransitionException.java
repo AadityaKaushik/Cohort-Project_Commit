@@ -4,9 +4,7 @@ import com.cohort.api.entity.ApplicationStatus;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-/** FR-21: an illegal (from, to) status transition, per ApplicationStatusStateRegistry. */
 public class InvalidStatusTransitionException extends RuntimeException {
-
     public InvalidStatusTransitionException(ApplicationStatus from, ApplicationStatus to) {
         super("An application cannot move from " + label(from) + " to " + label(to) + ".");
     }
@@ -15,7 +13,6 @@ public class InvalidStatusTransitionException extends RuntimeException {
         super(message);
     }
 
-    /** The move is a backward correction that is only legal with an explanatory note. */
     public static InvalidStatusTransitionException correctionNoteRequired(ApplicationStatus to) {
         return new InvalidStatusTransitionException(
                 "Moving back to " + label(to) + " is a correction. Add a note explaining why and try again.");

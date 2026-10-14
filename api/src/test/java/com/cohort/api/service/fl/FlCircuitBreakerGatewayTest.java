@@ -11,16 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-/**
- * P53 (Circuit Breaker): {@link FlCircuitBreakerGateway} must never let a
- * {@link FlServiceUnavailableException} from the underlying gateway escape
- * — it always turns into {@link Optional#empty()}. Uses a real
- * {@link CircuitBreakerRegistry} (not a mock of Resilience4j's own types)
- * so this test exercises the actual library behaviour, not an assumption
- * about it.
- */
 class FlCircuitBreakerGatewayTest {
-
     @Test
     void returnsTheModelWrappedInOptionalWhenTheDelegateSucceeds() {
         FederatedLearningGateway delegate = mock(FederatedLearningGateway.class);
@@ -48,7 +39,6 @@ class FlCircuitBreakerGatewayTest {
     void returnsEmptyOnceTheBreakerHasOpenedFromRepeatedFailures() {
         FederatedLearningGateway delegate = mock(FederatedLearningGateway.class);
         when(delegate.fetchCurrentModel()).thenThrow(new FlServiceUnavailableException("down", null));
-        // A tiny window/threshold so a handful of calls is enough to trip the breaker in this test.
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(CircuitBreakerConfig.custom()
                 .slidingWindowSize(4)
                 .minimumNumberOfCalls(4)

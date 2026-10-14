@@ -17,16 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-79 / FR-101: the read side of notifications -- the bell's list, its
- * unread count, and marking one or all as read. Deliberately separate from
- * {@link NotificationService}, which is the Strategy context for
- * <em>delivering</em> notifications; this class is plain, user-scoped CRUD
- * (ARCHITECTURE_REVISION_JAVA.md §4.2) and knows nothing about channels.
- */
 @Service
 public class NotificationInboxService {
-
     public enum Filter { all, unread, read }
 
     static final int MAX_PAGE_SIZE = 100;
@@ -37,7 +29,6 @@ public class NotificationInboxService {
         this.notificationRepository = notificationRepository;
     }
 
-    /** {@code all} lists unread first, newest first within each group -- the V20 index's exact order. */
     @Transactional(readOnly = true)
     public PagedResponse<NotificationResponse> list(UUID userId, Filter filter, int page, int size) {
         int safePage = Math.max(page, 0);

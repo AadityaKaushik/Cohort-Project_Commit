@@ -32,11 +32,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2): every method delegates straight to ApplicationService. */
 @RestController
 @RequestMapping("/api/v1/applications")
 public class ApplicationController {
-
     private final ApplicationService applicationService;
     private final StallDetectionService stallDetectionService;
 
@@ -105,7 +103,6 @@ public class ApplicationController {
         return applicationService.history(userId(jwt), id);
     }
 
-    /** US-18: every currently-stalled application, for the dashboard action queue (P37) and anywhere else a "follow up on these" list is useful. */
     @GetMapping("/stalled")
     public List<StalledApplicationResponse> stalled(@AuthenticationPrincipal Jwt jwt) {
         return stallDetectionService.detectStalled(userId(jwt)).stream()

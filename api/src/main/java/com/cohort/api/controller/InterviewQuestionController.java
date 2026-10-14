@@ -16,16 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Split from {@link InterviewController} purely because its path
- * (PROJECT_PLAN.md §18.5: {@code PATCH|DELETE /interview-questions/{id}})
- * addresses a question directly rather than nesting under its interview —
- * both controllers delegate to the same {@link InterviewService}.
- */
 @RestController
 @RequestMapping("/api/v1/interview-questions")
 public class InterviewQuestionController {
-
     private final InterviewService interviewService;
 
     public InterviewQuestionController(InterviewService interviewService) {

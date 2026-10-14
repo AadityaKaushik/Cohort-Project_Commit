@@ -29,11 +29,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2): every method delegates straight to InterviewService. */
 @RestController
 @RequestMapping("/api/v1/interviews")
 public class InterviewController {
-
     private final InterviewService interviewService;
 
     public InterviewController(InterviewService interviewService) {

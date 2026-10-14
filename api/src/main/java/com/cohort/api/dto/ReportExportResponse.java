@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** One generated export. Deliberately omits the storage key -- clients only ever download through {@code GET /reports/{id}/file}. */
 public record ReportExportResponse(
         UUID id,
         ReportType reportType,
@@ -18,7 +17,6 @@ public record ReportExportResponse(
         long fileSizeBytes,
         Instant generatedAt,
         Instant expiresAt) {
-
     public static ReportExportResponse from(ReportExport export) {
         return new ReportExportResponse(
                 export.getId(), export.getReportType(), export.getFormat(), export.getDateRangeFrom(), export.getDateRangeTo(),

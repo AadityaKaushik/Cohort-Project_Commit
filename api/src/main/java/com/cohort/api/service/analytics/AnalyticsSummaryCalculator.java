@@ -13,20 +13,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * The §20.7 analytics formulas applied to an arbitrary set of
- * {@link ApplicationSnapshot}s, with no repository access at all. Extracted
- * from {@link AnalyticsService} (P63) so that the in-app analytics endpoints
- * and the exported report (FR-103: "reusing the exact same formulas and
- * sample-size gating as the in-app analytics") call literally the same code:
- * {@code AnalyticsService} passes a user's whole history, the report passes
- * the date-range-filtered subset. Every number still comes from the
- * {@link com.cohort.api.service.preparation.analytics.AnalyticsMetric}
- * subclasses, so every rate keeps its Template-Method-enforced sample-size gate.
- */
 public class AnalyticsSummaryCalculator {
-
-    /** §20.7: "no activity for 60 days" for the no_response bucket; {@code stageEnteredAt} is the last-activity proxy (there is no separate activity log). */
     static final long NO_RESPONSE_THRESHOLD_DAYS = 60;
 
     private final FunnelMetric funnelMetric = new FunnelMetric();
@@ -42,7 +29,6 @@ public class AnalyticsSummaryCalculator {
                 counts.reachedFinal(), counts.reachedOffer(), result.sampleSize());
     }
 
-    /** The applied population is the funnel's own definition (status other than saved), so every card reconciles with the funnel counts. */
     public ConversionRatesResponse conversions(List<ApplicationSnapshot> snapshots) {
         long reachedApplied = snapshots.stream().filter(s -> s.status() != ApplicationStatus.SAVED).count();
         long reachedOa = reachedCount(snapshots, ApplicationStatus.OA);

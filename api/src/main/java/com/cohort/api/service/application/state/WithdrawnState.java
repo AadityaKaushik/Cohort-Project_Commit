@@ -3,9 +3,7 @@ package com.cohort.api.service.application.state;
 import com.cohort.api.entity.ApplicationStatus;
 import java.util.Set;
 
-/** Withdrawn: terminal, absorbing. See {@link RejectedState} for the rationale. */
 public final class WithdrawnState implements ApplicationStatusState {
-
     @Override
     public ApplicationStatus status() {
         return ApplicationStatus.WITHDRAWN;

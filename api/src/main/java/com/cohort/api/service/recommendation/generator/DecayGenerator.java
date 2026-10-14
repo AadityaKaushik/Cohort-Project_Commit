@@ -8,21 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/**
- * US-51 / PROJECT_PLAN.md §21.3: "Mastery has fallen below 0.5 purely
- * through time decay." Deliberately disjoint from {@link WeakTopicGenerator}:
- * this fires only in the band {@code [0.4, 0.5)} where the <em>decayed</em>
- * score has dropped under the "comfortable" 0.5 mark while the
- * <em>undecayed</em> raw score ({@link TopicMasterySnapshot#rawScore()}) is
- * still &gt;= 0.5 -- i.e. the evidence itself was fine, it is staleness alone
- * that makes the topic look weak. A topic whose raw score has also dropped
- * already qualifies for {@link WeakTopicGenerator} instead (mastery &lt; 0.4)
- * or isn't reported by either generator, so no topic is ever emitted twice
- * between the two.
- */
 @Component
 public class DecayGenerator extends RecommendationGenerator {
-
     static final double DECAY_CEILING = 0.5;
     static final double RAW_SCORE_FLOOR = 0.5;
 

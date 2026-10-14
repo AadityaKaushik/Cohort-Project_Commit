@@ -9,24 +9,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * §20.7's "median dwell time per stage" and "days in stage," shared between
- * {@link StageDwellTimeMetric} (US-48, per-stage medians/IQR across a
- * user's whole history) and P36's stall detector (US-18, the same
- * per-stage completed-transition durations, reused for the personal-median
- * half of the stall threshold).
- *
- * <p>For each application, every consecutive pair of history rows
- * {@code (enter, next)} is one <b>completed</b> transition for the stage
- * {@code enter.toStatus} -- the application entered that stage at
- * {@code enter.changedAt} and left it at {@code next.changedAt}. The very
- * last history row is different: if the application's current status is
- * still non-terminal, it is still sitting in that stage right now, so its
- * dwell time is <b>right-censored</b> (§20.7) -- not a completed
- * observation, excluded from the median, counted separately.
- */
 public final class StageDwellCalculator {
-
     private StageDwellCalculator() {
     }
 

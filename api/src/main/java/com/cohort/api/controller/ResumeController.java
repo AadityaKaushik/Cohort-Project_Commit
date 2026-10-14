@@ -31,11 +31,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2): every method delegates straight to ResumeService. */
 @RestController
 @RequestMapping("/api/v1/resumes")
 public class ResumeController {
-
     private final ResumeService resumeService;
 
     public ResumeController(ResumeService resumeService) {

@@ -22,19 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises /topics/*, /questions/* and /questions/{id}/attempts (US-35..38)
- * against a real Postgres instance seeded by V12-V15: browsing the shared
- * taxonomy and question bank, authoring/forking/deleting a personal
- * question, recording append-only practice attempts, and — the mandatory
- * check (CONTRIBUTING.md, FR-95) — that practice attempts and personal
- * questions are isolated per user (404, never 403).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class PreparationIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -113,7 +104,6 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
         String token = registerAndGetAccessToken("prep-fork@example.com", "Owner");
         String systemQuestionId = firstSystemQuestionId(token);
 
-        // US-36: "seeded questions are read-only" -- a write against a system question 404s, same as a foreign one.
         mockMvc.perform(patch("/api/v1/questions/" + systemQuestionId)
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +123,6 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
 
         String forkedId = idOf(forkResult);
 
-        // The fork is a personal question now, so it CAN be edited/deleted.
         mockMvc.perform(patch("/api/v1/questions/" + forkedId)
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -167,11 +156,10 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.confidence", is(4)));
 
-        // Two attempts, not one overwritten row.
         mockMvc.perform(get("/api/v1/questions/" + questionId + "/attempts").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].confidence", is(4))); // most recent first
+                .andExpect(jsonPath("$[0].confidence", is(4)));
     }
 
     @Test
@@ -190,7 +178,6 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
                 .andReturn();
         String questionId = idOf(createResult);
 
-        // The owner's personal question is invisible to another user entirely.
         mockMvc.perform(get("/api/v1/questions/" + questionId).header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code", is("QUESTION_NOT_FOUND")));
@@ -213,7 +200,6 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
                                 """))
                 .andExpect(status().isNotFound());
 
-        // Both users can practise the SAME system question; each only ever sees their own attempts.
         String systemQuestionId = firstSystemQuestionId(ownerToken);
         mockMvc.perform(post("/api/v1/questions/" + systemQuestionId + "/attempts")
                         .header("Authorization", "Bearer " + ownerToken)

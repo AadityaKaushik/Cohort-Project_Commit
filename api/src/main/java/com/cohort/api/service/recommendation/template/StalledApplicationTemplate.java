@@ -5,14 +5,8 @@ import com.cohort.api.service.recommendation.RecommendationType;
 import com.cohort.api.service.recommendation.tiering.EvidenceTier;
 import org.springframework.stereotype.Component;
 
-/**
- * US-56/53: renders a {@link RecommendationType#stalled_application}
- * candidate. Required evidence field: {@code targetApplicationLabel}
- * (company + role, US-56: "includes the specific application").
- */
 @Component
 public class StalledApplicationTemplate implements RecommendationTemplate {
-
     @Override
     public RecommendationType type() {
         return RecommendationType.stalled_application;

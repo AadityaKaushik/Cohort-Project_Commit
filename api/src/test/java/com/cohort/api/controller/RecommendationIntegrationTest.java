@@ -24,22 +24,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises GET /recommendations and accept/snooze/dismiss (US-51,55,56)
- * against real Postgres through {@code RecommendationFacade}'s full
- * pipeline (generate -&gt; route -&gt; score -&gt; template -&gt; persist). A
- * brand-new user has no mastery/interview evidence at all, so every
- * scenario here is anchored on the two candidates that are always
- * reachable without extra fixture data: {@link com.cohort.api.service.recommendation.RecommendationType#baseline}
- * (fires for &lt;3 interviews, i.e. always, for a fresh user) and
- * {@link com.cohort.api.service.recommendation.RecommendationType#stalled_application}
- * (backdated the same way {@code StallDetectionIntegrationTest} does).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class RecommendationIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -66,7 +54,7 @@ class RecommendationIntegrationTest extends AbstractIntegrationTest {
     void includesAStalledApplicationRecommendationAlongsideBaseline() throws Exception {
         String token = registerAndGetAccessToken("rec-stalled@example.com", "Owner");
         String applicationId = createApplication(token, "Acme");
-        backdateStageEnteredAt(applicationId, 20); // APPLIED's system default is 14 days, per StallDetectionService
+        backdateStageEnteredAt(applicationId, 20);
 
         MvcResult result = mockMvc.perform(get("/api/v1/recommendations").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -95,7 +83,6 @@ class RecommendationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.status", is("accepted")))
                 .andExpect(jsonPath("$.accepted_task_id").doesNotExist());
 
-        // Accepted rows are not part of the regenerated active set.
         mockMvc.perform(get("/api/v1/recommendations").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].status", everyItem(is("active"))));
@@ -172,7 +159,6 @@ class RecommendationIntegrationTest extends AbstractIntegrationTest {
                                 """))
                 .andExpect(status().isNotFound());
 
-        // The owner's recommendation is untouched and still active.
         mockMvc.perform(get("/api/v1/recommendations").header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))

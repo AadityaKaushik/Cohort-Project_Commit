@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** US-40: title, linked topic, due date, and estimated effort. */
 public record CreatePreparationTaskRequest(
         @NotNull UUID topicId,
         @NotBlank String title,

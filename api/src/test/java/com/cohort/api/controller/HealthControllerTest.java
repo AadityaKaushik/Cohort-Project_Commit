@@ -16,18 +16,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * A web-layer slice test — no datasource, no Flyway, no full application
- * context. The real SecurityConfig is imported (rather than relying on
- * Spring Boot's test-time security defaults) so this proves /health is
- * genuinely reachable under the actual security rules, not just in
- * isolation from them.
- */
 @WebMvcTest(HealthController.class)
 @Import({SecurityConfig.class, CorsConfig.class, JwtConfig.class, RestAuthenticationEntryPoint.class,
         RestAccessDeniedHandler.class})
 class HealthControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 

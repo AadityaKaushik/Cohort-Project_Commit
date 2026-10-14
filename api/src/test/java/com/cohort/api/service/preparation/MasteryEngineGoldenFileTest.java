@@ -14,25 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * P30's mandatory verify (BUILD_PHASES_JAVA.md): golden-file tests against
- * fixed fixtures, proving {@link MasteryEngine} implements PROJECT_PLAN.md
- * §21.4 exactly and stays correct under refactoring (NFR-51). Each fixture
- * pair under {@code src/test/resources/fixtures/mastery/} is a fixed set of
- * practice attempts/interview ratings with fixed timestamps
- * ({@code caseN-input.json}) and the formula's expected output, independently
- * hand-computed from the documented formula
- * ({@code caseN-expected.json}) — not derived from running the engine
- * itself, which would make the test circular.
- *
- * <ul>
- *   <li>case1: both practice and interview evidence present -> blended 0.4/0.6.</li>
- *   <li>case2: practice-only evidence -> §21.4's fallback rule (raw = practice_component alone).</li>
- *   <li>case3: a single observation -> insufficient evidence, but the score is still computed, not suppressed.</li>
- * </ul>
- */
 class MasteryEngineGoldenFileTest {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final double TOLERANCE = 1e-9;
 

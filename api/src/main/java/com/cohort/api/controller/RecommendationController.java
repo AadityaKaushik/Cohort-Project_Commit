@@ -16,23 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * US-51..56,77: every recommendations endpoint delegates straight to
- * {@link RecommendationFacade} -- thin by design
- * (ARCHITECTURE_REVISION_JAVA.md §4.2), the same way {@code PreparationController}
- * and every other controller in this codebase is.
- */
 @RestController
 @RequestMapping("/api/v1/recommendations")
 public class RecommendationController {
-
     private final RecommendationFacade facade;
 
     public RecommendationController(RecommendationFacade facade) {
         this.facade = facade;
     }
 
-    /** {@code federated}: US-65's toggle -- see RecommendationFacade#generateRecommendations(UUID, boolean) for what it does and how P53's circuit breaker keeps it from ever turning into a 500. */
     @GetMapping
     public List<RecommendationResponse> list(
             @AuthenticationPrincipal Jwt jwt, @RequestParam(defaultValue = "false") boolean federated) {

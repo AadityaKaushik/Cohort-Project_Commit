@@ -22,19 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises the real /interviews/*, /interview-questions/* endpoints
- * (US-27..31) against a real Postgres instance: CRUD, round-number
- * uniqueness (V9's unique constraint), questions, the feedback upsert
- * (draft then final), the application-detail interviews slice (FR-17), and
- * — the mandatory check (CONTRIBUTING.md, FR-95) — that a foreign user gets
- * 404, never 403, on every one of them.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class InterviewIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -83,7 +74,6 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.outcome", is("passed")))
                 .andExpect(jsonPath("$.notes", is("Went well")));
 
-        // FR-17: the application's own detail view now lists this interview.
         mockMvc.perform(get("/api/v1/applications/" + applicationId).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.interviews", hasSize(1)))
@@ -129,7 +119,6 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error.code", is("DUPLICATE_ROUND_NUMBER")));
 
-        // A different round number for the same application is fine.
         mockMvc.perform(post("/api/v1/interviews")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -191,7 +180,6 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code", is("INTERVIEW_FEEDBACK_NOT_FOUND")));
 
-        // First save: a partial draft (DR-07, US-30).
         mockMvc.perform(put("/api/v1/interviews/" + interviewId + "/feedback")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -206,7 +194,6 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.has_feedback", is(true)));
 
-        // Completing it: same endpoint, is_draft flips to false and submitted_at is stamped.
         mockMvc.perform(put("/api/v1/interviews/" + interviewId + "/feedback")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -291,7 +278,6 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
                                 """))
                 .andExpect(status().isNotFound());
 
-        // The owner's own data is untouched.
         mockMvc.perform(get("/api/v1/interviews/" + interviewId).header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/api/v1/interviews").header("Authorization", "Bearer " + intruderToken))

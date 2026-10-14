@@ -14,22 +14,7 @@ import java.util.UUID;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/**
- * P33's mandatory verify: golden-file test pinning {@link FunnelMetric}
- * against PROJECT_PLAN.md §20.7's funnel definitions, independently
- * hand-computed from the fixture in
- * {@code src/test/resources/fixtures/analytics/funnel/} -- not derived from
- * running the metric itself, which would make the test circular.
- *
- * <p>case1 walks through every stage-attainment edge case §20.7 calls out
- * by name: a Saved application excluded from "applied," a Rejected
- * application that still counts at the OA stage it reached before
- * rejection (DR-01), an Accepted application counting at every stage up to
- * Offer, and a Withdrawn application whose last non-terminal stage was
- * Final Round.
- */
 class FunnelMetricGoldenFileTest {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final FunnelMetric metric = new FunnelMetric();

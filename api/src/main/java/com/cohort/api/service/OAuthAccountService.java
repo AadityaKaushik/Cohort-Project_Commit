@@ -12,14 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-93: turns a provider sign-in into one of our users. An existing account is
- * only ever linked when the provider itself marks the email verified; otherwise
- * anyone who can register that address at a provider could take the account over.
- */
 @Service
 public class OAuthAccountService {
-
     private final UserRepository userRepository;
     private final OAuthIdentityRepository identityRepository;
     private final PasswordEncoder passwordEncoder;

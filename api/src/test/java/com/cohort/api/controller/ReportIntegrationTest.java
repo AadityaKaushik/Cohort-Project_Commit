@@ -33,17 +33,10 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * US-80 / FR-102..104 end to end against real Postgres: generation, listing,
- * download headers, expiry and deletion, and -- the mandatory check
- * (FR-95, mirroring resume downloads, FR-32) -- that another user gets 404,
- * never 403, on every report endpoint including a real download attempt.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class ReportIntegrationTest extends AbstractIntegrationTest {
-
     @TempDir
     static Path storageDir;
 

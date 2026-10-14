@@ -6,37 +6,11 @@ import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
-/**
- * US-52 / PROJECT_PLAN.md §21.5's {@code routeToRootCause} algorithm,
- * implemented exactly as documented there:
- *
- * <pre>
- * routeToRootCause(topic t, mastery M, graph G, depth d = 0):
- *     if d >= 2: return t
- *     weakest_prereq = argmin{ M[p] : p in G.prerequisites(t) }
- *     if weakest_prereq exists and M[weakest_prereq] < M[t] - 0.15:
- *         return routeToRootCause(weakest_prereq, M, G, d+1)
- *     return t
- * </pre>
- *
- * <p>The 0.15 margin prevents routing on noise; the depth cap of 2 keeps the
- * rendered chain comprehensible even on a long or adversarial prerequisite
- * graph. Note that a genuine cycle cannot make this recurse indefinitely
- * even without the cap -- each hop requires strictly lower mastery by the
- * margin, and scores are bounded, so a real graph runs out of room to keep
- * decreasing within a handful of hops regardless. The cap exists primarily
- * for comprehensibility (§21.5: "to stay comprehensible") and, defensively,
- * to bound recursion even if a caller ever hands this a malformed or
- * artificially long chain -- see {@code RootCauseRouterTest}'s pathological
- * graph case.
- */
 @Component
 public class RootCauseRouter {
-
     static final int MAX_DEPTH = 2;
     static final double MARGIN = 0.15;
 
-    /** The routed-to topic and the full chain of topic ids walked to reach it, starting with the original topic. */
     public record RoutingResult(UUID topicId, List<UUID> chain) {
     }
 

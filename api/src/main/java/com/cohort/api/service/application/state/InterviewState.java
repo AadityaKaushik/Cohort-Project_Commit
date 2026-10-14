@@ -3,9 +3,7 @@ package com.cohort.api.service.application.state;
 import com.cohort.api.entity.ApplicationStatus;
 import java.util.Set;
 
-/** Interview: one or more interview rounds in progress. */
 public final class InterviewState implements ApplicationStatusState {
-
     @Override
     public ApplicationStatus status() {
         return ApplicationStatus.INTERVIEW;

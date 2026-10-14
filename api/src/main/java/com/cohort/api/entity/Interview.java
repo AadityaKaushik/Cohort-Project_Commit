@@ -12,18 +12,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * One interview round against an application (PROJECT_PLAN.md §17.2, US-27).
- * {@code userId} is denormalised alongside {@code applicationId} rather than
- * resolved through the application, so every isolation query on this entity
- * is a single-table filter (same reasoning as {@link Application#getUserId()}).
- * {@code roundNumber} is unique per application at the DB level (V9
- * migration) — DR-04's variable-length rounds without a fixed count.
- */
 @Entity
 @Table(name = "interviews")
 public class Interview {
-
     public enum Mode { onsite, video, phone }
 
     public enum Outcome { passed, failed, pending, unknown }

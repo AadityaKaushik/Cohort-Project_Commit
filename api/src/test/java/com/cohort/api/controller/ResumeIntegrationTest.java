@@ -29,19 +29,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises the real /resumes/* endpoints (US-20..22) against a real
- * Postgres instance and real disk-backed storage: CRUD, the "exactly one
- * default" rule (FR-33), upload through the full validation chain, download
- * with the correct headers, and — the mandatory check (CONTRIBUTING.md,
- * FR-95) — that a foreign user gets 404, never 403, on every one of them,
- * including a real attempt to download another user's actual stored file.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class ResumeIntegrationTest extends AbstractIntegrationTest {
-
     private static final byte[] REAL_PDF_BYTES = "%PDF-1.4\n%fake but valid resume content".getBytes(StandardCharsets.UTF_8);
     private static final byte[] WINDOWS_EXECUTABLE_BYTES =
             new byte[] {0x4D, 0x5A, (byte) 0x90, 0x00, 0x03, 0x00, 0x00, 0x00};
@@ -120,7 +111,6 @@ class ResumeIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.is_default", is(true)));
 
-        // Patching the first one back to default flips it and clears the second.
         mockMvc.perform(patch("/api/v1/resumes/" + firstId)
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -226,7 +216,6 @@ class ResumeIntegrationTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound());
 
-        // The owner can still download their own file untouched.
         mockMvc.perform(get("/api/v1/resumes/" + resumeId + "/file").header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk());
 

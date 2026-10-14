@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Full detail view of a resume (US-20..22): metadata plus whatever is known about its stored file, if any. */
 public record ResumeDetailResponse(
         UUID id,
         String name,

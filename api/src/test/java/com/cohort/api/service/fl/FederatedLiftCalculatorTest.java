@@ -6,21 +6,14 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/**
- * P57/US-65: "the FL adjustment is bounded to [0.75, 1.25]" — the single
- * property this test exists to prove, using deliberately extreme model
- * parameters to force the clamp to actually engage, not just happen to
- * land in range for typical inputs.
- */
 class FederatedLiftCalculatorTest {
-
     private final FederatedLiftCalculator calculator = new FederatedLiftCalculator();
 
     @Test
     void neverExceedsTheUpperBoundEvenForAnExtremeModel() {
         FlModelInfo hugeModel = modelWithParameters(1000.0);
 
-        double multiplier = calculator.adjustmentMultiplier(hugeModel, 1.0); // max severity
+        double multiplier = calculator.adjustmentMultiplier(hugeModel, 1.0);
 
         assertThat(multiplier).isEqualTo(FederatedLiftCalculator.MAX_MULTIPLIER);
     }
@@ -29,7 +22,7 @@ class FederatedLiftCalculatorTest {
     void neverGoesBelowTheLowerBoundEvenForAnExtremeModel() {
         FlModelInfo hugeModel = modelWithParameters(1000.0);
 
-        double multiplier = calculator.adjustmentMultiplier(hugeModel, 0.0); // min severity -> negative raw
+        double multiplier = calculator.adjustmentMultiplier(hugeModel, 0.0);
 
         assertThat(multiplier).isEqualTo(FederatedLiftCalculator.MIN_MULTIPLIER);
     }

@@ -40,18 +40,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * US-06/07/08 end to end against real Postgres: password change (and the
- * session revocation that comes with it), a data export that contains the
- * caller's data and nobody else's, and account deletion followed by an
- * orphan check that scans every UUID column of every table for the deleted
- * user's ID (NFR-14).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class AccountIntegrationTest extends AbstractIntegrationTest {
-
     private static final byte[] PDF_BYTES = "%PDF-1.4\n%account export resume".getBytes(StandardCharsets.UTF_8);
 
     @TempDir

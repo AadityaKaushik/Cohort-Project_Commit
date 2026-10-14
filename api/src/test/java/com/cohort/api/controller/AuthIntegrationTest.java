@@ -17,16 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises the real /auth/* endpoints against a real Postgres 16
- * instance — the phase's verification target: happy path, bad password,
- * 401s, and no distinguishable email enumeration.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class AuthIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -77,13 +71,11 @@ class AuthIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.access_token", notNullValue()))
                 .andExpect(jsonPath("$.refresh_token", notNullValue()));
 
-        // The just-consumed refresh token is single-use: reusing it now fails.
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(refreshBody))
                 .andExpect(status().isUnauthorized());
 
-        // A different, still-live token (from register) can still log out cleanly.
         String logoutBody = """
                 {"refresh_token": "%s"}
                 """.formatted(firstRefreshToken);
@@ -93,7 +85,6 @@ class AuthIntegrationTest extends AbstractIntegrationTest {
                         .content(logoutBody))
                 .andExpect(status().isNoContent());
 
-        // Logged-out token no longer works for a refresh.
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(logoutBody))

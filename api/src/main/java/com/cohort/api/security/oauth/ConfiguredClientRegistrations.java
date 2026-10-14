@@ -8,13 +8,7 @@ import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 
-/**
- * Holds only the providers whose credentials are present in the environment. Unlike
- * {@code InMemoryClientRegistrationRepository} it is allowed to be empty, which is the
- * normal state of a deployment with social sign-in switched off.
- */
 public class ConfiguredClientRegistrations implements ClientRegistrationRepository {
-
     private final Map<String, ClientRegistration> registrations;
 
     public ConfiguredClientRegistrations(OAuthProviderProperties properties) {

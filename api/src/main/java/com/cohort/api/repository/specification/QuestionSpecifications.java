@@ -5,23 +5,10 @@ import com.cohort.api.entity.Question;
 import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
-/**
- * Combinable filters over the question bank (US-35: category, topic,
- * difficulty), built the same way {@code ApplicationSpecifications}
- * established the technique — each method tolerates a {@code null} filter
- * by contributing no restriction, so {@link #combine} can chain every one
- * unconditionally.
- */
 public final class QuestionSpecifications {
-
     private QuestionSpecifications() {
     }
 
-    /**
-     * US-35: "my own questions and seeded ones are visually distinguished"
-     * implies both are visible in the same list — a question is visible to
-     * a caller if it is a seeded system question or one they own.
-     */
     public static Specification<Question> visibleTo(UUID userId) {
         return (root, query, cb) ->
                 cb.or(cb.isTrue(root.get("isSystem")), cb.equal(root.get("userId"), userId));

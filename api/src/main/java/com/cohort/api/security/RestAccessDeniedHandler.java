@@ -9,10 +9,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
-/** Keeps authorization failures on the same JSON error envelope as everything else. */
 @Component
 public class RestAccessDeniedHandler implements AccessDeniedHandler {
-
     private final ObjectMapper objectMapper;
 
     public RestAccessDeniedHandler(ObjectMapper objectMapper) {

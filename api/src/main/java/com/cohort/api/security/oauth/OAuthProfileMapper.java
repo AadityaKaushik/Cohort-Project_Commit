@@ -8,10 +8,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-/** Strategy per provider for reading a provider-specific user into the neutral {@link OAuthProfile}. */
 @Component
 public class OAuthProfileMapper {
-
     private static final String GITHUB_EMAILS_URL = "https://api.github.com/user/emails";
 
     private final RestClient restClient = RestClient.create();

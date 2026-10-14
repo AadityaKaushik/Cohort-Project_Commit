@@ -22,19 +22,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Proves {@code ApplicationSpecifications} (Specification pattern,
- * ARCHITECTURE_REVISION_JAVA.md §4.1) compose correctly through the real
- * {@code GET /applications} endpoint — every filter individually, and
- * several combined with AND semantics (US-17), which is exactly what a
- * hand-rolled dynamic-query builder tends to get wrong at the boundary
- * between filters.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class ApplicationFilterIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private org.springframework.test.web.servlet.MockMvc mockMvc;
 

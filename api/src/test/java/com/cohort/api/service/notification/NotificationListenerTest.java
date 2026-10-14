@@ -19,9 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/** The copy each event turns into, and that every message stays scoped to the event's own user and target (FR-100). */
 class NotificationListenerTest {
-
     private final UUID userId = UUID.randomUUID();
     private final UserRepository userRepository = mock(UserRepository.class);
     private final RecordingNotificationChannel channel = new RecordingNotificationChannel("in_app");

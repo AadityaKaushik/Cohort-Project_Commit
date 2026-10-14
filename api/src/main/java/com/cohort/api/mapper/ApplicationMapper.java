@@ -16,16 +16,8 @@ import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/**
- * DTO + Mapper pattern (ARCHITECTURE_REVISION_JAVA.md §4.1): hand-written
- * rather than MapStruct, matching the style already established by
- * UserProfileResponse.from() et al. in this codebase. JPA entities never
- * cross the controller boundary — everything a controller returns comes
- * through here.
- */
 @Component
 public class ApplicationMapper {
-
     private final ApplicationStatusStateRegistry stateRegistry;
 
     public ApplicationMapper(ApplicationStatusStateRegistry stateRegistry) {

@@ -5,15 +5,8 @@ import com.cohort.api.service.recommendation.RecommendationType;
 import com.cohort.api.service.recommendation.tiering.EvidenceTier;
 import org.springframework.stereotype.Component;
 
-/**
- * US-51/53: renders a {@link RecommendationType#decay} candidate. Required
- * evidence fields: {@code targetTopicName}, {@code rawScore}, {@code masteryScore}.
- * Distinguishes "went stale" from "always weak" explicitly, per §21.3's own
- * definition of this generator.
- */
 @Component
 public class DecayTemplate implements RecommendationTemplate {
-
     @Override
     public RecommendationType type() {
         return RecommendationType.decay;

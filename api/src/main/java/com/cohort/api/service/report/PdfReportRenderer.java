@@ -28,21 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
-/**
- * FR-102/103: renders a {@link Report} as a readable A4-landscape PDF -- a
- * title block, headline figures, the applications table (header repeated
- * on every page, zebra-striped rows), and the analytics section as small
- * labelled tables with their sample sizes and a plain-language note on the
- * sample-size gate. Every page carries a footer with the report title and
- * page number, so a printed copy stays in order.
- *
- * <p>Uses the PDF standard-14 Helvetica family (no embedded font files), so
- * text is limited to the Windows-1252 character set; characters outside it
- * are dropped by the PDF library rather than failing the export.
- */
 @Component
 public class PdfReportRenderer implements ReportRenderer {
-
     private static final Color INK = new Color(0x1F, 0x29, 0x37);
     private static final Color MUTED = new Color(0x6B, 0x72, 0x80);
     private static final Color ACCENT = new Color(0x1D, 0x4E, 0xD8);
@@ -332,7 +319,6 @@ public class PdfReportRenderer implements ReportRenderer {
 
     private static String statusText(Report.ApplicationRow row) {
         String status = ReportLabels.status(row.status());
-        // A closed application's last pipeline stage is the useful context ("Rejected after Interview").
         if (row.status().isTerminal() && row.currentStage() != null && row.currentStage() != ApplicationStatus.SAVED) {
             return status + " (after " + ReportLabels.status(row.currentStage()).toLowerCase(Locale.ENGLISH) + ")";
         }
@@ -361,9 +347,7 @@ public class PdfReportRenderer implements ReportRenderer {
         return new Font(Font.HELVETICA, size, style, color);
     }
 
-    /** "Cohort | {title}" on the left and "Page n" on the right of every page. */
     private static final class Footer extends PdfPageEventHelper {
-
         private final String title;
 
         Footer(String title) {

@@ -6,10 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/** FR-104: periodically deletes expired exports -- rows and files -- so an expired report stops existing, not just stops being downloadable. */
 @Component
 public class ReportExpiryJob {
-
     private static final Logger log = LoggerFactory.getLogger(ReportExpiryJob.class);
 
     private final ReportService reportService;

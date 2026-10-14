@@ -13,15 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * US-57/US-64: opt-in/opt-out plus the schema the consent screen shows.
- * Deliberately thin (ARCHITECTURE_REVISION_JAVA.md §4.2) — no pipeline to
- * hide behind a facade here, just a boolean flip and a static allow-list.
- */
 @RestController
 @RequestMapping("/api/v1/fl")
 public class FlConsentController {
-
     private final FlConsentService consentService;
 
     public FlConsentController(FlConsentService consentService) {

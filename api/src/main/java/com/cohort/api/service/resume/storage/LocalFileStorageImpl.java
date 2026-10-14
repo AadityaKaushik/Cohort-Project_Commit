@@ -11,22 +11,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Local-disk {@link FileStorageStrategy} (US-21). Concrete Strategy
- * implementation: everything about "where the bytes physically live" is
- * contained here, so swapping in an S3-backed implementation later touches
- * this class alone.
- *
- * <p>Security notes (risk table, ARCHITECTURE_REVISION_JAVA.md / PROJECT_PLAN.md
- * "malicious resume upload" row): storage keys are always server-generated
- * UUIDs, never derived from the client-supplied original filename, and every
- * resolved path is double-checked to still be inside the configured storage
- * root before any I/O — defence in depth against path traversal even though
- * nothing on the normal call path can produce a traversal key.
- */
 @Component
 public class LocalFileStorageImpl implements FileStorageStrategy {
-
     private final Path baseDirectory;
 
     public LocalFileStorageImpl(@Value("${app.resume-storage.base-dir:./data/resumes}") String baseDir) {

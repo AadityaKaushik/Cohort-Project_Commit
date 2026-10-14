@@ -10,15 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * In-memory sliding-window limiter, keyed by email, for failed login
- * attempts. Single-instance only — acceptable for this project's scope;
- * a multi-instance deployment would need a shared store (e.g. Redis)
- * instead.
- */
 @Component
 public class LoginRateLimiter {
-
     private final int maxAttempts;
     private final Duration window;
     private final ConcurrentHashMap<String, Deque<Instant>> failuresByEmail = new ConcurrentHashMap<>();

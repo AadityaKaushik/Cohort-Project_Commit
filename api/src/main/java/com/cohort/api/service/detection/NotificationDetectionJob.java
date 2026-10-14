@@ -10,22 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/**
- * US-76..78 / §4.3 step 1: the scheduled trigger that makes detection run
- * in normal use. Every cycle, each active user's data goes through both
- * detectors, which publish whatever events apply; what happens to those
- * events is not this job's concern (Observer). Re-running is always safe:
- * each event carries an occurrence key, and the in-app channel stores at
- * most one notification per key, so the same stall or the same interview
- * reminder is never notified twice however often this runs.
- *
- * <p>One user's failure is logged and skipped, never allowed to abort the
- * rest of the batch -- the same "best effort background sync" stance as
- * {@code FlFeatureExportJob}.
- */
 @Component
 public class NotificationDetectionJob {
-
     private static final Logger log = LoggerFactory.getLogger(NotificationDetectionJob.class);
 
     private final UserRepository userRepository;
@@ -53,7 +39,6 @@ public class NotificationDetectionJob {
         }
     }
 
-    /** The actual work, callable directly (tests, or a future admin trigger) without waiting for the schedule. */
     public RunSummary runDetection(Instant now) {
         List<User> users = userRepository.findAllByIsActiveTrue();
         int stalled = 0;

@@ -14,15 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/**
- * Proves the four generators actually compose into one chain (the point of
- * Chain of Responsibility, not just each stage in isolation): every stage's
- * contribution shows up in the combined result regardless of link order,
- * and a context with no evidence at all falls through every stage down to
- * {@link BaselineGenerator}, the last link.
- */
 class RecommendationGeneratorChainTest {
-
     @Test
     void everyStageThatQualifiesContributesToTheCombinedResult() {
         UUID weakTopicId = UUID.randomUUID();

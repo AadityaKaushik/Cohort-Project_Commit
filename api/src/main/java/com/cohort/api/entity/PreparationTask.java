@@ -13,11 +13,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/** A user's own preparation task, linked to a topic (US-40, PROJECT_PLAN.md §17.2). */
 @Entity
 @Table(name = "preparation_tasks")
 public class PreparationTask {
-
     public enum Status { open, completed }
 
     @Id

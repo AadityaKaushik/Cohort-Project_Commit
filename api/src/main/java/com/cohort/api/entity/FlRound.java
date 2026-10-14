@@ -9,18 +9,9 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
-/**
- * Round-level metadata for one federated round (US-61/US-63, P55). Lives in
- * the {@code fl} schema, alongside {@link PrivacyLedgerEntry} — the same
- * isolated schema V19 (P50) created and scoped the {@code cohort_fl}
- * Postgres role to. Written by Java after {@code POST /fl/round}
- * (fl-service, P55) returns; never mutated afterwards — a round's outcome
- * (accepted/refused, cohort size, reason) is a historical fact.
- */
 @Entity
 @Table(name = "fl_rounds", schema = "fl")
 public class FlRound {
-
     @Id
     @UuidGenerator
     @Column(columnDefinition = "uuid")

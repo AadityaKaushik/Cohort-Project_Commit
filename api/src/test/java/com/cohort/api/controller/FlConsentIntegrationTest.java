@@ -26,17 +26,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * US-57 ("default off"), US-64 ("takes effect ... reversible"). The
- * {@link FlExportClient} is mocked so the export job (P51) can be run for
- * real against real Postgres consent state, and what it would have sent to
- * fl-service inspected directly.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class FlConsentIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -100,9 +93,7 @@ class FlConsentIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(post("/api/v1/fl/opt-in").header("Authorization", "Bearer " + otherToken))
                 .andExpect(jsonPath("$.opted_in", is(true)));
 
-        // Consent is addressed only by the JWT subject -- there is no id in the
-        // path to point at someone else's row, so the isolation property here is
-        // "another user's opt-in never leaks into mine."
+        // Consent is addressed only by the JWT subject -- there is no id in the path to point at someone else's row, so the isolation property here is "another user's opt-in never leaks into mine."
         mockMvc.perform(get("/api/v1/fl/consent").header("Authorization", "Bearer " + ownerToken))
                 .andExpect(jsonPath("$.opted_in", is(false)));
     }

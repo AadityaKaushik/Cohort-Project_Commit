@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-/** Maps every exception type the API throws onto the standard error envelope (PROJECT_PLAN.md §18). */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
@@ -182,7 +180,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ApiError.of("VALIDATION_ERROR", ex.getMessage(), ex.getFieldErrors()));
     }
 
-    /** A request whose multipart body exceeds Spring's own servlet-level cap (application.yml), above the 5 MB business rule. */
+    // A request whose multipart body exceeds Spring's own servlet-level cap (application.yml), above the 5 MB business rule.
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)

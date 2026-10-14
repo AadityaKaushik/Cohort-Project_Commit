@@ -20,15 +20,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Access tokens (stateless JWTs) and refresh tokens (opaque, DB-backed, and
- * therefore individually revocable — the whole reason FR-06 is possible)
- * are deliberately different mechanisms; this class is the one place that
- * knows how to mint and validate both.
- */
 @Service
 public class TokenService {
-
     private final JwtEncoder jwtEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     public static final long MAX_REFRESH_TOKEN_TTL_DAYS = 7;
@@ -58,9 +51,7 @@ public class TokenService {
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
                 .build();
-        // A symmetric key has no key ID to disambiguate, so the header's
-        // algorithm must be stated explicitly rather than left to default
-        // JWK selection (which assumes an asymmetric RS256 key).
+        // A symmetric key has no key ID to disambiguate, so the header's algorithm must be stated explicitly rather than left to default JWK selection (which assumes an asymmetric RS256 key).
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
@@ -73,7 +64,6 @@ public class TokenService {
         return rawToken;
     }
 
-    /** Validates, revokes, and returns the token in one step — refresh tokens are single-use. */
     @Transactional
     public RefreshToken consumeRefreshToken(String rawToken) {
         RefreshToken token = refreshTokenRepository.findByTokenHash(hash(rawToken))

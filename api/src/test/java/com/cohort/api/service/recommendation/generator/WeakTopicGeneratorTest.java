@@ -11,9 +11,8 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/** Exercises {@link WeakTopicGenerator} in complete isolation -- no Spring context, no other generator, per US-51's independent-testability requirement. */
+// Exercises {@link WeakTopicGenerator} in complete isolation -- no Spring context, no other generator, per US-51's independent-testability requirement.
 class WeakTopicGeneratorTest {
-
     private final WeakTopicGenerator generator = new WeakTopicGenerator();
 
     @Test
@@ -57,7 +56,6 @@ class WeakTopicGeneratorTest {
         generator.linkTo(noOp);
         TopicMasterySnapshot snapshot = new TopicMasterySnapshot(UUID.randomUUID(), "Graphs", 0.35, 0.3, 4, true, Instant.now());
 
-        // Reaching this without a NullPointerException proves handle() actually forwarded down the chain.
         assertThat(generator.handle(contextWith(snapshot), List.of())).hasSize(1);
     }
 

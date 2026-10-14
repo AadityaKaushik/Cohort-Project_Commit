@@ -23,10 +23,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** US-91: seeds a starter preparation plan from the foundational topics, spread across the user's runway. */
 @Service
 public class OnboardingService {
-
     static final int MAX_STARTER_TASKS = 6;
     private static final int DEFAULT_RUNWAY_DAYS = 42;
     private static final int STARTER_EFFORT_MINUTES = 60;

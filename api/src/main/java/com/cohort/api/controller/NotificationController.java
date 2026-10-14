@@ -15,18 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-76..79: the notification bell's API. Thin by design (ARCHITECTURE_REVISION_JAVA.md §4.2): every method delegates straight to NotificationInboxService. */
 @RestController
 @RequestMapping("/api/v1/notifications")
 public class NotificationController {
-
     private final NotificationInboxService inboxService;
 
     public NotificationController(NotificationInboxService inboxService) {
         this.inboxService = inboxService;
     }
 
-    /** FR-101: {@code status=unread} and {@code status=read} are the two separate views; {@code all} (default) is unread-first. */
     @GetMapping
     public PagedResponse<NotificationResponse> list(
             @AuthenticationPrincipal Jwt jwt,

@@ -17,17 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.TestPropertySource;
 
-/**
- * Proves {@link UserScopedRepository}'s derived queries behave correctly
- * against a real Postgres instance (Repository pattern,
- * ARCHITECTURE_REVISION_JAVA.md §4.1) — using a throwaway fixture entity
- * ({@code OwnedThing}) rather than waiting for the real Application entity
- * (P11). Entity/repository scanning is narrowed explicitly to the fixture
- * package so this never interferes with any other test's context. ddl-auto
- * is overridden to create-drop just for this test (the main app uses
- * validate, since Flyway owns the real schema) so Hibernate can create the
- * one throwaway table itself.
- */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(AbstractIntegrationTest.ContainerConfig.class)
@@ -35,7 +24,6 @@ import org.springframework.test.context.TestPropertySource;
 @EnableJpaRepositories(basePackageClasses = OwnedThingRepository.class)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 class UserScopedRepositoryIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private OwnedThingRepository repository;
 

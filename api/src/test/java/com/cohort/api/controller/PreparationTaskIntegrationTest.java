@@ -22,18 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/**
- * Exercises /preparation/tasks and /preparation/progress (US-40/41):
- * task CRUD including completion stamping completedAt, the progress view's
- * category rollup and topic mastery grid, and — the mandatory check
- * (CONTRIBUTING.md, FR-95) — that tasks are isolated per user (404, never
- * 403).
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class PreparationTaskIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -159,7 +151,6 @@ class PreparationTaskIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
 
-        // The owner's task is untouched.
         mockMvc.perform(get("/api/v1/preparation/tasks").header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));

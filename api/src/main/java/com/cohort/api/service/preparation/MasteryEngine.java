@@ -7,31 +7,8 @@ import java.util.List;
 import java.util.OptionalDouble;
 import org.springframework.stereotype.Component;
 
-/**
- * US-39 / PROJECT_PLAN.md §21.4: the topic mastery formula, implemented
- * exactly as documented there — pure, seeded, and pinned by golden-file
- * tests ({@code MasteryEngineGoldenFileTest}) so a refactor that changes
- * the numbers by accident fails CI (NFR-51). This class has no
- * dependencies on any repository or entity beyond {@link Difficulty}; it
- * is handed evidence and an {@code asOf} instant and returns a score,
- * which is what makes golden-file testing meaningful in the first place.
- *
- * <p>Formula recap (§21.4):
- * <pre>
- * practice_component = Σ w_a·(confidence_a-1)/4 / Σ w_a,   w_a = exp(-ln2·days_ago/90)
- * interview_component = Σ w_q·(rating_q-1)/4 / Σ w_q,      w_q = exp(-ln2·days_ago/120)
- * raw = 0.4·practice_component + 0.6·interview_component (falls back to whichever exists if only one does)
- * mastery = raw · exp(-ln2·Δ/H_diff),  Δ = days since the most recent evidence of any kind
- * H_diff = 60 (hard) | 90 (medium) | 120 (easy)
- * </pre>
- * Confidence gating: with fewer than 2 total observations, the score is
- * still computed and returned, but {@code sufficientEvidence} is false —
- * "the score is stored but reported as insufficient evidence" (§21.4), so
- * the caller (not this class) decides whether to show it.
- */
 @Component
 public class MasteryEngine {
-
     private static final double PRACTICE_HALF_LIFE_DAYS = 90.0;
     private static final double INTERVIEW_HALF_LIFE_DAYS = 120.0;
     private static final double PRACTICE_WEIGHT = 0.4;
@@ -42,7 +19,6 @@ public class MasteryEngine {
     public MasteryResult computeMastery(
             List<PracticeEvidence> practiceEvidence, List<InterviewEvidence> interviewEvidence,
             Difficulty topicDifficulty, Instant asOf) {
-
         int observationCount = practiceEvidence.size() + interviewEvidence.size();
 
         OptionalDouble practiceComponent = weightedComponent(
@@ -67,7 +43,6 @@ public class MasteryEngine {
         return new MasteryResult(raw, masteryScore, observationCount, observationCount >= MINIMUM_OBSERVATIONS);
     }
 
-    /** §21.4's fallback rule: blend both components if both exist, else use whichever one does. */
     private double blend(OptionalDouble practiceComponent, OptionalDouble interviewComponent) {
         if (practiceComponent.isPresent() && interviewComponent.isPresent()) {
             return PRACTICE_WEIGHT * practiceComponent.getAsDouble() + INTERVIEW_WEIGHT * interviewComponent.getAsDouble();
@@ -116,7 +91,6 @@ public class MasteryEngine {
         };
     }
 
-    /** Fractional days, not truncated to whole days, so the exponential decay is continuous rather than step-wise. */
     private double daysBetween(Instant from, Instant to) {
         return Duration.between(from, to).toMillis() / 86_400_000.0;
     }

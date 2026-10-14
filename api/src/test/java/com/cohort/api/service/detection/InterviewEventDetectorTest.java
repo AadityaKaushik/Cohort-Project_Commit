@@ -28,14 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
-/**
- * P59's verify (Observer) for the two interview-driven events: each fires on
- * exactly its FR-99 condition -- due within 24 hours (US-77), or past without
- * a submitted debrief (US-78) -- and on nothing else, published into a bus
- * with no subscribers.
- */
 class InterviewEventDetectorTest {
-
     private static final Instant NOW = Instant.parse("2026-09-25T12:00:00Z");
 
     private final InterviewRepository interviewRepository = mock(InterviewRepository.class);
@@ -127,12 +120,10 @@ class InterviewEventDetectorTest {
 
     @Test
     void noNudgeWhileTheInterviewIsStillWithinItsGracePeriod() {
-        // 60-minute interview that started 2.5h ago ended 1.5h ago -- inside the 2h grace window.
         interviewAt(NOW.minus(Duration.ofMinutes(150))).setDurationMinutes(60);
         assertThat(detector.detect(userId, NOW).missingDebriefs()).isZero();
 
         interviews.clear();
-        // Exactly 2h after a 60-minute interview ended: now due.
         interviewAt(NOW.minus(Duration.ofHours(3))).setDurationMinutes(60);
         assertThat(detector.detect(userId, NOW).missingDebriefs()).isEqualTo(1);
     }

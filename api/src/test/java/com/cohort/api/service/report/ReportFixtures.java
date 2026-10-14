@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.test.util.ReflectionTestUtils;
 
-/** Loads {@code fixtures/reports/*} -- the builder's inputs and its expected, hand-checked outputs. */
 final class ReportFixtures {
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private ReportFixtures() {

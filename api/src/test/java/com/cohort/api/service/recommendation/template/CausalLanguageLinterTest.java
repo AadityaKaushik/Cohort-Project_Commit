@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for the checker itself, independent of any real template -- see {@link RecommendationTemplateRegistryTest#test_no_causal_language} for the checker applied to the actual registry. */
 class CausalLanguageLinterTest {
-
     @Test
     void catchesEachBannedPhraseCaseInsensitively() {
         assertThat(CausalLanguageLinter.findViolations("This GUARANTEES a better outcome.")).contains("guarantees");

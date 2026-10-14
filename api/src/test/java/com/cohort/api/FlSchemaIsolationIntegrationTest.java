@@ -13,22 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-/**
- * P50 (US-61: "the server holds no user-schema database credentials,
- * verified in CI"): proves against a real, freshly-migrated Postgres
- * (Testcontainers, not a mock) that the {@code cohort_fl} role V19 creates
- * has zero privileges on any user-content (public schema) table, and is
- * granted exactly the two {@code fl} schema bookkeeping tables it needs.
- *
- * <p>This is the part of P50's verify column that can actually run in this
- * sandbox (no live docker-compose fl-service container is available here);
- * {@code scripts/verify-fl-db-isolation.sh} + the {@code fl-db-isolation}
- * CI job cover the equivalent check against a real running compose stack.
- */
 @SpringBootTest
 @Import(AbstractIntegrationTest.ContainerConfig.class)
 class FlSchemaIsolationIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private DataSource dataSource;
 
