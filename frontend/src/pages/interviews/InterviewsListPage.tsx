@@ -84,6 +84,7 @@ function InterviewSection({
   icon,
   emptyTitle,
   emptyDescription,
+  emptyActionLabel,
   upcoming,
 }: {
   title: string
@@ -91,6 +92,7 @@ function InterviewSection({
   icon: LucideIcon
   emptyTitle: string
   emptyDescription: string
+  emptyActionLabel: string
   upcoming: boolean
 }) {
   const navigate = useNavigate()
@@ -109,7 +111,22 @@ function InterviewSection({
       </div>
       {isLoading && <LoadingRows rows={3} label={`Loading ${title.toLowerCase()} interviews`} />}
       {isError && <ErrorState title={`Couldn't load ${title.toLowerCase()} interviews`} onRetry={() => refetch()} />}
-      {data && data.items.length === 0 && <EmptyState compact icon={icon} title={emptyTitle} description={emptyDescription} />}
+      {data && data.items.length === 0 && (
+        <EmptyState
+          compact
+          icon={icon}
+          title={emptyTitle}
+          description={emptyDescription}
+          action={
+            <Button asChild>
+              <Link to="/interviews/new">
+                <PlusIcon aria-hidden />
+                {emptyActionLabel}
+              </Link>
+            </Button>
+          }
+        />
+      )}
       {data && data.items.length > 0 && (
         <DataTable
           columns={buildColumns(navigate)}
@@ -164,6 +181,7 @@ export function InterviewsListPage() {
         icon={ClockIcon}
         emptyTitle="No upcoming interviews"
         emptyDescription="Interviews you schedule for a future date will show up here."
+        emptyActionLabel="Schedule an interview"
         upcoming={true}
       />
 
@@ -173,6 +191,7 @@ export function InterviewsListPage() {
         icon={MessagesSquareIcon}
         emptyTitle="No past interviews yet"
         emptyDescription="Once an interview's date has passed, it moves here — with a prompt to debrief if you haven't yet."
+        emptyActionLabel="Log an interview"
         upcoming={false}
       />
     </div>

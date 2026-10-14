@@ -128,6 +128,8 @@ describe('PrepPage', () => {
     renderPage()
 
     expect(await screen.findByText(/no preparation tasks yet/i)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Add your first task' }))
+    expect(screen.getByLabelText('New task')).toHaveFocus()
 
     await user.type(screen.getByLabelText('New task'), 'Practice 10 array problems')
     await user.click(screen.getByLabelText('Topic'))

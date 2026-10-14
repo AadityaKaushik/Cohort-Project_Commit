@@ -92,6 +92,7 @@ describe('NotificationsPage', () => {
     renderPage()
 
     expect(await screen.findByText("You're all caught up")).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Back to dashboard' })).toHaveAttribute('href', '/')
     expect(screen.getByRole('button', { name: /mark all as read/i })).toBeDisabled()
   })
 

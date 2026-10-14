@@ -161,7 +161,18 @@ export function PrepPage() {
             {tasksQuery.isLoading && <LoadingRows rows={3} label="Loading tasks" />}
             {tasksQuery.isError && <ErrorState title="Couldn't load your tasks" onRetry={() => tasksQuery.refetch()} />}
             {tasksQuery.data && tasksQuery.data.length === 0 && (
-              <EmptyState compact icon={PencilLineIcon} title="No preparation tasks yet" description="Turn a weak topic into a scheduled task above." />
+              <EmptyState
+                compact
+                icon={PencilLineIcon}
+                title="No preparation tasks yet"
+                description="Turn a weak topic into a scheduled task above."
+                action={
+                  <Button onClick={() => document.getElementById('new-task-title')?.focus()}>
+                    <PlusIcon aria-hidden />
+                    Add your first task
+                  </Button>
+                }
+              />
             )}
             {tasksQuery.data && tasksQuery.data.length > 0 && (
               <ul className="divide-y overflow-hidden rounded-lg border">

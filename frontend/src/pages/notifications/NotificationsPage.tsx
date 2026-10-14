@@ -103,10 +103,14 @@ export function NotificationsPage() {
           description={EMPTY_COPY[filter].description}
           action={
             filter === 'unread' ? (
-              <Button variant="outline" asChild>
+              <Button asChild>
                 <Link to="/">Back to dashboard</Link>
               </Button>
-            ) : undefined
+            ) : (
+              <Button asChild>
+                <Link to="/applications">View applications</Link>
+              </Button>
+            )
           }
         />
       ) : (

@@ -53,6 +53,8 @@ describe('InterviewsListPage', () => {
 
     expect(await screen.findByText('No upcoming interviews')).toBeInTheDocument()
     expect(await screen.findByText('No past interviews yet')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Schedule an interview' })).toHaveAttribute('href', '/interviews/new')
+    expect(screen.getByRole('link', { name: 'Log an interview' })).toHaveAttribute('href', '/interviews/new')
   })
 
   it('splits interviews into upcoming and past sections via separate queries', async () => {
