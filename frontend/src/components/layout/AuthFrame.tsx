@@ -2,8 +2,10 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { TypingText } from '@/components/motion/TypingText'
 import { RouteProgress } from '@/components/motion/RouteProgress'
 import { CountUp } from '@/components/motion/Reveal'
+import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { useReducedMotion } from '@/hooks/use-motion'
 import { CompanyMark } from '@/components/shared/CompanyMark'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -25,7 +27,7 @@ function PanelShell({ children }: { children: ReactNode }) {
       aria-label="About Cohort"
       className="relative isolate hidden overflow-hidden border-l bg-surface-2 lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-14"
     >
-      <div aria-hidden className="aurora hero-glow absolute -inset-x-1/4 -top-1/4 -z-10 h-[80%] opacity-60" />
+      <div aria-hidden className="aurora hero-glow absolute -inset-x-1/4 -top-1/4 -z-10 h-[80%] opacity-70" />
       {children}
     </aside>
   )
@@ -91,7 +93,7 @@ function BrandPanel() {
       <div className="max-w-md space-y-8">
         <div className="space-y-4">
           <h2 className="text-display text-4xl text-balance">
-            Your job search, kept in order.
+            <TypingText text="Your job search, kept in order." sessionKey="auth-panel-headline" />
           </h2>
           <p className="font-heading text-lg font-medium tracking-tight text-primary">
             {USE_LINES.join(' · ')}
@@ -102,6 +104,7 @@ function BrandPanel() {
         </div>
         <PipelinePreview />
       </div>
+      <RotatingQuote className="max-w-sm text-sm" />
     </PanelShell>
   )
 }

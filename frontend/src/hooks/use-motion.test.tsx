@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { renderHook } from '@testing-library/react'
+import { render, renderHook, screen } from '@testing-library/react'
 import { useCountUp, useReducedMotion } from '@/hooks/use-motion'
+import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { mockReducedMotion } from '@/test/a11y'
 
 const originalMatchMedia = window.matchMedia
@@ -21,6 +22,13 @@ describe('reduced motion', () => {
     mockReducedMotion(false)
 
     expect(renderHook(() => useCountUp(42)).result.current.text).toBe('0')
+  })
+
+  it('renders a quote that holds still', () => {
+    mockReducedMotion(true)
+    render(<RotatingQuote />)
+
+    expect(screen.getByTestId('rotating-quote').textContent?.length).toBeGreaterThan(10)
   })
 
 })

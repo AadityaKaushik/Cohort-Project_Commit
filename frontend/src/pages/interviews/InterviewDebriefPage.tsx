@@ -140,6 +140,7 @@ export function InterviewDebriefPage() {
           icon={CheckCircle2Icon}
           title="Debrief saved"
           description="Your notes are captured while they're still fresh — you can always come back and edit them."
+          quote={2}
           action={
             <Button asChild>
               <Link to={`/interviews/${interview.id}`}>Back to interview</Link>

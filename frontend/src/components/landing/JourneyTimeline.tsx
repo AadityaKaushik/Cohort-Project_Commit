@@ -30,7 +30,7 @@ const STEPS: Step[] = [
   {
     icon: PencilLine,
     name: 'Prepare',
-    body: 'Work through the question bank, log practice, and track mastery for each topic.',
+    body: 'Work through the question bank, log practice, and watch mastery rise topic by topic.',
     visual: (
       <div className="w-full max-w-xs space-y-1.5 text-xs">
         <div className="flex justify-between">

@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { cn } from '@/lib/utils'
 
 interface EmptyStateProps {
@@ -9,9 +10,10 @@ interface EmptyStateProps {
   action?: ReactNode
   secondaryAction?: ReactNode
   compact?: boolean
+  quote?: number
 }
 
-export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false }: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false, quote }: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -35,6 +37,7 @@ export function EmptyState({ icon: Icon, title, description, action, secondaryAc
           {secondaryAction}
         </div>
       )}
+      {quote !== undefined && <RotatingQuote rotate={false} offset={quote} className="mt-2 max-w-xs text-left text-xs" />}
     </div>
   )
 }

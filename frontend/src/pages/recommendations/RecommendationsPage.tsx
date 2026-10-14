@@ -104,6 +104,7 @@ export function RecommendationsPage() {
           icon={SparklesIcon}
           title="Nothing to recommend right now"
           description="Log some practice attempts or interview feedback, and targeted recommendations will start showing up here."
+          quote={0}
           action={
             <Button asChild>
               <Link to="/prep/questions">Practise a question</Link>

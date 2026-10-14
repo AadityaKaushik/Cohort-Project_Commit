@@ -208,6 +208,7 @@ export function ApplicationsListPage() {
           icon={BriefcaseIcon}
           title="No applications yet"
           description="Track every job you apply to in one place: status, timeline, and all."
+          quote={1}
           action={
             <Button asChild>
               <Link to="/applications/new">

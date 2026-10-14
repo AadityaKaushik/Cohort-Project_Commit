@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BarChart3,
   Briefcase,
+  Command,
   Compass,
   EyeOff,
   Lock,
@@ -21,8 +22,10 @@ import { FloatingChips } from '@/components/landing/FloatingChips'
 import { HeroBackdrop } from '@/components/landing/HeroBackdrop'
 import { JobMatchDemo } from '@/components/landing/JobMatchDemo'
 import { JourneyTimeline } from '@/components/landing/JourneyTimeline'
+import { TypingText } from '@/components/motion/TypingText'
 import { Magnetic } from '@/components/motion/Magnetic'
 import { TransitionLink } from '@/components/motion/TransitionLink'
+import { PaletteDemo } from '@/components/landing/PaletteDemo'
 import { ProductPreview } from '@/components/landing/ProductPreview'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Reveal } from '@/components/motion/Reveal'
@@ -159,7 +162,7 @@ export function LandingPage() {
               className="animate-enter mt-5 font-heading text-lg font-medium tracking-tight text-primary sm:text-2xl"
               style={stagger(2)}
             >
-              {USE_CASES.join(' ')}
+              <TypingText text={USE_CASES} />
             </p>
             <p
               className="animate-enter mx-auto mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg"
@@ -231,6 +234,10 @@ export function LandingPage() {
               <ModuleCard className="md:col-span-4" icon={Users} name="Cohort Insights" title="Benchmarks without sharing your records"
                 body="See how your pace compares with people on the same path. Benchmarks are learned with federated learning, so individual records never leave their accounts.">
                 <CohortCompare />
+              </ModuleCard>
+              <ModuleCard className="md:col-span-2" delay={80} icon={Command} name="Keyboard first" title="Everything, one shortcut away"
+                body="Press Ctrl K anywhere to jump to any page.">
+                <PaletteDemo />
               </ModuleCard>
             </div>
           </div>

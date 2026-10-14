@@ -101,6 +101,7 @@ export function NotificationsPage() {
           icon={BellIcon}
           title={EMPTY_COPY[filter].title}
           description={EMPTY_COPY[filter].description}
+          quote={filter === 'unread' ? 5 : undefined}
           action={
             filter === 'unread' ? (
               <Button asChild>

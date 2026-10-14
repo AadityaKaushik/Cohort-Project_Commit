@@ -13,7 +13,9 @@ import { useAuth } from '@/hooks/use-auth'
 import { ErrorState } from '@/components/shared/QueryStates'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { TypingText } from '@/components/motion/TypingText'
 import { PipelineStrip } from '@/components/dashboard/PipelineStrip'
+import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { ActionQueueList } from '@/components/dashboard/ActionQueueList'
 import { ProgressRing } from '@/components/dashboard/ProgressRing'
 import { CountUp } from '@/components/motion/Reveal'
@@ -86,8 +88,9 @@ export function DashboardPage() {
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE d MMMM')}</p>
           <h2 id="dashboard-greeting" className="text-display text-3xl sm:text-4xl">
-            {`${greetingFor(new Date().getHours())}${firstName ? `, ${firstName}` : ''}.`}
+            <TypingText text={`${greetingFor(new Date().getHours())}${firstName ? `, ${firstName}` : ''}.`} sessionKey="dashboard-greeting" />
           </h2>
+          <RotatingQuote className="text-sm" />
         </div>
         <Button variant="cta" size="lg" asChild className="self-start sm:self-auto">
           <Link to="/applications/new">
