@@ -35,7 +35,7 @@ scripts/        CI helper scripts
 ## Status
 
 The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one commit per phase.
-Sprints 1 to 7 are built; Sprints 8 (AI) and 9 (hardening and delivery) are planned.
+Sprints 1 to 6 and phases P82 to P87 of Sprint 7 are built; P88 (resume section editor), Sprint 8 (AI) and Sprint 9 (hardening and delivery) are planned.
 `docs/implementation-overview.md` summarises the build and `docs/poster.html` is the project poster.
 
 ## Running locally
