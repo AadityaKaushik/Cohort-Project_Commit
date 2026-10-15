@@ -11,6 +11,7 @@ vi.mock('@/lib/ai-api', async () => {
     ...actual,
     getAiStatus: vi.fn().mockResolvedValue({ provider: 'ollama', hosted: false }),
     createEmailDraft: vi.fn(),
+    createContactDraft: vi.fn(),
   }
 })
 
@@ -77,5 +78,26 @@ describe('EmailDraftPanel', () => {
     vi.mocked(aiApi.getAiStatus).mockResolvedValueOnce({ provider: 'gemini', hosted: true })
     renderPanel()
     expect(await screen.findByText('Gemini is active')).toBeInTheDocument()
+  })
+})
+
+describe('EmailDraftPanel for a contact', () => {
+  it('asks the contact endpoint when only a contact is given', async () => {
+    vi.mocked(aiApi.createContactDraft).mockResolvedValue({
+      kind: 'referral_request',
+      subject: 'Referral for the Engineer role at Acme',
+      body: 'Hi Meera, would you be open to referring me?',
+      source: 'template',
+      ai_available: false,
+    })
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <EmailDraftPanel contactId="c1" kinds={['referral_request', 'reconnect', 'referral_thanks']} />
+      </QueryClientProvider>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Create a draft' }))
+
+    expect(aiApi.createContactDraft).toHaveBeenCalledWith('c1', 'referral_request')
+    expect(await screen.findByLabelText('Email draft')).toHaveValue('Hi Meera, would you be open to referring me?')
   })
 })

@@ -152,6 +152,93 @@ class EmailDraftIntegrationTest extends AbstractIntegrationTest {
                 .doesNotContain("Zorbex").doesNotContain("777777").doesNotContain("Haskell");
     }
 
+    @Test
+    void referralRequestTemplateUsesTheContactAndRoleAndLeavesAnEasyExit() throws Exception {
+        String token = register("draft-referral@example.com");
+        String applicationId = createApplication(token, "Acme", "Engineer");
+        String contactId = createContact(token, "Meera Iyer", applicationId, "Staff Engineer");
+        provider.goDown();
+
+        JsonNode draft = contactDraft(token, contactId, "referral_request", 200);
+
+        assertThat(draft.get("source").asText()).isEqualTo("template");
+        assertThat(draft.get("ai_available").asBoolean()).isFalse();
+        assertThat(draft.get("subject").asText()).isEqualTo("Referral for the Engineer role at Acme");
+        assertThat(draft.get("body").asText()).startsWith("Hi Meera,")
+                .contains("the Engineer role at Acme").contains("Staff Engineer").contains("completely fine");
+    }
+
+    @Test
+    void reconnectAndThankYouDraftsAreAvailableFromTheApplicationToo() throws Exception {
+        String token = register("draft-reconnect@example.com");
+        String applicationId = createApplication(token, "Acme", "Engineer");
+        createContact(token, "Meera Iyer", applicationId, null);
+        provider.goDown();
+
+        assertThat(draft(token, applicationId, "reconnect", 200).get("body").asText())
+                .startsWith("Hi Meera,").contains("It has been a while");
+        assertThat(draft(token, applicationId, "referral_thanks", 200).get("body").asText())
+                .contains("Thank you for referring me");
+    }
+
+    @Test
+    void referralReplyWithAnInventedNumberFallsBackToTheTemplate() throws Exception {
+        String token = register("draft-referral-number@example.com");
+        String applicationId = createApplication(token, "Acme", "Engineer");
+        String contactId = createContact(token, "Meera Iyer", applicationId, null);
+        provider.replyWith("Hi Meera, I have 7 years of experience and I am applying for the Engineer role at Acme. "
+                + "Would you refer me? Thanks, [Your name]");
+
+        JsonNode draft = contactDraft(token, contactId, "referral_request", 200);
+
+        assertThat(draft.get("source").asText()).isEqualTo("template");
+        assertThat(draft.get("body").asText()).doesNotContain("7 years");
+    }
+
+    @Test
+    void anotherUsersContactIsNotFoundAndPromptsStayGrounded() throws Exception {
+        String owner = register("draft-contact-owner@example.com");
+        String other = register("draft-contact-other@example.com");
+        String ownerApplication = createApplication(owner, "Zorbex Industries", "Staff Haskell Wizard");
+        String ownerContact = createContact(owner, "Quentin Zorbex", ownerApplication, null);
+        String otherApplication = createApplication(other, "Acme", "Engineer");
+        String otherContact = createContact(other, "Meera Iyer", otherApplication, null);
+
+        contactDraft(other, ownerContact, "referral_request", 404);
+
+        mockMvc.perform(post("/api/v1/applications/" + otherApplication + "/email-drafts")
+                        .header("Authorization", "Bearer " + other)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"kind\": \"reconnect\", \"contact_id\": \"" + ownerContact + "\"}"))
+                .andExpect(status().isNotFound());
+
+        provider.replyWith("Hi Meera, I am applying for the Engineer role at Acme. Would you be open to referring me? "
+                + "No problem if not. Thanks, [Your name]");
+        contactDraft(other, otherContact, "referral_request", 200);
+
+        assertThat(provider.everythingSent()).contains("Meera", "Acme")
+                .doesNotContain("Zorbex").doesNotContain("Quentin").doesNotContain("Haskell");
+    }
+
+    private JsonNode contactDraft(String token, String contactId, String kind, int expected) throws Exception {
+        String body = mockMvc.perform(post("/api/v1/contacts/" + contactId + "/message-drafts")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"kind\": \"" + kind + "\"}"))
+                .andExpect(status().is(expected)).andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(body);
+    }
+
+    private String createContact(String token, String name, String applicationId, String roleTitle) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        body.put("application_id", applicationId);
+        if (roleTitle != null) {
+            body.put("role_title", roleTitle);
+        }
+        return send("/api/v1/contacts", token, body).get("id").asText();
+    }
+
     private JsonNode draft(String token, String applicationId, String kind, int expected) throws Exception {
         String body = mockMvc.perform(post("/api/v1/applications/" + applicationId + "/email-drafts")
                         .header("Authorization", "Bearer " + token)

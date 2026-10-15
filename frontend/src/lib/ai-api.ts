@@ -80,7 +80,8 @@ export function createPrepSummary(interviewId: string) {
   return apiFetch<AiDraft>(`/interviews/${interviewId}/prep-pack/summary`, { method: 'POST' })
 }
 
-export type EmailDraftKind = 'thank_you' | 'follow_up' | 'negotiation'
+export type EmailDraftKind = 'thank_you' | 'follow_up' | 'negotiation' | 'referral_request' | 'reconnect' | 'referral_thanks'
+export type ContactDraftKind = 'referral_request' | 'reconnect' | 'referral_thanks'
 
 export interface EmailDraft {
   kind: EmailDraftKind
@@ -94,11 +95,21 @@ export const EMAIL_DRAFT_LABELS: Record<EmailDraftKind, string> = {
   thank_you: 'Thank-you after an interview',
   follow_up: 'Follow-up after silence',
   negotiation: 'Offer negotiation',
+  referral_request: 'Referral request',
+  reconnect: 'Reconnect',
+  referral_thanks: 'Thank-you after a referral',
 }
 
 export function createEmailDraft(applicationId: string, kind: EmailDraftKind, interviewId?: string) {
   return apiFetch<EmailDraft>(`/applications/${applicationId}/email-drafts`, {
     method: 'POST',
     body: { kind, interview_id: interviewId },
+  })
+}
+
+export function createContactDraft(contactId: string, kind: ContactDraftKind) {
+  return apiFetch<EmailDraft>(`/contacts/${contactId}/message-drafts`, {
+    method: 'POST',
+    body: { kind },
   })
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { CopyIcon, MailIcon } from 'lucide-react'
-import { createEmailDraft, EMAIL_DRAFT_LABELS, type EmailDraftKind } from '@/lib/ai-api'
+import { createContactDraft, createEmailDraft, EMAIL_DRAFT_LABELS, type ContactDraftKind, type EmailDraftKind } from '@/lib/ai-api'
 import { formatLabel } from '@/lib/labels'
 import { AiDisclosure } from '@/components/ai/AiDisclosure'
 import { DraftEditor } from '@/components/ai/DraftEditor'
@@ -11,18 +11,22 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface EmailDraftPanelProps {
-  applicationId: string
+  applicationId?: string
+  contactId?: string
   kinds?: EmailDraftKind[]
   interviews?: { id: string; round_number: number; round_type: string }[]
 }
 
-const ALL_KINDS: EmailDraftKind[] = ['thank_you', 'follow_up', 'negotiation']
+const ALL_KINDS: EmailDraftKind[] = ['thank_you', 'follow_up', 'negotiation', 'referral_request', 'reconnect', 'referral_thanks']
 
-export function EmailDraftPanel({ applicationId, kinds = ALL_KINDS, interviews = [] }: EmailDraftPanelProps) {
+export function EmailDraftPanel({ applicationId, contactId, kinds = ALL_KINDS, interviews = [] }: EmailDraftPanelProps) {
   const [kind, setKind] = useState<EmailDraftKind>(kinds[0])
   const [interviewId, setInterviewId] = useState('')
   const draft = useMutation({
-    mutationFn: () => createEmailDraft(applicationId, kind, kind === 'thank_you' && interviewId ? interviewId : undefined),
+    mutationFn: () =>
+      contactId && !applicationId
+        ? createContactDraft(contactId, kind as ContactDraftKind)
+        : createEmailDraft(applicationId!, kind, kind === 'thank_you' && interviewId ? interviewId : undefined),
   })
 
   return (

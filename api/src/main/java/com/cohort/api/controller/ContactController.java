@@ -1,10 +1,13 @@
 package com.cohort.api.controller;
 
+import com.cohort.api.dto.ContactDraftRequest;
 import com.cohort.api.dto.ContactResponse;
 import com.cohort.api.dto.CreateContactRequest;
+import com.cohort.api.dto.EmailDraftResponse;
 import com.cohort.api.dto.UpdateContactRequest;
 import com.cohort.api.entity.Contact;
 import com.cohort.api.service.ContactService;
+import com.cohort.api.service.ai.EmailDraftService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -28,9 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ContactController {
 
     private final ContactService contactService;
+    private final EmailDraftService draftService;
 
-    public ContactController(ContactService contactService) {
+    public ContactController(ContactService contactService, EmailDraftService draftService) {
         this.contactService = contactService;
+        this.draftService = draftService;
     }
 
     @GetMapping
@@ -44,6 +49,12 @@ public class ContactController {
     @GetMapping("/{id}")
     public ContactResponse get(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return contactService.get(userId(jwt), id);
+    }
+
+    @PostMapping("/{id}/message-drafts")
+    public EmailDraftResponse draft(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @Valid @RequestBody ContactDraftRequest request) {
+        return draftService.draftForContact(userId(jwt), id, request);
     }
 
     @PostMapping

@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { EmailDraftPanel } from '@/components/ai/EmailDraftPanel'
+import type { ContactDraftKind } from '@/lib/ai-api'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
@@ -144,6 +146,8 @@ function ContactCard({ contact }: { contact: Contact }) {
   const contacted = useMutation({ mutationFn: () => markContactContacted(contact.id), onSuccess: refresh })
   const remove = useMutation({ mutationFn: () => deleteContact(contact.id), onSuccess: refresh })
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [draftKind, setDraftKind] = useState<ContactDraftKind | null>(null)
+  const draftKinds: ContactDraftKind[] = ['referral_request', 'reconnect', 'referral_thanks']
 
   return (
     <Card className="py-0">
@@ -181,6 +185,12 @@ function ContactCard({ contact }: { contact: Contact }) {
               </option>
             ))}
           </NativeSelect>
+          <Button variant="outline" size="sm" onClick={() => setDraftKind('referral_request')}>
+            Draft a referral request
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setDraftKind('reconnect')}>
+            Reconnect
+          </Button>
           <Button variant="outline" size="sm" onClick={() => contacted.mutate()} disabled={contacted.isPending}>
             Mark contacted
           </Button>
@@ -194,6 +204,20 @@ function ContactCard({ contact }: { contact: Contact }) {
           </Button>
         </div>
       </CardContent>
+      <Dialog open={draftKind !== null} onOpenChange={(open) => !open && setDraftKind(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Message for {contact.name}</DialogTitle>
+            <DialogDescription>A draft built from what you saved about this contact. Edit it and copy it. Nothing is sent.</DialogDescription>
+          </DialogHeader>
+          {draftKind && (
+            <EmailDraftPanel
+              contactId={contact.id}
+              kinds={[draftKind, ...draftKinds.filter((kind) => kind !== draftKind)]}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       <ConfirmDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
