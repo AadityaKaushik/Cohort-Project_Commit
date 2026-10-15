@@ -1,4 +1,5 @@
 import { LockIcon, ScrollTextIcon, ShieldCheckIcon, ShieldOffIcon, SparklesIcon, UploadIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getFlConsent, getFlSchema, listPrivacyLedger, optInFl, optOutFl } from '@/lib/fl-api'
 import { PrivacyLedgerTable } from '@/components/privacy/PrivacyLedgerTable'
@@ -49,7 +50,15 @@ export function PrivacyPage() {
     <div className="space-y-6">
       <PageHeader
         title="Privacy & Federated Learning"
-        description="Choose whether to contribute to the shared model. Participation is your decision, off by default, and reversible at any time."
+        description={
+          <>
+            Choose whether to contribute to the shared model. Participation is your decision, off by default, and reversible at any time. Read the{' '}
+            <Link to="/privacy-policy" className="font-medium text-primary underline-offset-4 hover:underline">
+              full privacy policy
+            </Link>
+            .
+          </>
+        }
       />
 
       <section aria-label="In plain language" className="stagger grid gap-3 md:grid-cols-3">

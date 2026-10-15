@@ -318,6 +318,12 @@ export function LandingPage() {
             <a href="#privacy" className="hover:text-foreground">
               Privacy
             </a>
+            <TransitionLink to="/privacy-policy" className="hover:text-foreground">
+              Privacy policy
+            </TransitionLink>
+            <TransitionLink to="/help" className="hover:text-foreground">
+              Help
+            </TransitionLink>
             <TransitionLink to="/login" className="hover:text-foreground">
               Log in
             </TransitionLink>

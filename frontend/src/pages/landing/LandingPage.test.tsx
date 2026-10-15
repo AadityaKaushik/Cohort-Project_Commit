@@ -46,6 +46,8 @@ describe('LandingPage', () => {
 
     const footer = screen.getByRole('navigation', { name: 'Footer' })
     expect(within(footer).getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '#privacy')
+    expect(within(footer).getByRole('link', { name: 'Privacy policy' })).toHaveAttribute('href', '/privacy-policy')
+    expect(within(footer).getByRole('link', { name: 'Help' })).toHaveAttribute('href', '/help')
     expect(within(footer).getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login')
     expect(within(footer).getByRole('link', { name: 'Create account' })).toHaveAttribute('href', '/register')
   })

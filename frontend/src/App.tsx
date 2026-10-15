@@ -35,6 +35,8 @@ const QuestionBankPage = lazy(() => import('@/pages/prep/QuestionBankPage').then
 const AnalyticsPage = lazy(() => import('@/pages/analytics/AnalyticsPage').then((module) => ({ default: module.AnalyticsPage })))
 const RecommendationsPage = lazy(() => import('@/pages/recommendations/RecommendationsPage').then((module) => ({ default: module.RecommendationsPage })))
 const PrivacyPage = lazy(() => import('@/pages/privacy/PrivacyPage').then((module) => ({ default: module.PrivacyPage })))
+const PrivacyPolicyPage = lazy(() => import('@/pages/privacy/PrivacyPolicyPage').then((module) => ({ default: module.PrivacyPolicyPage })))
+const HelpPage = lazy(() => import('@/pages/help/HelpPage').then((module) => ({ default: module.HelpPage })))
 const AccountPage = lazy(() => import('@/pages/account/AccountPage').then((module) => ({ default: module.AccountPage })))
 const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage').then((module) => ({ default: module.ReportsPage })))
 const NotificationsPage = lazy(() => import('@/pages/notifications/NotificationsPage').then((module) => ({ default: module.NotificationsPage })))
@@ -89,6 +91,8 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/help" element={<HelpPage />} />
       </Route>
       <Route element={<ProtectedRoute signedOutHome={landing} />}>
         <Route element={<AuthRoutes />}>

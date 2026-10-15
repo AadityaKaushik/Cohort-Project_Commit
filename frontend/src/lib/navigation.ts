@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BookMarked,
+  CircleHelp,
   Briefcase,
   Building2,
   FileText,
@@ -84,6 +85,7 @@ export function isNavItemActive(pathname: string, itemPath: string): boolean {
 
 export const secondaryNavItems: NavItem[] = [
   { label: 'Profile', path: '/profile', icon: UserRound },
+  { label: 'Help', path: '/help', icon: CircleHelp },
 ]
 
 export interface Crumb {

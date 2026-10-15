@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { DownloadIcon, Trash2Icon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -78,6 +79,20 @@ export function AccountPage() {
               </Button>
             </FormActions>
           </form>
+        </SectionCard>
+
+        <SectionCard title="Privacy and help" description="How your data is handled, and answers to common questions.">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
+            <Link to="/privacy-policy" className="text-primary underline-offset-4 hover:underline">
+              Privacy policy
+            </Link>
+            <Link to="/privacy" className="text-primary underline-offset-4 hover:underline">
+              Privacy page and ledger
+            </Link>
+            <Link to="/help" className="text-primary underline-offset-4 hover:underline">
+              Help
+            </Link>
+          </div>
         </SectionCard>
 
         <SectionCard

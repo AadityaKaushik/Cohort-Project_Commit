@@ -140,7 +140,18 @@ export function RegisterPage() {
           {signedIn ? 'Account created' : isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
-      <p className="mt-8 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        Before you sign up, read the{' '}
+        <TransitionLink to="/privacy-policy" className="rounded underline underline-offset-4 hover:text-foreground">
+          privacy policy
+        </TransitionLink>{' '}
+        or visit{' '}
+        <TransitionLink to="/help" className="rounded underline underline-offset-4 hover:text-foreground">
+          help
+        </TransitionLink>
+        .
+      </p>
+      <p className="mt-4 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
         <TransitionLink to="/login" className="rounded font-medium text-primary underline-offset-4 hover:underline">
           Log in
