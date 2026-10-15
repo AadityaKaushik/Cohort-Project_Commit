@@ -2,7 +2,7 @@
 
 Cohort is a web application for running a job search in one place: applications, interviews, resume versions, contacts and offers, with interview debriefs feeding a personal preparation plan.
 
-Status: Sprints 1 to 6 and phases P82 to P87 of Sprint 7 are built. P88 and Sprints 8 and 9 are planned. The phase-by-phase plan is in `docs/plan/BUILD_PHASES_JAVA.md`.
+Status: Sprints 1 to 7 are built. Sprints 8 and 9 are planned. The phase-by-phase plan is in `docs/plan/BUILD_PHASES_JAVA.md`.
 
 ## 1. Purpose
 
@@ -30,7 +30,7 @@ Nine sprints, 110 phases. Each phase is one commit with its tests.
 | 4 | Recommendations and federated learning | P39-P58 | Built |
 | 5 | Notifications, reports and account | P59-P68 | Built |
 | 6 | Experience and core gaps | P69-P81 | Built |
-| 7 | Job-search workflow | P82-P88 | P82-P87 built, P88 planned |
+| 7 | Job-search workflow | P82-P88 | Built |
 | 8 | AI and intelligence | P89-P104 | Planned |
 | 9 | Hardening and delivery | P105-P110 | Planned |
 
@@ -52,7 +52,7 @@ Working rules:
 - Recommendations: generator chain, evidence tiers, accept, snooze and dismiss, federated lift view.
 - Federated learning: feature schema, local training, clipping and noise, server with minimum cohort, poisoning filter, privacy ledger.
 - Notifications and reports: in-app notifications from domain events, PDF and CSV exports.
-- Job-search workflow: contacts and referrals with cold-contact nudges, company pages, offers with a deadline countdown, weekly goals with an activity heatmap, global search in the command palette.
+- Job-search workflow: contacts and referrals with cold-contact nudges, company pages, offers with a deadline countdown, weekly goals with an activity heatmap, global search in the command palette, and a structured resume section editor with PDF export.
 - Everyday interaction: keyboard shortcuts, undo on delete, unsaved-changes warning and kept drafts, remembered list filters, quick status menu, form defaults and company autocomplete, duplicate application, one-tap debrief, CSV import of applications.
 
 ## 4. Architecture
@@ -183,7 +183,7 @@ Configuration comes from environment variables; see `.env.example`.
 
 ## 13. Limitations
 
-- The resume section editor (P88) and Sprints 8 and 9 (AI features, sample data and tour, final hardening) are not built.
+- Sprints 8 and 9 (AI features, sample data and tour, final hardening) are not built.
 - The login rate limiter and file storage are single-instance.
 - No load testing has been done.
 
@@ -203,3 +203,4 @@ Configuration comes from environment variables; see `.env.example`.
 | Offers and deadline countdown | 7 | P85 |
 | Weekly goals and activity heatmap | 7 | P86 |
 | Global search in the command palette | 7 | P87 |
+| Resume section editor | 7 | P88 |
