@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ApiError } from '@/lib/api-client'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { formatLabel } from '@/lib/labels'
 import { IMPORT_MAX_BYTES, importApplicationsCsv, type ImportResult } from '@/lib/applications-import-api'
 import { useToast } from '@/hooks/use-toast'
@@ -67,6 +68,7 @@ export function CsvImport({ onImported }: { onImported?: (created: number) => vo
     previewMutation.mutate(selected)
   }
 
+  const isMobile = useIsMobile()
   const visibleRows = preview?.rows.filter((row) => row.outcome !== 'import' || row.warnings.length > 0) ?? []
 
   return (
@@ -110,36 +112,52 @@ export function CsvImport({ onImported }: { onImported?: (created: number) => vo
             {preview.importable} to import, {preview.duplicates} duplicates, {preview.invalid} skipped.
           </p>
 
-          {visibleRows.length > 0 && (
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-left text-sm">
-                <caption className="sr-only">Rows that need attention</caption>
-                <thead className="bg-surface-2 text-xs text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2">Row</th>
-                    <th className="px-3 py-2">Company</th>
-                    <th className="px-3 py-2">Role</th>
-                    <th className="px-3 py-2">Result</th>
-                    <th className="px-3 py-2">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleRows.map((row) => (
-                    <tr key={row.line} className="border-t align-top">
-                      <td className="px-3 py-2 tabular-nums">{row.line}</td>
-                      <td className="px-3 py-2">{row.company || '—'}</td>
-                      <td className="px-3 py-2">{row.role || '—'}</td>
-                      <td className="px-3 py-2">
-                        {OUTCOME_LABELS[row.outcome]}
-                        {row.status && row.outcome === 'import' ? ` as ${formatLabel(row.status)}` : ''}
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">{row.warnings.join(' ')}</td>
+          {visibleRows.length > 0 &&
+            (isMobile ? (
+              <ul aria-label="Rows that need attention" className="space-y-2">
+                {visibleRows.map((row) => (
+                  <li key={row.line} className="space-y-1 rounded-lg border p-3 text-sm">
+                    <p className="font-medium">
+                      {row.company || '—'} · {row.role || '—'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Row {row.line} · {OUTCOME_LABELS[row.outcome]}
+                      {row.status && row.outcome === 'import' ? ` as ${formatLabel(row.status)}` : ''}
+                    </p>
+                    {row.warnings.length > 0 && <p className="text-xs text-muted-foreground">{row.warnings.join(' ')}</p>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border">
+                <table className="w-full text-left text-sm">
+                  <caption className="sr-only">Rows that need attention</caption>
+                  <thead className="bg-surface-2 text-xs text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2">Row</th>
+                      <th className="px-3 py-2">Company</th>
+                      <th className="px-3 py-2">Role</th>
+                      <th className="px-3 py-2">Result</th>
+                      <th className="px-3 py-2">Notes</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {visibleRows.map((row) => (
+                      <tr key={row.line} className="border-t align-top">
+                        <td className="px-3 py-2 tabular-nums">{row.line}</td>
+                        <td className="px-3 py-2">{row.company || '—'}</td>
+                        <td className="px-3 py-2">{row.role || '—'}</td>
+                        <td className="px-3 py-2">
+                          {OUTCOME_LABELS[row.outcome]}
+                          {row.status && row.outcome === 'import' ? ` as ${formatLabel(row.status)}` : ''}
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground">{row.warnings.join(' ')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
 
           <Button disabled={preview.importable === 0 || importMutation.isPending} onClick={() => importMutation.mutate()}>
             {importMutation.isPending

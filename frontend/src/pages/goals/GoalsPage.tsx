@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
 import {
@@ -62,6 +63,7 @@ function GoalRow({ goal }: { goal: Goal }) {
     mutationFn: () => deleteGoal(goal.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: goalKeys.all }),
   })
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const percent = Math.min(100, Math.round((goal.progress / goal.weekly_target) * 100))
 
   return (
@@ -77,10 +79,9 @@ function GoalRow({ goal }: { goal: Goal }) {
               variant="ghost"
               size="icon-sm"
               aria-label={`Remove ${formatLabel(goal.metric)} goal`}
-              onClick={() => remove.mutate()}
-              disabled={remove.isPending}
+              onClick={() => setConfirmOpen(true)}
             >
-              <Trash2Icon className="size-4" />
+              <Trash2Icon aria-hidden className="size-4" />
             </Button>
           </div>
         </div>
@@ -95,6 +96,15 @@ function GoalRow({ goal }: { goal: Goal }) {
           <div className="h-full bg-primary transition-[width] duration-200" style={{ width: `${percent}%` }} />
         </div>
       </CardContent>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Remove this goal?"
+        description={<>This removes your weekly {formatLabel(goal.metric).toLowerCase()} goal. Your activity is kept.</>}
+        confirmLabel="Remove"
+        pending={remove.isPending}
+        onConfirm={() => remove.mutate()}
+      />
     </Card>
   )
 }

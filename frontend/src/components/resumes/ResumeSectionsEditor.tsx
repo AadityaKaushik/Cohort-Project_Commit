@@ -17,6 +17,7 @@ import { ApiError } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { FormError, FormField } from '@/components/shared/Form'
 import { SectionCard } from '@/components/shared/SectionCard'
@@ -291,7 +292,11 @@ export function ResumeSectionsEditor({ resumeId, summary }: ResumeSectionsEditor
         )}
 
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading entries…</p>
+          <div role="status" aria-label="Loading entries" className="space-y-2">
+            {[0, 1, 2].map((row) => (
+              <Skeleton key={row} className="h-14 w-full rounded-lg" />
+            ))}
+          </div>
         ) : sections.length === 0 && !adding ? (
           <p className="text-sm text-muted-foreground">No entries yet. Add experience, projects, skills or education.</p>
         ) : (

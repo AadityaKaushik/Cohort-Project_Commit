@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { EmailDraftPanel } from '@/components/ai/EmailDraftPanel'
 import { NativeSelect } from '@/components/ui/native-select'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
 import { listApplications } from '@/lib/applications-api'
@@ -149,6 +150,7 @@ function OfferCard({ offer, selected, onToggle }: { offer: Offer; selected: bool
   const remove = useMutation({ mutationFn: () => deleteOffer(offer.id), onSuccess: refresh })
   const urgent = offer.days_remaining !== null && offer.days_remaining <= 3
   const [draftOpen, setDraftOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
     <Card className="py-0">
@@ -191,13 +193,20 @@ function OfferCard({ offer, selected, onToggle }: { offer: Offer; selected: bool
             variant="ghost"
             size="icon-sm"
             aria-label={`Delete offer from ${offer.company_name}`}
-            onClick={() => remove.mutate()}
-            disabled={remove.isPending}
+            onClick={() => setConfirmOpen(true)}
           >
-            <Trash2Icon className="size-4" />
+            <Trash2Icon aria-hidden className="size-4" />
           </Button>
         </div>
       </CardContent>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete this offer?"
+        description={<>This deletes the offer from <strong>{offer.company_name}</strong>. This cannot be undone.</>}
+        pending={remove.isPending}
+        onConfirm={() => remove.mutate()}
+      />
       <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
         <DialogContent>
           <DialogHeader>

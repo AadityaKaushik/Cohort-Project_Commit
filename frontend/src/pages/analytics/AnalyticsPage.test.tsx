@@ -94,8 +94,8 @@ describe('AnalyticsPage', () => {
     renderPage()
 
     expect(await screen.findByTestId('funnel-chart')).toBeInTheDocument()
-    expect(screen.getByText('Applied → OA')).toBeInTheDocument()
-    expect(screen.getByTestId('activity-timeline-chart')).toBeInTheDocument()
+    expect(await screen.findByText('Applied → OA')).toBeInTheDocument()
+    expect(await screen.findByTestId('activity-timeline-chart')).toBeInTheDocument()
     expect(screen.getByText('Rejected after OA')).toBeInTheDocument()
     expect(screen.getByText('No response (60+ days)')).toBeInTheDocument()
   })
@@ -109,7 +109,7 @@ describe('AnalyticsPage', () => {
     renderPage()
 
     expect(await screen.findByText(/no applications yet/i)).toBeInTheDocument()
-    expect(screen.getByText(/no activity in this range yet/i)).toBeInTheDocument()
+    expect(await screen.findByText(/no activity in this range yet/i)).toBeInTheDocument()
     expect(screen.getByText(/no rejections recorded yet/i)).toBeInTheDocument()
   })
 })

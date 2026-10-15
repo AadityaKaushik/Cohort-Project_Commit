@@ -74,6 +74,12 @@ export function AppShell() {
 
   return (
     <SidebarProvider defaultOpen={prefersExpandedSidebar()}>
+      <a
+        href="#main"
+        className="sr-only z-[110] rounded-md bg-primary px-3 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Skip to content
+      </a>
       <AppSidebar />
       <SidebarInset className="min-w-0">
         <header className="frosted sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
@@ -88,9 +94,9 @@ export function AppShell() {
               type="button"
               onClick={() => setPaletteOpen(true)}
               aria-label="Open command palette"
-              className="inline-flex h-8 items-center gap-2 rounded-lg border bg-card/60 px-2.5 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+              className="inline-flex h-8 items-center gap-2 rounded-lg border bg-card/60 max-sm:h-10 max-sm:min-w-10 max-sm:justify-center px-2.5 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
             >
-              <Search className="size-3.5" />
+              <Search aria-hidden className="size-3.5" />
               <span className="hidden pr-6 sm:inline">Search</span>
               <span className="hidden items-center gap-0.5 sm:inline-flex">
                 <kbd className="kbd">Ctrl</kbd>
@@ -101,7 +107,7 @@ export function AppShell() {
             <NotificationBell />
           </div>
         </header>
-        <main className="flex-1 px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-8 lg:px-8">
+        <main id="main" tabIndex={-1} className="flex-1 px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-8 outline-none lg:px-8">
           <div key={pathname} className="animate-route mx-auto w-full max-w-7xl">
             <ErrorBoundary variant="inline" resetKey={pathname}>
               <Suspense fallback={<PageFallback />}>

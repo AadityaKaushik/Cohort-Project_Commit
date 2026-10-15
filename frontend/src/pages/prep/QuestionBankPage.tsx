@@ -17,6 +17,7 @@ import {
 import { ApiError } from '@/lib/api-client'
 import { formatLabel } from '@/lib/labels'
 import { useToast } from '@/hooks/use-toast'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -270,7 +271,7 @@ function AttemptHistory({ questionId }: { questionId: string }) {
   })
 
   if (isLoading) {
-    return <p className="mt-3 text-sm text-muted-foreground">Loading history…</p>
+    return <Skeleton role="status" aria-label="Loading history" className="mt-3 h-10 w-full rounded-lg" />
   }
   if (isError) {
     return <p role="alert" className="mt-3 text-sm text-destructive">Couldn&apos;t load the history.</p>

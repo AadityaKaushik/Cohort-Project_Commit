@@ -1,17 +1,19 @@
+import { lazy, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { BriefcaseIcon, MessagesSquareIcon, PercentIcon, TrophyIcon } from 'lucide-react'
 import { getConversionRates, getFunnel, getRejectionDistribution, getTimeline, type RejectionDistribution } from '@/lib/analytics-api'
 import { formatLabel } from '@/lib/labels'
 import { Skeleton } from '@/components/ui/skeleton'
-import { FunnelChart } from '@/components/analytics/FunnelChart'
 import { ConversionCards } from '@/components/analytics/ConversionCards'
-import { ActivityTimelineChart } from '@/components/analytics/ActivityTimelineChart'
 import { SampleSizeBadge } from '@/components/analytics/SampleSizeBadge'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ErrorState, LoadingCards } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { StatGrid, StatTile } from '@/components/shared/StatTile'
 import { cn } from '@/lib/utils'
+
+const FunnelChart = lazy(() => import('@/components/analytics/AnalyticsCharts').then((module) => ({ default: module.FunnelChart })))
+const ActivityTimelineChart = lazy(() => import('@/components/analytics/AnalyticsCharts').then((module) => ({ default: module.ActivityTimelineChart })))
 
 export function AnalyticsPage() {
   const funnelQuery = useQuery({ queryKey: ['analytics-funnel'], queryFn: getFunnel })
@@ -56,7 +58,11 @@ export function AnalyticsPage() {
       <SectionCard title="Application funnel" description="How many applications ever reached each stage.">
         {funnelQuery.isLoading && <Skeleton className="h-[248px] w-full rounded-lg" data-testid="funnel-loading" />}
         {funnelQuery.isError && <ErrorState title="Couldn't load the funnel" error={funnelQuery.error} onRetry={() => funnelQuery.refetch()} />}
-        {funnel && <FunnelChart funnel={funnel} />}
+        {funnel && (
+          <Suspense fallback={<Skeleton className="h-[248px] w-full rounded-lg" />}>
+            <FunnelChart funnel={funnel} />
+          </Suspense>
+        )}
       </SectionCard>
 
       <section aria-labelledby="conversion-heading" className="space-y-3">
@@ -76,7 +82,11 @@ export function AnalyticsPage() {
         <SectionCard title="Activity over time" description="Applications and interviews logged per week.">
           {timelineQuery.isLoading && <Skeleton className="h-[260px] w-full rounded-lg" data-testid="timeline-loading" />}
           {timelineQuery.isError && <ErrorState title="Couldn't load activity" error={timelineQuery.error} onRetry={() => timelineQuery.refetch()} />}
-          {timelineQuery.data && <ActivityTimelineChart timeline={timelineQuery.data} />}
+          {timelineQuery.data && (
+            <Suspense fallback={<Skeleton className="h-[260px] w-full rounded-lg" />}>
+              <ActivityTimelineChart timeline={timelineQuery.data} />
+            </Suspense>
+          )}
         </SectionCard>
 
         <SectionCard

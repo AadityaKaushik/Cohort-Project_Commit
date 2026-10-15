@@ -11,9 +11,11 @@ interface PageHeaderProps {
   actions?: ReactNode
   meta?: ReactNode
   className?: string
+  asH1?: boolean
 }
 
-export function PageHeader({ title, description, eyebrow, back, actions, meta, className }: PageHeaderProps) {
+export function PageHeader({ title, description, eyebrow, back, actions, meta, className, asH1 = false }: PageHeaderProps) {
+  const Heading = asH1 ? 'h1' : 'h2'
   return (
     <header className={cn('flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between', className)}>
       <div className="min-w-0 space-y-1.5">
@@ -27,7 +29,7 @@ export function PageHeader({ title, description, eyebrow, back, actions, meta, c
           </Link>
         )}
         {eyebrow && !back && <p className="eyebrow">{eyebrow}</p>}
-        <h2 className="text-display text-[1.75rem] text-balance break-words sm:text-[2rem]">{title}</h2>
+        <Heading className="text-display text-[1.75rem] text-balance break-words sm:text-[2rem]">{title}</Heading>
         {description && (
           <p className="max-w-2xl text-sm text-pretty text-muted-foreground">
             {description}

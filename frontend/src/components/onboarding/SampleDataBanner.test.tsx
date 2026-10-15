@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SampleDataBanner } from '@/components/onboarding/SampleDataBanner'
@@ -36,6 +36,7 @@ describe('sample data controls', () => {
     wrap(<SampleDataBanner />)
 
     await user.click(await screen.findByRole('button', { name: 'Remove sample data' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Remove sample data' }))
 
     await waitFor(() => expect(api.removeSampleData).toHaveBeenCalled())
   })

@@ -27,7 +27,7 @@ export function PublicPageFrame({ title, description, children }: PublicPageFram
         <ThemeToggle />
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-5 pt-4 pb-16 sm:px-6">
-        <PageHeader title={title} description={description} />
+        <PageHeader asH1 title={title} description={description} />
         {children}
       </main>
       <footer className="border-t px-5 py-6 text-sm text-muted-foreground sm:px-10">

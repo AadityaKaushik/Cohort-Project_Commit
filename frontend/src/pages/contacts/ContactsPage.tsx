@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
 import { listApplications } from '@/lib/applications-api'
@@ -142,6 +143,7 @@ function ContactCard({ contact }: { contact: Contact }) {
   })
   const contacted = useMutation({ mutationFn: () => markContactContacted(contact.id), onSuccess: refresh })
   const remove = useMutation({ mutationFn: () => deleteContact(contact.id), onSuccess: refresh })
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
     <Card className="py-0">
@@ -186,13 +188,20 @@ function ContactCard({ contact }: { contact: Contact }) {
             variant="ghost"
             size="icon-sm"
             aria-label={`Delete ${contact.name}`}
-            onClick={() => remove.mutate()}
-            disabled={remove.isPending}
+            onClick={() => setConfirmOpen(true)}
           >
-            <Trash2Icon className="size-4" />
+            <Trash2Icon aria-hidden className="size-4" />
           </Button>
         </div>
       </CardContent>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete this contact?"
+        description={<>This deletes <strong>{contact.name}</strong> from your contacts. This cannot be undone.</>}
+        pending={remove.isPending}
+        onConfirm={() => remove.mutate()}
+      />
     </Card>
   )
 }

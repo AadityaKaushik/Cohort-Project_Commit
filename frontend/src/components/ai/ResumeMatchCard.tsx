@@ -46,49 +46,51 @@ export function ResumeMatchCard({ applicationId }: { applicationId: string }) {
       <div className="space-y-4">
         <AiDisclosure />
         {isLoading && <Skeleton className="h-20 w-full rounded-lg" data-testid="match-loading" />}
-        {data && (
-          <>
-            {data.score !== null && <p className="text-3xl font-semibold tracking-tight">{data.score}%</p>}
-            <p className="text-sm text-muted-foreground">{data.explanation}</p>
-            {data.matched.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-sm font-medium">Matched</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {data.matched.map((skill) => (
-                    <Badge key={skill} variant="secondary">
-                      {skill}
-                    </Badge>
-                  ))}
+        <div aria-live="polite" className="space-y-4">
+          {data && (
+            <>
+              {data.score !== null && <p className="text-3xl font-semibold tracking-tight">{data.score}%</p>}
+              <p className="text-sm text-muted-foreground">{data.explanation}</p>
+              {data.matched.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-sm font-medium">Matched</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.matched.map((skill) => (
+                      <Badge key={skill} variant="secondary">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            {data.missing.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-sm font-medium">Missing</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {data.missing.map((skill) => (
-                    <Badge key={skill} variant="outline">
-                      {skill}
-                    </Badge>
-                  ))}
+              )}
+              {data.missing.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-sm font-medium">Missing</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.missing.map((skill) => (
+                      <Badge key={skill} variant="outline">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            {data.bullets.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-sm font-medium">Lines from your resume worth leading with</p>
-                <ul className="list-disc space-y-1 pl-5 text-sm">
-                  {data.bullets.map((bullet) => (
-                    <li key={bullet.text}>
-                      {bullet.text}
-                      <span className="text-muted-foreground"> ({bullet.source})</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        )}
+              )}
+              {data.bullets.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-sm font-medium">Lines from your resume worth leading with</p>
+                  <ul className="list-disc space-y-1 pl-5 text-sm">
+                    {data.bullets.map((bullet) => (
+                      <li key={bullet.text}>
+                        {bullet.text}
+                        <span className="text-muted-foreground"> ({bullet.source})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         <div className="space-y-3 border-t pt-4">
           <Button type="button" variant="outline" size="sm" disabled={letter.isPending} onClick={() => letter.mutate()}>
@@ -96,19 +98,22 @@ export function ResumeMatchCard({ applicationId }: { applicationId: string }) {
             {letter.isPending ? 'Drafting…' : letter.data ? 'Draft again' : 'Draft a cover letter'}
           </Button>
           {failure && <p role="alert" className="text-sm text-destructive">{failure}</p>}
-          {letter.data && (
-            <DraftEditor
-              key={letter.submittedAt}
-              label="Cover letter draft"
-              draft={letter.data}
-              actions={(text) => (
-                <Button type="button" size="sm" disabled={save.isPending || text.trim() === ''} onClick={() => save.mutate(text)}>
-                  <SaveIcon aria-hidden />
-                  Save to application
-                </Button>
-              )}
-            />
-          )}
+          {letter.isPending && <Skeleton role="status" aria-label="Drafting the cover letter" className="h-40 w-full rounded-lg" />}
+          <div aria-live="polite">
+            {letter.data && (
+              <DraftEditor
+                key={letter.submittedAt}
+                label="Cover letter draft"
+                draft={letter.data}
+                actions={(text) => (
+                  <Button type="button" size="sm" disabled={save.isPending || text.trim() === ''} onClick={() => save.mutate(text)}>
+                    <SaveIcon aria-hidden />
+                    Save to application
+                  </Button>
+                )}
+              />
+            )}
+          </div>
         </div>
       </div>
     </SectionCard>

@@ -8,6 +8,7 @@ import { DraftEditor } from '@/components/ai/DraftEditor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface EmailDraftPanelProps {
   applicationId: string
@@ -50,10 +51,13 @@ export function EmailDraftPanel({ applicationId, kinds = ALL_KINDS, interviews =
         <MailIcon aria-hidden />
         {draft.isPending ? 'Drafting…' : draft.data ? 'Draft again' : 'Create a draft'}
       </Button>
+      {draft.isPending && <Skeleton role="status" aria-label="Drafting the email" className="h-40 w-full rounded-lg" />}
       {draft.isError && <p role="alert" className="text-sm text-destructive">Could not create a draft. Try again later.</p>}
-      {draft.data && (
-        <EmailDraftResult key={draft.submittedAt} subject={draft.data.subject} body={draft.data.body} source={draft.data.source} aiAvailable={draft.data.ai_available} />
-      )}
+      <div aria-live="polite">
+        {draft.data && (
+          <EmailDraftResult key={draft.submittedAt} subject={draft.data.subject} body={draft.data.body} source={draft.data.source} aiAvailable={draft.data.ai_available} />
+        )}
+      </div>
     </div>
   )
 }
