@@ -1,11 +1,21 @@
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AlertTriangleIcon, ExternalLinkIcon } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
-import { directoryKeys, getDirectoryCompany, type DirectoryPay, type DirectorySource } from '@/lib/directory-api'
+import { ContributionForm } from '@/components/directory/ContributionForm'
+import {
+  directoryKeys,
+  getDirectoryCompany,
+  listMyContributions,
+  withdrawContribution,
+  type CommunitySummary,
+  type DirectoryPay,
+  type DirectorySource,
+} from '@/lib/directory-api'
 import { formatLabel } from '@/lib/labels'
 import { DIFFICULTY_LABEL, DifficultyBadge } from '@/components/shared/DifficultyBadge'
 import { listTopics } from '@/lib/prep-api'
@@ -36,6 +46,53 @@ function SourceList({ sources, checked }: { sources: DirectorySource[]; checked:
   )
 }
 
+function CommunityBlock({ summary, minimum }: { summary: CommunitySummary; minimum: number }) {
+  if (summary.rating === null || summary.difficulty === null) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Ratings appear when {minimum} or more candidates have shared ({summary.contributors} so far)
+      </p>
+    )
+  }
+  return (
+    <div className="space-y-3 text-sm">
+      <p>
+        Community rating {summary.rating}/5 · Community difficulty {summary.difficulty}/5 · {summary.contributors} candidates
+      </p>
+      <div>
+        <p className="text-xs font-medium">Rounds candidates report</p>
+        <ul className="space-y-0.5">
+          {summary.common_rounds.map((round) => (
+            <li key={round.round_type}>
+              {formatLabel(round.round_type)}: {round.percent}% (difficulty {round.average_difficulty}/5)
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p className="text-xs font-medium">Outcomes</p>
+        <ul className="flex flex-wrap gap-x-4">
+          {Object.entries(summary.outcomes).map(([outcome, percent]) => (
+            <li key={outcome}>
+              {formatLabel(outcome)}: {percent}%
+            </li>
+          ))}
+        </ul>
+      </div>
+      {summary.tips.length > 0 && (
+        <div>
+          <p className="text-xs font-medium">Tips from candidates</p>
+          <ul className="list-disc space-y-0.5 pl-5">
+            {summary.tips.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function payText(pay: DirectoryPay): string {
   const year = pay.year ? `, ${pay.year}` : ', year not stated'
   return `${pay.currency} ${pay.min} to ${pay.max} ${pay.unit} (${pay.level}${year})`
@@ -46,6 +103,16 @@ export function DirectoryProfilePage() {
   const { slug = '' } = useParams()
   const query = useQuery({ queryKey: directoryKeys.detail(slug), queryFn: () => getDirectoryCompany(slug), enabled: slug !== '' })
   const topics = useQuery({ queryKey: ['topics'], queryFn: listTopics })
+  const mine = useQuery({ queryKey: directoryKeys.mine, queryFn: listMyContributions })
+  const queryClient = useQueryClient()
+  const [sharing, setSharing] = useState(false)
+  const withdraw = useMutation({
+    mutationFn: withdrawContribution,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: directoryKeys.mine })
+      queryClient.invalidateQueries({ queryKey: directoryKeys.detail(slug) })
+    },
+  })
 
   if (query.isLoading) {
     return <LoadingRows rows={5} label="Loading company" />
@@ -97,6 +164,62 @@ export function DirectoryProfilePage() {
         {DIRECTORY_NOTE}
         {company.community_rating === null && ` No rating yet (needs ${company.community_min_contributors} candidates).`}
       </p>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Community experience</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Shared by candidates, separate from the indicative difficulty below. Only group figures are shown.
+          </p>
+          {company.community_summaries.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Ratings appear when {company.community_min_contributors} or more candidates have shared (0 so far)
+            </p>
+          ) : (
+            company.community_summaries.map((summary) => (
+              <div key={summary.role_family} className="space-y-1">
+                <p className="text-xs font-medium">{formatLabel(summary.role_family)}</p>
+                <CommunityBlock summary={summary} minimum={company.community_min_contributors} />
+              </div>
+            ))
+          )}
+
+          {(mine.data ?? []).filter((item) => item.company_slug === company.slug).length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium">Your contributions</p>
+              <ul className="space-y-1 text-sm">
+                {(mine.data ?? [])
+                  .filter((item) => item.company_slug === company.slug)
+                  .map((item) => (
+                    <li key={item.id} className="flex flex-wrap items-center justify-between gap-2">
+                      <span>
+                        {formatLabel(item.role_family)} · {item.year}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={withdraw.isPending}
+                        onClick={() => withdraw.mutate(item.id)}
+                      >
+                        Withdraw my contribution
+                      </Button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+
+          {sharing ? (
+            <ContributionForm companySlug={company.slug} onDone={() => setSharing(false)} />
+          ) : (
+            <Button variant="outline" onClick={() => setSharing(true)}>
+              Share your experience
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
       {company.role_patterns.length === 0 && (
         <p className="text-sm text-muted-foreground">No role pattern has been added for this company.</p>

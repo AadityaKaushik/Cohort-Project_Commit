@@ -202,6 +202,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("COMPANY_NOTE_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(ContributionNotFoundException.class)
+    public ResponseEntity<ApiError> handleContributionNotFound(ContributionNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("CONTRIBUTION_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateContributionException.class)
+    public ResponseEntity<ApiError> handleDuplicateContribution(DuplicateContributionException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("DUPLICATE_CONTRIBUTION", ex.getMessage()));
+    }
+
     @ExceptionHandler(CompanyNotFoundException.class)
     public ResponseEntity<ApiError> handleCompanyNotFound(CompanyNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("COMPANY_NOT_FOUND", ex.getMessage()));
@@ -231,6 +241,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidReportRequestException.class)
     public ResponseEntity<ApiError> handleInvalidReportRequest(InvalidReportRequestException ex) {
+        return ResponseEntity.badRequest().body(ApiError.of("VALIDATION_ERROR", ex.getMessage(), ex.getFieldErrors()));
+    }
+
+    @ExceptionHandler(InvalidContributionException.class)
+    public ResponseEntity<ApiError> handleInvalidContribution(InvalidContributionException ex) {
         return ResponseEntity.badRequest().body(ApiError.of("VALIDATION_ERROR", ex.getMessage(), ex.getFieldErrors()));
     }
 

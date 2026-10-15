@@ -11,4 +11,6 @@ public interface CompanyProfileRepository extends JpaRepository<CompanyProfile, 
     List<CompanyProfile> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
 
     Optional<CompanyProfile> findBySlug(String slug);
+
+    Optional<CompanyProfile> findFirstByNameIgnoreCase(String name);
 }

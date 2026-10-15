@@ -133,3 +133,7 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         record-exceptions:
           - com.cohort.api.service.fl.FlServiceUnavailableException
+
+cohort:
+  contributions:
+    salt: ${CONTRIBUTION_SALT:local-development-salt}

@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-/** communityRating stays null until contribution aggregates exist; the UI shows the minimum contributor count. */
+/**
+ * The community fields describe the role family with the most contributors. They stay null until that family has
+ * communityMinContributors distinct contributors. communitySummaries has the same figures per role family.
+ */
 public record DirectoryCompanyDetail(
         String slug,
         String name,
@@ -16,6 +19,9 @@ public record DirectoryCompanyDetail(
         List<Map<String, Object>> sources,
         LocalDate lastChecked,
         Double communityRating,
+        Double communityDifficulty,
+        int communityContributors,
         int communityMinContributors,
+        List<CommunitySummary> communitySummaries,
         List<DirectoryRolePattern> rolePatterns) {
 }

@@ -1,5 +1,6 @@
 package com.cohort.api.service;
 
+import com.cohort.api.dto.CommunitySummary;
 import com.cohort.api.dto.DirectoryCompanyDetail;
 import com.cohort.api.dto.DirectoryCompanyListItem;
 import com.cohort.api.dto.DirectoryRolePattern;
@@ -8,6 +9,7 @@ import com.cohort.api.entity.CompanyRolePattern;
 import com.cohort.api.exception.CompanyNotFoundException;
 import com.cohort.api.repository.CompanyProfileRepository;
 import com.cohort.api.repository.CompanyRolePatternRepository;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -20,12 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CompanyDirectoryService {
 
-    static final int COMMUNITY_MIN_CONTRIBUTORS = 5;
+    static final int COMMUNITY_MIN_CONTRIBUTORS = ContributionService.MIN_CONTRIBUTORS;
 
     private final CompanyProfileRepository profiles;
     private final CompanyRolePatternRepository patterns;
+    private final ContributionService contributions;
 
-    public CompanyDirectoryService(CompanyProfileRepository profiles, CompanyRolePatternRepository patterns) {
+    public CompanyDirectoryService(
+            CompanyProfileRepository profiles, CompanyRolePatternRepository patterns, ContributionService contributions) {
+        this.contributions = contributions;
         this.profiles = profiles;
         this.patterns = patterns;
     }
@@ -80,6 +85,10 @@ public class CompanyDirectoryService {
                         pattern.getSources(),
                         pattern.getLastChecked()))
                 .toList();
+        List<CommunitySummary> summaries = contributions.summaries(profile.getId());
+        CommunitySummary headline = summaries.stream()
+                .max(Comparator.comparingInt(CommunitySummary::contributors))
+                .orElse(null);
         return new DirectoryCompanyDetail(
                 profile.getSlug(),
                 profile.getName(),
@@ -90,8 +99,11 @@ public class CompanyDirectoryService {
                 profile.getSummary(),
                 profile.getSources(),
                 profile.getLastChecked(),
-                null,
+                headline == null ? null : headline.rating(),
+                headline == null ? null : headline.difficulty(),
+                headline == null ? 0 : headline.contributors(),
                 COMMUNITY_MIN_CONTRIBUTORS,
+                summaries,
                 rolePatterns);
     }
 

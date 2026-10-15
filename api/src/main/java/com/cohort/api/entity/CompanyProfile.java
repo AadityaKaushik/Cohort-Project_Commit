@@ -47,6 +47,16 @@ public class CompanyProfile {
     protected CompanyProfile() {
     }
 
+    /** A profile created from a contribution: no sourced facts and no role patterns. */
+    public static CompanyProfile stub(String name, String slug, LocalDate today) {
+        CompanyProfile profile = new CompanyProfile();
+        profile.id = UUID.randomUUID();
+        profile.name = name;
+        profile.slug = slug;
+        profile.lastChecked = today;
+        return profile;
+    }
+
     public UUID getId() {
         return id;
     }

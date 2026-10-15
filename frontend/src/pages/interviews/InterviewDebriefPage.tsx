@@ -20,6 +20,7 @@ import { SoftWarning } from '@/components/shared/SoftWarning'
 import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
 import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
 import { OUTCOME_CHIPS, ROUND_TOPICS, readTopics, withTopics } from '@/lib/debrief-topics'
+import { ContributionForm } from '@/components/directory/ContributionForm'
 import { cn } from '@/lib/utils'
 
 interface DebriefDraft {
@@ -45,6 +46,7 @@ export function InterviewDebriefPage() {
     enabled: Boolean(id),
   })
 
+  const [shareOpen, setShareOpen] = useState(false)
   const [selfRating, setSelfRating] = useState<number | null>(null)
   const [whatWentWell, setWhatWentWell] = useState('')
   const [whatWentPoorly, setWhatWentPoorly] = useState('')
@@ -187,7 +189,7 @@ export function InterviewDebriefPage() {
 
   if (justSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-2xl space-y-6">
         <EmptyState
           icon={CheckCircle2Icon}
           title="Debrief saved"
@@ -204,6 +206,18 @@ export function InterviewDebriefPage() {
             </Button>
           }
         />
+        <SectionCard
+          title="Share your experience"
+          description={`Optional. Add ${interview.company.name} to the community figures without your name.`}
+        >
+          {shareOpen ? (
+            <ContributionForm companyName={interview.company.name} />
+          ) : (
+            <Button variant="outline" onClick={() => setShareOpen(true)}>
+              Share your experience
+            </Button>
+          )}
+        </SectionCard>
       </div>
     )
   }
