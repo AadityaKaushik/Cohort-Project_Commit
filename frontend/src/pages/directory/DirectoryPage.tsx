@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
 import { directoryKeys, listDirectoryCompanies } from '@/lib/directory-api'
 import { formatLabel } from '@/lib/labels'
+import { DifficultyBadge } from '@/components/shared/DifficultyBadge'
 
 export const DIRECTORY_NOTE = 'General pattern, may be out of date. Ratings appear when 5 or more candidates have shared.'
 
@@ -85,6 +86,10 @@ export function DirectoryPage() {
                     <p className="truncate text-xs text-muted-foreground">
                       {company.role_families.map(formatLabel).join(', ') || 'No role pattern yet'}
                     </p>
+                    <p className="text-xs text-muted-foreground">
+                      {company.role_families.length} {company.role_families.length === 1 ? 'role' : 'roles'} covered
+                    </p>
+                    <DifficultyBadge level={company.difficulty_level} />
                     <p className="text-xs text-muted-foreground">Checked {company.last_checked}</p>
                   </div>
                   <ChevronRightIcon aria-hidden className="size-4 text-muted-foreground" />

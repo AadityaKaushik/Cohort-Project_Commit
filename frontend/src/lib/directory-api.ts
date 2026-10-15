@@ -29,6 +29,8 @@ export interface DirectoryCompanyListItem {
   industry: string | null
   website: string | null
   role_families: string[]
+  difficulty_level: number | null
+  difficulty_basis: string | null
   last_checked: string
 }
 
@@ -40,6 +42,8 @@ export interface DirectoryRolePattern {
   notes: string | null
   experience_summary: string | null
   pay: DirectoryPay | null
+  difficulty_level: number | null
+  difficulty_basis: string | null
   sources: DirectorySource[]
   last_checked: string
 }

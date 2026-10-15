@@ -9,5 +9,7 @@ public record DirectoryCompanyListItem(
         String industry,
         String website,
         List<String> roleFamilies,
+        Integer difficultyLevel,
+        String difficultyBasis,
         LocalDate lastChecked) {
 }

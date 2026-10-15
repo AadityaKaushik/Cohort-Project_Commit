@@ -12,6 +12,8 @@ public record DirectoryRolePattern(
         String notes,
         String experienceSummary,
         Map<String, Object> pay,
+        Integer difficultyLevel,
+        String difficultyBasis,
         List<Map<String, Object>> sources,
         LocalDate lastChecked) {
 }

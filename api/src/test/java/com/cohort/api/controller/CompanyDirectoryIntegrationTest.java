@@ -62,6 +62,18 @@ class CompanyDirectoryIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void difficultyIsExposedOnlyWhereASourceStatesIt() throws Exception {
+        String token = register("directory-difficulty@example.com");
+
+        mockMvc.perform(get("/api/v1/directory/companies?query=cognizant").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$[0].difficulty_level", is(2)))
+                .andExpect(jsonPath("$[0].difficulty_basis").isNotEmpty());
+        mockMvc.perform(get("/api/v1/directory/companies/payu").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.role_patterns[0].difficulty_level", nullValue()))
+                .andExpect(jsonPath("$.role_patterns[0].difficulty_basis", nullValue()));
+    }
+
+    @Test
     void unknownSlugIsNotFoundAndAnonymousCallersAreRejected() throws Exception {
         String token = register("directory-missing@example.com");
 

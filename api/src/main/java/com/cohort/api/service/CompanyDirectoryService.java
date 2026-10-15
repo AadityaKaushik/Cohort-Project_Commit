@@ -41,6 +41,14 @@ public class CompanyDirectoryService {
                         CompanyRolePattern::getCompanyId,
                         Collectors.mapping(CompanyRolePattern::getRoleFamily, Collectors.collectingAndThen(
                                 Collectors.toCollection(TreeSet::new), List::copyOf))));
+        Map<UUID, CompanyRolePattern> ratedByCompany = patterns
+                .findByCompanyIdIn(found.stream().map(CompanyProfile::getId).toList())
+                .stream()
+                .filter(pattern -> pattern.getDifficultyLevel() != null)
+                .collect(Collectors.toMap(
+                        CompanyRolePattern::getCompanyId,
+                        pattern -> pattern,
+                        (first, second) -> "software_engineer".equals(second.getRoleFamily()) ? second : first));
         return found.stream()
                 .map(profile -> new DirectoryCompanyListItem(
                         profile.getSlug(),
@@ -48,6 +56,8 @@ public class CompanyDirectoryService {
                         profile.getIndustry(),
                         profile.getWebsite(),
                         familiesByCompany.getOrDefault(profile.getId(), List.of()),
+                        difficultyOf(ratedByCompany.get(profile.getId())),
+                        basisOf(ratedByCompany.get(profile.getId())),
                         profile.getLastChecked()))
                 .toList();
     }
@@ -65,6 +75,8 @@ public class CompanyDirectoryService {
                         pattern.getNotes(),
                         pattern.getExperienceSummary(),
                         pattern.getPay(),
+                        pattern.getDifficultyLevel() == null ? null : pattern.getDifficultyLevel().intValue(),
+                        pattern.getDifficultyBasis(),
                         pattern.getSources(),
                         pattern.getLastChecked()))
                 .toList();
@@ -81,5 +93,13 @@ public class CompanyDirectoryService {
                 null,
                 COMMUNITY_MIN_CONTRIBUTORS,
                 rolePatterns);
+    }
+
+    private static Integer difficultyOf(CompanyRolePattern pattern) {
+        return pattern == null ? null : pattern.getDifficultyLevel().intValue();
+    }
+
+    private static String basisOf(CompanyRolePattern pattern) {
+        return pattern == null ? null : pattern.getDifficultyBasis();
     }
 }

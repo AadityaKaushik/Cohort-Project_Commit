@@ -45,6 +45,12 @@ public class CompanyRolePattern {
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> pay;
 
+    @Column(name = "difficulty_level")
+    private Short difficultyLevel;
+
+    @Column(name = "difficulty_basis")
+    private String difficultyBasis;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
     private List<Map<String, Object>> sources = List.of();
@@ -85,6 +91,14 @@ public class CompanyRolePattern {
 
     public Map<String, Object> getPay() {
         return pay;
+    }
+
+    public Short getDifficultyLevel() {
+        return difficultyLevel;
+    }
+
+    public String getDifficultyBasis() {
+        return difficultyBasis;
     }
 
     public List<Map<String, Object>> getSources() {

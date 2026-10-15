@@ -52,6 +52,8 @@ const profile: DirectoryCompanyDetail = {
       notes: null,
       experience_summary: 'One on-campus account from 2021.',
       pay: null,
+      difficulty_level: 3,
+      difficulty_basis: 'The source describes the test as moderate.',
       sources: [{ url: 'https://example.org/payu', title: 'PayU interview experience' }],
       last_checked: '2026-10-15',
     },
@@ -61,8 +63,8 @@ const profile: DirectoryCompanyDetail = {
 describe('company directory', () => {
   it('lists companies and filters by role family', async () => {
     vi.mocked(listDirectoryCompanies).mockResolvedValue([
-      { slug: 'payu', name: 'PayU', industry: null, website: null, role_families: ['software_engineer'], last_checked: '2026-10-15' },
-      { slug: 'acme', name: 'Acme', industry: null, website: null, role_families: ['data'], last_checked: '2026-10-15' },
+      { slug: 'payu', name: 'PayU', industry: null, website: null, role_families: ['software_engineer'], difficulty_level: 3, difficulty_basis: null, last_checked: '2026-10-15' },
+      { slug: 'acme', name: 'Acme', industry: null, website: null, role_families: ['data'], difficulty_level: null, difficulty_basis: null, last_checked: '2026-10-15' },
     ])
     const user = userEvent.setup()
     renderAt('/directory')
@@ -73,6 +75,7 @@ describe('company directory', () => {
     await user.selectOptions(screen.getByLabelText('Role family'), 'data')
     expect(screen.queryByText('PayU')).not.toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
+    expect(screen.getByText('No sourced rating')).toBeInTheDocument()
   })
 
   it('shows rounds, sources, the pay placeholder and the no-rating note', async () => {
@@ -83,6 +86,8 @@ describe('company directory', () => {
     expect(await screen.findByRole('heading', { name: 'PayU' })).toBeInTheDocument()
     expect(screen.getByText(/Online test/)).toBeInTheDocument()
     expect(screen.getByText('No sourced figure yet')).toBeInTheDocument()
+    expect(screen.getByText(/Difficulty 3\/5/)).toBeInTheDocument()
+    expect(screen.getByText('The source describes the test as moderate.')).toBeInTheDocument()
     expect(screen.getByText(/Figures are approximate/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /PayU interview experience/ })).toHaveAttribute('href', 'https://example.org/payu')
     expect(screen.getByRole('note')).toHaveTextContent('needs 5 candidates')

@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
 import { directoryKeys, getDirectoryCompany, type DirectoryPay, type DirectorySource } from '@/lib/directory-api'
 import { formatLabel } from '@/lib/labels'
+import { DIFFICULTY_LABEL, DifficultyBadge } from '@/components/shared/DifficultyBadge'
 import { listTopics } from '@/lib/prep-api'
 import { DIRECTORY_NOTE } from '@/pages/directory/DirectoryPage'
 
@@ -126,6 +127,12 @@ export function DirectoryProfilePage() {
             )}
 
             {pattern.notes && <p className="text-xs text-muted-foreground">{pattern.notes}</p>}
+
+            <div className="space-y-1">
+              <p className="text-xs font-medium">{DIFFICULTY_LABEL}</p>
+              <DifficultyBadge level={pattern.difficulty_level} />
+              {pattern.difficulty_basis && <p className="text-xs text-muted-foreground">{pattern.difficulty_basis}</p>}
+            </div>
 
             <div className="space-y-1">
               <p className="text-xs font-medium">Expected pay</p>
