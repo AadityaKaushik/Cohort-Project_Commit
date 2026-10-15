@@ -190,6 +190,8 @@ class PreparationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound());
         mockMvc.perform(delete("/api/v1/questions/" + questionId).header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound());
+        mockMvc.perform(post("/api/v1/questions/" + questionId + "/fork").header("Authorization", "Bearer " + intruderToken))
+                .andExpect(status().isNotFound());
 
         // Recording a practice attempt against a question the intruder cannot see is also 404.
         mockMvc.perform(post("/api/v1/questions/" + questionId + "/attempts")

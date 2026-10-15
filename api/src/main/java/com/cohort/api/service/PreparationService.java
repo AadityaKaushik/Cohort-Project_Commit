@@ -118,7 +118,7 @@ public class PreparationService {
 
     @Transactional
     public QuestionResponse forkQuestion(UUID userId, UUID questionId) {
-        Question source = questionRepository.findById(questionId).orElseThrow(QuestionNotFoundException::new);
+        Question source = requireVisible(userId, questionId);
         Question fork = Question.ownedByUser(userId, source.getTopicId(), source.getQuestionText(), source.getCategory());
         fork.setDifficulty(source.getDifficulty());
         fork.setSourceQuestionId(source.getId());
