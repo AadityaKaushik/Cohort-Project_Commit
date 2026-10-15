@@ -31,8 +31,8 @@ Nine sprints, 110 phases. Each phase is one commit with its tests.
 | 5 | Notifications, reports and account | P59-P68 | Built |
 | 6 | Experience and core gaps | P69-P81 | Built |
 | 7 | Job-search workflow | P82-P88 | Built |
-| 8 | AI and intelligence | P89-P104 | Planned |
-| 9 | Hardening and delivery | P105-P110 | Planned |
+| 8 | AI and intelligence | P89-P104 | Partly built: P89, P94 done; P95, P98, P99, P101, P103 to build; 9 deferred |
+| 9 | Hardening and delivery | P105-P110 | Planned, seed data (P105) built |
 
 Working rules:
 

@@ -231,28 +231,28 @@ From Sprint 2 onward the Owner column names the owning department; the departmen
 
 ## SPRINT 8 — AI and intelligence
 
-**Goal:** AI assistance grounded in the user's own data, prep intelligence (question recommendations, readiness, spaced review), and cohort benchmarks and a privacy budget meter built on the federated model. AI runs on a local model (Ollama) by default, so user data never leaves the server; Google Gemini is an optional provider, and the UI discloses when it is active.
+**Goal:** AI assistance grounded in the user's own data, plus the prep intelligence that is reliable on a small local model. Seven phases are delivered (P89, P94, P95, P98, P99, P101, P103) and nine are deferred. AI runs on a local model (Ollama) by default, so user data never leaves the server; Google Gemini is an optional provider, and the UI discloses when it is active.
 
 | # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
 |---|---|---|---|---|---|---|---|
 | P89 | AI/ML | AI/ML team | P03 | `feat(ai): AiProvider strategy — local Ollama default, optional Gemini (US-102)` | Provider interface, Ollama + Gemini implementations, streaming, timeouts, graceful "AI unavailable", per-user rate limits, AI usage log (no prompt content stored); ADR-013 records the local-first AI decision | **Strategy** | Contract tests against stubbed providers; swapping provider touches no feature code |
-| P90 | AI/ML | AI/ML team | P42, P89 | `feat(ai): Cohort Coach chat grounded in the user's data (US-103)` | Streaming chat; the app injects the user's own data into context; causal-language linter applied to replies | — | Grounding test: coach never sees another user's data |
-| P91 | AI/ML | AI/ML team | P11, P89 | `feat(ai): job posting to application parser (US-104)` | Structured extraction with validation; user confirms before save | — | Malformed model output rejected, never saved |
-| P92 | AI/ML | AI/ML team | P24, P28, P89 | `feat(ai): debrief notes to tagged questions (US-33,34,105)` | Extract questions, map to topics, promote to the question bank | — | Fixture-based extraction tests |
-| P93 | AI/ML | AI/ML team | P31, P89 | `feat(prep): question recommendations with embeddings (US-106)` | Local embeddings; solve-next, daily picks, interview-driven; each pick states its reason | — | Deterministic ranking tests on fixtures |
+| P90 | AI/ML | AI/ML team | P42, P89 | `feat(ai): Cohort Coach chat grounded in the user's data (US-103)` | Deferred: coach quality depends on a larger model. Streaming chat; the app injects the user's own data into context; causal-language linter applied to replies | — | Grounding test: coach never sees another user's data |
+| P91 | AI/ML | AI/ML team | P11, P89 | `feat(ai): job posting to application parser (US-104)` | Deferred: covered by the posting paste and the bookmarklet. Structured extraction with validation; user confirms before save | — | Malformed model output rejected, never saved |
+| P92 | AI/ML | AI/ML team | P24, P28, P89 | `feat(ai): debrief notes to tagged questions (US-33,34,105)` | Deferred: chips already cut typing. Extract questions, map to topics, promote to the question bank | — | Fixture-based extraction tests |
+| P93 | AI/ML | AI/ML team | P31, P89 | `feat(prep): question recommendations with embeddings (US-106)` | Deferred: topic mastery already ranks questions. Local embeddings; solve-next, daily picks, interview-driven; each pick states its reason | — | Deterministic ranking tests on fixtures |
 | P94 | Backend | Backend team | P11, P30, P31 | `feat(prep): job readiness score per application (US-107)` | Job skills mapped to topics, weighted by mastery; gated by sample size | uses **Template Method** | Golden-file tests |
 | P95 | AI/ML | AI/ML team | P20, P88, P89 | `feat(ai): resume and job description match (US-108)` | Gaps, tailoring suggestions, and a tailored cover letter draft | — | Fixture tests |
-| P96 | AI/ML | AI/ML team | P28, P31, P89 | `feat(ai): mock interview with graded answers (US-109)` | Questions from weak topics; grades recorded as practice attempts | — | Attempts recorded with the right topic |
-| P97 | AI/ML | AI/ML team | P89 | `feat(ai): STAR story bank (US-110)` | CRUD + AI structuring + competency tags | — | Isolation test |
+| P96 | AI/ML | AI/ML team | P28, P31, P89 | `feat(ai): mock interview with graded answers (US-109)` | Deferred: grading from a small local model is unreliable. Questions from weak topics; grades recorded as practice attempts | — | Attempts recorded with the right topic |
+| P97 | AI/ML | AI/ML team | P89 | `feat(ai): STAR story bank (US-110)` | Deferred: STAR bank, lower priority. CRUD + AI structuring + competency tags | — | Isolation test |
 | P98 | AI/ML | AI/ML team | P24, P89, P93 | `feat(ai): interview prep pack (US-111)` | One-page brief per upcoming interview | — | Content assembled only from the user's data |
 | P99 | AI/ML | AI/ML team | P85, P89 | `feat(ai): follow-up and negotiation email drafts (US-112)` | Drafts only; never sent automatically | — | API + RTL |
-| P100 | AI/ML | AI/ML team | P36, P61, P89 | `feat(ai): weekly review (US-113)` | Generated from analytics; delivered through the notification channels | — | Fixture tests |
+| P100 | AI/ML | AI/ML team | P36, P61, P89 | `feat(ai): weekly review (US-113)` | Deferred: restates the dashboard. Generated from analytics; delivered through the notification channels | — | Fixture tests |
 | P101 | Backend | Backend team | P21, P30, P36 | `feat(analytics): resume performance and funnel simulator (US-26,114)` | Response rate per resume version; applications-needed simulator | uses **Template Method** | Golden-file tests |
-| P102 | AI/ML | AI/ML team | P48, P50 | `feat(fl): cohort benchmarks from the federated model (US-115)` | Benchmarks from the global model only; min-cohort rule applies | — | Benchmarks hidden below the min-cohort size |
+| P102 | AI/ML | AI/ML team | P48, P50 | `feat(fl): cohort benchmarks from the federated model (US-115)` | Deferred: needs a real cohort. Benchmarks from the global model only; min-cohort rule applies | — | Benchmarks hidden below the min-cohort size |
 | P103 | Backend | Backend team | P31, P75 | `feat(prep): spaced review queue (US-42)` | Daily review queue scheduled from mastery decay | — | Deterministic scheduling tests on fixtures |
-| P104 | AI/ML | AI/ML team | P56, P57 | `feat(fl): privacy budget meter (US-66)` | Cumulative ε per user from the ledger, shown against the configured budget | — | Meter total equals the sum of the user's ledger entries |
+| P104 | AI/ML | AI/ML team | P56, P57 | `feat(fl): privacy budget meter (US-66)` | Deferred: the Privacy Ledger already covers it. Cumulative ε per user from the ledger, shown against the configured budget | — | Meter total equals the sum of the user's ledger entries |
 
-**Sprint 8 DoD:** Every AI feature works with the local model and degrades gracefully when it is down; no AI prompt contains another user's data; the Gemini disclosure is shown whenever that provider is active.
+**Sprint 8 DoD:** The seven delivered phases work with the local model and degrade gracefully when it is down; no AI prompt contains another user's data; the Gemini disclosure is shown whenever that provider is active. The nine deferred phases keep their rows and numbers and are not built.
 
 ---
 
