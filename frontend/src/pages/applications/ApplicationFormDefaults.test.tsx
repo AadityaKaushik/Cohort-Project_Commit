@@ -89,3 +89,25 @@ describe('ApplicationFormPage defaults', () => {
     expect(screen.getByRole('heading', { name: 'Duplicate application' })).toBeInTheDocument()
   })
 })
+
+describe('ApplicationFormPage posting paste', () => {
+  beforeEach(() => {
+    vi.mocked(applicationsApi.listApplications).mockResolvedValue({ items: [], total: 0 } as never)
+    vi.mocked(companiesApi.listCompanies).mockResolvedValue([])
+  })
+
+  it('fills only empty fields from a pasted posting and says how many', async () => {
+    const user = userEvent.setup()
+    renderForm()
+    await user.type(screen.getByLabelText('Company'), 'Mine Ltd')
+    await user.click(screen.getByRole('button', { name: /paste a job posting/i }))
+    await user.click(screen.getByLabelText('Posting text'))
+    await user.paste('Backend Engineer\nCompany: Acme\nLocation: Pune\nHybrid\nFull-time')
+    await user.click(screen.getByRole('button', { name: 'Fill the form' }))
+
+    expect(screen.getByLabelText('Company')).toHaveValue('Mine Ltd')
+    expect(screen.getByLabelText('Job title')).toHaveValue('Backend Engineer')
+    expect(screen.getByLabelText('Location')).toHaveValue('Pune')
+    expect(screen.getByRole('status')).toHaveTextContent(/Filled 5 fields\. Review before saving\./)
+  })
+})

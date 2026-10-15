@@ -16,6 +16,7 @@ import {
 } from '@/lib/applications-api'
 import { ApiError } from '@/lib/api-client'
 import { guessCompanyFromUrl } from '@/lib/company-guess'
+import { parsePosting, type PostingField } from '@/lib/posting-parser'
 import { listCompanies } from '@/lib/companies-api'
 import { formatLabel } from '@/lib/labels'
 import { cleanName, email as emailRule, hasErrors, meaningfulText, plausibleDate, positiveInteger, required, url, validate } from '@/lib/validation'
@@ -149,8 +150,39 @@ export function ApplicationFormPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const softWarnings = useSoftWarnings()
 
+  const [postingOpen, setPostingOpen] = useState(false)
+  const [postingText, setPostingText] = useState('')
+  const [postingUrl, setPostingUrl] = useState('')
+  const [suggested, setSuggested] = useState<PostingField[]>([])
+  const [postingSummary, setPostingSummary] = useState<string | null>(null)
+
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
+    setSuggested((current) => current.filter((field) => field !== key))
+  }
+
+  function suggestedHint(field: PostingField) {
+    return suggested.includes(field) ? 'Suggested from the posting. Edit if it is wrong.' : undefined
+  }
+
+  function fillFromPosting() {
+    const parsed = parsePosting(postingText, postingUrl)
+    const filled = (Object.keys(parsed) as PostingField[]).filter((field) => form[field] === '')
+    if (filled.length === 0) {
+      setPostingSummary(
+        Object.keys(parsed).length === 0 ? 'Nothing could be read from that text.' : 'Every field it found is already filled.',
+      )
+      return
+    }
+    setForm((current) => {
+      const next = { ...current }
+      for (const field of filled) {
+        next[field] = parsed[field] as never
+      }
+      return next
+    })
+    setSuggested((current) => [...new Set([...current, ...filled])])
+    setPostingSummary(`Filled ${filled.length} ${filled.length === 1 ? 'field' : 'fields'}. Review before saving.`)
   }
 
   useEffect(() => {
@@ -305,9 +337,43 @@ export function ApplicationFormPage() {
         description={isEditing ? 'Update the details you track for this role.' : 'Only the company, role and date are required. Add the rest whenever you have it.'}
       />
       <SectionCard>
+        <div className="mb-6 rounded-lg border border-border p-4">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between text-left text-sm font-medium"
+            aria-expanded={postingOpen}
+            aria-controls="posting-panel"
+            onClick={() => setPostingOpen((open) => !open)}
+          >
+            Paste a job posting
+            <span aria-hidden className="text-muted-foreground">
+              {postingOpen ? '−' : '+'}
+            </span>
+          </button>
+          {postingOpen && (
+            <div id="posting-panel" className="mt-4 space-y-4">
+              <FormField id="postingText" label="Posting text" hint="Empty fields are filled from this text. Fields you already typed stay as they are.">
+                <Textarea id="postingText" rows={6} value={postingText} onChange={(e) => setPostingText(e.target.value)} />
+              </FormField>
+              <FormField id="postingUrl" label="Posting link (optional)">
+                <Input id="postingUrl" type="url" placeholder="https://" value={postingUrl} onChange={(e) => setPostingUrl(e.target.value)} />
+              </FormField>
+              <div className="flex items-center gap-3">
+                <Button type="button" variant="outline" onClick={fillFromPosting} disabled={postingText.trim() === ''}>
+                  Fill the form
+                </Button>
+                {postingSummary && (
+                  <p role="status" className="text-sm text-muted-foreground">
+                    {postingSummary}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         <form id="application-form" onSubmit={handleSubmit} className="space-y-6" noValidate>
           <FormSection title="The role" description="What you applied for and where it stands.">
-            <FormField id="companyName" label="Company" error={fieldErrors.companyName}>
+            <FormField id="companyName" label="Company" hint={suggestedHint('companyName')} error={fieldErrors.companyName}>
               <Input id="companyName" list="company-options" autoComplete="off" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
             </FormField>
             <datalist id="company-options">
@@ -315,7 +381,7 @@ export function ApplicationFormPage() {
                 <option key={company.id} value={company.name} />
               ))}
             </datalist>
-            <FormField id="jobTitle" label="Job title" error={fieldErrors.jobTitle}>
+            <FormField id="jobTitle" label="Job title" hint={suggestedHint('jobTitle')} error={fieldErrors.jobTitle}>
               <Input id="jobTitle" value={form.jobTitle} onChange={(e) => set('jobTitle', e.target.value)} required />
             </FormField>
             <FormField id="dateApplied" label="Date applied" error={fieldErrors.dateApplied}>
@@ -332,10 +398,10 @@ export function ApplicationFormPage() {
                 </NativeSelect>
               </FormField>
             )}
-            <FormField id="location" label="Location" error={fieldErrors.location}>
+            <FormField id="location" label="Location" hint={suggestedHint('location')} error={fieldErrors.location}>
               <Input id="location" value={form.location} onChange={(e) => set('location', e.target.value)} />
             </FormField>
-            <FormField id="workMode" label="Work mode">
+            <FormField id="workMode" label="Work mode" hint={suggestedHint('workMode')}>
               <NativeSelect id="workMode" value={form.workMode} onChange={(e) => set('workMode', e.target.value as WorkMode | '')}>
                 <option value="">Not specified</option>
                 {WORK_MODES.map((option) => (
@@ -345,7 +411,7 @@ export function ApplicationFormPage() {
                 ))}
               </NativeSelect>
             </FormField>
-            <FormField id="jobType" label="Job type">
+            <FormField id="jobType" label="Job type" hint={suggestedHint('jobType')}>
               <NativeSelect id="jobType" value={form.jobType} onChange={(e) => set('jobType', e.target.value as JobType | '')}>
                 <option value="">Not specified</option>
                 {JOB_TYPES.map((option) => (
@@ -355,19 +421,19 @@ export function ApplicationFormPage() {
                 ))}
               </NativeSelect>
             </FormField>
-            <FormField id="jobUrl" label="Job URL" error={fieldErrors.jobUrl}>
+            <FormField id="jobUrl" label="Job URL" hint={suggestedHint('jobUrl')} error={fieldErrors.jobUrl}>
               <Input id="jobUrl" type="url" placeholder="https://" value={form.jobUrl} onPaste={handleUrlPaste} onChange={(e) => set('jobUrl', e.target.value)} />
             </FormField>
           </FormSection>
 
           <FormSection title="Compensation" description="Whole numbers, in the posting's currency." columns={3}>
-            <FormField id="salaryMin" label="Minimum salary" error={fieldErrors.salaryMin}>
+            <FormField id="salaryMin" label="Minimum salary" hint={suggestedHint('salaryMin')} error={fieldErrors.salaryMin}>
               <Input id="salaryMin" inputMode="numeric" value={form.salaryMin} onChange={(e) => set('salaryMin', e.target.value)} />
             </FormField>
-            <FormField id="salaryMax" label="Maximum salary" error={fieldErrors.salaryMax}>
+            <FormField id="salaryMax" label="Maximum salary" hint={suggestedHint('salaryMax')} error={fieldErrors.salaryMax}>
               <Input id="salaryMax" inputMode="numeric" value={form.salaryMax} onChange={(e) => set('salaryMax', e.target.value)} />
             </FormField>
-            <FormField id="salaryCurrency" label="Currency" error={fieldErrors.salaryCurrency}>
+            <FormField id="salaryCurrency" label="Currency" hint={suggestedHint('salaryCurrency')} error={fieldErrors.salaryCurrency}>
               <Input id="salaryCurrency" maxLength={3} placeholder="USD" value={form.salaryCurrency} onChange={(e) => set('salaryCurrency', e.target.value)} />
             </FormField>
           </FormSection>
@@ -402,7 +468,7 @@ export function ApplicationFormPage() {
           </FormSection>
 
           <FormSection title="Notes and documents" description="Anything worth remembering before the next round." columns={1}>
-            <FormField id="jobDescription" label="Job description">
+            <FormField id="jobDescription" label="Job description" hint={suggestedHint('jobDescription')}>
               <Textarea id="jobDescription" value={form.jobDescription} onChange={(e) => set('jobDescription', e.target.value)} rows={4} />
             </FormField>
             <FormField id="notes" label="Notes" error={fieldErrors.notes}>
