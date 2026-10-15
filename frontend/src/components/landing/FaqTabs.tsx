@@ -56,7 +56,7 @@ const FAQ: FaqCategory[] = [
       {
         question: 'Does Cohort use AI?',
         answer:
-          'Recommendations come from transparent rules over your own data, and each one shows the evidence behind it. Generative AI assistance is planned and not yet available.',
+          'Recommendations come from transparent rules over your own data, and each one shows the evidence behind it. An AI provider layer is in place: a local model by default, with an optional cloud provider that shows a visible notice. The first AI features are the resume-to-job match, the interview prep pack and email drafts, shipping as they are finished.',
       },
       {
         question: 'Will AI see my data?',
