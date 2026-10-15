@@ -38,6 +38,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { ReadinessCard } from '@/components/prep/ReadinessCard'
+import { ResumeMatchCard } from '@/components/ai/ResumeMatchCard'
 import { OutcomeBadge, PriorityBadge } from '@/components/shared/ToneBadge'
 
 export function ApplicationDetailPage() {
@@ -329,6 +330,8 @@ export function ApplicationDetailPage() {
           </SectionCard>
 
           <ReadinessCard applicationId={data.id} />
+
+          <ResumeMatchCard applicationId={data.id} />
 
           <SectionCard title="Resume" description="The version you sent with this application.">
             <div className="space-y-3">
