@@ -2,7 +2,7 @@
 
 Cohort is a web application for running a job search in one place: applications, interviews, resume versions, contacts and offers, with interview debriefs feeding a personal preparation plan.
 
-Status: Sprints 1 to 7 are built. Sprints 8 and 9 are planned. The phase-by-phase plan is in `docs/plan/BUILD_PHASES_JAVA.md`.
+Status: Sprints 1 to 7 are built. Sprint 8 is built for P89, P94, P95, P98, P99 and P103, with the other ten phases deferred. Sprint 9 is built for P105 to P108 and P110; P109 is verified at the final test run. The phase-by-phase plan is in `docs/plan/BUILD_PHASES_JAVA.md`.
 
 ## 1. Purpose
 
@@ -32,7 +32,7 @@ Nine sprints, 110 phases. Each phase is one commit with its tests.
 | 6 | Experience and core gaps | P69-P81 | Built |
 | 7 | Job-search workflow | P82-P88 | Built |
 | 8 | AI and intelligence | P89-P104 | Built: P89, P94, P95, P98, P99, P103; 10 deferred |
-| 9 | Hardening and delivery | P105-P110 | Planned, seed data (P105) built |
+| 9 | Hardening and delivery | P105-P110 | Built: P105-P108, P110; P109 verified at the final test run |
 
 Working rules:
 
@@ -183,7 +183,8 @@ Configuration comes from environment variables; see `.env.example`.
 
 ## 13. Limitations
 
-- Sprints 8 and 9 (AI features, sample data and tour, final hardening) are not built.
+- Ten Sprint 8 phases are deferred and not built.
+- The full security suite (P109) and the axe-core check run at the final test, not per commit.
 - The login rate limiter and file storage are single-instance.
 - No load testing has been done.
 

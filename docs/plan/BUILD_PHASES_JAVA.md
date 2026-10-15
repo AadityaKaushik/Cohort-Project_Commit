@@ -259,7 +259,7 @@ From Sprint 2 onward the Owner column names the owning department; the departmen
 
 ## SPRINT 9 — Hardening and delivery
 
-**Goal:** Demo-ready data, a first-run experience, designed error states, privacy and AI disclosure pages, and the final security and accessibility verification across every feature.
+**Goal:** Demo-ready data, a first-run experience, designed error states, privacy and AI disclosure pages, a polish and accessibility pass across the app, and the final security verification across every feature. P105 to P108 and P110 are built. P109 is verified at the final test run.
 
 | # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
 |---|---|---|---|---|---|---|---|
@@ -268,9 +268,9 @@ From Sprint 2 onward the Owner column names the owning department; the departmen
 | P107 | Frontend | Frontend team | P70, P71 | `feat(frontend): designed error, 404, offline and session-expired screens (US-117)` | Consistent full-page and inline states with clear next actions and retry; offline banner; graceful token-expiry flow | — | RTL for each state in both themes |
 | P108 | Frontend | Frontend team | P55, P89 | `feat(frontend): privacy policy, AI disclosure, help pages (NFR-16)` | Plain-language data, FL and AI disclosure; keyboard shortcut help | — | Linked from sign-up and settings |
 | P109 | Backend | Backend team | P14, P108 | `test: full security suite (US-73)` | Enumerate every endpoint from the OpenAPI schema (springdoc), including all Sprint 6–8 endpoints; assert 401/404 systematically | — | Full suite green |
-| P110 | Frontend | Frontend team | P80, P108 | `chore(a11y): accessibility remediation pass (US-74)` | Contrast, focus traps, aria-labels across the whole UI in both themes | — | axe-core: zero critical violations |
+| P110 | Frontend | Frontend team | P80, P108 | `chore(a11y): polish and accessibility pass across the app (US-74)` | Skeleton loaders on data pages, lazy-loaded charts and routes, phone-width layouts with card rows and 40 px touch targets, one h1 per page, skip link, labelled controls, focus handling in dialogs, aria-live for async results, reduced-motion support, one confirmation dialog for destructive actions | — | axe-core: zero critical violations (runs at the final test) |
 
-**Sprint 9 DoD:** The full security suite is green across every endpoint; axe-core reports zero critical violations in both themes; sample data and the tour work for a new user; the demo has been rehearsed twice end to end.
+**Sprint 9 DoD:** The full security suite is green across every endpoint; axe-core reports zero critical violations in both themes; sample data and the tour work for a new user; the app is usable at 375 px width without horizontal scroll; the demo has been rehearsed twice end to end. The axe-core check and the P109 suite run at the final test, not per commit.
 
 ---
 

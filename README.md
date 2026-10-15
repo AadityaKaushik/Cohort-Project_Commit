@@ -29,13 +29,15 @@ frontend/       React + TypeScript + Tailwind + shadcn/ui
 docs/
   plan/         Requirements, architecture and build phases
   adr/          Architecture decision records
+  company-directory.md   Company directory: reference data and sourcing rules
+  data-quality-rules.md  Input checks for user-entered text
 scripts/        CI helper scripts
 ```
 
 ## Status
 
 The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one commit per phase.
-Sprints 1 to 7 are built. Sprint 8 delivers six phases (P89, P94, P95, P98, P99, P103) and defers ten. Sprint 9 is planned except the seed data (P105), which is built.
+Sprints 1 to 7 are built. Sprint 8 is built for P89, P94, P95, P98, P99 and P103; the other ten phases are deferred. Sprint 9 is built for P105 to P108 and P110. P109 (the full security suite) is verified at the final test run.
 `docs/implementation-overview.md` summarises the build and `docs/poster.html` is the project poster.
 
 ## Running locally
