@@ -100,6 +100,28 @@ export function DashboardPage() {
         </Button>
       </section>
 
+      <div aria-label="Needs attention today" className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <Panel title="Action queue">
+          {isLoading && <Skeleton className="h-48 w-full rounded-xl" data-testid="action-queue-loading" />}
+          {!isLoading && hasError && <ErrorState title="Couldn't load this" description="Something went wrong talking to the server." />}
+          {!isLoading && !hasError && <ActionQueueList items={actionQueue} />}
+        </Panel>
+        <Panel title="Next interviews" action={<PanelLink to="/interviews">All interviews</PanelLink>}>
+          {upcomingInterviewsQuery.isLoading && <Skeleton className="h-48 w-full rounded-xl" />}
+          {upcomingInterviewsQuery.data && <UpcomingInterviews interviews={upcomingInterviews.slice(0, UPCOMING_LIMIT)} />}
+        </Panel>
+      </div>
+
+      <Panel title="Pipeline" action={<PanelLink to="/applications/board">Open board</PanelLink>}>
+        {applicationsQuery.isLoading && <Skeleton className="h-28 w-full rounded-xl" data-testid="pipeline-loading" />}
+        {applicationsQuery.isError && <ErrorState title="Couldn't load this" description="Something went wrong talking to the server." />}
+        {applicationsQuery.data && <PipelineStrip applications={applicationsQuery.data.items} />}
+      </Panel>
+
+      <details open className="group space-y-3">
+        <summary className="cursor-pointer text-sm font-medium text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring">
+          Progress at a glance
+        </summary>
       <section aria-label="Progress at a glance" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4 [&>*:nth-child(-n+2)]:col-span-2 sm:[&>*:nth-child(-n+2)]:col-span-1">
         <MetricCard title="Prep tasks" loading={tasksQuery.isLoading}>
           <div className="flex items-center gap-4">
@@ -158,24 +180,9 @@ export function DashboardPage() {
           </div>
         </MetricCard>
       </section>
+      </details>
 
-      <Panel title="Pipeline" action={<PanelLink to="/applications/board">Open board</PanelLink>}>
-        {applicationsQuery.isLoading && <Skeleton className="h-28 w-full rounded-xl" data-testid="pipeline-loading" />}
-        {applicationsQuery.isError && <ErrorState title="Couldn't load this" description="Something went wrong talking to the server." />}
-        {applicationsQuery.data && <PipelineStrip applications={applicationsQuery.data.items} />}
-      </Panel>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Panel title="Action queue">
-          {isLoading && <Skeleton className="h-48 w-full rounded-xl" data-testid="action-queue-loading" />}
-          {!isLoading && hasError && <ErrorState title="Couldn't load this" description="Something went wrong talking to the server." />}
-          {!isLoading && !hasError && <ActionQueueList items={actionQueue} />}
-        </Panel>
-        <Panel title="Next interviews" action={<PanelLink to="/interviews">All interviews</PanelLink>}>
-          {upcomingInterviewsQuery.isLoading && <Skeleton className="h-48 w-full rounded-xl" />}
-          {upcomingInterviewsQuery.data && <UpcomingInterviews interviews={upcomingInterviews.slice(0, UPCOMING_LIMIT)} />}
-        </Panel>
-      </div>
     </div>
   )
 }

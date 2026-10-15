@@ -57,6 +57,24 @@ function NavList({ items }: { items: NavItem[] }) {
   )
 }
 
+function CollapsedGroup({ label, items }: { label: string; items: NavItem[] }) {
+  const { pathname } = useLocation()
+  const hasActive = items.some((item) => isNavItemActive(pathname, item.path))
+
+  return (
+    <SidebarGroup className="py-1.5">
+      <details open={hasActive} className="group/more">
+        <summary className="flex h-7 cursor-pointer items-center px-2 text-[11px] tracking-[0.06em] text-sidebar-foreground/70 uppercase group-data-[collapsible=icon]:hidden">
+          {label}
+        </summary>
+        <SidebarGroupContent>
+          <NavList items={items} />
+        </SidebarGroupContent>
+      </details>
+    </SidebarGroup>
+  )
+}
+
 export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
@@ -69,14 +87,18 @@ export function AppSidebar() {
 
       <SidebarContent className="gap-0 py-2">
         <nav aria-label="Sections">
-          {navGroups.map((group) => (
-            <SidebarGroup key={group.label} className="py-1.5">
-              <SidebarGroupLabel className="h-7 text-[11px] tracking-[0.06em] uppercase">{group.label}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <NavList items={group.items} />
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ))}
+          {navGroups.map((group) =>
+            group.collapsed ? (
+              <CollapsedGroup key={group.label} label={group.label} items={group.items} />
+            ) : (
+              <SidebarGroup key={group.label} className="py-1.5">
+                <SidebarGroupLabel className="h-7 text-[11px] tracking-[0.06em] uppercase">{group.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <NavList items={group.items} />
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ),
+          )}
         </nav>
       </SidebarContent>
 

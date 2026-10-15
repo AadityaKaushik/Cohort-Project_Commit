@@ -26,37 +26,41 @@ export interface NavItem {
 
 export interface NavGroup {
   label: string
+  collapsed?: boolean
   items: NavItem[]
 }
 
 export const navGroups: NavGroup[] = [
   {
-    label: 'Overview',
-    items: [{ label: 'Dashboard', path: '/', icon: LayoutDashboard }],
-  },
-  {
-    label: 'Job search',
+    label: 'Track',
     items: [
+      { label: 'Dashboard', path: '/', icon: LayoutDashboard },
       { label: 'Applications', path: '/applications', icon: Briefcase },
-      { label: 'Resumes', path: '/resumes', icon: FileText },
-      { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
-      { label: 'Companies', path: '/companies', icon: Building2 },
       { label: 'Contacts', path: '/contacts', icon: UsersRound },
+      { label: 'Companies', path: '/companies', icon: Building2 },
       { label: 'Offers', path: '/offers', icon: HandCoins },
     ],
   },
   {
     label: 'Prepare',
     items: [
+      { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
       { label: 'Interview Prep', path: '/prep', icon: PencilLine },
-      { label: 'Recommendations', path: '/recommendations', icon: Sparkles },
+      { label: 'Resumes', path: '/resumes', icon: FileText },
     ],
   },
   {
     label: 'Insights',
     items: [
       { label: 'Analytics', path: '/analytics', icon: BarChart3 },
+      { label: 'Recommendations', path: '/recommendations', icon: Sparkles },
       { label: 'Goals', path: '/goals', icon: Target },
+    ],
+  },
+  {
+    label: 'More',
+    collapsed: true,
+    items: [
       { label: 'Reports', path: '/reports', icon: FileDown },
       { label: 'Privacy / FL', path: '/privacy', icon: ShieldCheck },
     ],
