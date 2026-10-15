@@ -4,6 +4,8 @@ import { format } from 'date-fns'
 import { CalendarClockIcon, ClockIcon, MessagesSquareIcon, NotebookPenIcon, PlusIcon, TrophyIcon, type LucideIcon } from 'lucide-react'
 import { listInterviews, type InterviewSummary } from '@/lib/interviews-api'
 import { Button } from '@/components/ui/button'
+import { CalendarDownloadButton } from '@/components/shared/CalendarDownloadButton'
+import { downloadInterviewCalendar, downloadUpcomingCalendar } from '@/lib/calendar-api'
 import { DataTable, type DataTableColumn } from '@/components/shared/DataTable'
 import { usePendingDeletes } from '@/hooks/use-undo-delete'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -53,6 +55,21 @@ function buildColumns(navigate: (path: string) => void): DataTableColumn<Intervi
         ),
     },
     { key: 'outcome', header: 'Outcome', render: (row) => <OutcomeBadge outcome={row.outcome} /> },
+    {
+      key: 'calendar',
+      header: 'Calendar',
+      render: (row) =>
+        row.scheduled_at && new Date(row.scheduled_at) > new Date() ? (
+          <CalendarDownloadButton
+            label="Add to calendar"
+            variant="link"
+            size="sm"
+            className="h-auto p-0"
+            stopPropagation
+            download={() => downloadInterviewCalendar(row.id)}
+          />
+        ) : null,
+    },
     {
       key: 'debrief',
       header: 'Debrief',
@@ -152,12 +169,15 @@ export function InterviewsListPage() {
         title="Interviews"
         description="Every round you have scheduled or sat, with a debrief while it is still fresh."
         actions={
-          <Button asChild>
-            <Link to="/interviews/new">
-              <PlusIcon aria-hidden />
-              New interview
-            </Link>
-          </Button>
+          <>
+            <CalendarDownloadButton label="Download all upcoming" download={downloadUpcomingCalendar} />
+            <Button asChild>
+              <Link to="/interviews/new">
+                <PlusIcon aria-hidden />
+                New interview
+              </Link>
+            </Button>
+          </>
         }
       />
 

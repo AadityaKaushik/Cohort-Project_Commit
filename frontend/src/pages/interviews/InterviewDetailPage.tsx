@@ -16,6 +16,8 @@ import {
   updateInterview,
 } from '@/lib/interviews-api'
 import { Button } from '@/components/ui/button'
+import { CalendarDownloadButton } from '@/components/shared/CalendarDownloadButton'
+import { downloadInterviewCalendar } from '@/lib/calendar-api'
 import {
   Dialog,
   DialogContent,
@@ -164,6 +166,9 @@ export function InterviewDetailPage() {
                 Prep pack
               </Link>
             </Button>
+            {data.scheduled_at && (
+              <CalendarDownloadButton label="Add to calendar" download={() => downloadInterviewCalendar(data.id)} />
+            )}
             <Button variant="outline" asChild>
               <Link to={`/interviews/${data.id}/edit`}>
                 <PencilIcon aria-hidden />

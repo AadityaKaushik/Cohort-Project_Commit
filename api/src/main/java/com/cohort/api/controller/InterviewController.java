@@ -10,11 +10,13 @@ import com.cohort.api.dto.InterviewSummary;
 import com.cohort.api.dto.PagedResponse;
 import com.cohort.api.dto.UpdateInterviewRequest;
 import com.cohort.api.entity.InterviewRoundType;
+import com.cohort.api.service.CalendarService;
 import com.cohort.api.service.InterviewService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,9 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/interviews")
 public class InterviewController {
     private final InterviewService interviewService;
+    private final CalendarService calendarService;
 
-    public InterviewController(InterviewService interviewService) {
+    public InterviewController(InterviewService interviewService, CalendarService calendarService) {
         this.interviewService = interviewService;
+        this.calendarService = calendarService;
     }
 
     @PostMapping
@@ -60,6 +64,11 @@ public class InterviewController {
     @GetMapping("/{id}")
     public InterviewDetailResponse get(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return interviewService.getById(userId(jwt), id);
+    }
+
+    @GetMapping("/{id}/calendar.ics")
+    public ResponseEntity<String> calendar(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        return CalendarController.icsResponse(calendarService.interviewCalendar(userId(jwt), id), "interview.ics");
     }
 
     @PatchMapping("/{id}")

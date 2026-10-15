@@ -13,6 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.cohort.api.AbstractIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
+import java.time.Instant;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -296,6 +299,48 @@ class InterviewIntegrationTest extends AbstractIntegrationTest {
                 .andReturn();
 
         return idOf(result);
+    }
+
+    @Test
+    void calendarExportReturnsAnIcsFileAndHidesForeignInterviews() throws Exception {
+        String ownerToken = registerAndGetAccessToken("interview-ics-owner@example.com", "Owner");
+        String intruderToken = registerAndGetAccessToken("interview-ics-intruder@example.com", "Intruder");
+        String applicationId = createApplication(ownerToken);
+
+        MvcResult created = mockMvc.perform(post("/api/v1/interviews")
+                        .header("Authorization", "Bearer " + ownerToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"application_id": "%s", "round_number": 1, "round_type": "TECHNICAL",
+                                 "scheduled_at": "%s"}
+                                """.formatted(applicationId, Instant.now().plus(Duration.ofDays(3)))))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String interviewId = idOf(created);
+
+        MvcResult single = mockMvc.perform(get("/api/v1/interviews/" + interviewId + "/calendar.ics")
+                        .header("Authorization", "Bearer " + ownerToken))
+                .andExpect(status().isOk())
+                .andReturn();
+        String body = single.getResponse().getContentAsString();
+        Assertions.assertTrue(body.contains("SUMMARY:Test Co interview\\, round 1"));
+        Assertions.assertTrue(body.contains("TRIGGER:-PT30M"));
+
+        mockMvc.perform(get("/api/v1/interviews/" + interviewId + "/calendar.ics")
+                        .header("Authorization", "Bearer " + intruderToken))
+                .andExpect(status().isNotFound());
+
+        String upcoming = mockMvc.perform(get("/api/v1/calendar/upcoming.ics")
+                        .header("Authorization", "Bearer " + ownerToken))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        Assertions.assertTrue(upcoming.contains("UID:interview-" + interviewId + "@cohort"));
+
+        String foreign = mockMvc.perform(get("/api/v1/calendar/upcoming.ics")
+                        .header("Authorization", "Bearer " + intruderToken))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        Assertions.assertFalse(foreign.contains("VEVENT"));
     }
 
     private String createApplication(String token) throws Exception {
