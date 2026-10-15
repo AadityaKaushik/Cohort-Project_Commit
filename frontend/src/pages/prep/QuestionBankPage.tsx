@@ -196,7 +196,7 @@ export function QuestionBankPage() {
       </form>
 
       {questionsQuery.isLoading && <LoadingRows label="Loading questions" />}
-      {questionsQuery.isError && <ErrorState title="Couldn't load questions" onRetry={() => questionsQuery.refetch()} />}
+      {questionsQuery.isError && <ErrorState title="Couldn't load questions" error={questionsQuery.error} onRetry={() => questionsQuery.refetch()} />}
       {questionsQuery.data && questionsQuery.data.items.length === 0 && (
         <EmptyState
           compact

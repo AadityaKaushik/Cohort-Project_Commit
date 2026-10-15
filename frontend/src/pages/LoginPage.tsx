@@ -37,7 +37,8 @@ export function LoginPage() {
     prefetchRoute('/')
   }, [])
 
-  const redirectTo = (location.state as { from?: Location } | null)?.from?.pathname ?? '/'
+  const from = (location.state as { from?: Location } | null)?.from
+  const redirectTo = from ? `${from.pathname}${from.search}${from.hash}` : '/'
 
   if (isAuthenticated && !signingIn) {
     return <Navigate to={redirectTo} replace />

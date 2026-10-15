@@ -115,7 +115,7 @@ export function PrepPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <SectionCard title="Progress by category" description="Task completion, with average mastery alongside.">
           {progressQuery.isLoading && <LoadingCards count={3} label="Loading progress" className="[&>*]:p-3" />}
-          {progressQuery.isError && <ErrorState title="Couldn't load progress" onRetry={() => progressQuery.refetch()} />}
+          {progressQuery.isError && <ErrorState title="Couldn't load progress" error={progressQuery.error} onRetry={() => progressQuery.refetch()} />}
           {progressQuery.data && (
             <div className="space-y-5">
               {progressQuery.data.categories.map((category) => (
@@ -162,7 +162,7 @@ export function PrepPage() {
             </form>
 
             {tasksQuery.isLoading && <LoadingRows rows={3} label="Loading tasks" />}
-            {tasksQuery.isError && <ErrorState title="Couldn't load your tasks" onRetry={() => tasksQuery.refetch()} />}
+            {tasksQuery.isError && <ErrorState title="Couldn't load your tasks" error={tasksQuery.error} onRetry={() => tasksQuery.refetch()} />}
             {tasksQuery.data && tasksQuery.data.length === 0 && (
               <EmptyState
                 compact

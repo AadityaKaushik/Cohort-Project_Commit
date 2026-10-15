@@ -2,10 +2,11 @@ import type { ReactNode } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { BrandGlyph } from '@/components/brand/BrandMark'
+import { SessionExpiredScreen } from '@/components/shared/SessionExpiredScreen'
 import { RotatingQuote } from '@/components/shared/RotatingQuote'
 
 export function ProtectedRoute({ signedOutHome }: { signedOutHome?: ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, sessionMessage } = useAuth()
   const location = useLocation()
 
   if (isLoading) {
@@ -22,6 +23,9 @@ export function ProtectedRoute({ signedOutHome }: { signedOutHome?: ReactNode })
   }
 
   if (!isAuthenticated) {
+    if (sessionMessage) {
+      return <SessionExpiredScreen from={location} />
+    }
     if (signedOutHome && location.pathname === '/') {
       return <>{signedOutHome}</>
     }

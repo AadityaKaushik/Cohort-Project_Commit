@@ -2,21 +2,31 @@ import type { ReactNode } from 'react'
 import { AlertTriangleIcon, RotateCwIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useOnlineStatus } from '@/hooks/use-online-status'
+import { classifyError, ERROR_COPY } from '@/lib/query-errors'
 import { cn } from '@/lib/utils'
 
 export function ErrorState({
   title = 'Something went wrong',
   description = 'We could not load this just now. Check your connection and try again.',
+  error,
   onRetry,
   action,
   className,
 }: {
   title?: string
   description?: string
+  error?: unknown
   onRetry?: () => void
   action?: ReactNode
   className?: string
 }) {
+  const online = useOnlineStatus()
+  const kind = classifyError(error, online)
+  const copy = kind === 'other' ? null : ERROR_COPY[kind]
+  const shownTitle = copy?.title ?? title
+  const shownDescription = copy?.description ?? description
+
   return (
     <div
       role="alert"
@@ -29,8 +39,8 @@ export function ErrorState({
         <AlertTriangleIcon aria-hidden className="size-4" />
       </span>
       <div className="min-w-0 flex-1 space-y-0.5">
-        <p className="text-sm font-semibold text-destructive">{title}</p>
-        <p className="text-sm text-pretty text-muted-foreground">{description}</p>
+        <p className="text-sm font-semibold text-destructive">{shownTitle}</p>
+        <p className="text-sm text-pretty text-muted-foreground">{shownDescription}</p>
       </div>
       {(onRetry || action) && (
         <div className="flex shrink-0 gap-2">

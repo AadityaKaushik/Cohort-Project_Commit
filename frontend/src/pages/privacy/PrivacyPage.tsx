@@ -97,7 +97,7 @@ export function PrivacyPage() {
         description={schemaQuery.data ? `Exactly ${schemaQuery.data.feature_count} bounded numbers, derived only from your own activity. No raw counts, no free text, no identifiers.` : undefined}
       >
         {schemaQuery.isLoading && <LoadingRows rows={4} label="Loading the feature schema" />}
-        {schemaQuery.isError && <ErrorState title="Couldn't load the feature schema" onRetry={() => schemaQuery.refetch()} />}
+        {schemaQuery.isError && <ErrorState title="Couldn't load the feature schema" error={schemaQuery.error} onRetry={() => schemaQuery.refetch()} />}
         {schemaQuery.data && (
           <div className="space-y-5">
             <ul className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 xl:grid-cols-3">
@@ -129,7 +129,7 @@ export function PrivacyPage() {
         description="Everything this account has ever sent to the shared model, one row per round. Expand a row to see the exact vector that was transmitted after clipping and noise."
       >
         {ledgerQuery.isLoading && <LoadingRows rows={3} label="Loading the Privacy Ledger" />}
-        {ledgerQuery.isError && <ErrorState title="Couldn't load the Privacy Ledger" onRetry={() => ledgerQuery.refetch()} />}
+        {ledgerQuery.isError && <ErrorState title="Couldn't load the Privacy Ledger" error={ledgerQuery.error} onRetry={() => ledgerQuery.refetch()} />}
         {ledgerQuery.data && ledgerQuery.data.length === 0 && (
           <EmptyState
             compact

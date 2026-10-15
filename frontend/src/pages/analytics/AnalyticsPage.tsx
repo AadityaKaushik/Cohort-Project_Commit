@@ -55,7 +55,7 @@ export function AnalyticsPage() {
 
       <SectionCard title="Application funnel" description="How many applications ever reached each stage.">
         {funnelQuery.isLoading && <Skeleton className="h-[248px] w-full rounded-lg" data-testid="funnel-loading" />}
-        {funnelQuery.isError && <ErrorState title="Couldn't load the funnel" onRetry={() => funnelQuery.refetch()} />}
+        {funnelQuery.isError && <ErrorState title="Couldn't load the funnel" error={funnelQuery.error} onRetry={() => funnelQuery.refetch()} />}
         {funnel && <FunnelChart funnel={funnel} />}
       </SectionCard>
 
@@ -68,14 +68,14 @@ export function AnalyticsPage() {
             <LoadingCards count={5} className="grid-cols-2 xl:grid-cols-5" label="Loading conversion rates" />
           </div>
         )}
-        {conversionsQuery.isError && <ErrorState title="Couldn't load conversion rates" onRetry={() => conversionsQuery.refetch()} />}
+        {conversionsQuery.isError && <ErrorState title="Couldn't load conversion rates" error={conversionsQuery.error} onRetry={() => conversionsQuery.refetch()} />}
         {conversionsQuery.data && <ConversionCards rates={conversionsQuery.data} />}
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <SectionCard title="Activity over time" description="Applications and interviews logged per week.">
           {timelineQuery.isLoading && <Skeleton className="h-[260px] w-full rounded-lg" data-testid="timeline-loading" />}
-          {timelineQuery.isError && <ErrorState title="Couldn't load activity" onRetry={() => timelineQuery.refetch()} />}
+          {timelineQuery.isError && <ErrorState title="Couldn't load activity" error={timelineQuery.error} onRetry={() => timelineQuery.refetch()} />}
           {timelineQuery.data && <ActivityTimelineChart timeline={timelineQuery.data} />}
         </SectionCard>
 
@@ -89,7 +89,7 @@ export function AnalyticsPage() {
           }
         >
           {rejectionsQuery.isLoading && <Skeleton className="h-40 w-full rounded-lg" data-testid="rejections-loading" />}
-          {rejectionsQuery.isError && <ErrorState title="Couldn't load rejections" onRetry={() => rejectionsQuery.refetch()} />}
+          {rejectionsQuery.isError && <ErrorState title="Couldn't load rejections" error={rejectionsQuery.error} onRetry={() => rejectionsQuery.refetch()} />}
           {rejectionsQuery.data && <RejectionDistributionList distribution={rejectionsQuery.data} />}
         </SectionCard>
       </div>

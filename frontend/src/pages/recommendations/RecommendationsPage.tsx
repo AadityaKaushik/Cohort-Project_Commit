@@ -97,7 +97,7 @@ export function RecommendationsPage() {
 
       {recommendationsQuery.isLoading && <LoadingCards count={3} label="Loading recommendations" />}
 
-      {recommendationsQuery.isError && <ErrorState title="Couldn't load recommendations" onRetry={() => recommendationsQuery.refetch()} />}
+      {recommendationsQuery.isError && <ErrorState title="Couldn't load recommendations" error={recommendationsQuery.error} onRetry={() => recommendationsQuery.refetch()} />}
 
       {recommendationsQuery.data && recommendationsQuery.data.length === 0 && (
         <EmptyState

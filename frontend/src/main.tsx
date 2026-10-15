@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
+import { OfflineBanner } from '@/components/shared/OfflineBanner'
 import { AuthProvider } from '@/hooks/use-auth'
 import { ThemeProvider } from '@/hooks/use-theme'
 import { ToastProvider } from '@/hooks/use-toast'
@@ -25,7 +27,10 @@ function Root() {
         <AuthProvider>
           <TooltipProvider>
             <ToastProvider>
-              <App />
+              <ErrorBoundary>
+                <OfflineBanner />
+                <App />
+              </ErrorBoundary>
             </ToastProvider>
           </TooltipProvider>
         </AuthProvider>

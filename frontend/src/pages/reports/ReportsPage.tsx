@@ -119,7 +119,7 @@ export function ReportsPage() {
           {reportsQuery.isLoading ? (
             <LoadingRows rows={2} label="Loading exports" />
           ) : reportsQuery.isError ? (
-            <ErrorState title="Couldn't load your exports" onRetry={() => reportsQuery.refetch()} />
+            <ErrorState title="Couldn't load your exports" error={reportsQuery.error} onRetry={() => reportsQuery.refetch()} />
           ) : reports.length === 0 ? (
             <EmptyState compact icon={FileTextIcon} title="No exports yet" description="Generate one and it will be listed here until it expires." />
           ) : (

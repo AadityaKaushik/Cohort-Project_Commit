@@ -14,6 +14,7 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 import { RouteProgress } from '@/components/motion/RouteProgress'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { breadcrumbsFor, pageTitleFor } from '@/lib/navigation'
@@ -102,9 +103,11 @@ export function AppShell() {
         </header>
         <main className="flex-1 px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-8 lg:px-8">
           <div key={pathname} className="animate-route mx-auto w-full max-w-7xl">
-            <Suspense fallback={<PageFallback />}>
-              <Outlet />
-            </Suspense>
+            <ErrorBoundary variant="inline" resetKey={pathname}>
+              <Suspense fallback={<PageFallback />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </main>
       </SidebarInset>
