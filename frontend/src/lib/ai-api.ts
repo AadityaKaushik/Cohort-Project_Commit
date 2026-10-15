@@ -79,3 +79,26 @@ export function getPrepPack(interviewId: string) {
 export function createPrepSummary(interviewId: string) {
   return apiFetch<AiDraft>(`/interviews/${interviewId}/prep-pack/summary`, { method: 'POST' })
 }
+
+export type EmailDraftKind = 'thank_you' | 'follow_up' | 'negotiation'
+
+export interface EmailDraft {
+  kind: EmailDraftKind
+  subject: string
+  body: string
+  source: 'model' | 'template'
+  ai_available: boolean
+}
+
+export const EMAIL_DRAFT_LABELS: Record<EmailDraftKind, string> = {
+  thank_you: 'Thank-you after an interview',
+  follow_up: 'Follow-up after silence',
+  negotiation: 'Offer negotiation',
+}
+
+export function createEmailDraft(applicationId: string, kind: EmailDraftKind, interviewId?: string) {
+  return apiFetch<EmailDraft>(`/applications/${applicationId}/email-drafts`, {
+    method: 'POST',
+    body: { kind, interview_id: interviewId },
+  })
+}

@@ -28,7 +28,7 @@ public final class DraftOutput {
         Set<String> numbers = new HashSet<>();
         Matcher matcher = NUMBER.matcher(text);
         while (matcher.find()) {
-            numbers.add(matcher.group().replaceAll("[.,]+$", ""));
+            numbers.add(matcher.group().replace(",", "").replaceAll("\\.+$", ""));
         }
         return numbers;
     }

@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { EmailDraftPanel } from '@/components/ai/EmailDraftPanel'
 import { NativeSelect } from '@/components/ui/native-select'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
@@ -147,6 +148,7 @@ function OfferCard({ offer, selected, onToggle }: { offer: Offer; selected: bool
   })
   const remove = useMutation({ mutationFn: () => deleteOffer(offer.id), onSuccess: refresh })
   const urgent = offer.days_remaining !== null && offer.days_remaining <= 3
+  const [draftOpen, setDraftOpen] = useState(false)
 
   return (
     <Card className="py-0">
@@ -182,6 +184,9 @@ function OfferCard({ offer, selected, onToggle }: { offer: Offer; selected: bool
               </option>
             ))}
           </NativeSelect>
+          <Button variant="outline" size="sm" onClick={() => setDraftOpen(true)}>
+            Draft negotiation email
+          </Button>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -193,6 +198,15 @@ function OfferCard({ offer, selected, onToggle }: { offer: Offer; selected: bool
           </Button>
         </div>
       </CardContent>
+      <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Negotiation email for {offer.company_name}</DialogTitle>
+            <DialogDescription>A draft built from this offer. Edit it and copy it. Nothing is sent.</DialogDescription>
+          </DialogHeader>
+          {draftOpen && <EmailDraftPanel applicationId={offer.application_id} kinds={['negotiation']} />}
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

@@ -39,6 +39,7 @@ import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { ReadinessCard } from '@/components/prep/ReadinessCard'
 import { ResumeMatchCard } from '@/components/ai/ResumeMatchCard'
+import { EmailDraftPanel } from '@/components/ai/EmailDraftPanel'
 import { OutcomeBadge, PriorityBadge } from '@/components/shared/ToneBadge'
 
 export function ApplicationDetailPage() {
@@ -332,6 +333,10 @@ export function ApplicationDetailPage() {
           <ReadinessCard applicationId={data.id} />
 
           <ResumeMatchCard applicationId={data.id} />
+
+          <SectionCard title="Email drafts" description="Drafts for you to edit and copy. Nothing is sent.">
+            <EmailDraftPanel applicationId={data.id} interviews={data.interviews} />
+          </SectionCard>
 
           <SectionCard title="Resume" description="The version you sent with this application.">
             <div className="space-y-3">
