@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { OfferDecisionHelper } from '@/components/offers/OfferDecisionHelper'
 import { EmailDraftPanel } from '@/components/ai/EmailDraftPanel'
 import { NativeSelect } from '@/components/ui/native-select'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -316,7 +317,10 @@ export function OffersPage() {
             ))}
           </div>
           {compared.length >= 2 ? (
-            <CompareTable offers={compared} />
+            <>
+              <CompareTable offers={compared} />
+              <OfferDecisionHelper offerIds={compared.map((offer) => offer.id)} />
+            </>
           ) : (
             <p className="text-sm text-muted-foreground">Tick two or more offers to compare them.</p>
           )}

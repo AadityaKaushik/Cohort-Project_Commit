@@ -78,6 +78,8 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             assertThat(tableExists(connection, "contacts")).isTrue();
             assertThat(tableExists(connection, "company_notes")).isTrue();
             assertThat(tableExists(connection, "offers")).isTrue();
+            assertThat(tableExists(connection, "offer_ratings")).isTrue();
+            assertThat(tableExists(connection, "offer_factor_weights")).isTrue();
             assertThat(tableExists(connection, "goals")).isTrue();
             assertThat(columnExists(connection, "contacts", "referral_status")).isTrue();
             assertThat(columnExists(connection, "offers", "response_deadline")).isTrue();

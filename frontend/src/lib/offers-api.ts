@@ -76,3 +76,45 @@ export function countdownLabel(offer: Pick<Offer, 'days_remaining' | 'status'>) 
   }
   return `${offer.days_remaining} ${offer.days_remaining === 1 ? 'day' : 'days'} left`
 }
+
+export type OfferFactor = 'pay' | 'growth' | 'learning' | 'work_life_balance' | 'location' | 'brand'
+
+export const OFFER_FACTORS: { key: OfferFactor; label: string }[] = [
+  { key: 'pay', label: 'Pay' },
+  { key: 'growth', label: 'Growth' },
+  { key: 'learning', label: 'Learning' },
+  { key: 'work_life_balance', label: 'Work-life balance' },
+  { key: 'location', label: 'Location' },
+  { key: 'brand', label: 'Brand' },
+]
+
+export type FactorValues = Partial<Record<OfferFactor, number>>
+
+export interface OfferDecisionEntry {
+  offer_id: string
+  company_name: string
+  job_title: string
+  ratings: FactorValues
+  score: number | null
+  rank: number | null
+}
+
+export interface OfferDecision {
+  weights: FactorValues
+  offers: OfferDecisionEntry[]
+  leader_summary: string | null
+}
+
+export const offerDecisionKey = (offerIds: string[]) => ['offers', 'decision', ...offerIds] as const
+
+export function getOfferDecision(offerIds: string[]) {
+  return apiFetch<OfferDecision>(`/offers/decision?offer_ids=${offerIds.join(',')}`)
+}
+
+export function saveOfferWeights(weights: FactorValues) {
+  return apiFetch<OfferDecision>('/offers/decision/weights', { method: 'PUT', body: weights })
+}
+
+export function saveOfferRatings(offerId: string, ratings: FactorValues) {
+  return apiFetch<OfferDecision>(`/offers/${offerId}/ratings`, { method: 'PUT', body: ratings })
+}

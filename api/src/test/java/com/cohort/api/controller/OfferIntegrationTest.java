@@ -1,12 +1,15 @@
 package com.cohort.api.controller;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -152,6 +155,72 @@ class OfferIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(body).get("id").asText();
+    }
+
+    @Test
+    void decisionScoresOffersFromWeightsAndRatingsAndNeverChangesStatus() throws Exception {
+        Session owner = register("offer-decision@example.com");
+        String acme = createOffer(owner.token(), """
+                {"application_id": "%s", "base_salary": 100000}
+                """.formatted(createApplication(owner.token(), "Acme")));
+        String globex = createOffer(owner.token(), """
+                {"application_id": "%s", "base_salary": 90000}
+                """.formatted(createApplication(owner.token(), "Globex")));
+
+        mockMvc.perform(put("/api/v1/offers/decision/weights")
+                        .header("Authorization", bearer(owner))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"pay\": 5, \"brand\": 1}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weights.pay", is(5)))
+                .andExpect(jsonPath("$.weights.growth", is(3)));
+
+        putRatings(owner, acme, "{\"pay\": 5, \"growth\": 3, \"learning\": 3, \"work_life_balance\": 3, \"location\": 3, \"brand\": 2}");
+        putRatings(owner, globex, "{\"pay\": 2, \"growth\": 3, \"learning\": 3, \"work_life_balance\": 3, \"location\": 3, \"brand\": 5}");
+
+        mockMvc.perform(get("/api/v1/offers/decision").header("Authorization", bearer(owner)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.offers", hasSize(2)))
+                .andExpect(jsonPath("$.offers[?(@.company_name == 'Acme')].rank", contains(1)))
+                .andExpect(jsonPath("$.offers[?(@.company_name == 'Globex')].rank", contains(2)))
+                .andExpect(jsonPath("$.leader_summary", startsWith("Acme leads Globex")));
+
+        mockMvc.perform(get("/api/v1/offers/" + acme).header("Authorization", bearer(owner)))
+                .andExpect(jsonPath("$.status", is("pending")));
+    }
+
+    @Test
+    void ratingsAreValidatedAndIsolatedPerUser() throws Exception {
+        Session owner = register("offer-ratings-owner@example.com");
+        Session other = register("offer-ratings-other@example.com");
+        String offerId = createOffer(owner.token(), """
+                {"application_id": "%s", "base_salary": 100000}
+                """.formatted(createApplication(owner.token(), "Acme")));
+
+        mockMvc.perform(put("/api/v1/offers/" + offerId + "/ratings")
+                        .header("Authorization", bearer(owner))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"pay\": 6}"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(put("/api/v1/offers/" + offerId + "/ratings")
+                        .header("Authorization", bearer(other))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"pay\": 4}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error.code", is("OFFER_NOT_FOUND")));
+
+        mockMvc.perform(get("/api/v1/offers/decision").header("Authorization", bearer(other)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.offers", hasSize(0)));
+    }
+
+    private void putRatings(Session session, String offerId, String body) throws Exception {
+        mockMvc.perform(put("/api/v1/offers/" + offerId + "/ratings")
+                        .header("Authorization", bearer(session))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
     }
 
     private String createApplication(String token, String companyName) throws Exception {

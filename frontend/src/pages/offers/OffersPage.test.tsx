@@ -8,7 +8,11 @@ import { countdownLabel, listOffers, type Offer } from '@/lib/offers-api'
 
 vi.mock('@/lib/offers-api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/offers-api')>('@/lib/offers-api')
-  return { ...actual, listOffers: vi.fn() }
+  return {
+    ...actual,
+    listOffers: vi.fn(),
+    getOfferDecision: vi.fn().mockResolvedValue({ weights: {}, offers: [], leader_summary: null }),
+  }
 })
 
 vi.mock('@/lib/applications-api', async () => {
