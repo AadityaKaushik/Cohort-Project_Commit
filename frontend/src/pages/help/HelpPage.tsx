@@ -1,8 +1,11 @@
 import { useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PublicPageFrame } from '@/components/layout/PublicPageFrame'
 import { ShortcutList } from '@/components/layout/ShortcutList'
 import { SectionCard } from '@/components/shared/SectionCard'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/use-auth'
+import { clearTourDone } from '@/lib/tour'
 
 const FAQ = [
   {
@@ -29,6 +32,14 @@ const FAQ = [
 
 export function HelpPage() {
   const { hash } = useLocation()
+  const { user } = useAuth()
+  const navigate = useNavigate()
+
+  function startTour() {
+    if (!user) return
+    clearTourDone(user.id)
+    navigate('/')
+  }
 
   useEffect(() => {
     if (hash) {
@@ -73,9 +84,25 @@ export function HelpPage() {
 
       <section id="tour" className="scroll-mt-6">
         <SectionCard title="Replay the tour">
-          <p className="text-sm text-pretty text-muted-foreground">
-            The guided tour of the main pages can be started again from the user menu, under "Replay product tour".
-          </p>
+          <div className="space-y-4 text-sm text-pretty text-muted-foreground">
+            <p>
+              The tour walks through each area of the app in order. It can also be started from the user menu, under "Replay product tour".
+            </p>
+            {user ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <Button type="button" onClick={startTour}>
+                  Start the tour
+                </Button>
+              </div>
+            ) : (
+              <p>
+                <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+                  Log in
+                </Link>{' '}
+                to take the tour.
+              </p>
+            )}
+          </div>
         </SectionCard>
       </section>
     </PublicPageFrame>

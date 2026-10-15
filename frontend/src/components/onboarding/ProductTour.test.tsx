@@ -39,11 +39,53 @@ describe('ProductTour', () => {
     const user = userEvent.setup()
     renderTour()
 
-    expect(await screen.findByRole('complementary', { name: 'Product tour' })).toHaveTextContent('Step 1 of 6')
+    expect(await screen.findByRole('complementary', { name: 'Product tour' })).toHaveTextContent(`Step 1 of ${TOUR_STEPS.length}`)
     await user.click(screen.getByRole('button', { name: 'Next' }))
 
     expect(screen.getByRole('complementary')).toHaveTextContent('Applications')
     expect(screen.getByTestId('where')).toHaveTextContent('/applications')
+  })
+
+  it('covers every area in order, with Back disabled on the first step', async () => {
+    const user = userEvent.setup()
+    renderTour()
+    await screen.findByRole('complementary', { name: 'Product tour' })
+
+    expect(TOUR_STEPS.map((step) => step.path)).toEqual([
+      '/', '/applications', '/interviews', '/prep', '/resumes', '/directory', '/offers', '/goals', '/recommendations', '/privacy', '/help',
+    ])
+    expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('button', { name: 'Back' })).toBeEnabled()
+    expect(screen.getByRole('link', { name: /Open Applications and board/ })).toHaveAttribute('href', '/applications')
+  })
+
+  it('stays in the app on the help step and links to it', async () => {
+    const user = userEvent.setup()
+    renderTour()
+    await screen.findByRole('complementary', { name: 'Product tour' })
+
+    for (let index = 0; index < TOUR_STEPS.length - 1; index += 1) {
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+
+    expect(screen.getByRole('complementary')).toHaveTextContent('Help')
+    expect(screen.getByTestId('where')).toHaveTextContent('/privacy')
+    expect(screen.getByRole('link', { name: 'Open Help' })).toHaveAttribute('href', '/help')
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+    expect(isTourDone('user-1')).toBe(true)
+  })
+
+  it('closes on Escape', async () => {
+    const user = userEvent.setup()
+    renderTour()
+    await screen.findByRole('complementary', { name: 'Product tour' })
+
+    await user.keyboard('{Escape}')
+
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+    expect(isTourDone('user-1')).toBe(true)
   })
 
   it('can be skipped and stays dismissed for that user', async () => {

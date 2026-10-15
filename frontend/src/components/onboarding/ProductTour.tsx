@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { XIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -26,6 +26,18 @@ export function ProductTour() {
     return () => window.removeEventListener(TOUR_REPLAY_EVENT, replay)
   }, [navigate])
 
+  useEffect(() => {
+    if (step === null) return
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
+        if (userId) markTourDone(userId)
+        setStep(null)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [step, userId])
+
   if (step === null || !userId) {
     return null
   }
@@ -40,7 +52,9 @@ export function ProductTour() {
 
   function go(next: number) {
     setStep(next)
-    navigate(TOUR_STEPS[next].path)
+    if (!TOUR_STEPS[next].outsideShell) {
+      navigate(TOUR_STEPS[next].path)
+    }
   }
 
   return (
@@ -65,17 +79,20 @@ export function ProductTour() {
           <XIcon className="size-4" />
         </button>
       </div>
-      <p className="text-sm text-muted-foreground">{current.body}</p>
+      <div aria-live="polite" className="space-y-2">
+        <p className="text-sm text-muted-foreground">{current.body}</p>
+        <Link to={current.path} className="inline-block text-sm font-medium text-primary underline-offset-4 hover:underline">
+          Open {current.title}
+        </Link>
+      </div>
       <div className="flex items-center justify-between gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={finish}>
           Skip tour
         </Button>
         <div className="flex gap-2">
-          {step > 0 && (
-            <Button type="button" variant="outline" size="sm" onClick={() => go(step - 1)}>
-              Back
-            </Button>
-          )}
+          <Button type="button" variant="outline" size="sm" disabled={step === 0} onClick={() => go(step - 1)}>
+            Back
+          </Button>
           <Button type="button" size="sm" onClick={() => (isLast ? finish() : go(step + 1))}>
             {isLast ? 'Done' : 'Next'}
           </Button>
