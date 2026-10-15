@@ -19,7 +19,9 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { ErrorState, PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
-import { hasErrors, positiveInteger, required, validate } from '@/lib/validation'
+import { cleanName, hasErrors, meaningfulText, positiveInteger, required, validate } from '@/lib/validation'
+import { useSoftWarnings } from '@/hooks/use-soft-warnings'
+import { SoftWarning } from '@/components/shared/SoftWarning'
 
 const ROUND_TYPES: InterviewRoundType[] = ['OA', 'PHONE_SCREEN', 'TECHNICAL', 'SYSTEM_DESIGN', 'BEHAVIOURAL', 'HR', 'FINAL']
 const MODES: InterviewMode[] = ['onsite', 'video', 'phone']
@@ -51,6 +53,7 @@ export function InterviewFormPage() {
   const [durationMinutes, setDurationMinutes] = useState('')
   const [interviewerName, setInterviewerName] = useState('')
   const [notes, setNotes] = useState('')
+  const softWarnings = useSoftWarnings()
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
@@ -108,15 +111,23 @@ export function InterviewFormPage() {
     event.preventDefault()
     setError(null)
     const problems = validate(
-      { applicationId: isEditing ? 'existing' : applicationId, roundNumber, durationMinutes },
+      { applicationId: isEditing ? 'existing' : applicationId, roundNumber, durationMinutes, interviewerName, notes },
       {
         applicationId: [required('Application')],
         roundNumber: [required('Round number'), positiveInteger('Round number')],
-        durationMinutes: [positiveInteger('Duration')],
+        durationMinutes: [
+          positiveInteger('Duration'),
+          (value) => (Number(value) > 600 ? 'Duration cannot be more than 600 minutes.' : null),
+        ],
+        interviewerName: [cleanName('Interviewer name')],
+        notes: [meaningfulText],
       },
     )
     setFieldErrors(problems)
     if (hasErrors(problems)) {
+      return
+    }
+    if (softWarnings.check('notes', notes, true).length > 0) {
       return
     }
     mutation.mutate()
@@ -140,7 +151,7 @@ export function InterviewFormPage() {
         description="Schedule the round now; the debrief prompt follows once it has happened."
       />
       <SectionCard>
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form id="interview-form" onSubmit={handleSubmit} className="space-y-6" noValidate>
           <FormSection title="The round" description="Which application it belongs to and what kind of round it is.">
             {!isEditing && (
               <FormField id="application" label="Application" error={fieldErrors.applicationId} className="sm:col-span-2">
@@ -197,14 +208,32 @@ export function InterviewFormPage() {
             <FormField id="durationMinutes" label="Duration (minutes)" error={fieldErrors.durationMinutes}>
               <Input id="durationMinutes" type="number" min={0} value={durationMinutes} onChange={(event) => setDurationMinutes(event.target.value)} />
             </FormField>
-            <FormField id="interviewerName" label="Interviewer name">
+            <FormField id="interviewerName" label="Interviewer name" error={fieldErrors.interviewerName}>
               <Input id="interviewerName" value={interviewerName} onChange={(event) => setInterviewerName(event.target.value)} />
             </FormField>
           </FormSection>
           <FormSection title="Notes" description="Anything to prepare or remember." columns={1}>
-            <FormField id="notes" label="Notes">
-              <Textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} rows={3} />
+            <FormField id="notes" label="Notes" error={fieldErrors.notes}>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                onBlur={() => softWarnings.check('notes', notes, true)}
+                rows={3}
+              />
             </FormField>
+            <SoftWarning
+              id="notes"
+              messages={softWarnings.shown.notes}
+              onEdit={() => {
+                softWarnings.dismiss('notes')
+                document.getElementById('notes')?.focus()
+              }}
+              onSaveAnyway={() => {
+                softWarnings.accept('notes', notes)
+                document.querySelector<HTMLFormElement>('#interview-form')?.requestSubmit()
+              }}
+            />
           </FormSection>
           {error && <FormError>{error}</FormError>}
           <FormActions>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2Icon, NotebookPenIcon, SearchXIcon } from 'lucide-react'
@@ -13,6 +13,9 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
+import { textProblem } from '@/lib/text-quality'
+import { useSoftWarnings } from '@/hooks/use-soft-warnings'
+import { SoftWarning } from '@/components/shared/SoftWarning'
 import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
 import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
 import { OUTCOME_CHIPS, ROUND_TOPICS, readTopics, withTopics } from '@/lib/debrief-topics'
@@ -57,6 +60,9 @@ export function InterviewDebriefPage() {
   )
   const dirty = JSON.stringify(current) !== JSON.stringify(saved)
   const { guard, markSaved } = useUnsavedChanges(dirty && !justSubmitted)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const softWarnings = useSoftWarnings()
+  const lastActionIsDraft = useRef(false)
 
   useEffect(() => {
     if (feedbackQuery.isLoading) {
@@ -111,6 +117,51 @@ export function InterviewDebriefPage() {
       }
     },
   })
+
+  const textFields = [
+    { id: 'whatWentWell', value: whatWentWell },
+    { id: 'whatWentPoorly', value: whatWentPoorly },
+    { id: 'improvementAreas', value: improvementAreas },
+  ]
+
+  function save(isDraft: boolean) {
+    lastActionIsDraft.current = isDraft
+    const problems: Record<string, string> = {}
+    for (const field of textFields) {
+      const problem = field.value.trim() === '' ? null : textProblem(field.value)
+      if (problem) {
+        problems[field.id] = problem.message
+      }
+    }
+    setFieldErrors(problems)
+    if (Object.keys(problems).length > 0) {
+      return
+    }
+    if (!isDraft) {
+      const warned = textFields.filter((field) => field.value.trim() !== '' && softWarnings.check(field.id, field.value, true).length > 0)
+      if (warned.length > 0) {
+        return
+      }
+    }
+    saveMutation.mutate(isDraft)
+  }
+
+  function warningFor(field: { id: string; value: string }) {
+    return (
+      <SoftWarning
+        id={field.id}
+        messages={softWarnings.shown[field.id]}
+        onEdit={() => {
+          softWarnings.dismiss(field.id)
+          document.getElementById(field.id)?.focus()
+        }}
+        onSaveAnyway={() => {
+          softWarnings.accept(field.id, field.value)
+          save(lastActionIsDraft.current)
+        }}
+      />
+    )
+  }
 
   if (interviewQuery.isLoading || feedbackQuery.isLoading) {
     return <PageSkeleton label="Loading debrief" variant="form" />
@@ -209,26 +260,44 @@ export function InterviewDebriefPage() {
       <SectionCard title="Add more detail" description="All optional. A few words now beat a perfect write-up later.">
         <div className="space-y-5">
           <StarRating value={selfRating} onChange={setSelfRating} label="Overall self-rating" />
-          <FormField id="whatWentWell" label="What went well?">
-            <Textarea id="whatWentWell" value={whatWentWell} onChange={(event) => setWhatWentWell(event.target.value)} rows={2} placeholder="A quick note is enough" />
-          </FormField>
-          <FormField id="whatWentPoorly" label="What went poorly?">
-            <Textarea id="whatWentPoorly" value={whatWentPoorly} onChange={(event) => setWhatWentPoorly(event.target.value)} rows={2} placeholder="A quick note is enough" />
-          </FormField>
-          <FormField id="improvementAreas" label="What would you improve next time?">
+          <FormField id="whatWentWell" label="What went well?" error={fieldErrors.whatWentWell}>
             <Textarea
-              id="improvementAreas"
-              value={improvementAreas}
-              onChange={(event) => setImprovementAreas(event.target.value)}
+              id="whatWentWell"
+              value={whatWentWell}
+              onChange={(event) => setWhatWentWell(event.target.value)}
+              onBlur={() => softWarnings.check('whatWentWell', whatWentWell, true)}
               rows={2}
               placeholder="A quick note is enough"
             />
           </FormField>
+          {warningFor(textFields[0])}
+          <FormField id="whatWentPoorly" label="What went poorly?" error={fieldErrors.whatWentPoorly}>
+            <Textarea
+              id="whatWentPoorly"
+              value={whatWentPoorly}
+              onChange={(event) => setWhatWentPoorly(event.target.value)}
+              onBlur={() => softWarnings.check('whatWentPoorly', whatWentPoorly, true)}
+              rows={2}
+              placeholder="A quick note is enough"
+            />
+          </FormField>
+          {warningFor(textFields[1])}
+          <FormField id="improvementAreas" label="What would you improve next time?" error={fieldErrors.improvementAreas}>
+            <Textarea
+              id="improvementAreas"
+              value={improvementAreas}
+              onChange={(event) => setImprovementAreas(event.target.value)}
+              onBlur={() => softWarnings.check('improvementAreas', improvementAreas, true)}
+              rows={2}
+              placeholder="A quick note is enough"
+            />
+          </FormField>
+          {warningFor(textFields[2])}
           <FormActions>
-            <Button variant="outline" onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending}>
+            <Button variant="outline" onClick={() => save(true)} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? 'Saving…' : 'Save draft'}
             </Button>
-            <Button onClick={() => saveMutation.mutate(false)} disabled={saveMutation.isPending}>
+            <Button onClick={() => save(false)} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? 'Saving…' : 'Submit debrief'}
             </Button>
           </FormActions>

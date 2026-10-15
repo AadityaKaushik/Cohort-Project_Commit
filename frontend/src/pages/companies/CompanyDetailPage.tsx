@@ -11,6 +11,9 @@ import { LoadingRows } from '@/components/shared/QueryStates'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { addCompanyNote, companyKeys, deleteCompanyNote, getCompany } from '@/lib/companies-api'
 import { formatLabel } from '@/lib/labels'
+import { textProblem } from '@/lib/text-quality'
+import { useSoftWarnings } from '@/hooks/use-soft-warnings'
+import { SoftWarning } from '@/components/shared/SoftWarning'
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
@@ -26,6 +29,8 @@ export function CompanyDetailPage() {
   const { id = '' } = useParams()
   const queryClient = useQueryClient()
   const [draft, setDraft] = useState('')
+  const [draftError, setDraftError] = useState<string | null>(null)
+  const softWarnings = useSoftWarnings()
   const query = useQuery({ queryKey: companyKeys.detail(id), queryFn: () => getCompany(id), enabled: id !== '' })
   const refresh = () => queryClient.invalidateQueries({ queryKey: companyKeys.all })
   const addNote = useMutation({
@@ -57,11 +62,17 @@ export function CompanyDetailPage() {
   }
   const company = query.data
 
-  function submitNote(event: FormEvent) {
-    event.preventDefault()
-    if (draft.trim()) {
-      addNote.mutate(draft)
+  function submitNote(event?: FormEvent) {
+    event?.preventDefault()
+    if (draft.trim() === '') {
+      return
     }
+    const problem = textProblem(draft)
+    setDraftError(problem?.message ?? null)
+    if (problem || softWarnings.check('note', draft, true).length > 0) {
+      return
+    }
+    addNote.mutate(draft)
   }
 
   return (
@@ -154,7 +165,25 @@ export function CompanyDetailPage() {
               placeholder="Culture, interview tips, questions to ask"
               rows={3}
               value={draft}
-              onChange={(event) => setDraft(event.target.value)}
+              onChange={(event) => {
+                setDraft(event.target.value)
+                setDraftError(null)
+              }}
+              onBlur={() => softWarnings.check('note', draft, true)}
+            />
+            {draftError && (
+              <p role="alert" className="text-xs font-medium text-destructive">
+                {draftError}
+              </p>
+            )}
+            <SoftWarning
+              id="note"
+              messages={softWarnings.shown.note}
+              onEdit={() => softWarnings.dismiss('note')}
+              onSaveAnyway={() => {
+                softWarnings.accept('note', draft)
+                submitNote()
+              }}
             />
             <Button type="submit" size="sm" disabled={addNote.isPending || draft.trim() === ''}>
               {addNote.isPending ? 'Saving…' : 'Add note'}

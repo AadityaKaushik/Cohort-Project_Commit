@@ -18,10 +18,11 @@ import { ApiError } from '@/lib/api-client'
 import { guessCompanyFromUrl } from '@/lib/company-guess'
 import { listCompanies } from '@/lib/companies-api'
 import { formatLabel } from '@/lib/labels'
-import { email as emailRule, hasErrors, positiveInteger, required, url, validate } from '@/lib/validation'
+import { cleanName, email as emailRule, hasErrors, meaningfulText, plausibleDate, positiveInteger, required, url, validate } from '@/lib/validation'
 import { useToast } from '@/hooks/use-toast'
 import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
 import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
+import { useSoftWarnings } from '@/hooks/use-soft-warnings'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -30,6 +31,7 @@ import { CheckboxField, FormActions, FormError, FormField, FormSection } from '@
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ErrorState, PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
+import { SoftWarning } from '@/components/shared/SoftWarning'
 
 const CREATE_STATUS_OPTIONS: ApplicationStatusValue[] = ['SAVED', 'APPLIED', 'OA', 'INTERVIEW', 'FINAL_ROUND', 'OFFER']
 const WORK_MODES: WorkMode[] = ['onsite', 'hybrid', 'remote']
@@ -145,6 +147,7 @@ export function ApplicationFormPage() {
   const { guard, markSaved } = useUnsavedChanges(dirty)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const softWarnings = useSoftWarnings()
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -213,6 +216,11 @@ export function ApplicationFormPage() {
         companyName: form.companyName,
         jobTitle: form.jobTitle,
         dateApplied: form.dateApplied,
+        deadline: form.deadline,
+        location: form.location,
+        source: form.source,
+        recruiterName: form.recruiterName,
+        notes: form.notes,
         jobUrl: form.jobUrl,
         salaryMin: form.salaryMin,
         salaryMax: form.salaryMax,
@@ -220,9 +228,14 @@ export function ApplicationFormPage() {
         recruiterEmail: form.recruiterEmail,
       },
       {
-        companyName: [required('Company')],
-        jobTitle: [required('Job title')],
-        dateApplied: [required('Date applied')],
+        companyName: [required('Company'), cleanName('Company')],
+        jobTitle: [required('Job title'), cleanName('Job title')],
+        dateApplied: [required('Date applied'), plausibleDate('Date applied')],
+        deadline: [plausibleDate('Deadline')],
+        location: [cleanName('Location')],
+        source: [cleanName('Source')],
+        recruiterName: [cleanName('Recruiter name')],
+        notes: [meaningfulText],
         jobUrl: [url],
         salaryMin: [positiveInteger('Minimum salary')],
         salaryMax: [positiveInteger('Maximum salary')],
@@ -233,8 +246,14 @@ export function ApplicationFormPage() {
     if (form.salaryMin && form.salaryMax && Number(form.salaryMin) > Number(form.salaryMax) && !problems.salaryMax) {
       problems.salaryMax = 'Maximum salary must be at least the minimum.'
     }
+    if ((form.salaryMin || form.salaryMax) && form.salaryCurrency === '' && !problems.salaryCurrency) {
+      problems.salaryCurrency = 'Add the currency for this salary, like INR or USD.'
+    }
     setFieldErrors(problems)
     if (hasErrors(problems)) {
+      return
+    }
+    if (softWarnings.check('notes', form.notes, false).length > 0) {
       return
     }
     mutation.mutate({
@@ -286,7 +305,7 @@ export function ApplicationFormPage() {
         description={isEditing ? 'Update the details you track for this role.' : 'Only the company, role and date are required. Add the rest whenever you have it.'}
       />
       <SectionCard>
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form id="application-form" onSubmit={handleSubmit} className="space-y-6" noValidate>
           <FormSection title="The role" description="What you applied for and where it stands.">
             <FormField id="companyName" label="Company" error={fieldErrors.companyName}>
               <Input id="companyName" list="company-options" autoComplete="off" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
@@ -313,7 +332,7 @@ export function ApplicationFormPage() {
                 </NativeSelect>
               </FormField>
             )}
-            <FormField id="location" label="Location">
+            <FormField id="location" label="Location" error={fieldErrors.location}>
               <Input id="location" value={form.location} onChange={(e) => set('location', e.target.value)} />
             </FormField>
             <FormField id="workMode" label="Work mode">
@@ -364,17 +383,17 @@ export function ApplicationFormPage() {
                 ))}
               </NativeSelect>
             </FormField>
-            <FormField id="deadline" label="Deadline">
+            <FormField id="deadline" label="Deadline" error={fieldErrors.deadline}>
               <Input id="deadline" type="date" value={form.deadline} onChange={(e) => set('deadline', e.target.value)} />
             </FormField>
-            <FormField id="source" label="Source">
+            <FormField id="source" label="Source" error={fieldErrors.source}>
               <Input id="source" placeholder="LinkedIn, referral, careers page" value={form.source} onChange={(e) => set('source', e.target.value)} />
             </FormField>
             <CheckboxField className="self-end" checked={form.isReferral} onChange={(checked) => set('isReferral', checked)} label="I was referred" />
           </FormSection>
 
           <FormSection title="Recruiter" description="Who to follow up with.">
-            <FormField id="recruiterName" label="Recruiter name">
+            <FormField id="recruiterName" label="Recruiter name" error={fieldErrors.recruiterName}>
               <Input id="recruiterName" value={form.recruiterName} onChange={(e) => set('recruiterName', e.target.value)} />
             </FormField>
             <FormField id="recruiterEmail" label="Recruiter email" error={fieldErrors.recruiterEmail}>
@@ -386,9 +405,27 @@ export function ApplicationFormPage() {
             <FormField id="jobDescription" label="Job description">
               <Textarea id="jobDescription" value={form.jobDescription} onChange={(e) => set('jobDescription', e.target.value)} rows={4} />
             </FormField>
-            <FormField id="notes" label="Notes">
-              <Textarea id="notes" value={form.notes} onChange={(e) => set('notes', e.target.value)} rows={3} />
+            <FormField id="notes" label="Notes" error={fieldErrors.notes}>
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={(e) => set('notes', e.target.value)}
+                onBlur={() => softWarnings.check('notes', form.notes, false)}
+                rows={3}
+              />
             </FormField>
+            <SoftWarning
+              id="notes"
+              messages={softWarnings.shown.notes}
+              onEdit={() => {
+                softWarnings.dismiss('notes')
+                document.getElementById('notes')?.focus()
+              }}
+              onSaveAnyway={() => {
+                softWarnings.accept('notes', form.notes)
+                document.querySelector<HTMLFormElement>('#application-form')?.requestSubmit()
+              }}
+            />
             <FormField id="coverLetter" label="Cover letter">
               <Textarea id="coverLetter" value={form.coverLetter} onChange={(e) => set('coverLetter', e.target.value)} rows={4} />
             </FormField>

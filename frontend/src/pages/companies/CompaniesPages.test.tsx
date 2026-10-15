@@ -86,4 +86,26 @@ describe('company pages', () => {
     await user.click(screen.getByRole('button', { name: 'Add note' }))
     await waitFor(() => expect(addCompanyNote).toHaveBeenCalledWith('co-1', 'Great team'))
   })
+
+  it('blocks a mashed note and warns about an off-topic one before saving', async () => {
+    vi.mocked(getCompany).mockResolvedValue(detail)
+    vi.mocked(addCompanyNote).mockReset().mockResolvedValue(detail.notes[0])
+    const user = userEvent.setup()
+    renderAt('/companies/co-1')
+    const field = await screen.findByLabelText('New note')
+
+    await user.type(field, 'asdfghjkl')
+    await user.click(screen.getByRole('button', { name: 'Add note' }))
+    expect(await screen.findByText(/looks like random typing/)).toBeInTheDocument()
+    expect(addCompanyNote).not.toHaveBeenCalled()
+
+    await user.clear(field)
+    await user.type(field, 'the tea there was not good')
+    await user.click(screen.getByRole('button', { name: 'Add note' }))
+    expect(await screen.findByText(/does not look like it is about the interview/)).toBeInTheDocument()
+    expect(addCompanyNote).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('button', { name: 'Save anyway' }))
+    await waitFor(() => expect(addCompanyNote).toHaveBeenCalledWith('co-1', 'the tea there was not good'))
+  })
 })
