@@ -1,4 +1,4 @@
-import { useEffect, useState, type ClipboardEvent, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -17,6 +17,8 @@ import {
 import { ApiError } from '@/lib/api-client'
 import { guessCompanyFromUrl } from '@/lib/company-guess'
 import { parsePosting, type PostingField } from '@/lib/posting-parser'
+import { readBookmarkParams } from '@/lib/bookmarklet'
+import { SaveFromSitesCard } from '@/components/applications/SaveFromSitesCard'
 import { listCompanies } from '@/lib/companies-api'
 import { formatLabel } from '@/lib/labels'
 import { cleanName, email as emailRule, hasErrors, meaningfulText, plausibleDate, positiveInteger, required, url, validate } from '@/lib/validation'
@@ -112,7 +114,8 @@ function toFormState(data: ApplicationDetail): FormState {
 
 export function ApplicationFormPage() {
   const { id } = useParams()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const bookmarkRead = useRef(false)
   const duplicateId = searchParams.get('from')
   const isEditing = Boolean(id)
   const sourceId = id ?? duplicateId
@@ -150,6 +153,7 @@ export function ApplicationFormPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const softWarnings = useSoftWarnings()
 
+  const [bookmarkNote, setBookmarkNote] = useState<string | null>(null)
   const [postingOpen, setPostingOpen] = useState(false)
   const [postingText, setPostingText] = useState('')
   const [postingUrl, setPostingUrl] = useState('')
@@ -184,6 +188,36 @@ export function ApplicationFormPage() {
     setSuggested((current) => [...new Set([...current, ...filled])])
     setPostingSummary(`Filled ${filled.length} ${filled.length === 1 ? 'field' : 'fields'}. Review before saving.`)
   }
+
+  useEffect(() => {
+    if (bookmarkRead.current || isEditing) return
+    bookmarkRead.current = true
+    const bookmark = readBookmarkParams(searchParams.toString())
+    if (!bookmark) return
+    const parsed = parsePosting(bookmark.text, bookmark.url)
+    const wanted: Record<string, string | undefined> = {
+      companyName: bookmark.company || parsed.companyName,
+      jobTitle: bookmark.title || parsed.jobTitle,
+      location: bookmark.location || parsed.location,
+      jobUrl: bookmark.url || parsed.jobUrl,
+      workMode: parsed.workMode,
+      jobType: parsed.jobType,
+      jobDescription: parsed.jobDescription,
+      salaryMin: parsed.salaryMin,
+      salaryMax: parsed.salaryMax,
+      salaryCurrency: parsed.salaryCurrency,
+    }
+    setForm((current) => {
+      const next = { ...current } as Record<string, unknown>
+      for (const [field, value] of Object.entries(wanted)) {
+        if (value && next[field] === '') next[field] = value
+      }
+      return next as unknown as FormState
+    })
+    setBookmarkNote('Filled from your bookmark. Review before saving.')
+    setSearchParams({}, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on load
+  }, [isEditing, setSearchParams])
 
   useEffect(() => {
     const data = detailQuery.data
@@ -336,6 +370,11 @@ export function ApplicationFormPage() {
         title={isEditing ? 'Edit application' : duplicateId ? 'Duplicate application' : 'Create an application'}
         description={isEditing ? 'Update the details you track for this role.' : 'Only the company, role and date are required. Add the rest whenever you have it.'}
       />
+      {bookmarkNote && (
+        <p role="status" className="rounded-lg border border-border bg-surface-2 px-4 py-3 text-sm">
+          {bookmarkNote}
+        </p>
+      )}
       <SectionCard>
         <div className="mb-6 rounded-lg border border-border p-4">
           <button
@@ -508,6 +547,7 @@ export function ApplicationFormPage() {
           </FormActions>
         </form>
       </SectionCard>
+      {!isEditing && !duplicateId && <SaveFromSitesCard />}
     </div>
   )
 }

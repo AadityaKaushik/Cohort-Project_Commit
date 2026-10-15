@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { SaveFromSitesCard } from '@/components/applications/SaveFromSitesCard'
 import { CsvImport } from '@/components/applications/CsvImport'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { SectionCard } from '@/components/shared/SectionCard'
@@ -16,6 +17,7 @@ export function ApplicationsImportPage() {
       <SectionCard>
         <CsvImport onImported={() => navigate('/applications')} />
       </SectionCard>
+      <SaveFromSitesCard />
     </div>
   )
 }

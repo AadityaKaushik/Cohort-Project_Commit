@@ -111,3 +111,33 @@ describe('ApplicationFormPage posting paste', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/Filled 5 fields\. Review before saving\./)
   })
 })
+
+describe('ApplicationFormPage bookmark prefill', () => {
+  beforeEach(() => {
+    vi.mocked(applicationsApi.listApplications).mockResolvedValue({ items: [], total: 0, page: 0, size: 1 })
+    vi.mocked(companiesApi.listCompanies).mockResolvedValue([])
+  })
+
+  it('fills empty fields from the query, parses the text and shows the note', async () => {
+    const query = new URLSearchParams({
+      src: 'bookmarklet',
+      company: 'Acme',
+      title: 'Backend Engineer',
+      location: '<b>Pune</b>',
+      url: 'https://acme.com/jobs/1',
+      text: 'Backend Engineer\nAcme\nRemote role. Salary 10-15 LPA',
+    })
+    renderForm(`/applications/new?${query.toString()}`)
+
+    expect(await screen.findByText('Filled from your bookmark. Review before saving.')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Company/)).toHaveValue('Acme')
+    expect(screen.getByLabelText(/Job title|Role/)).toHaveValue('Backend Engineer')
+    expect(screen.getByLabelText(/^Location/)).toHaveValue('Pune')
+  })
+
+  it('shows the save from other sites card', async () => {
+    renderForm()
+
+    expect(await screen.findByText('Save jobs from other sites')).toBeInTheDocument()
+  })
+})
