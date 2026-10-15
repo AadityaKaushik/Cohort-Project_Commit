@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ReviewTodayCard } from '@/components/prep/ReviewTodayCard'
 import { CategoryProgressBar } from '@/components/prep/CategoryProgressBar'
 import { TopicGrid } from '@/components/prep/TopicGrid'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -108,6 +109,8 @@ export function PrepPage() {
         />
         <StatTile label="Strong topics" icon={TargetIcon} tone="info" value={progressQuery.data ? strongTopics : null} loading={progressQuery.isLoading} hint={`of ${topics.length} tracked topics`} />
       </StatGrid>
+
+      <ReviewTodayCard limit={20} />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <SectionCard title="Progress by category" description="Task completion, with average mastery alongside.">

@@ -14,6 +14,7 @@ import { ErrorState } from '@/components/shared/QueryStates'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TypingText } from '@/components/motion/TypingText'
+import { ReviewTodayCard } from '@/components/prep/ReviewTodayCard'
 import { PipelineStrip } from '@/components/dashboard/PipelineStrip'
 import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { ActionQueueList } from '@/components/dashboard/ActionQueueList'
@@ -111,6 +112,8 @@ export function DashboardPage() {
           {upcomingInterviewsQuery.data && <UpcomingInterviews interviews={upcomingInterviews.slice(0, UPCOMING_LIMIT)} />}
         </Panel>
       </div>
+
+      <ReviewTodayCard />
 
       <Panel title="Pipeline" action={<PanelLink to="/applications/board">Open board</PanelLink>}>
         {applicationsQuery.isLoading && <Skeleton className="h-28 w-full rounded-xl" data-testid="pipeline-loading" />}

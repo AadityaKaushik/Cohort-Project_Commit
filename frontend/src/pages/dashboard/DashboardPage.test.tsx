@@ -19,7 +19,7 @@ vi.mock('@/lib/interviews-api', async () => {
 })
 vi.mock('@/lib/prep-api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/prep-api')>('@/lib/prep-api')
-  return { ...actual, listPreparationTasks: vi.fn() }
+  return { ...actual, listPreparationTasks: vi.fn(), getReviewQueue: vi.fn().mockResolvedValue({ as_of: '2026-03-10', items: [] }) }
 })
 
 function application(overrides: Partial<ApplicationSummary> = {}): ApplicationSummary {

@@ -179,3 +179,28 @@ export interface Readiness {
 export function getReadiness(applicationId: string) {
   return apiFetch<Readiness>(`/applications/${applicationId}/readiness`)
 }
+
+export interface ReviewItem {
+  topic_id: string
+  topic_name: string
+  question_id: string
+  question_text: string
+  due_date: string
+  days_overdue: number
+  mastery_score: number | null
+  last_practised_at: string
+  reason: string
+}
+
+export interface ReviewQueue {
+  as_of: string
+  items: ReviewItem[]
+}
+
+export function getReviewQueue() {
+  return apiFetch<ReviewQueue>('/prep/review-queue')
+}
+
+export function getQuestion(id: string) {
+  return apiFetch<QuestionBankItem>(`/questions/${id}`)
+}

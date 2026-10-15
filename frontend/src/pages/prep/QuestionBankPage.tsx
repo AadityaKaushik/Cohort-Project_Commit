@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronDownIcon, ChevronRightIcon, ListChecksIcon, SearchIcon } from 'lucide-react'
@@ -8,6 +8,7 @@ import {
   listPracticeAttempts,
   listQuestions,
   listTopics,
+  getQuestion,
   recordPracticeAttempt,
   type Difficulty,
   type QuestionBankItem,
@@ -73,12 +74,33 @@ export function QuestionBankPage() {
       }),
   })
 
+  const practiseId = params.get('practise') ?? ''
+  const practiseQuery = useQuery({
+    queryKey: ['question', practiseId],
+    queryFn: () => getQuestion(practiseId),
+    enabled: practiseId !== '',
+  })
+  const practiseQuestion = practiseQuery.data
+
+  useEffect(() => {
+    if (practiseId === '' || (!practiseQuestion && !practiseQuery.isError)) {
+      return
+    }
+    if (practiseQuestion) {
+      setLogging(practiseQuestion)
+    }
+    const next = new URLSearchParams(params)
+    next.delete('practise')
+    setParams(next, { replace: true })
+  }, [practiseId, practiseQuestion, practiseQuery.isError, params, setParams])
+
   const attemptMutation = useMutation({
     mutationFn: ({ question, draft }: { question: QuestionBankItem; draft: AttemptDraft }) =>
       recordPracticeAttempt(question.id, draft),
     onSuccess: async (_attempt, { question }) => {
       setLogging(null)
       queryClient.invalidateQueries({ queryKey: ['attempts', question.id] })
+      queryClient.invalidateQueries({ queryKey: ['review-queue'] })
       const progress = await queryClient.fetchQuery({ queryKey: ['preparation-progress'], queryFn: getPreparationProgress, staleTime: 0 })
       const topic = progress.topics.find((candidate) => candidate.topic_id === question.topic_id)
       const description = !topic

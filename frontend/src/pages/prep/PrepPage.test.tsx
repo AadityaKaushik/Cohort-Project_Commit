@@ -25,6 +25,7 @@ vi.mock('@/lib/prep-api', async () => {
     createPreparationTask: vi.fn(),
     updatePreparationTask: vi.fn(),
     deletePreparationTask: vi.fn(),
+    getReviewQueue: vi.fn().mockResolvedValue({ as_of: '2026-03-10', items: [] }),
   }
 })
 

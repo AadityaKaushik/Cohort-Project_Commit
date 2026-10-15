@@ -94,6 +94,15 @@ describe('QuestionBankPage', () => {
     expect(await screen.findByText('Graphs mastery is now 82%.')).toBeInTheDocument()
   })
 
+  it('opens the attempt dialog for the question named in the practise param', async () => {
+    vi.mocked(prepApi.getQuestion).mockResolvedValue(question)
+    renderPage('/prep/questions?topic_id=t1&practise=q1')
+
+    const dialog = await screen.findByRole('dialog')
+    expect(prepApi.getQuestion).toHaveBeenCalledWith('q1')
+    expect(within(dialog).getByRole('button', { name: 'Log attempt' })).toBeInTheDocument()
+  })
+
   it('shows an empty state when nothing matches', async () => {
     vi.mocked(prepApi.listQuestions).mockResolvedValue({ items: [], total: 0, page: 0, size: 20 })
     renderPage()
