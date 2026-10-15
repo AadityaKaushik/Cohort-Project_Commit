@@ -55,7 +55,7 @@ Hard rejections:
 
 Soft warnings (saved if the user chooses to keep the text):
 
-- `OFF_TOPIC`: for interview and company experience fields only. The text is Latin-script, has at least 4 words, and mentions none of about 60 topic words (round, interview, question, offer, manager, culture, salary and so on). "The tea there was not good" lands here.
+- `OFF_TOPIC`: for interview and company experience fields only. The text is Latin-script, has at least 5 words, and mentions none of about 70 topic words and word starts (round, interview, question, offer, manager, culture, salary, approach, solution and so on). "The tea there was not good" lands here.
 - `CONTAINS_CONTACT_DETAILS`: an email address or phone-like number in the text.
 - `STOPWORDS_ONLY`: 3 or more words and every one is an English function word ("this is the and it").
 

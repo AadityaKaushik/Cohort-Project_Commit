@@ -1,30 +1,48 @@
 package com.cohort.api.dto;
 
 import com.cohort.api.entity.Application;
+import com.cohort.api.validation.CleanName;
+import com.cohort.api.validation.HttpUrl;
+import com.cohort.api.validation.InputText;
+import com.cohort.api.validation.MeaningfulText;
+import com.cohort.api.validation.PlausibleDate;
+import com.cohort.api.validation.SalaryRange;
+import com.cohort.api.validation.ValidSalary;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@ValidSalary(currencyRequired = false)
 public record UpdateApplicationRequest(
-        @Size(max = 200) String companyName,
-        @Size(max = 300) String jobTitle,
+        @Size(max = 200) @CleanName String companyName,
+        @Size(max = 300) @CleanName String jobTitle,
         String jobDescription,
-        String jobUrl,
-        String location,
+        @HttpUrl String jobUrl,
+        @Size(max = 200) @CleanName String location,
         Application.WorkMode workMode,
         Application.JobType jobType,
         BigDecimal salaryMin,
         BigDecimal salaryMax,
         @Size(min = 3, max = 3) String salaryCurrency,
-        @PastOrPresent LocalDate dateApplied,
+        @PastOrPresent @PlausibleDate LocalDate dateApplied,
         Application.Priority priority,
-        String source,
+        @Size(max = 100) @CleanName String source,
         @JsonProperty("is_referral") Boolean isReferral,
-        LocalDate deadline,
-        String recruiterName,
-        String recruiterEmail,
-        String notes,
-        String coverLetter) {
+        @PlausibleDate LocalDate deadline,
+        @Size(max = 200) @CleanName String recruiterName,
+        @Email @Size(max = 254) String recruiterEmail,
+        @Size(max = 10000) @MeaningfulText String notes,
+        String coverLetter) implements SalaryRange {
+    public UpdateApplicationRequest {
+        companyName = InputText.collapse(companyName);
+        jobTitle = InputText.collapse(jobTitle);
+        jobUrl = jobUrl == null ? null : jobUrl.trim();
+        location = InputText.collapse(location);
+        source = InputText.collapse(source);
+        recruiterName = InputText.collapse(recruiterName);
+        salaryCurrency = salaryCurrency == null ? null : salaryCurrency.trim().toUpperCase();
+    }
 }
