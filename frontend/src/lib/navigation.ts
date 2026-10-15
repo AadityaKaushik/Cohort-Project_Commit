@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BookMarked,
   Briefcase,
   Building2,
   FileText,
@@ -47,6 +48,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
       { label: 'Interview Prep', path: '/prep', icon: PencilLine },
       { label: 'Resumes', path: '/resumes', icon: FileText },
+      { label: 'Company directory', path: '/directory', icon: BookMarked },
     ],
   },
   {

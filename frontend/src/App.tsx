@@ -27,6 +27,8 @@ const ContactsPage = lazy(() => import('@/pages/contacts/ContactsPage').then((mo
 const OffersPage = lazy(() => import('@/pages/offers/OffersPage').then((module) => ({ default: module.OffersPage })))
 const GoalsPage = lazy(() => import('@/pages/goals/GoalsPage').then((module) => ({ default: module.GoalsPage })))
 const CompaniesPage = lazy(() => import('@/pages/companies/CompaniesPage').then((module) => ({ default: module.CompaniesPage })))
+const DirectoryPage = lazy(() => import('@/pages/directory/DirectoryPage').then((module) => ({ default: module.DirectoryPage })))
+const DirectoryProfilePage = lazy(() => import('@/pages/directory/DirectoryProfilePage').then((module) => ({ default: module.DirectoryProfilePage })))
 const CompanyDetailPage = lazy(() => import('@/pages/companies/CompanyDetailPage').then((module) => ({ default: module.CompanyDetailPage })))
 const PrepPage = lazy(() => import('@/pages/prep/PrepPage').then((module) => ({ default: module.PrepPage })))
 const QuestionBankPage = lazy(() => import('@/pages/prep/QuestionBankPage').then((module) => ({ default: module.QuestionBankPage })))
@@ -122,6 +124,10 @@ function App() {
           <Route path="companies">
             <Route index element={<CompaniesPage />} />
             <Route path=":id" element={<CompanyDetailPage />} />
+          </Route>
+          <Route path="directory">
+            <Route index element={<DirectoryPage />} />
+            <Route path=":slug" element={<DirectoryProfilePage />} />
           </Route>
           <Route path="prep">
             <Route index element={<PrepPage />} />

@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingRows } from '@/components/shared/QueryStates'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { addCompanyNote, companyKeys, deleteCompanyNote, getCompany } from '@/lib/companies-api'
+import { directoryKeys, listDirectoryCompanies } from '@/lib/directory-api'
 import { formatLabel } from '@/lib/labels'
 import { textProblem } from '@/lib/text-quality'
 import { useSoftWarnings } from '@/hooks/use-soft-warnings'
@@ -32,6 +33,11 @@ export function CompanyDetailPage() {
   const [draftError, setDraftError] = useState<string | null>(null)
   const softWarnings = useSoftWarnings()
   const query = useQuery({ queryKey: companyKeys.detail(id), queryFn: () => getCompany(id), enabled: id !== '' })
+  const profileQuery = useQuery({
+    queryKey: directoryKeys.list(query.data?.name ?? ''),
+    queryFn: () => listDirectoryCompanies(query.data?.name),
+    enabled: Boolean(query.data?.name),
+  })
   const refresh = () => queryClient.invalidateQueries({ queryKey: companyKeys.all })
   const addNote = useMutation({
     mutationFn: (body: string) => addCompanyNote(id, body),
@@ -61,6 +67,7 @@ export function CompanyDetailPage() {
     )
   }
   const company = query.data
+  const profile = profileQuery.data?.find((entry) => entry.name.toLowerCase() === company.name.toLowerCase())
 
   function submitNote(event?: FormEvent) {
     event?.preventDefault()
@@ -90,6 +97,11 @@ export function CompanyDetailPage() {
             >
               Website <ExternalLinkIcon aria-hidden className="size-3" />
             </a>
+          )}
+          {profile && (
+            <Link to={`/directory/${profile.slug}`} className="text-primary hover:underline">
+              General interview pattern
+            </Link>
           )}
         </p>
       </div>
