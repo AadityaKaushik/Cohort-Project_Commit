@@ -7,6 +7,7 @@ import { AppSidebar } from '@/components/layout/AppSidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { CommandPalette } from '@/components/layout/CommandPalette'
+import { ProductTour } from '@/components/onboarding/ProductTour'
 import { ShortcutsDialog } from '@/components/layout/ShortcutsDialog'
 import { useShortcuts, type ShortcutAction } from '@/hooks/use-shortcuts'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
@@ -109,6 +110,7 @@ export function AppShell() {
       </SidebarInset>
       <MobileNav />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <ProductTour />
       <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </SidebarProvider>
   )

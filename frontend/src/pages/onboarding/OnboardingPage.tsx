@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormError, FormField } from '@/components/shared/Form'
 import { CsvImport } from '@/components/applications/CsvImport'
+import { LoadSampleDataButton } from '@/components/onboarding/LoadSampleDataButton'
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -90,6 +91,7 @@ export function OnboardingPage() {
         </div>
       </form>
       <div className="mt-6 space-y-3 border-t pt-5">
+        <LoadSampleDataButton className="w-full" onLoaded={() => mutation.mutate({ skip: true })} />
         {showImport ? (
           <CsvImport />
         ) : (

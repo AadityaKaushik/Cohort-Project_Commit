@@ -21,6 +21,8 @@ import { ActionQueueList } from '@/components/dashboard/ActionQueueList'
 import { ProgressRing } from '@/components/dashboard/ProgressRing'
 import { CountUp } from '@/components/motion/Reveal'
 import { cn } from '@/lib/utils'
+import { LoadSampleDataButton } from '@/components/onboarding/LoadSampleDataButton'
+import { SampleDataBanner } from '@/components/onboarding/SampleDataBanner'
 
 const TERMINAL_STATUSES = new Set(['REJECTED', 'WITHDRAWN', 'ACCEPTED', 'DECLINED'])
 const UPCOMING_LIMIT = 4
@@ -100,6 +102,18 @@ export function DashboardPage() {
           </Link>
         </Button>
       </section>
+
+      <SampleDataBanner />
+
+      {!isLoading && !hasError && applications.length === 0 && (
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed bg-surface-2/50 p-5">
+          <p className="text-sm font-medium">Nothing here yet</p>
+          <p className="text-sm text-muted-foreground">
+            Log your first application, or fill the app with sample data to look around. Sample rows are marked and can be removed in one click.
+          </p>
+          <LoadSampleDataButton />
+        </div>
+      )}
 
       <div aria-label="Needs attention today" className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Panel title="Action queue">

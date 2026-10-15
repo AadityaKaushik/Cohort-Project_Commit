@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
-import { ChevronsUpDown, LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react'
+import { ChevronsUpDown, CircleHelpIcon, LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { replayTour } from '@/lib/tour'
 import { useTheme, type ThemePreference } from '@/hooks/use-theme'
 import {
   DropdownMenu,
@@ -51,6 +52,10 @@ export function UserMenu() {
         <DropdownMenuItem onSelect={() => navigate('/profile')}>
           <UserRound />
           Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={replayTour}>
+          <CircleHelpIcon />
+          Replay product tour
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Theme</DropdownMenuLabel>
