@@ -23,7 +23,6 @@ import { listCompanies } from '@/lib/companies-api'
 import { formatLabel } from '@/lib/labels'
 import { cleanName, email as emailRule, hasErrors, meaningfulText, plausibleDate, positiveInteger, required, url, validate } from '@/lib/validation'
 import { useToast } from '@/hooks/use-toast'
-import { clearDraft, readDraft, writeDraft } from '@/lib/drafts'
 import { useUnsavedChanges } from '@/components/shared/UnsavedChangesGuard'
 import { useSoftWarnings } from '@/hooks/use-soft-warnings'
 import { Button } from '@/components/ui/button'
@@ -140,11 +139,10 @@ export function ApplicationFormPage() {
 
   const companiesQuery = useQuery({ queryKey: ['companies', 'list', ''], queryFn: () => listCompanies('') })
 
-  const draftKey = 'application-new'
   const today = format(new Date(), 'yyyy-MM-dd')
   const [form, setForm] = useState<FormState>(() => {
     const start = { ...EMPTY_FORM, dateApplied: today }
-    return sourceId ? start : { ...start, ...readDraft<Partial<FormState>>(draftKey) }
+    return start
   })
   const [baseline, setBaseline] = useState<FormState>({ ...EMPTY_FORM, dateApplied: today })
   const dirty = JSON.stringify(form) !== JSON.stringify(baseline)
@@ -252,7 +250,6 @@ export function ApplicationFormPage() {
     mutationFn: (input: ApplicationFormInput) => (isEditing ? updateApplication(id!, input) : createApplication(input)),
     onSuccess: (result) => {
       markSaved()
-      clearDraft(draftKey)
       queryClient.invalidateQueries({ queryKey: ['applications'] })
       queryClient.invalidateQueries({ queryKey: ['application', result.id] })
       toast({ title: isEditing ? 'Application updated' : 'Application created' })
@@ -267,12 +264,6 @@ export function ApplicationFormPage() {
       }
     },
   })
-
-  useEffect(() => {
-    if (!isEditing && dirty) {
-      writeDraft(draftKey, form)
-    }
-  }, [isEditing, dirty, form])
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
