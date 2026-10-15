@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { StarRating } from '@/components/shared/StarRating'
 import { FormActions, FormField } from '@/components/shared/Form'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { formatLabel } from '@/lib/labels'
@@ -214,6 +215,7 @@ export function InterviewDebriefPage() {
         back={{ to: `/interviews/${interview.id}`, label: 'Interview' }}
         title="Post-interview debrief"
         description={`${interview.company.name} · Round ${interview.round_number} (${formatLabel(interview.round_type)})`}
+        actions={<PageGuide guideId="debrief" />}
       />
 
       {feedbackQuery.data?.is_draft && (
@@ -226,7 +228,7 @@ export function InterviewDebriefPage() {
 
       <SectionCard title="How did it go?" description="One tap is enough. The date, round and company are already filled in.">
         <div className="space-y-4">
-          <div role="group" aria-label="Outcome" className="flex flex-wrap gap-2">
+          <div role="group" aria-label="Outcome" data-guide="outcome" className="flex flex-wrap gap-2">
             {OUTCOME_CHIPS.map((chip) => (
               <Chip
                 key={chip.key}
@@ -240,7 +242,7 @@ export function InterviewDebriefPage() {
               </Chip>
             ))}
           </div>
-          <div role="group" aria-label="Topics that came up" className="flex flex-wrap gap-2">
+          <div role="group" aria-label="Topics that came up" data-guide="topics" className="flex flex-wrap gap-2">
             {roundTopics
               .concat(topics.filter((topic) => !roundTopics.includes(topic)))
               .map((topic) => (
@@ -258,7 +260,7 @@ export function InterviewDebriefPage() {
       </SectionCard>
 
       <SectionCard title="Add more detail" description="All optional. A few words now beat a perfect write-up later.">
-        <div className="space-y-5">
+        <div data-guide="detail" className="space-y-5">
           <StarRating value={selfRating} onChange={setSelfRating} label="Overall self-rating" />
           <FormField id="whatWentWell" label="What went well?" error={fieldErrors.whatWentWell}>
             <Textarea

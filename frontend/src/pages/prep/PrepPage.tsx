@@ -23,6 +23,7 @@ import { TopicGrid } from '@/components/prep/TopicGrid'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { FormField } from '@/components/shared/Form'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { ErrorState, LoadingCards, LoadingRows } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { StatGrid, StatTile } from '@/components/shared/StatTile'
@@ -87,12 +88,15 @@ export function PrepPage() {
         title="Interview Prep"
         description="Practice tracking and topic mastery that fades over time, just like real skill does."
         actions={
-          <Button asChild>
-            <Link to="/prep/questions">
-              <LibraryIcon aria-hidden />
-              Question bank
-            </Link>
-          </Button>
+          <>
+            <PageGuide guideId="prep" />
+            <Button asChild>
+              <Link to="/prep/questions">
+                <LibraryIcon aria-hidden />
+                Question bank
+              </Link>
+            </Button>
+          </>
         }
       />
 
@@ -110,7 +114,9 @@ export function PrepPage() {
         <StatTile label="Strong topics" icon={TargetIcon} tone="info" value={progressQuery.data ? strongTopics : null} loading={progressQuery.isLoading} hint={`of ${topics.length} tracked topics`} />
       </StatGrid>
 
-      <ReviewTodayCard limit={20} />
+      <div data-guide="review">
+        <ReviewTodayCard limit={20} />
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <SectionCard title="Progress by category" description="Task completion, with average mastery alongside.">
@@ -125,6 +131,7 @@ export function PrepPage() {
           )}
         </SectionCard>
 
+        <div data-guide="tasks">
         <SectionCard title="Preparation tasks" description="Turn a weak topic into a scheduled task.">
           <div className="space-y-4">
             <form onSubmit={handleCreateTask} className="flex flex-col gap-3 rounded-lg border bg-surface-2/50 p-3 sm:flex-row sm:items-end">
@@ -218,8 +225,10 @@ export function PrepPage() {
             )}
           </div>
         </SectionCard>
+        </div>
       </div>
 
+      <div data-guide="mastery">
       <SectionCard title="Topic mastery" description="Select a topic to see how much evidence it rests on, then practise it.">
         {progressQuery.isLoading && <Skeleton className="h-40 w-full rounded-lg" />}
         {progressQuery.data && <TopicGrid topics={progressQuery.data.topics} onSelectTopic={setSelectedTopic} />}
@@ -235,6 +244,7 @@ export function PrepPage() {
           </p>
         )}
       </SectionCard>
+      </div>
     </div>
   )
 }

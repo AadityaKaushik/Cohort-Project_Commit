@@ -20,6 +20,7 @@ import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
 import { DataTable, Pagination, type DataTableColumn } from '@/components/shared/DataTable'
 import { CompanyCell } from '@/components/shared/CompanyMark'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { PriorityBadge } from '@/components/shared/ToneBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -234,24 +235,31 @@ export function ApplicationsListPage() {
         description={data ? `${data.total} ${filtered ? 'matching your filters' : 'tracked in total'}` : 'Every role you are pursuing, in one list.'}
         actions={
           <>
+            <PageGuide guideId="applications" />
+            <span data-guide="view-switch" className="contents">
             <Button variant="outline" asChild>
               <Link to="/applications/board" onClick={() => writePreference(VIEW_KEY, 'board')}>
                 <KanbanIcon aria-hidden />
                 Board
               </Link>
             </Button>
+            </span>
+            <span data-guide="import" className="contents">
             <Button variant="outline" asChild>
               <Link to="/applications/import">
                 <UploadIcon aria-hidden />
                 Import CSV
               </Link>
             </Button>
+            </span>
             {newApplication}
           </>
         }
       />
 
-      <ApplicationFilterBar filters={filters} onChange={handleFiltersChange} />
+      <div data-guide="filters">
+        <ApplicationFilterBar filters={filters} onChange={handleFiltersChange} />
+      </div>
 
       {isLoading && <LoadingRows label="Loading applications" />}
       {isError && <ErrorState title="Couldn't load your applications" onRetry={() => refetch()} />}
@@ -271,6 +279,7 @@ export function ApplicationsListPage() {
 
       {data && items.length > 0 && (
         <>
+          <div data-guide="list">
           <DataTable
             columns={columns}
             data={items}
@@ -281,6 +290,7 @@ export function ApplicationsListPage() {
             direction={direction}
             onSortChange={handleSortChange}
           />
+          </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={(next) => updateParams({ page: String(next) })} label="Application pages" />
         </>
       )}

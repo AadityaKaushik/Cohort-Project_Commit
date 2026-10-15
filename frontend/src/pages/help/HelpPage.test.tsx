@@ -38,11 +38,15 @@ describe('HelpPage', () => {
     expect(screen.getAllByRole('link', { name: /privacy policy/i })[0]).toHaveAttribute('href', '/privacy-policy')
   })
 
-  it('starts the tour again for a signed-in user', async () => {
+  it('starts the tour again and resets the page guides for a signed-in user', async () => {
     auth.user = { id: 'user-1' }
     window.localStorage.setItem('cohort:tour-done:user-1', '1')
+    window.localStorage.setItem('cohort:guide-seen:user-1:prep', '1')
     const user = userEvent.setup()
     renderHelp('/help#tour')
+
+    await user.click(screen.getByRole('button', { name: 'Reset all guides' }))
+    expect(window.localStorage.getItem('cohort:guide-seen:user-1:prep')).toBeNull()
 
     await user.click(screen.getByRole('button', { name: 'Start the tour' }))
     expect(window.localStorage.getItem('cohort:tour-done:user-1')).toBeNull()

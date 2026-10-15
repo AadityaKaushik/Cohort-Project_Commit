@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PublicPageFrame } from '@/components/layout/PublicPageFrame'
 import { ShortcutList } from '@/components/layout/ShortcutList'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
+import { resetAllGuides } from '@/lib/page-guide-state'
 import { clearTourDone } from '@/lib/tour'
 
 const FAQ = [
@@ -34,11 +35,18 @@ export function HelpPage() {
   const { hash } = useLocation()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [guidesReset, setGuidesReset] = useState(false)
 
   function startTour() {
     if (!user) return
     clearTourDone(user.id)
     navigate('/')
+  }
+
+  function resetGuides() {
+    if (!user) return
+    resetAllGuides(user.id)
+    setGuidesReset(true)
   }
 
   useEffect(() => {
@@ -83,7 +91,7 @@ export function HelpPage() {
       </SectionCard>
 
       <section id="tour" className="scroll-mt-6">
-        <SectionCard title="Replay the tour">
+        <SectionCard title="Product tour and page guides">
           <div className="space-y-4 text-sm text-pretty text-muted-foreground">
             <p>
               The tour walks through each area of the app in order. It can also be started from the user menu, under "Replay product tour".
@@ -93,6 +101,10 @@ export function HelpPage() {
                 <Button type="button" onClick={startTour}>
                   Start the tour
                 </Button>
+                <Button type="button" variant="outline" onClick={resetGuides}>
+                  Reset all guides
+                </Button>
+                {guidesReset && <p role="status">Page guides will be offered again.</p>}
               </div>
             ) : (
               <p>
@@ -102,6 +114,9 @@ export function HelpPage() {
                 to take the tour.
               </p>
             )}
+            <p>
+              Pages with several features have a "How this page works" button in the header. Each guide is offered once on your first visit.
+            </p>
           </div>
         </SectionCard>
       </section>

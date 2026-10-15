@@ -16,6 +16,7 @@ import { HandledRecommendations } from '@/components/recommendations/HandledReco
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { ErrorState, LoadingCards } from '@/components/shared/QueryStates'
 import { Button } from '@/components/ui/button'
 import { RecommendationCard } from '@/components/recommendations/RecommendationCard'
@@ -92,7 +93,14 @@ export function RecommendationsPage() {
       <PageHeader
         title="Recommendations"
         description="Ranked suggestions for what to work on next, each with the evidence behind it and how confident it is."
-        actions={<FederatedLiftToggle federated={federated} onChange={setFederated} disabled={recommendationsQuery.isFetching} />}
+        actions={
+          <>
+            <PageGuide guideId="recommendations" />
+            <span data-guide="lift">
+              <FederatedLiftToggle federated={federated} onChange={setFederated} disabled={recommendationsQuery.isFetching} />
+            </span>
+          </>
+        }
       />
 
       {recommendationsQuery.isLoading && <LoadingCards count={3} label="Loading recommendations" />}
@@ -130,7 +138,7 @@ export function RecommendationsPage() {
         )}
 
       {recommendationsQuery.data && recommendationsQuery.data.length > 0 && (
-        <div className="stagger space-y-4">
+        <div data-guide="cards" className="stagger space-y-4">
           {recommendationsQuery.data.map((recommendation) => (
             <RecommendationCard
               key={recommendation.id}

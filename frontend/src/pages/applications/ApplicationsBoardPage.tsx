@@ -28,6 +28,7 @@ import { KanbanBoard } from '@/components/applications/KanbanBoard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/QueryStates'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface PendingCorrection {
@@ -101,6 +102,7 @@ export function ApplicationsBoardPage() {
         description="Drag a card to a stage, or use its move menu. Moves the pipeline does not allow are blocked."
         actions={
           <>
+            <PageGuide guideId="applications" />
             <Button variant="outline" asChild>
               <Link to="/applications?view=list">
                 <ListIcon aria-hidden />
@@ -134,7 +136,11 @@ export function ApplicationsBoardPage() {
           }
         />
       )}
-      {data && data.items.length > 0 && <KanbanBoard applications={data.items.filter((item) => !pendingDeletes.has(item.id))} onMove={handleMove} />}
+      {data && data.items.length > 0 && (
+        <div data-guide="board">
+          <KanbanBoard applications={data.items.filter((item) => !pendingDeletes.has(item.id))} onMove={handleMove} />
+        </div>
+      )}
 
       {interviewFor && (
         <InterviewMoveDialog

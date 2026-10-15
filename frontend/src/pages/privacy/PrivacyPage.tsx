@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { ErrorState, LoadingRows } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { ToneBadge } from '@/components/shared/ToneBadge'
@@ -59,6 +60,7 @@ export function PrivacyPage() {
             .
           </>
         }
+        actions={<PageGuide guideId="privacy" />}
       />
 
       <section aria-label="In plain language" className="stagger grid gap-3 md:grid-cols-3">
@@ -73,6 +75,7 @@ export function PrivacyPage() {
         ))}
       </section>
 
+      <div data-guide="participation">
       <SectionCard
         title="Federated learning participation"
         action={!consentQuery.isLoading && <ToneBadge tone={optedIn ? 'success' : 'neutral'} dot>{optedIn ? 'Opted in' : 'Opted out'}</ToneBadge>}
@@ -100,7 +103,9 @@ export function PrivacyPage() {
           </div>
         )}
       </SectionCard>
+      </div>
 
+      <div data-guide="schema">
       <SectionCard
         title="What is sent, exactly"
         description={schemaQuery.data ? `Exactly ${schemaQuery.data.feature_count} bounded numbers, derived only from your own activity. No raw counts, no free text, no identifiers.` : undefined}
@@ -132,7 +137,9 @@ export function PrivacyPage() {
           </div>
         )}
       </SectionCard>
+      </div>
 
+      <div data-guide="ledger">
       <SectionCard
         title="Privacy Ledger"
         description="Everything this account has ever sent to the shared model, one row per round. Expand a row to see the exact vector that was transmitted after clipping and noise."
@@ -151,6 +158,7 @@ export function PrivacyPage() {
           <PrivacyLedgerTable entries={ledgerQuery.data} featureNames={schemaQuery.data?.features.map((feature) => feature.name)} />
         )}
       </SectionCard>
+      </div>
     </div>
   )
 }

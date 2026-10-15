@@ -35,6 +35,7 @@ import { Timeline } from '@/components/shared/Timeline'
 import { DetailList, type DetailItem } from '@/components/shared/DetailList'
 import { FormError } from '@/components/shared/Form'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { ReadinessCard } from '@/components/prep/ReadinessCard'
@@ -190,6 +191,7 @@ export function ApplicationDetailPage() {
         meta={<StatusBadge status={data.status} />}
         actions={
           <>
+            <PageGuide guideId="application-detail" />
             <Button variant="outline" asChild>
               <Link to={`/applications/${data.id}/edit`}>
                 <PencilIcon aria-hidden />
@@ -271,12 +273,15 @@ export function ApplicationDetailPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Timeline" description="Every status change, newest first.">
-            <Timeline entries={timelineEntries} />
-          </SectionCard>
+          <div data-guide="timeline">
+            <SectionCard title="Timeline" description="Every status change, newest first.">
+              <Timeline entries={timelineEntries} />
+            </SectionCard>
+          </div>
         </div>
 
         <div className="stagger min-w-0 space-y-6">
+          <div data-guide="status">
           <SectionCard title="Change status" description="Only moves the pipeline allows are offered.">
             <div className="space-y-3">
               {data.allowed_next_statuses.length === 0 && data.correction_statuses.length === 0 ? (
@@ -329,14 +334,19 @@ export function ApplicationDetailPage() {
               </Button>
             </div>
           </SectionCard>
+          </div>
 
           <ReadinessCard applicationId={data.id} />
 
-          <ResumeMatchCard applicationId={data.id} />
+          <div data-guide="resume-match">
+            <ResumeMatchCard applicationId={data.id} />
+          </div>
 
-          <SectionCard title="Email drafts" description="Drafts for you to edit and copy. Nothing is sent.">
-            <EmailDraftPanel applicationId={data.id} interviews={data.interviews} />
-          </SectionCard>
+          <div data-guide="email-drafts">
+            <SectionCard title="Email drafts" description="Drafts for you to edit and copy. Nothing is sent.">
+              <EmailDraftPanel applicationId={data.id} interviews={data.interviews} />
+            </SectionCard>
+          </div>
 
           <SectionCard title="Resume" description="The version you sent with this application.">
             <div className="space-y-3">

@@ -31,6 +31,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { CheckboxField, FormActions, FormError, FormField, FormSection } from '@/components/shared/Form'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 import { ErrorState, PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { SoftWarning } from '@/components/shared/SoftWarning'
@@ -360,6 +361,7 @@ export function ApplicationFormPage() {
         back={backTo}
         title={isEditing ? 'Edit application' : duplicateId ? 'Duplicate application' : 'Create an application'}
         description={isEditing ? 'Update the details you track for this role.' : 'Only the company, role and date are required. Add the rest whenever you have it.'}
+        actions={<PageGuide guideId="application-form" />}
       />
       {bookmarkNote && (
         <p role="status" className="rounded-lg border border-border bg-surface-2 px-4 py-3 text-sm">
@@ -367,7 +369,7 @@ export function ApplicationFormPage() {
         </p>
       )}
       <SectionCard>
-        <div className="mb-6 rounded-lg border border-border p-4">
+        <div data-guide="posting" className="mb-6 rounded-lg border border-border p-4">
           <button
             type="button"
             className="flex w-full items-center justify-between text-left text-sm font-medium"
@@ -401,7 +403,7 @@ export function ApplicationFormPage() {
             </div>
           )}
         </div>
-        <form id="application-form" onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form id="application-form" data-guide="form" onSubmit={handleSubmit} className="space-y-6" noValidate>
           <FormSection title="The role" description="What you applied for and where it stands.">
             <FormField id="companyName" label="Company" hint={suggestedHint('companyName')} error={fieldErrors.companyName}>
               <Input id="companyName" list="company-options" autoComplete="off" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} required />
@@ -538,7 +540,11 @@ export function ApplicationFormPage() {
           </FormActions>
         </form>
       </SectionCard>
-      {!isEditing && !duplicateId && <SaveFromSitesCard />}
+      {!isEditing && !duplicateId && (
+        <div data-guide="save-from-sites">
+          <SaveFromSitesCard />
+        </div>
+      )}
     </div>
   )
 }

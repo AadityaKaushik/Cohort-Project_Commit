@@ -10,6 +10,7 @@ import { formatLabel } from '@/lib/labels'
 import { DIFFICULTY_LABEL, DifficultyBadge } from '@/components/shared/DifficultyBadge'
 import { listTopics } from '@/lib/prep-api'
 import { DIRECTORY_NOTE } from '@/pages/directory/DirectoryPage'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 
 const PAY_NOTE = 'Figures are approximate, from public sources, and change with year and level. Not an offer or a guarantee.'
 
@@ -75,7 +76,10 @@ export function DirectoryProfilePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{company.name}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold">{company.name}</h2>
+          <PageGuide guideId="directory" />
+        </div>
         <p className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground">
           {facts.map((fact) => (
             <span key={fact}>{fact}</span>
@@ -98,8 +102,8 @@ export function DirectoryProfilePage() {
         <p className="text-sm text-muted-foreground">No role pattern has been added for this company.</p>
       )}
 
-      {company.role_patterns.map((pattern) => (
-        <Card key={`${pattern.role_family}-${pattern.level}`}>
+      {company.role_patterns.map((pattern, patternIndex) => (
+        <Card key={`${pattern.role_family}-${pattern.level}`} data-guide={patternIndex === 0 ? 'roles' : undefined}>
           <CardHeader>
             <CardTitle className="text-sm">
               {formatLabel(pattern.role_family)} · {pattern.level}
@@ -128,7 +132,7 @@ export function DirectoryProfilePage() {
 
             {pattern.notes && <p className="text-xs text-muted-foreground">{pattern.notes}</p>}
 
-            <div className="space-y-1">
+            <div data-guide={patternIndex === 0 ? 'difficulty' : undefined} className="space-y-1">
               <p className="text-xs font-medium">{DIFFICULTY_LABEL}</p>
               <DifficultyBadge level={pattern.difficulty_level} />
               {pattern.difficulty_basis && <p className="text-xs text-muted-foreground">{pattern.difficulty_basis}</p>}
@@ -172,7 +176,9 @@ export function DirectoryProfilePage() {
               </div>
             )}
 
-            <SourceList sources={pattern.sources} checked={pattern.last_checked} />
+            <div data-guide={patternIndex === 0 ? 'sources' : undefined}>
+              <SourceList sources={pattern.sources} checked={pattern.last_checked} />
+            </div>
           </CardContent>
         </Card>
       ))}

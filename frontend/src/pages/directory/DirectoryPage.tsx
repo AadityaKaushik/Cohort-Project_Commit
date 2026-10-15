@@ -11,6 +11,7 @@ import { LoadingRows } from '@/components/shared/QueryStates'
 import { directoryKeys, listDirectoryCompanies } from '@/lib/directory-api'
 import { formatLabel } from '@/lib/labels'
 import { DifficultyBadge } from '@/components/shared/DifficultyBadge'
+import { PageGuide } from '@/components/onboarding/PageGuide'
 
 export const DIRECTORY_NOTE = 'General pattern, may be out of date. Ratings appear when 5 or more candidates have shared.'
 
@@ -30,7 +31,7 @@ export function DirectoryPage() {
           <h2 className="text-lg font-semibold">Company directory</h2>
           <p className="text-sm text-muted-foreground">{DIRECTORY_NOTE}</p>
         </div>
-        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+        <div data-guide="directory-filters" className="flex w-full flex-wrap gap-2 sm:w-auto">
           <Input
             aria-label="Search directory"
             placeholder="Search companies"
@@ -51,6 +52,7 @@ export function DirectoryPage() {
               </option>
             ))}
           </NativeSelect>
+          <PageGuide guideId="directory" />
         </div>
       </div>
 
