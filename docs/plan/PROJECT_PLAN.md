@@ -980,7 +980,7 @@ US-76 to US-79 (stalled application, upcoming interview, missing debrief, notifi
 
 **US-86 — App shell: user menu, logout, command palette** · Must · 3 · Sprint 6 · Deps: US-71
 > As a user, I want to see who I am signed in as, log out, and jump anywhere with a command palette, so that navigation is fast.
-- User menu with logout that clears the session; page titles and breadcrumbs; the command palette navigates to any page.
+- User menu with logout that clears the session; page titles and breadcrumbs; the command palette opens any page.
 
 **US-87 — Feedback and validation** · Must · 3 · Sprint 6 · Deps: US-71
 > As a user, I want every action to give clear feedback and forms to tell me what is wrong before I submit, so that I never guess what happened.
@@ -1943,7 +1943,7 @@ No Redux. There is no state complex enough to justify it, and adding it would be
 
 | Page | Route | Purpose | Main components | Data required | User actions |
 |---|---|---|---|---|---|
-| **Login** | `/login` | Authenticate | `AuthCard`, `LoginForm` | — | Submit, navigate to register |
+| **Login** | `/login` | Authenticate | `AuthCard`, `LoginForm` | — | Submit, link to register |
 | **Register** | `/register` | Create account | `AuthCard`, `RegisterForm`, `PasswordStrength` | — | Submit |
 | **Dashboard** | `/` | Answer "what should I do today?" | `PipelineStrip`, `ActionQueue`, `UpcomingInterviews`, `RecentActivity` | `/analytics/summary`, stalled apps, pending debriefs, due tasks, upcoming interviews | Act on a queue item, quick-add application |
 | **Applications** | `/applications` | Manage the campaign | `DataTable`, `FilterBar`, `StatusBadge`, `ApplicationFormModal` | Paginated applications, companies | Create, filter, search, sort, open detail |
