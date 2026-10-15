@@ -232,7 +232,7 @@ From Sprint 2 onward the Owner column names the owning department; the departmen
 
 ## SPRINT 8 — AI and intelligence
 
-**Goal:** AI assistance grounded in the user's own data, plus the prep intelligence that is reliable on a small local model. Seven phases are delivered (P89, P94, P95, P98, P99, P101, P103) and nine are deferred. AI runs on a local model (Ollama) by default, so user data never leaves the server; Google Gemini is an optional provider, and the UI discloses when it is active.
+**Goal:** AI assistance grounded in the user's own data, plus the prep intelligence that is reliable on a small local model. Six phases are delivered (P89, P94, P95, P98, P99, P103) and ten are deferred. AI runs on a local model (Ollama) by default, so user data never leaves the server; Google Gemini is an optional provider, and the UI discloses when it is active.
 
 | # | Department | Owner | Depends on | Commit message | Scope | Pattern | Verify |
 |---|---|---|---|---|---|---|---|
@@ -248,12 +248,12 @@ From Sprint 2 onward the Owner column names the owning department; the departmen
 | P98 | AI/ML | AI/ML team | P24, P89, P93 | `feat(ai): interview prep pack (US-111)` | One-page brief per upcoming interview | — | Content assembled only from the user's data |
 | P99 | AI/ML | AI/ML team | P85, P89 | `feat(ai): follow-up and negotiation email drafts (US-112)` | Drafts only; never sent automatically | — | API + RTL |
 | P100 | AI/ML | AI/ML team | P36, P61, P89 | `feat(ai): weekly review (US-113)` | Deferred: restates the dashboard. Generated from analytics; delivered through the notification channels | — | Fixture tests |
-| P101 | Backend | Backend team | P21, P30, P36 | `feat(analytics): resume performance and funnel simulator (US-26,114)` | Response rate per resume version; applications-needed simulator | uses **Template Method** | Golden-file tests |
+| P101 | Backend | Backend team | P21, P30, P36 | `feat(analytics): resume performance and funnel simulator (US-26,114)` | Deferred: too few applications per user for response rates to mean anything. Response rate per resume version; applications-needed simulator | uses **Template Method** | Golden-file tests |
 | P102 | AI/ML | AI/ML team | P48, P50 | `feat(fl): cohort benchmarks from the federated model (US-115)` | Deferred: needs a real cohort. Benchmarks from the global model only; min-cohort rule applies | — | Benchmarks hidden below the min-cohort size |
 | P103 | Backend | Backend team | P31, P75 | `feat(prep): spaced review queue (US-42)` | Daily review queue scheduled from mastery decay | — | Deterministic scheduling tests on fixtures |
 | P104 | AI/ML | AI/ML team | P56, P57 | `feat(fl): privacy budget meter (US-66)` | Deferred: the Privacy Ledger already covers it. Cumulative ε per user from the ledger, shown against the configured budget | — | Meter total equals the sum of the user's ledger entries |
 
-**Sprint 8 DoD:** The seven delivered phases work with the local model and degrade gracefully when it is down; no AI prompt contains another user's data; the Gemini disclosure is shown whenever that provider is active. The nine deferred phases keep their rows and numbers and are not built.
+**Sprint 8 DoD:** The six delivered phases work with the local model and degrade gracefully when it is down; no AI prompt contains another user's data; the Gemini disclosure is shown whenever that provider is active. The ten deferred phases keep their rows and numbers and are not built.
 
 ---
 

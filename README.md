@@ -35,7 +35,7 @@ scripts/        CI helper scripts
 ## Status
 
 The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one commit per phase.
-Sprints 1 to 7 are built. Sprint 8 is partly built: P89 (AI provider) and P94 (readiness score) are done, P95, P98, P99, P101 and P103 are still to build, and nine phases are deferred. Sprint 9 is planned except the seed data (P105), which is built.
+Sprints 1 to 7 are built. Sprint 8 delivers six phases (P89, P94, P95, P98, P99, P103) and defers ten. Sprint 9 is planned except the seed data (P105), which is built.
 `docs/implementation-overview.md` summarises the build and `docs/poster.html` is the project poster.
 
 ## Running locally
