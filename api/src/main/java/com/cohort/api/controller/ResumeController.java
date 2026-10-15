@@ -111,6 +111,18 @@ public class ResumeController {
                 .body(file.content());
     }
 
+    @GetMapping("/{id}/export")
+    public ResponseEntity<byte[]> exportPdf(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        ResumeService.DownloadableFile pdf = resumeService.exportPdf(userId(jwt), id);
+        ContentDisposition disposition = ContentDisposition.attachment()
+                .filename(pdf.originalFilename(), StandardCharsets.UTF_8)
+                .build();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+                .body(pdf.content());
+    }
+
     private UUID userId(Jwt jwt) {
         return UUID.fromString(jwt.getSubject());
     }

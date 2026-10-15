@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { ResumeSectionsEditor } from '@/components/resumes/ResumeSectionsEditor'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { UploadDropzone } from '@/components/shared/UploadDropzone'
 import { DetailList, type DetailItem } from '@/components/shared/DetailList'
@@ -206,6 +207,8 @@ export function ResumeDetailPage() {
           </div>
         </SectionCard>
       </div>
+
+      <ResumeSectionsEditor resumeId={data.id} summary={data.summary} />
     </div>
   )
 }

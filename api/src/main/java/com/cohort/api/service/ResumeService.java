@@ -12,6 +12,7 @@ import com.cohort.api.exception.ResumeNotFoundException;
 import com.cohort.api.mapper.ResumeMapper;
 import com.cohort.api.repository.ResumeRepository;
 import com.cohort.api.repository.ResumeSectionRepository;
+import com.cohort.api.service.resume.ResumePdfBuilder;
 import com.cohort.api.service.resume.storage.FileStorageStrategy;
 import com.cohort.api.service.resume.storage.FileUpload;
 import com.cohort.api.service.resume.storage.StoredFile;
@@ -34,16 +35,19 @@ public class ResumeService {
     private final ResumeSectionRepository resumeSectionRepository;
     private final FileStorageStrategy fileStorage;
     private final ResumeMapper mapper;
+    private final ResumePdfBuilder pdfBuilder;
 
     public ResumeService(
             ResumeRepository resumeRepository,
             ResumeSectionRepository resumeSectionRepository,
             FileStorageStrategy fileStorage,
-            ResumeMapper mapper) {
+            ResumeMapper mapper,
+            ResumePdfBuilder pdfBuilder) {
         this.resumeRepository = resumeRepository;
         this.resumeSectionRepository = resumeSectionRepository;
         this.fileStorage = fileStorage;
         this.mapper = mapper;
+        this.pdfBuilder = pdfBuilder;
     }
 
     @Transactional
@@ -136,6 +140,14 @@ public class ResumeService {
         }
         byte[] content = fileStorage.load(resume.getFilePath());
         return new DownloadableFile(content, resume.getFileOriginalName(), resume.getFileMime());
+    }
+
+    @Transactional(readOnly = true)
+    public DownloadableFile exportPdf(UUID userId, UUID resumeId) {
+        Resume resume = requireOwned(userId, resumeId);
+        List<ResumeSection> sections = resumeSectionRepository.findByResumeIdOrderBySortOrder(resumeId);
+        String filename = resume.getName().replaceAll("[^A-Za-z0-9._-]+", "_") + ".pdf";
+        return new DownloadableFile(pdfBuilder.build(resume, sections), filename, "application/pdf");
     }
 
     @Transactional

@@ -84,3 +84,52 @@ export async function downloadResumeFile(id: string): Promise<{ blob: Blob; file
 export function cloneResume(id: string) {
   return apiFetch<ResumeDetail>(`/resumes/${id}/clone`, { method: 'POST' })
 }
+
+export type ResumeSectionType = 'experience' | 'project' | 'skill' | 'education' | 'achievement'
+
+export interface ResumeSection {
+  id: string
+  section_type: ResumeSectionType
+  title: string | null
+  organisation: string | null
+  start_date: string | null
+  end_date: string | null
+  description: string | null
+  sort_order: number
+}
+
+export interface ResumeSectionInput {
+  section_type: ResumeSectionType
+  title?: string | null
+  organisation?: string | null
+  start_date?: string | null
+  end_date?: string | null
+  description?: string | null
+}
+
+export function listResumeSections(resumeId: string) {
+  return apiFetch<ResumeSection[]>(`/resumes/${resumeId}/sections`)
+}
+
+export function addResumeSection(resumeId: string, input: ResumeSectionInput) {
+  return apiFetch<ResumeSection>(`/resumes/${resumeId}/sections`, { method: 'POST', body: input })
+}
+
+export function updateResumeSection(resumeId: string, sectionId: string, input: ResumeSectionInput) {
+  return apiFetch<ResumeSection>(`/resumes/${resumeId}/sections/${sectionId}`, { method: 'PUT', body: input })
+}
+
+export function deleteResumeSection(resumeId: string, sectionId: string) {
+  return apiFetch<void>(`/resumes/${resumeId}/sections/${sectionId}`, { method: 'DELETE' })
+}
+
+export function reorderResumeSections(resumeId: string, sectionIds: string[]) {
+  return apiFetch<ResumeSection[]>(`/resumes/${resumeId}/sections/order`, {
+    method: 'PUT',
+    body: { section_ids: sectionIds },
+  })
+}
+
+export function exportResumePdf(resumeId: string): Promise<{ blob: Blob; filename: string | null }> {
+  return apiFetchBlob(`/resumes/${resumeId}/export`)
+}

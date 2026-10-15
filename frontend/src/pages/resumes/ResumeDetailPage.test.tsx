@@ -14,6 +14,7 @@ vi.mock('@/lib/resumes-api', async () => {
     getResume: vi.fn(),
     cloneResume: vi.fn(),
     deleteResume: vi.fn(),
+    listResumeSections: vi.fn().mockResolvedValue([]),
   }
 })
 
