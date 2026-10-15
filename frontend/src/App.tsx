@@ -20,6 +20,7 @@ const ResumeFormPage = lazy(() => import('@/pages/resumes/ResumeFormPage').then(
 const ResumesListPage = lazy(() => import('@/pages/resumes/ResumesListPage').then((module) => ({ default: module.ResumesListPage })))
 const InterviewDebriefPage = lazy(() => import('@/pages/interviews/InterviewDebriefPage').then((module) => ({ default: module.InterviewDebriefPage })))
 const InterviewDetailPage = lazy(() => import('@/pages/interviews/InterviewDetailPage').then((module) => ({ default: module.InterviewDetailPage })))
+const InterviewPrepPage = lazy(() => import('@/pages/interviews/InterviewPrepPage').then((module) => ({ default: module.InterviewPrepPage })))
 const InterviewFormPage = lazy(() => import('@/pages/interviews/InterviewFormPage').then((module) => ({ default: module.InterviewFormPage })))
 const InterviewsListPage = lazy(() => import('@/pages/interviews/InterviewsListPage').then((module) => ({ default: module.InterviewsListPage })))
 const ContactsPage = lazy(() => import('@/pages/contacts/ContactsPage').then((module) => ({ default: module.ContactsPage })))
@@ -113,6 +114,7 @@ function App() {
             <Route path=":id" element={<InterviewDetailPage />} />
             <Route path=":id/edit" element={<InterviewFormPage />} />
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
+            <Route path=":id/prep" element={<InterviewPrepPage />} />
           </Route>
           <Route path="contacts" element={<ContactsPage />} />
           <Route path="offers" element={<OffersPage />} />

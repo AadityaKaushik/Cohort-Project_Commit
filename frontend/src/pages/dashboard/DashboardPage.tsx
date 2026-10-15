@@ -299,6 +299,14 @@ function UpcomingInterviews({ interviews }: { interviews: InterviewSummary[] }) 
                 </span>
               </span>
             </Link>
+            {index === 0 && (
+              <Link
+                to={`/interviews/${interview.id}/prep`}
+                className="mt-1 inline-block px-1 text-xs text-primary underline-offset-4 hover:underline"
+              >
+                Open the prep pack
+              </Link>
+            )}
           </li>
         )
       })}

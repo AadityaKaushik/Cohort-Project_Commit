@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useUndoableDelete } from '@/hooks/use-undo-delete'
-import { NotebookPenIcon, PencilIcon, PlusIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
+import { ClipboardListIcon, NotebookPenIcon, PencilIcon, PlusIcon, SearchXIcon, Trash2Icon } from 'lucide-react'
 import {
   addInterviewQuestion,
   deleteInterview,
@@ -158,6 +158,12 @@ export function InterviewDetailPage() {
                 </Link>
               </Button>
             )}
+            <Button variant="outline" asChild>
+              <Link to={`/interviews/${data.id}/prep`}>
+                <ClipboardListIcon aria-hidden />
+                Prep pack
+              </Link>
+            </Button>
             <Button variant="outline" asChild>
               <Link to={`/interviews/${data.id}/edit`}>
                 <PencilIcon aria-hidden />

@@ -45,3 +45,37 @@ export function getResumeMatch(applicationId: string) {
 export function createCoverLetterDraft(applicationId: string) {
   return apiFetch<AiDraft>(`/applications/${applicationId}/cover-letter-draft`, { method: 'POST' })
 }
+
+export interface PrepPack {
+  interview_id: string
+  company_name: string
+  job_title: string
+  round_number: number
+  round_type: string
+  scheduled_at: string | null
+  interviewer_name: string | null
+  interviewer_role: string | null
+  company_notes: string[]
+  past_rounds: {
+    round_number: number
+    round_type: string
+    job_title: string
+    outcome: string
+    went_well: string | null
+    went_poorly: string | null
+    improvement_areas: string | null
+  }[]
+  questions_asked: { text: string; category: string | null; round_number: number }[]
+  weak_topics: { name: string; has_evidence: boolean; mastery_percent: number }[]
+  resume_highlights: string[]
+  readiness_score: number | null
+  readiness_formatted: string
+}
+
+export function getPrepPack(interviewId: string) {
+  return apiFetch<PrepPack>(`/interviews/${interviewId}/prep-pack`)
+}
+
+export function createPrepSummary(interviewId: string) {
+  return apiFetch<AiDraft>(`/interviews/${interviewId}/prep-pack/summary`, { method: 'POST' })
+}

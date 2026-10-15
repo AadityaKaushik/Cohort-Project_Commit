@@ -666,3 +666,15 @@ html.theme-transition *::after {
     outline-offset: 2px;
   }
 }
+
+@media print {
+  [data-slot='sidebar'],
+  [data-slot='sidebar-gap'],
+  header.frosted,
+  nav.frosted {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+}
