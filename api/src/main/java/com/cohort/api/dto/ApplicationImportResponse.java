@@ -6,6 +6,7 @@ import java.util.List;
 
 public record ApplicationImportResponse(
         boolean dryRun,
+        String source,
         int total,
         int importable,
         int duplicates,

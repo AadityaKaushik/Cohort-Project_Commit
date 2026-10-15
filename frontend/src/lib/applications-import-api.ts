@@ -5,7 +5,7 @@ export const IMPORT_MAX_BYTES = 1024 * 1024
 
 export interface ImportColumn {
   header: string
-  field: 'company' | 'role' | 'status' | 'appliedDate' | 'location' | 'url' | 'notes' | null
+  field: 'company' | 'role' | 'status' | 'appliedDate' | 'location' | 'url' | 'notes' | 'salary' | null
 }
 
 export interface ImportRow {
@@ -22,6 +22,7 @@ export interface ImportRow {
 
 export interface ImportResult {
   dry_run: boolean
+  source: string
   total: number
   importable: number
   duplicates: number

@@ -37,8 +37,11 @@ public final class ApplicationCsvParser {
             Map.entry("url", "url"),
             Map.entry("joburl", "url"),
             Map.entry("link", "url"),
+            Map.entry("applicationdate", "appliedDate"),
             Map.entry("notes", "notes"),
-            Map.entry("note", "notes"));
+            Map.entry("note", "notes"),
+            Map.entry("salary", "salary"),
+            Map.entry("compensation", "salary"));
 
     private static final List<DateTimeFormatter> DATE_FORMATS = List.of(
             DateTimeFormatter.ofPattern("uuuu-M-d", Locale.ENGLISH),
@@ -49,6 +52,14 @@ public final class ApplicationCsvParser {
             DateTimeFormatter.ofPattern("MMM d, uuuu", Locale.ENGLISH),
             DateTimeFormatter.ofPattern("MMMM d, uuuu", Locale.ENGLISH));
 
+    private static final List<DateTimeFormatter> US_DATE_FORMATS = List.of(
+            DateTimeFormatter.ofPattern("M/d/uuuu", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("M/d/uu", Locale.ENGLISH));
+
+    public static final String SOURCE_LINKEDIN = "LinkedIn export";
+    public static final String SOURCE_TRACKER = "Spreadsheet tracker";
+    public static final String SOURCE_STANDARD = "Cohort format";
+
     private ApplicationCsvParser() {
     }
 
@@ -58,7 +69,7 @@ public final class ApplicationCsvParser {
     public record RawRow(int line, Map<String, String> values) {
     }
 
-    public record Parsed(List<Column> columns, List<RawRow> rows) {
+    public record Parsed(String source, List<Column> columns, List<RawRow> rows) {
     }
 
     public record Candidate(
@@ -105,10 +116,25 @@ public final class ApplicationCsvParser {
             }
             rows.add(new RawRow(index + 1, values));
         }
-        return new Parsed(columns, rows);
+        return new Parsed(detectSource(header, columns), columns, rows);
+    }
+
+    private static String detectSource(List<String> header, List<Column> columns) {
+        List<String> keys = header.stream().map(ApplicationCsvParser::normalize).toList();
+        if (keys.contains("applicationdate") && keys.contains("companyname") && keys.contains("jobtitle")) {
+            return SOURCE_LINKEDIN;
+        }
+        boolean hasStatus = columns.stream().anyMatch(column -> "status".equals(column.field()));
+        boolean hasExtras = keys.contains("salary") || keys.contains("position") || keys.contains("link")
+                || keys.contains("dateapplied");
+        return hasStatus && hasExtras ? SOURCE_TRACKER : SOURCE_STANDARD;
     }
 
     public static Candidate interpret(RawRow row, LocalDate today) {
+        return interpret(row, today, SOURCE_STANDARD);
+    }
+
+    public static Candidate interpret(RawRow row, LocalDate today, String source) {
         Map<String, String> values = row.values();
         String company = values.getOrDefault("company", "");
         String role = values.getOrDefault("role", "");
@@ -121,11 +147,18 @@ public final class ApplicationCsvParser {
             return invalid(row, company, role, "Company or role is too long.");
         }
 
-        ApplicationStatus status = parseStatus(values.getOrDefault("status", ""), warnings);
-        LocalDate dateApplied = parseDate(values.getOrDefault("appliedDate", ""), today, warnings);
+        boolean linkedin = SOURCE_LINKEDIN.equals(source);
+        ApplicationStatus status = parseStatus(values.getOrDefault("status", ""),
+                linkedin ? ApplicationStatus.APPLIED : ApplicationStatus.SAVED, warnings);
+        LocalDate dateApplied = parseDate(values.getOrDefault("appliedDate", ""), today, linkedin, warnings);
+        String salary = blankToNull(values.get("salary"));
+        String notes = blankToNull(values.get("notes"));
+        if (salary != null) {
+            notes = notes == null ? "Salary: " + salary : notes + "\nSalary: " + salary;
+        }
         return new Candidate(
                 row.line(), company, role, status, dateApplied,
-                blankToNull(values.get("location")), blankToNull(values.get("url")), blankToNull(values.get("notes")),
+                blankToNull(values.get("location")), blankToNull(values.get("url")), notes,
                 warnings, null);
     }
 
@@ -133,9 +166,9 @@ public final class ApplicationCsvParser {
         return new Candidate(row.line(), company, role, null, null, null, null, null, List.of(), error);
     }
 
-    private static ApplicationStatus parseStatus(String raw, List<String> warnings) {
+    private static ApplicationStatus parseStatus(String raw, ApplicationStatus fallback, List<String> warnings) {
         if (raw.isEmpty()) {
-            return ApplicationStatus.SAVED;
+            return fallback;
         }
         String normalized = raw.trim().toUpperCase(Locale.ROOT).replaceAll("[\\s-]+", "_");
         try {
@@ -146,14 +179,20 @@ public final class ApplicationCsvParser {
         }
     }
 
-    private static LocalDate parseDate(String raw, LocalDate today, List<String> warnings) {
+    private static LocalDate parseDate(String raw, LocalDate today, boolean monthFirst, List<String> warnings) {
         if (raw.isEmpty()) {
             warnings.add("No applied date, used today.");
             return today;
         }
-        for (DateTimeFormatter format : DATE_FORMATS) {
+        String datePart = raw.split("[T ]", 2)[0];
+        List<DateTimeFormatter> formats = new ArrayList<>();
+        if (monthFirst) {
+            formats.addAll(US_DATE_FORMATS);
+        }
+        formats.addAll(DATE_FORMATS);
+        for (DateTimeFormatter format : formats) {
             try {
-                LocalDate parsed = LocalDate.parse(raw, format);
+                LocalDate parsed = LocalDate.parse(datePart, format);
                 if (parsed.isAfter(today)) {
                     warnings.add("Applied date is in the future, used today.");
                     return today;
@@ -168,8 +207,11 @@ public final class ApplicationCsvParser {
     }
 
     private static Column toColumn(String header) {
-        String key = header.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
-        return new Column(header.trim(), FIELD_BY_HEADER.get(key));
+        return new Column(header.trim(), FIELD_BY_HEADER.get(normalize(header)));
+    }
+
+    private static String normalize(String header) {
+        return header.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
     }
 
     private static String blankToNull(String value) {

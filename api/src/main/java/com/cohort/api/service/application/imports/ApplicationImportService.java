@@ -55,7 +55,7 @@ public class ApplicationImportService {
         int created = 0;
 
         for (ApplicationCsvParser.RawRow raw : parsed.rows()) {
-            Candidate candidate = ApplicationCsvParser.interpret(raw, today);
+            Candidate candidate = ApplicationCsvParser.interpret(raw, today, parsed.source());
             List<String> warnings = new ArrayList<>(candidate.warnings());
             String outcome;
             if (!candidate.valid()) {
@@ -81,7 +81,7 @@ public class ApplicationImportService {
         List<ApplicationImportResponse.Column> columns = parsed.columns().stream()
                 .map(column -> new ApplicationImportResponse.Column(column.header(), column.field()))
                 .toList();
-        return new ApplicationImportResponse(dryRun, rows.size(), importable, duplicates, invalid, created, columns, rows);
+        return new ApplicationImportResponse(dryRun, parsed.source(), rows.size(), importable, duplicates, invalid, created, columns, rows);
     }
 
     private Set<String> existingKeys(UUID userId) {

@@ -106,4 +106,56 @@ class ApplicationCsvParserTest {
     void skipsBlankLines() {
         assertThat(parse("company,role\n\nAcme,Dev\n,\n").rows()).hasSize(1);
     }
+
+    private static final String LINKEDIN = "\uFEFFApplication Date,Contact Email,Contact Phone Number,Company Name,Job Title,Job Url,Resume Name,Question and Answers\r\n"
+            + "10/03/25 09:41 PM,,,\"Acme, Inc\",Backend Engineer,https://www.linkedin.com/jobs/view/123,cv.pdf,\r\n"
+            + "\r\n"
+            + "2025-09-28T14:05:00Z,jo@example.com,,Globex,\"Data \"\"Platform\"\" Engineer\",https://www.linkedin.com/jobs/view/456,cv.pdf,\r\n"
+            + "09/15/2025 08:02:11 AM,,,Initech,QA Analyst,,,\r\n";
+
+    @Test
+    void detectsLinkedInExportAndDefaultsToApplied() {
+        Parsed parsed = parse(LINKEDIN);
+
+        assertThat(parsed.source()).isEqualTo(ApplicationCsvParser.SOURCE_LINKEDIN);
+        assertThat(parsed.rows()).hasSize(3);
+        Candidate first = ApplicationCsvParser.interpret(parsed.rows().get(0), TODAY, parsed.source());
+        assertThat(first.company()).isEqualTo("Acme, Inc");
+        assertThat(first.status()).isEqualTo(ApplicationStatus.APPLIED);
+        assertThat(first.dateApplied()).isEqualTo(LocalDate.of(2025, 10, 3));
+        assertThat(first.url()).isEqualTo("https://www.linkedin.com/jobs/view/123");
+        assertThat(first.warnings()).isEmpty();
+    }
+
+    @Test
+    void readsLinkedInDateVariants() {
+        Parsed parsed = parse(LINKEDIN);
+
+        Candidate iso = ApplicationCsvParser.interpret(parsed.rows().get(1), TODAY, parsed.source());
+        Candidate long4 = ApplicationCsvParser.interpret(parsed.rows().get(2), TODAY, parsed.source());
+        assertThat(iso.role()).isEqualTo("Data \"Platform\" Engineer");
+        assertThat(iso.dateApplied()).isEqualTo(LocalDate.of(2025, 9, 28));
+        assertThat(long4.dateApplied()).isEqualTo(LocalDate.of(2025, 9, 15));
+    }
+
+    @Test
+    void detectsTrackerLayoutAndKeepsSalaryInNotes() {
+        Parsed parsed = parse("Company,Position,Status,Date Applied,Link,Location,Notes,Salary\n"
+                + "Acme,Engineer,Interview,2026-02-01,https://acme.com/j,Pune,Referred,12 LPA\n"
+                + "Globex,Analyst,Ghosted,,,,,\n");
+
+        assertThat(parsed.source()).isEqualTo(ApplicationCsvParser.SOURCE_TRACKER);
+        Candidate first = ApplicationCsvParser.interpret(parsed.rows().get(0), TODAY, parsed.source());
+        assertThat(first.status()).isEqualTo(ApplicationStatus.INTERVIEW);
+        assertThat(first.notes()).isEqualTo("Referred\nSalary: 12 LPA");
+        assertThat(first.location()).isEqualTo("Pune");
+        Candidate second = ApplicationCsvParser.interpret(parsed.rows().get(1), TODAY, parsed.source());
+        assertThat(second.status()).isEqualTo(ApplicationStatus.SAVED);
+        assertThat(second.warnings()).anyMatch(warning -> warning.contains("Ghosted"));
+    }
+
+    @Test
+    void plainFormatIsStandard() {
+        assertThat(parse("company,role\nAcme,Dev\n").source()).isEqualTo(ApplicationCsvParser.SOURCE_STANDARD);
+    }
 }

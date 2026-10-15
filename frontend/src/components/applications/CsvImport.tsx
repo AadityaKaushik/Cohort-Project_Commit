@@ -15,6 +15,7 @@ const FIELD_LABELS: Record<string, string> = {
   location: 'Location',
   url: 'Job URL',
   notes: 'Notes',
+  salary: 'Added to notes',
 }
 
 const OUTCOME_LABELS: Record<string, string> = {
@@ -82,7 +83,7 @@ export function CsvImport({ onImported }: { onImported?: (created: number) => vo
           className="block w-full text-sm file:mr-3 file:rounded-md file:border file:bg-card file:px-3 file:py-1.5 file:text-sm"
         />
         <p className="text-xs text-muted-foreground">
-          Up to 500 rows. Needs a company column and a role or title column. Status, applied date, location, URL and notes are optional.
+          Up to 500 rows. Needs a company column and a role or title column. Status, applied date, location, URL and notes are optional. LinkedIn's Job Applications.csv and Google Sheets or Notion trackers are recognised.
         </p>
       </div>
 
@@ -91,6 +92,9 @@ export function CsvImport({ onImported }: { onImported?: (created: number) => vo
 
       {preview && (
         <div className="space-y-4">
+          {preview.source !== 'Cohort format' && (
+            <p className="text-sm font-medium">Looks like a {preview.source.toLowerCase().replace('linkedin', 'LinkedIn')}.</p>
+          )}
           <section aria-label="Column mapping">
             <h4 className="text-sm font-medium">Columns</h4>
             <ul className="mt-1 flex flex-wrap gap-2 text-xs">

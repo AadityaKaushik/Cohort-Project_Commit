@@ -13,6 +13,7 @@ vi.mock('@/lib/applications-import-api', async () => {
 
 const preview: importApi.ImportResult = {
   dry_run: true,
+  source: 'LinkedIn export',
   total: 3,
   importable: 1,
   duplicates: 1,
@@ -56,6 +57,7 @@ describe('CsvImport', () => {
     await user.upload(screen.getByLabelText('CSV file'), csvFile())
 
     expect(await screen.findByText('Job Title → Role')).toBeInTheDocument()
+    expect(screen.getByText('Looks like a LinkedIn export.')).toBeInTheDocument()
     expect(screen.getByText('Salary → ignored')).toBeInTheDocument()
     expect(screen.getByText('1 to import, 1 duplicates, 1 skipped.')).toBeInTheDocument()
     expect(screen.getByText('Unknown status "ghosted", saved as Saved.')).toBeInTheDocument()
