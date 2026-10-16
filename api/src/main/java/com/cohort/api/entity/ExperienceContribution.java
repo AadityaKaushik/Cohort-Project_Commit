@@ -50,9 +50,11 @@ public class ExperienceContribution {
     @Column(nullable = false)
     private List<Map<String, Object>> rounds;
 
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     @Column(name = "overall_difficulty", nullable = false)
     private int overallDifficulty;
 
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     @Column(name = "overall_experience", nullable = false)
     private int overallExperience;
 
