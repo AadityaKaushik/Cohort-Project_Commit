@@ -1,5 +1,6 @@
 package com.cohort.api.security.oauth;
 
+import com.cohort.api.security.SecurityHeaders;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,7 @@ public class OAuthConfig {
                         .authorizedClientService(authorizedClientService)
                         .successHandler(handlers)
                         .failureHandler(handlers));
+        SecurityHeaders.apply(http);
         return http.build();
     }
 

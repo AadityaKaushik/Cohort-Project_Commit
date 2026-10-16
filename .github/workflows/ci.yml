@@ -7,6 +7,21 @@ on:
     branches: [main]
 
 jobs:
+  security-gates:
+    name: Security gates — secret scan, string-built SQL (P81)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan every commit for secrets
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.21.2 git /repo --no-banner --redact
+
+      - name: Reject SQL built from runtime values
+        run: bash scripts/check-sql-interpolation.sh
+
   api:
     name: API — build, test, coverage gate
     runs-on: ubuntu-latest
