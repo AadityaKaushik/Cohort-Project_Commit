@@ -63,6 +63,17 @@ class QuestionBankContentTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void everyTopicHasARealDescription() throws Exception {
+        try (Connection connection = dataSource.getConnection();
+                Statement statement = connection.createStatement();
+                ResultSet rs = statement.executeQuery(
+                        "SELECT COUNT(*) FROM topics WHERE description IS NULL OR description LIKE '% part of the % category%'")) {
+            rs.next();
+            assertThat(rs.getInt(1)).isZero();
+        }
+    }
+
+    @Test
     void practiceAttemptsOnOldPlaceholderRowsStillResolve() throws Exception {
         try (PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")) {
             postgres.start();
