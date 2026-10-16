@@ -37,8 +37,19 @@ scripts/        CI helper scripts
 ## Status
 
 The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one commit per phase.
-Sprints 1 to 7 are built. Sprint 8 is built for P89, P94, P95, P98, P99 and P103; the other ten phases are deferred. Sprint 9 is built for P105 to P110.
 `docs/implementation-overview.md` summarises the build and `docs/poster.html` is the project poster.
+
+| Sprint | Goal | Phases | Built | Still to do |
+|---|---|---|---|---|
+| 1 | Foundation | P01-P15 | All | None |
+| 2 | Resumes and interview capture | P16-P26 | All | Time the debrief (must be under 3 minutes) |
+| 3 | Preparation and analytics | P27-P38 | All | None |
+| 4 | Recommendations and federated learning | P39-P58 | All | Check a Privacy Ledger entry end to end with the FL profile running |
+| 5 | Notifications, reports and account | P59-P68 | All | None |
+| 6 | Experience and core gaps | P69-P81 | All | Review screenshots at 390 px and 1440 px in both themes |
+| 7 | Job-search workflow | P82-P88 | All | None |
+| 8 | AI and intelligence | P89-P104 | P89, P94, P95, P98, P99, P103 | Nothing; P90-P93, P96, P97, P100-P102 and P104 are deferred by the plan |
+| 9 | Hardening and delivery | P105-P110 | All | Two full demo rehearsals, the 375 px check, axe-core with zero critical issues in both themes |
 
 ## Running locally
 
