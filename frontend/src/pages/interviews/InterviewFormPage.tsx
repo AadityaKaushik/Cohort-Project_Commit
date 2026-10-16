@@ -172,7 +172,7 @@ export function InterviewFormPage() {
             <FormField id="roundNumber" label="Round number" error={fieldErrors.roundNumber}>
               <Input id="roundNumber" type="number" min={1} value={roundNumber} onChange={(event) => setRoundNumber(event.target.value)} required />
             </FormField>
-            <FormField id="roundType" label="Round type">
+            <FormField id="roundType" label="Round type" error={fieldErrors.roundType}>
               <Select value={roundType} onValueChange={(value) => setRoundType(value as InterviewRoundType)}>
                 <SelectTrigger id="roundType" className="w-full">
                   <SelectValue />
@@ -188,10 +188,10 @@ export function InterviewFormPage() {
             </FormField>
           </FormSection>
           <FormSection title="Logistics" description="When, how and with whom.">
-            <FormField id="scheduledAt" label="Scheduled at">
+            <FormField id="scheduledAt" label="Scheduled at" error={fieldErrors.scheduledAt}>
               <Input id="scheduledAt" type="datetime-local" value={scheduledAt} onChange={(event) => setScheduledAt(event.target.value)} />
             </FormField>
-            <FormField id="mode" label="Mode">
+            <FormField id="mode" label="Mode" error={fieldErrors.mode}>
               <Select value={mode} onValueChange={(value) => setMode(value as InterviewMode)}>
                 <SelectTrigger id="mode" className="w-full">
                   <SelectValue placeholder="Not specified" />

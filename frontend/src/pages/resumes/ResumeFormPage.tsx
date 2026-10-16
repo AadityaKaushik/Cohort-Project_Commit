@@ -102,10 +102,10 @@ export function ResumeFormPage() {
             <FormField id="name" label="Name" error={fieldErrors.name} className="sm:col-span-2">
               <Input id="name" value={name} onChange={(event) => setName(event.target.value)} required />
             </FormField>
-            <FormField id="versionLabel" label="Version label">
+            <FormField id="versionLabel" label="Version label" error={fieldErrors.versionLabel}>
               <Input id="versionLabel" placeholder="v1" value={versionLabel} onChange={(event) => setVersionLabel(event.target.value)} />
             </FormField>
-            <FormField id="targetRole" label="Target role">
+            <FormField id="targetRole" label="Target role" error={fieldErrors.targetRole}>
               <Input id="targetRole" value={targetRole} onChange={(event) => setTargetRole(event.target.value)} />
             </FormField>
           </FormSection>

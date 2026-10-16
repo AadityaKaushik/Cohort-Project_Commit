@@ -420,7 +420,7 @@ export function ApplicationFormPage() {
               <Input id="dateApplied" type="date" value={form.dateApplied} onChange={(e) => set('dateApplied', e.target.value)} required />
             </FormField>
             {!isEditing && (
-              <FormField id="status" label="Status">
+              <FormField id="status" label="Status" error={fieldErrors.status}>
                 <NativeSelect id="status" value={form.status} onChange={(e) => set('status', e.target.value as ApplicationStatusValue)}>
                   {CREATE_STATUS_OPTIONS.map((option) => (
                     <option key={option} value={option}>
