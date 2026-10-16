@@ -78,6 +78,31 @@ class MockInterviewServiceTest {
     }
 
     @Test
+    void topicsWithFewAttemptsComeBeforeUntouchedOnes() {
+        UUID heaps = UUID.randomUUID();
+        UUID tries = UUID.randomUUID();
+        UUID graphs = UUID.randomUUID();
+        UUID arrays = UUID.randomUUID();
+        when(masteryLoader.loadAll(any(), any())).thenReturn(List.of(
+                topic(arrays, "Arrays", 0.0, 0, false),
+                topic(tries, "Tries", 0.6, 1, false),
+                topic(graphs, "Graphs", 0.2, 1, false),
+                topic(heaps, "Heaps", 0.5, 4, true)));
+        for (UUID id : List.of(heaps, tries, graphs, arrays)) {
+            givenQuestions(id, question(id, null, "Question"));
+        }
+        when(attempts.findAllByUserId(userId)).thenReturn(List.of());
+
+        List<MockInterviewQuestionResponse> result = service.build(userId, 4).questions();
+
+        assertThat(result).extracting(MockInterviewQuestionResponse::topicName)
+                .containsExactly("Heaps", "Graphs", "Tries", "Arrays");
+        assertThat(result.get(1).reason()).isEqualTo("Only 1 attempt so far");
+        assertThat(result.get(1).masteryScore()).isNull();
+        assertThat(result.get(3).reason()).isEqualTo("Not practised yet");
+    }
+
+    @Test
     void equalMasteryIsOrderedByTopicName() {
         UUID b = UUID.randomUUID();
         UUID a = UUID.randomUUID();

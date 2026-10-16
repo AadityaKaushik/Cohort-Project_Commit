@@ -57,6 +57,12 @@ public class MockInterviewService {
                 .sorted(Comparator.comparingDouble(TopicMasterySnapshot::masteryScore)
                         .thenComparing(TopicMasterySnapshot::topicName))
                 .toList());
+        // Topics with only a few attempts come before untouched ones, weakest first.
+        ordered.addAll(snapshots.stream()
+                .filter(snapshot -> !snapshot.sufficientEvidence() && snapshot.observationCount() > 0)
+                .sorted(Comparator.comparingDouble(TopicMasterySnapshot::masteryScore)
+                        .thenComparing(TopicMasterySnapshot::topicName))
+                .toList());
         ordered.addAll(snapshots.stream()
                 .filter(snapshot -> !snapshot.sufficientEvidence() && snapshot.observationCount() == 0)
                 .sorted(Comparator.comparing(TopicMasterySnapshot::topicName))
@@ -90,7 +96,14 @@ public class MockInterviewService {
 
     private MockInterviewQuestionResponse toResponse(Question question, TopicMasterySnapshot snapshot) {
         Double masteryScore = snapshot.sufficientEvidence() ? snapshot.masteryScore() : null;
-        String reason = masteryScore == null ? "Not practised yet" : "Mastery " + Math.round(masteryScore * 100) + "%";
+        String reason;
+        if (masteryScore != null) {
+            reason = "Mastery " + Math.round(masteryScore * 100) + "%";
+        } else if (snapshot.observationCount() > 0) {
+            reason = "Only " + snapshot.observationCount() + (snapshot.observationCount() == 1 ? " attempt" : " attempts") + " so far";
+        } else {
+            reason = "Not practised yet";
+        }
         return new MockInterviewQuestionResponse(
                 question.getId(), question.getQuestionText(), snapshot.topicId(), snapshot.topicName(),
                 question.getDifficulty(), masteryScore, reason);
