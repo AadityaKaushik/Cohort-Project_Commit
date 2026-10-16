@@ -1,9 +1,4 @@
-# Activated with SPRING_PROFILES_ACTIVE=dev (docker-compose dev environment,
-# or `mvn spring-boot:run -Dspring-boot.run.profiles=dev` locally). Adds the
-# repeatable seed migration on top of the versioned ones every other
-# environment (including every test in this suite, and any future prod
-# profile) already applies — the dev profile is additive, never a
-# replacement, so this is the only difference from the base configuration.
+# Dev profile: adds the seed migration on top of the normal ones.
 spring:
   flyway:
     locations: classpath:db/migration,classpath:db/seed

@@ -51,7 +51,7 @@ class FlCircuitBreakerGatewayTest {
         for (int i = 0; i < 4; i++) {
             assertThat(gateway.fetchCurrentModelSafely()).isEmpty();
         }
-        // The breaker should now be OPEN -- one more call must still come back empty (via CallNotPermittedException), not throw.
+        // The breaker is now open: one more call returns empty instead of throwing.
         assertThat(gateway.fetchCurrentModelSafely()).isEmpty();
         assertThat(registry.circuitBreaker(FlCircuitBreakerGateway.CIRCUIT_BREAKER_NAME).getState())
                 .isEqualTo(io.github.resilience4j.circuitbreaker.CircuitBreaker.State.OPEN);

@@ -24,7 +24,7 @@ class ModelRegistry:
 
     @property
     def current(self) -> ModelVersion:
-        """The latest published version -- always servable, even if the most recent round attempted was refused."""
+        """The latest published version, even if the last round was refused."""
         return self._versions[-1]
 
     @property

@@ -42,7 +42,6 @@ public class Company {
     private Instant updatedAt;
 
     protected Company() {
-        // JPA
     }
 
     public Company(String name, String normalizedName, UUID userId) {

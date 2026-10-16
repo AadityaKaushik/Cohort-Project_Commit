@@ -136,7 +136,7 @@ class PrivacyLedgerIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/v1/fl/privacy-ledger/" + entryId).header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.transmitted_vector", hasSize(2)));
-        // FR-95: foreign access is 404, indistinguishable from a missing id -- never 403.
+        // FR-95: foreign access is 404, same as a missing id.
         mockMvc.perform(get("/api/v1/fl/privacy-ledger/" + entryId).header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/api/v1/fl/privacy-ledger/" + java.util.UUID.randomUUID()).header("Authorization", "Bearer " + ownerToken))

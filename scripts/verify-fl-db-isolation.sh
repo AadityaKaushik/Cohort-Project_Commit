@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
-# P50 (US-61: "the server holds no user-schema database credentials,
-# verified in CI"). Run against a live docker-compose stack, after
+# Checks the fl-service DB role cannot read user tables (P50, US-61).
+# Run against a live compose stack:
 #   docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d --build db api fl-service
-# (the `api` container's own Flyway run applies V19, which creates the `fl`
-# schema, its two bookkeeping tables, and the `cohort_fl` role). Exits
-# non-zero on the first violation found; wired into .github/workflows/ci.yml
-# as the `fl-db-isolation` job.
-#
-# See also: api/src/test/java/com/cohort/api/FlSchemaIsolationIntegrationTest.java,
-# which proves the same grants against a Testcontainers Postgres and can run
-# in this sandbox even without a live fl-service container.
+# FlSchemaIsolationIntegrationTest checks the same grants on Testcontainers.
 set -euo pipefail
 
 COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.fl.yml)

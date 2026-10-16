@@ -1,6 +1,6 @@
 package com.cohort.api.exception;
 
-/** Missing, owned by another user, or a system question on a write endpoint: 404, never 403. */
+/** 404 for missing or foreign records. */
 public class QuestionNotFoundException extends RuntimeException {
 
     public QuestionNotFoundException() {

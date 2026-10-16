@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecommendationFacade {
     static final int MAX_ACTIVE_RECOMMENDATIONS = 5;
 
-    // US-56: "capped at 3 concurrently." Applied before the overall cap so stalled-application candidates don't crowd out everything else, but also never exceed their own ceiling.
+    // US-56: cap stalled-application candidates at 3 so they do not crowd out the rest.
     static final int MAX_STALLED_APPLICATION_RECOMMENDATIONS = 3;
 
     static final int SNOOZE_DAYS = 7;

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** A stand-in delivery strategy (think "email") that just remembers what it delivered, deduplicating by key like any real channel must. */
+/** Test channel that records what it delivered, deduplicating by key. */
 class RecordingNotificationChannel implements NotificationChannel {
 
     private final String id;

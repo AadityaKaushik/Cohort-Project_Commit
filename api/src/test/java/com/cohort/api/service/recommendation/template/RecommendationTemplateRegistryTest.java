@@ -27,7 +27,7 @@ class RecommendationTemplateRegistryTest {
         }
     }
 
-    // Proves the linter used above is not vacuously passing: rendering a deliberately bad phrase through the exact same checker must be flagged.
+    // Sanity check: the linter flags a bad phrase.
     @Test
     void theLinterCatchesAnInjectedBannedPhrase() {
         String deliberatelyBadCopy = "This caused your rejection because you failed the interview.";

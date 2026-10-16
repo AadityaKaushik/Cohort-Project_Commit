@@ -224,7 +224,7 @@ public class PreparationService {
         return question;
     }
 
-    // Write access (update/delete) is always own-only, even for a caller who could otherwise see the row (US-36: "seeded questions are read-only").
+    // Writes are own-rows only, even for seeded questions (US-36).
     private Question requireOwned(UUID userId, UUID questionId) {
         return questionRepository.findByIdAndUserId(questionId, userId).orElseThrow(QuestionNotFoundException::new);
     }

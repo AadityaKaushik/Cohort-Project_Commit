@@ -46,8 +46,7 @@ class FlFeatureExportJobTest {
     @Test
     void anOptedOutUserIsNeverPassedToExtractionOrExport() {
         job = new FlFeatureExportJob(userRepository, extractionService, exportClient);
-        // The repository call itself is the opt-in gate -- an opted-out user
-        // is simply never in this list, so the job never even sees their id.
+        // Opted-out users are never returned by the repository.
         when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of());
 
         FlFeatureExportJob.ExportSummary summary = job.runExport();
@@ -80,7 +79,7 @@ class FlFeatureExportJobTest {
         return user;
     }
 
-    // id is @UuidGenerator-managed (only set by Hibernate on persist); this user is never persisted in this unit test, so it's set via reflection instead.
+    // The id is normally set by Hibernate on persist, so set it by reflection.
     private void setId(User user, UUID id) {
         try {
             java.lang.reflect.Field field = User.class.getDeclaredField("id");

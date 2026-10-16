@@ -64,7 +64,6 @@ public class ResumeSection {
     private Instant updatedAt;
 
     protected ResumeSection() {
-        // JPA
     }
 
     public ResumeSection(UUID resumeId, SectionType sectionType) {

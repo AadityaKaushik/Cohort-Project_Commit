@@ -65,7 +65,6 @@ public class InterviewQuestion {
     private Instant updatedAt;
 
     protected InterviewQuestion() {
-        // JPA
     }
 
     public InterviewQuestion(UUID interviewId, UUID userId, String questionText, Category category) {

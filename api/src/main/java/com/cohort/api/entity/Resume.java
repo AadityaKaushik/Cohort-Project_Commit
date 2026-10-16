@@ -63,7 +63,6 @@ public class Resume {
     private Instant updatedAt;
 
     protected Resume() {
-        // JPA
     }
 
     public Resume(UUID userId, String name) {

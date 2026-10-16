@@ -37,10 +37,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * US-96: anonymous experience contributions. The user id is only used to build a per-company hash;
- * the table has no user column, so aggregates cannot be traced back to an account.
- */
+/** US-96: anonymous contributions. The user id only feeds a per-company hash; the table has no user column. */
 @Service
 public class ContributionService {
 

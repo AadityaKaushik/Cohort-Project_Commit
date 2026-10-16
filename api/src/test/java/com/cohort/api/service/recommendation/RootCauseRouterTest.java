@@ -22,7 +22,7 @@ class RootCauseRouterTest {
 
     @Test
     void doesNotRouteWhenThePrerequisiteIsNotMeaningfullyWeaker() {
-        // §21.5's own worked example, but with the prerequisite only marginally weaker (within the 0.15 margin) -- routing on noise this small is exactly what the margin exists to prevent.
+        // Prerequisite is only slightly weaker, inside the 0.15 margin, so route to the topic.
         UUID shortestPath = UUID.randomUUID();
         UUID graphTraversal = UUID.randomUUID();
         Map<UUID, Double> mastery = Map.of(shortestPath, 0.46, graphTraversal, 0.40);

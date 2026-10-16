@@ -119,7 +119,7 @@ def _serialise_round(outcome: RoundOutcome) -> dict:
         ],
     }
 
-def _serialise(model_version) -> dict:  # noqa: ANN001 -- ModelVersion, kept loose to avoid a circular import hint
+def _serialise(model_version) -> dict:  # noqa: ANN001
     flat_parameters = [float(x) for array in model_version.parameters for x in array.reshape(-1)]
     return {
         "version": model_version.version,

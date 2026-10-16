@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** US-63: read-only. Entries are written only by {@code PrivacyLedgerService} from a real fl-service round response, never through this controller. */
+/** US-63: read-only. Entries are written only by PrivacyLedgerService. */
 @RestController
 @RequestMapping("/api/v1/fl/privacy-ledger")
 public class PrivacyLedgerController {

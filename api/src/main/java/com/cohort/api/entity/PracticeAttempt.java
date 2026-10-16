@@ -48,7 +48,6 @@ public class PracticeAttempt {
     private Instant createdAt;
 
     protected PracticeAttempt() {
-        // JPA
     }
 
     public PracticeAttempt(UUID userId, UUID questionId, Status status, Instant attemptedAt) {

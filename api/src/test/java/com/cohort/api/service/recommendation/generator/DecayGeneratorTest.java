@@ -28,7 +28,7 @@ class DecayGeneratorTest {
 
     @Test
     void doesNotFireWhenRawScoreWasAlreadyWeak() {
-        // rawScore below the 0.5 floor -- the topic was never solid, so this is WeakTopicGenerator's candidate, not decay's.
+        // rawScore below the 0.5 floor: a WeakTopicGenerator case, not decay.
         TopicMasterySnapshot snapshot = new TopicMasterySnapshot(UUID.randomUUID(), "Dynamic Programming", 0.45, 0.42, 6, true, Instant.now());
 
         assertThat(generator.handle(contextWith(snapshot), List.of())).isEmpty();
@@ -36,7 +36,7 @@ class DecayGeneratorTest {
 
     @Test
     void doesNotFireWhenMasteryIsBelowTheWeakTopicThreshold() {
-        // Already below 0.4 -- WeakTopicGenerator's territory, not decay's, so DecayGenerator must not double-count it.
+        // Already below 0.4: left to WeakTopicGenerator.
         TopicMasterySnapshot snapshot = new TopicMasterySnapshot(UUID.randomUUID(), "Dynamic Programming", 0.6, 0.35, 6, true, Instant.now());
 
         assertThat(generator.handle(contextWith(snapshot), List.of())).isEmpty();

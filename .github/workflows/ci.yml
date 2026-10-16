@@ -8,7 +8,7 @@ on:
 
 jobs:
   security-gates:
-    name: Security gates — secret scan, string-built SQL (P81)
+    name: Security gates: secret scan, string-built SQL (P81)
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository with full history
@@ -23,7 +23,7 @@ jobs:
         run: bash scripts/check-sql-interpolation.sh
 
   api:
-    name: API — build, test, coverage gate
+    name: API: build, test, coverage gate
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -36,10 +36,7 @@ jobs:
           java-version: "21"
           cache: maven
 
-      # GitHub-hosted ubuntu-latest runners ship Docker pre-installed and
-      # running, which is all Testcontainers needs — unlike local
-      # development in this repo's sandbox, no rootless-Podman socket
-      # wiring is required here.
+      # Docker is already available on the runner.
       - name: Build, run tests, and enforce the JaCoCo coverage gate
         working-directory: api
         run: mvn --batch-mode --no-transfer-progress verify
@@ -61,7 +58,7 @@ jobs:
           retention-days: 14
 
   fl-db-isolation:
-    name: fl-service — DB credential isolation (P50, US-61)
+    name: fl-service: DB credential isolation (P50, US-61)
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -70,13 +67,10 @@ jobs:
       - name: Prepare .env
         run: cp .env.example .env
 
-      # Docker + Docker Compose ship pre-installed on ubuntu-latest runners.
       - name: Build and start db, api, fl-service (fl profile)
         run: docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d --build db api fl-service
 
-      # The api container's own Flyway run applies V19 on startup, which
-      # creates the `fl` schema, its two bookkeeping tables, and the
-      # `cohort_fl` role/grants the isolation script checks below.
+      # The api container's Flyway run applies V19, which creates the fl schema and cohort_fl role.
       - name: Wait for the API to become healthy (proves Flyway migrations ran)
         run: |
           for i in $(seq 1 60); do
@@ -98,7 +92,7 @@ jobs:
         run: docker compose -f docker-compose.yml -f docker-compose.fl.yml down -v
 
   frontend:
-    name: Frontend — lint, test, build
+    name: Frontend: lint, test, build
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

@@ -44,8 +44,7 @@ class EvidenceTierClassifierTest {
 
     @Test
     void zeroObservationsIsStillTierBNotExcluded() {
-        // A stalled application always carries at least the fact of the stall itself, even with no personal-median
-        // sample history -- tiering never excludes a candidate, it only ever grades its confidence.
+        // A stalled application always has the stall itself as evidence, even with no personal-median history.
         RecommendationCandidate candidate = RecommendationCandidate.stalledApplication(
                 java.util.UUID.randomUUID(), "Acme", 0.3, 0, List.of());
 

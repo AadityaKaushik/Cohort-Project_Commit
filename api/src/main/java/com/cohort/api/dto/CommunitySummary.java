@@ -3,10 +3,7 @@ package com.cohort.api.dto;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Aggregate for one company and role family. Everything except contributors is null or empty below the minimum.
- * Tips come back in alphabetical order so position says nothing about who wrote them or when.
- */
+/** Aggregate for one company and role family. Below the minimum contributors, everything else is null or empty. Tips are sorted alphabetically. */
 public record CommunitySummary(
         String roleFamily,
         int contributors,

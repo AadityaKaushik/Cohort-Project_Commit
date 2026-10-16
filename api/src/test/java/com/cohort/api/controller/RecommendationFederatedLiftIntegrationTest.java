@@ -76,8 +76,7 @@ class RecommendationFederatedLiftIntegrationTest extends AbstractIntegrationTest
 
     @Test
     void aNeutralModelLeavesTheLocalOnlyOrderUntouched() throws Exception {
-        // All-zero parameters -> every multiplier is exactly 1.0, so the federated
-        // order must be the local-only order: every rank_delta is 0.
+        // All-zero parameters give a 1.0 multiplier, so the order matches local-only and every rank_delta is 0.
         stubFlService.respondWith("""
                 {"version": 1, "round_number": 1, "participant_count": 3, "created_at": "2026-01-01T00:00:00Z", "parameters": [0.0, 0.0, 0.0]}
                 """);

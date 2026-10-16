@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-// Exercises {@link WeakTopicGenerator} in complete isolation -- no Spring context, no other generator, per US-51's independent-testability requirement.
+// Plain unit test, no Spring context (US-51).
 class WeakTopicGeneratorTest {
     private final WeakTopicGenerator generator = new WeakTopicGenerator();
 

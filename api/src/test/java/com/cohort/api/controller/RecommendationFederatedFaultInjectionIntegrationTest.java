@@ -54,7 +54,7 @@ class RecommendationFederatedFaultInjectionIntegrationTest extends AbstractInteg
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].federated_applied", is(true)));
 
-        // Phase 2: fl-service goes down mid-deployment (stopped outright -- connection refused, not a slow response).
+        // Phase 2: fl-service goes down mid-deployment (stopped outright: connection refused, not slow).
         stubFlService.stop();
 
         MvcResult result = mockMvc.perform(get("/api/v1/recommendations?federated=true").header("Authorization", "Bearer " + token))

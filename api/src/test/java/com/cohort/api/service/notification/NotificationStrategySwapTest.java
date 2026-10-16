@@ -96,7 +96,7 @@ class NotificationStrategySwapTest {
                 .hasMessageContaining("sms");
     }
 
-    // Builds a fresh Spring context around the real detector/listener/service, varying only the channel configuration.
+    // Fresh Spring context per channel configuration.
     private int runDetectionWith(List<NotificationChannel> channels, List<String> enabled) {
         StallDetectionService stallDetectionService = mock(StallDetectionService.class);
         when(stallDetectionService.detectStalled(userId)).thenReturn(List.of(new StalledApplication(

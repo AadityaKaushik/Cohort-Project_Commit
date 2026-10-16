@@ -79,7 +79,6 @@ public class User {
     private Instant updatedAt;
 
     protected User() {
-        // JPA
     }
 
     public User(String email, String passwordHash, String displayName) {
@@ -185,7 +184,7 @@ public class User {
         return flOptIn;
     }
 
-    /** US-57/US-64: opt-in/opt-out, default off. Takes effect from the next export cycle (P51's job re-reads this every run, never caches it). */
+    /** FL opt-in, off by default (US-57, US-64). */
     public void setFlOptIn(boolean flOptIn) {
         this.flOptIn = flOptIn;
     }

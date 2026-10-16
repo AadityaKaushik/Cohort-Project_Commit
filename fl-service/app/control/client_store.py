@@ -7,7 +7,7 @@ import numpy as np
 @dataclass(frozen=True)
 class ClientFeatures:
     schema_version: int
-    features: np.ndarray  # shape (24,) -- FEATURE_COUNT, enforced by the caller
+    features: np.ndarray  # shape (24,), FEATURE_COUNT
 
 @dataclass
 class ClientFeatureStore:

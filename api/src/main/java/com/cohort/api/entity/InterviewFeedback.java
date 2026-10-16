@@ -54,7 +54,6 @@ public class InterviewFeedback {
     private Instant updatedAt;
 
     protected InterviewFeedback() {
-        // JPA
     }
 
     public InterviewFeedback(UUID interviewId, UUID userId) {

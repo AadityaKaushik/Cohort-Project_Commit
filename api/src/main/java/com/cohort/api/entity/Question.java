@@ -54,7 +54,6 @@ public class Question {
     private Instant updatedAt;
 
     protected Question() {
-        // JPA
     }
 
     public static Question ownedByUser(UUID userId, UUID topicId, String questionText, Category category) {

@@ -9,7 +9,6 @@ public class ApplicationTagId implements Serializable {
     private UUID tagId;
 
     public ApplicationTagId() {
-        // JPA
     }
 
     public ApplicationTagId(UUID applicationId, UUID tagId) {

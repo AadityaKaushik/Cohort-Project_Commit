@@ -56,7 +56,7 @@ class PrivacyLedgerServiceTest {
         verify(ledgerRepository).save(entryCaptor.capture());
         PrivacyLedgerEntry persisted = entryCaptor.getValue();
         assertThat(persisted.getUserId()).isEqualTo(userId);
-        // The whole point of P55: this must be the REAL vector fl-service reported, verbatim.
+        // The stored vector is exactly what fl-service returned.
         assertThat(persisted.getTransmittedVector()).isEqualTo(realTransmittedVector);
         assertThat(persisted.getPreClipNorm()).isEqualTo(1.4);
         assertThat(persisted.getPostClipNorm()).isEqualTo(1.0);

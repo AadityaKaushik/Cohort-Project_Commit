@@ -112,7 +112,7 @@ class FlowerServiceAdapterContractTest {
         assertThatThrownBy(() -> adapter.runRound(1, List.of())).isInstanceOf(FlServiceUnavailableException.class);
     }
 
-    // Mirrors what FlServiceConfig wires in production -- SNAKE_CASE Jackson naming (application.yml's app-wide convention) plus JavaTimeModule for the ISO timestamp, without needing a full Spring context.
+    // Same Jackson setup as FlServiceConfig.
     private RestClient restClientFor(String baseUrl) {
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())

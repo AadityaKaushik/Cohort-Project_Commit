@@ -34,7 +34,6 @@ public class FlRound {
     private Instant createdAt;
 
     protected FlRound() {
-        // JPA
     }
 
     public FlRound(int roundNumber, boolean accepted, String reason, int cohortSize) {

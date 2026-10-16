@@ -1,6 +1,6 @@
 package com.cohort.api.exception;
 
-/** Missing or made by someone else: 404, never 403. */
+/** 404 for missing or foreign records. */
 public class ContributionNotFoundException extends RuntimeException {
 
     public ContributionNotFoundException() {

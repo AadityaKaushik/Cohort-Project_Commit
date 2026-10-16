@@ -124,7 +124,7 @@ public class ResumeService {
         StoredFile stored = fileStorage.store(userId, upload);
         resume.applyStoredFile(stored.storageKey(), stored.originalFilename(), stored.contentType(), stored.sizeBytes());
 
-        // Replacing a file: delete the old blob only after the new one is safely stored, so a mid-upload failure never leaves the resume pointing at nothing.
+        // Delete the old file only after the new one is stored.
         if (previousFilePath != null) {
             fileStorage.delete(previousFilePath);
         }

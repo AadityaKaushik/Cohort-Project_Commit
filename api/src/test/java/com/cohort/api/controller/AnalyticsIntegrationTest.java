@@ -102,7 +102,7 @@ class AnalyticsIntegrationTest extends AbstractIntegrationTest {
         changeStatus(token, appRejectedAtInterview, "INTERVIEW", null);
         changeStatus(token, appRejectedAtInterview, "REJECTED", null);
 
-        // Still open at Applied -- must never show up as a rejection.
+        // Still open at Applied, so not a rejection.
         createApplication(token, "Initech", today);
 
         mockMvc.perform(get("/api/v1/analytics/rejections").header("Authorization", "Bearer " + token))

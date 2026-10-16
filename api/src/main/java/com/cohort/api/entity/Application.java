@@ -118,7 +118,6 @@ public class Application {
     private Instant updatedAt;
 
     protected Application() {
-        // JPA
     }
 
     public Application(UUID userId, UUID companyId, String jobTitle, LocalDate dateApplied, ApplicationStatus status) {

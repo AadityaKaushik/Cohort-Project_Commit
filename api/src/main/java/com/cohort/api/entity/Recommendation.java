@@ -77,7 +77,6 @@ public class Recommendation {
     private Instant updatedAt;
 
     protected Recommendation() {
-        // JPA
     }
 
     public Recommendation(

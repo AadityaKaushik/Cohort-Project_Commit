@@ -12,10 +12,7 @@ import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.util.Currency;
 
-/**
- * Bounds and ordering for a salary range. On updates the currency may already be stored, so it is only
- * required when {@code currencyRequired} is set.
- */
+/** Bounds and ordering for a salary range. Currency is only required when {@code currencyRequired} is set. */
 @Documented
 @Constraint(validatedBy = ValidSalary.Validator.class)
 @Target(ElementType.TYPE)

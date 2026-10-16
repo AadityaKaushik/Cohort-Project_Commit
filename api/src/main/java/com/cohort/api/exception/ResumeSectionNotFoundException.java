@@ -1,6 +1,6 @@
 package com.cohort.api.exception;
 
-/** Missing, or inside a resume owned by another user: 404, never 403. */
+/** 404 for missing or foreign records. */
 public class ResumeSectionNotFoundException extends RuntimeException {
 
     public ResumeSectionNotFoundException() {

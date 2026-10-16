@@ -32,7 +32,6 @@ public class ApplicationStatusHistory {
     private Instant changedAt;
 
     protected ApplicationStatusHistory() {
-        // JPA
     }
 
     public ApplicationStatusHistory(UUID applicationId, ApplicationStatus fromStatus, ApplicationStatus toStatus, String note) {

@@ -20,7 +20,6 @@ public class ApplicationTag {
     private UUID tagId;
 
     protected ApplicationTag() {
-        // JPA
     }
 
     public ApplicationTag(UUID applicationId, UUID tagId) {

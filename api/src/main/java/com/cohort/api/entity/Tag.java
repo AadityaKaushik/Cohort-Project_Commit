@@ -28,7 +28,6 @@ public class Tag {
     private Instant createdAt;
 
     protected Tag() {
-        // JPA
     }
 
     public Tag(UUID userId, String name) {

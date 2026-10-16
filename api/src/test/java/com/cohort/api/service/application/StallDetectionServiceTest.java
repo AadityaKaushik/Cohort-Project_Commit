@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class StallDetectionServiceTest {
     @Test
     void usesTheSystemDefaultWhenThePersonalMedianHasFewerThanFiveObservations() {
-        // personal median (2 days) would normally make a 20-day wait look wildly stalled, but with only 3 observations it must not be trusted -- the system default (10) applies instead.
+        // With 3 observations the personal median is ignored and the default of 10 days applies.
         StallDetectionService.StallEvaluation evaluation =
                 StallDetectionService.evaluate(20.0, 2.0, 3, 10.0);
 

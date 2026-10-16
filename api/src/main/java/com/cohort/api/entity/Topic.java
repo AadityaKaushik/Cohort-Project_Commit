@@ -42,7 +42,6 @@ public class Topic {
     private Instant createdAt;
 
     protected Topic() {
-        // JPA
     }
 
     public UUID getId() {

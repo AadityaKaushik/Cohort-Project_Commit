@@ -74,7 +74,6 @@ public class Interview {
     private Instant updatedAt;
 
     protected Interview() {
-        // JPA
     }
 
     public Interview(UUID applicationId, UUID userId, short roundNumber, InterviewRoundType roundType) {

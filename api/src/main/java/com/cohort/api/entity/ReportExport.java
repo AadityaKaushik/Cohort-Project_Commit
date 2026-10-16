@@ -57,7 +57,6 @@ public class ReportExport {
     private Instant expiresAt;
 
     protected ReportExport() {
-        // JPA
     }
 
     public ReportExport(

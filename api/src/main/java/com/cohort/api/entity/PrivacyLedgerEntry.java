@@ -53,7 +53,6 @@ public class PrivacyLedgerEntry {
     private Instant createdAt;
 
     protected PrivacyLedgerEntry() {
-        // JPA
     }
 
     public PrivacyLedgerEntry(

@@ -95,15 +95,13 @@ class AuthServiceTest {
         InvalidCredentialsException wrongPasswordException = catchInvalidCredentials(
                 () -> authService.login(new LoginRequest("real@example.com", "wrong-password")));
 
-        // Same exception type and same message for both — a client cannot
-        // tell "no such account" apart from "wrong password" (FR-02).
+        // Same error for unknown email and wrong password (FR-02).
         assertThat(unknownEmailException.getMessage()).isEqualTo(wrongPasswordException.getMessage());
     }
 
     @Test
     void loginStillCallsPasswordEncoderWhenEmailIsUnknown() {
-        // The dummy-hash comparison must still run so an unknown-email
-        // login pays the same Argon2 cost as a real one.
+        // The dummy hash is still checked, so the cost matches a real login.
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
 

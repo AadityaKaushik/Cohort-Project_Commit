@@ -51,7 +51,7 @@ public class TokenService {
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
                 .build();
-        // A symmetric key has no key ID to disambiguate, so the header's algorithm must be stated explicitly rather than left to default JWK selection (which assumes an asymmetric RS256 key).
+        // A symmetric key has no key id, so set the algorithm explicitly.
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }

@@ -1,8 +1,5 @@
--- Dev-only seed rows for contacts, offers and goals, owned by the demo user
--- from R__seed_dev_data.sql. Same rules: fixed ids, ON CONFLICT DO NOTHING,
--- every free-text field carries the [SEED] marker.
--- Repeatable migrations run in description order, so this file runs after
--- R__seed_dev_data.sql ("dev_data" sorts before "dev_data_extra").
+-- Dev seed rows for contacts, offers and goals, owned by the demo user from R__seed_dev_data.sql.
+-- Runs after the base seed (repeatables run in description order).
 
 INSERT INTO contacts (
     id, user_id, company_id, application_id, name, role_title, email, relationship,

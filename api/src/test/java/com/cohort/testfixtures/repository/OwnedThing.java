@@ -22,7 +22,6 @@ public class OwnedThing {
     private String label;
 
     protected OwnedThing() {
-        // JPA
     }
 
     public OwnedThing(UUID userId, String label) {

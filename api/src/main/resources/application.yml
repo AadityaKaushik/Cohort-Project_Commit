@@ -5,8 +5,7 @@ spring:
   application:
     name: cohort-api
   jackson:
-    # The API contract (PROJECT_PLAN.md §18) is snake_case end to end;
-    # this maps it automatically instead of annotating every DTO field.
+    # The API contract is snake_case, so map it globally.
     property-naming-strategy: SNAKE_CASE
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:cohort}}
@@ -19,17 +18,11 @@ spring:
       ddl-auto: validate
   flyway:
     placeholders:
-      # V19: the password the isolated `cohort_fl` Postgres role is created
-      # with (P50). Sourced from the same FL_POSTGRES_PASSWORD env var
-      # docker-compose.fl.yml and .env.example already declare, never a
-      # literal secret in the migration file itself.
+      # V19: password for the cohort_fl role (P50). Same env var as docker-compose.fl.yml.
       flPassword: ${FL_POSTGRES_PASSWORD:change_me_too}
   servlet:
     multipart:
-      # Above the 5 MB resume cap (FR-30) so an oversized upload reaches
-      # ValidatingFileStorage's own check and its FILE_TOO_LARGE error
-      # envelope, instead of being rejected earlier by Spring's own (default
-      # 1 MB) multipart limit with a generic error.
+      # Above the 5 MB resume cap (FR-30), so the size check in ValidatingFileStorage gives the error.
       max-file-size: 6MB
       max-request-size: 7MB
 
@@ -58,46 +51,34 @@ app:
       max-attempts: 10
       window-minutes: 15
   resume-storage:
-    # Local disk today (Strategy pattern, US-21); an S3-backed implementation
-    # is a drop-in swap behind FileStorageStrategy without touching callers.
+    # Local disk. Swap FileStorageStrategy for S3.
     base-dir: ${RESUME_STORAGE_DIR:./data/resumes}
   report-storage:
-    # US-80 / FR-104: generated PDF/CSV exports. Same storage strategy and
-    # rules as resumes, separate root so the two never share a namespace.
+    # US-80: generated PDF/CSV exports, in a separate root from resumes.
     base-dir: ${REPORT_STORAGE_DIR:./data/reports}
   reports:
-    # FR-104 "expiring": how long a generated export stays downloadable
-    # before ReportExpiryJob deletes it (row and file).
+    # FR-104: how long an export stays downloadable before ReportExpiryJob deletes it.
     ttl: ${APP_REPORTS_TTL:P7D}
     # Oldest exports beyond this many per user are pruned on each new export.
     max-per-user: ${APP_REPORTS_MAX_PER_USER:20}
     cleanup-interval: ${APP_REPORTS_CLEANUP_INTERVAL:PT1H}
   notifications:
-    # NFR-53 (Strategy): which NotificationChannel implementations deliver
-    # notifications, by id, in order. Only `in_app` exists today; an email or
-    # push channel is a new NotificationChannel bean plus an entry here.
+    # NFR-53: NotificationChannel ids to deliver with, in order. Only in_app exists.
     channels: ${APP_NOTIFICATION_CHANNELS:in_app}
     detection:
-      # US-76..78: how often NotificationDetectionJob scans every active user
-      # for stalled applications, interviews in the next 24h, and missing
-      # debriefs. Re-runs are idempotent (dedupe key per occurrence), so the
-      # interval only trades reminder latency against DB load.
+      # US-76..78: how often NotificationDetectionJob scans. Re-runs are idempotent.
       initial-delay: ${APP_NOTIFICATION_DETECTION_INITIAL_DELAY:PT1M}
       interval: ${APP_NOTIFICATION_DETECTION_INTERVAL:PT15M}
   fl:
-    # P51/P52: where fl-service's REST contract lives. In docker-compose.fl.yml
-    # this is overridden to http://fl-service:8000 (container-to-container DNS).
+    # P51/P52: fl-service base URL. docker-compose.fl.yml overrides it to http://fl-service:8000.
     service-base-url: ${APP_FL_SERVICE_BASE_URL:http://localhost:8000}
     connect-timeout-ms: ${APP_FL_CONNECT_TIMEOUT_MS:2000}
     read-timeout-ms: ${APP_FL_READ_TIMEOUT_MS:3000}
     export:
-      # US-58: how often the sanitised feature export job (FlFeatureExportJob)
-      # runs. Every 6 hours by default -- coarse enough that it never fires
-      # within a test run's lifetime, so no test needs to disable it explicitly.
+      # US-58: feature export job. Every 6 hours.
       cron: ${APP_FL_EXPORT_CRON:0 0 */6 * * *}
     round:
-      # US-61/US-63: offset 30 minutes after the export cron so a round
-      # always runs against freshly-exported features, not a race with them.
+      # US-61/US-63: 30 minutes after the export, so rounds use fresh features.
       cron: ${APP_FL_ROUND_CRON:0 30 */6 * * *}
 
   ai:
@@ -121,11 +102,7 @@ resilience4j:
   circuitbreaker:
     instances:
       flService:
-        # P53: small window so a handful of real failures (fl-service down
-        # or mid-deploy) trips the breaker quickly rather than waiting for
-        # a large sample -- this is an MVP-scale service, not a
-        # high-throughput one, per the same "smallest commits, real
-        # numbers" spirit as US-61's min-cohort default.
+        # P53: small window so a few failures open the breaker quickly.
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 50
@@ -134,7 +111,7 @@ resilience4j:
         record-exceptions:
           - com.cohort.api.service.fl.FlServiceUnavailableException
 
-# P109: the OpenAPI document is only for the security suite, never served in a running app.
+# P109: the OpenAPI document is only for the security suite, not served in a running app.
 springdoc:
   api-docs:
     enabled: ${API_DOCS_ENABLED:false}

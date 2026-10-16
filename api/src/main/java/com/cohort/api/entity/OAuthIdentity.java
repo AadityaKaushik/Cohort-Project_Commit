@@ -35,7 +35,6 @@ public class OAuthIdentity {
     private Instant createdAt;
 
     protected OAuthIdentity() {
-        // JPA
     }
 
     public OAuthIdentity(UUID userId, String provider, String subject, String email) {

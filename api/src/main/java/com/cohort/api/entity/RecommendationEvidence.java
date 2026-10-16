@@ -34,7 +34,6 @@ public class RecommendationEvidence {
     private Instant createdAt;
 
     protected RecommendationEvidence() {
-        // JPA
     }
 
     public RecommendationEvidence(UUID recommendationId, String label, String detail, Instant occurredAt) {

@@ -205,7 +205,7 @@ class ResumeIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(delete("/api/v1/resumes/" + resumeId).header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound());
 
-        // The critical one: a foreign user must not be able to download the real stored file, ever.
+        // Another user cannot download the file.
         mockMvc.perform(get("/api/v1/resumes/" + resumeId + "/file").header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code", is("RESUME_NOT_FOUND")));

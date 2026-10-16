@@ -1,6 +1,6 @@
 package com.cohort.api.exception;
 
-/** Missing or owned by another user: 404, never 403. */
+/** 404 for missing or foreign records. */
 public class CompanyNotFoundException extends RuntimeException {
 
     public CompanyNotFoundException() {

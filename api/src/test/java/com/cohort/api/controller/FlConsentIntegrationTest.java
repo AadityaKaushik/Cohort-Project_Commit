@@ -93,7 +93,7 @@ class FlConsentIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(post("/api/v1/fl/opt-in").header("Authorization", "Bearer " + otherToken))
                 .andExpect(jsonPath("$.opted_in", is(true)));
 
-        // Consent is addressed only by the JWT subject -- there is no id in the path to point at someone else's row, so the isolation property here is "another user's opt-in never leaks into mine."
+        // Consent is looked up by JWT subject, so there is no foreign id to try.
         mockMvc.perform(get("/api/v1/fl/consent").header("Authorization", "Bearer " + ownerToken))
                 .andExpect(jsonPath("$.opted_in", is(false)));
     }

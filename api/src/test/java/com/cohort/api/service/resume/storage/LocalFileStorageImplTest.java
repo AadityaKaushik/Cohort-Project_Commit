@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Unit test for the Strategy implementation (ARCHITECTURE_REVISION_JAVA.md §4.1) — no Spring context needed. */
+/** Unit test for the Strategy implementation, no Spring context. */
 class LocalFileStorageImplTest {
 
     @TempDir

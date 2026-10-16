@@ -1,29 +1,7 @@
--- Deterministic dev/demo seed data (US-72, chore/P26). NOT applied in
--- production: this file lives under db/seed/, a Flyway location added only
--- by the `dev` profile (application-dev.yml) — never the default classpath
--- location every environment (including tests and prod) always scans.
---
--- Every synthetic row is recognisable at a glance:
---   * the demo user's email ends in @example.com and its display name is
---     literally prefixed "[SEED]";
---   * every company name and every free-text field this script writes
---     (interviewer names, question text, feedback notes) carries the same
---     "[SEED]" marker;
---   * every primary key here uses the fixed "deadbeef" prefix, so a stray
---     seeded row is unmistakable even from its ID alone.
---
--- Idempotency: every INSERT targets a fully deterministic id (no
--- gen_random_uuid()) and ends in `ON CONFLICT (id) DO NOTHING`, so running
--- this script twice — which is exactly what a repeatable Flyway migration
--- does if it is ever re-applied, and what SeedDataIntegrationTest does
--- explicitly — inserts the same rows once and skips them the second time.
--- No row here is ever updated in place, so there is nothing that could
--- drift between runs either.
+-- Dev seed data (US-72). Ids start with deadbeef and names carry [SEED].
+-- Only the dev profile loads db/seed. Safe to run twice (ON CONFLICT DO NOTHING).
 
--- 1) The demo user. Password is "SeedDemo123!" — hashed once, offline, with
--- the exact same Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8() this
--- app authenticates with (PasswordEncoderConfig), so the seeded account can
--- actually log in.
+-- 1) Demo user. Password is "SeedDemo123!", hashed with the encoder from PasswordEncoderConfig.
 INSERT INTO users (
     id, email, password_hash, display_name, target_role, graduation_year, timezone,
     role, is_active, fl_opt_in, fl_privacy_posture, epsilon_spent, created_at, updated_at
@@ -53,8 +31,7 @@ VALUES
     ('deadbeef-0002-4000-8000-000000000008', '[SEED] Orbital Games Studio', '[seed] orbital games studio', 'https://orbitalgames.example.com', 'Gaming', 'deadbeef-0001-4000-8000-000000000001', now(), now())
 ON CONFLICT (id) DO NOTHING;
 
--- 3) Three resumes, the second cloned from the first (US-25 lineage) so the
--- clone/version-lineage UI has real data to show without any manual step.
+-- 3) Three resumes, the second cloned from the first (US-25).
 INSERT INTO resumes (id, user_id, name, version_label, target_role, summary, is_default, parent_resume_id, created_at, updated_at)
 VALUES
     ('deadbeef-0005-4000-8000-000000000001', 'deadbeef-0001-4000-8000-000000000001',
@@ -66,12 +43,8 @@ VALUES
      '[SEED] Data-Focused Resume', 'v1', 'Data Analyst', 'Leads with data analysis and SQL projects.', false, NULL, now(), now())
 ON CONFLICT (id) DO NOTHING;
 
--- 4) Forty applications spread across the eight companies and (mostly) the
--- full status domain, so the pipeline, funnel, and status badges all have
--- something realistic to render. `current_stage` follows the exact same
--- rule Application's constructor applies (terminal status -> stage frozen
--- at "saved", since this script inserts each application pre-terminal in a
--- single row exactly as a single `create()` call would).
+-- 4) Forty applications across the eight companies and most statuses.
+-- current_stage follows the Application constructor: terminal status keeps stage "saved".
 INSERT INTO applications (
     id, user_id, company_id, resume_id, job_title, location, work_mode, job_type,
     priority, is_referral, date_applied, status, current_stage, source,
@@ -104,8 +77,7 @@ CROSS JOIN LATERAL (
 ) AS s
 ON CONFLICT (id) DO NOTHING;
 
--- 5) One creation history entry per application — exactly what
--- ApplicationService.create() writes for a freshly created application.
+-- 5) One creation history entry per application, as ApplicationService.create() writes.
 INSERT INTO application_status_history (id, application_id, from_status, to_status, note, changed_at)
 SELECT
     ('deadbeef-0004-4000-8000-' || lpad(gs::text, 12, '0'))::uuid,
@@ -119,9 +91,7 @@ SELECT
 FROM generate_series(1, 40) AS gs
 ON CONFLICT (id) DO NOTHING;
 
--- 6) Fifteen interviews against the first fifteen applications: ten already
--- completed (in the past) and five still upcoming, so US-28's upcoming/past
--- split has real rows on both sides.
+-- 6) Fifteen interviews: ten completed, five upcoming (US-28).
 INSERT INTO interviews (
     id, application_id, user_id, scheduled_at, completed_at, round_number, round_type,
     duration_minutes, mode, interviewer_name, interviewer_role, outcome, perceived_difficulty,
@@ -147,9 +117,7 @@ SELECT
 FROM generate_series(1, 15) AS gs
 ON CONFLICT (id) DO NOTHING;
 
--- 7) Two questions per interview (thirty total) for the same fifteen
--- interviews — self_rating only for the ten already-completed ones, since
--- an upcoming interview cannot yet have a self-assessed answer.
+-- 7) Two questions per interview (thirty total). self_rating only on completed ones.
 INSERT INTO interview_questions (
     id, interview_id, user_id, question_text, category, difficulty, self_rating, notes, created_at, updated_at
 )
@@ -168,9 +136,7 @@ FROM generate_series(1, 30) AS q
 CROSS JOIN LATERAL (SELECT ((q - 1) / 2) + 1 AS interview_index) AS idx
 ON CONFLICT (id) DO NOTHING;
 
--- 8) Debriefs for nine of the ten completed interviews: eight submitted,
--- one left as a draft, and the tenth deliberately left with none at all —
--- so the "missing debrief" dashboard prompt (US-30) has a real case to show.
+-- 8) Debriefs for nine of the ten completed interviews: eight submitted, one draft, one none (US-30).
 INSERT INTO interview_feedback (
     id, interview_id, user_id, self_rating, what_went_well, what_went_poorly,
     improvement_areas, is_draft, submitted_at, created_at, updated_at

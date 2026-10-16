@@ -53,8 +53,7 @@ class FlFeatureExtractionServiceTest {
                 applicationRepository, resumeRepository, interviewRepository, interviewFeedbackRepository);
         userId = UUID.randomUUID();
         when(topicRepository.count()).thenReturn(40L);
-        // lenient: extract() only calls this when there is at least one practice attempt --
-        // aUserWithNoDataAtAllProducesAllZeroFeatures legitimately never reaches it.
+        // lenient: extract() only calls this when there is a practice attempt.
         org.mockito.Mockito.lenient()
                 .when(questionRepository.findAllById(org.mockito.ArgumentMatchers.<UUID>anySet()))
                 .thenReturn(List.of());
@@ -69,9 +68,9 @@ class FlFeatureExtractionServiceTest {
     void noPostAsOfPracticeAttemptLeaksIntoTheVector() {
         Instant asOf = Instant.parse("2026-01-15T00:00:00Z");
         PracticeAttempt before1 = attempt(asOf.minus(1, ChronoUnit.DAYS));
-        PracticeAttempt before2 = attempt(asOf.minusSeconds(1)); // one second before the cutoff: must count
+        PracticeAttempt before2 = attempt(asOf.minusSeconds(1)); // before the cutoff: counted
         PracticeAttempt exactlyAtCutoff = attempt(asOf);
-        PracticeAttempt after = attempt(asOf.plusSeconds(1)); // one second after: must NOT count
+        PracticeAttempt after = attempt(asOf.plusSeconds(1)); // after the cutoff: ignored
         when(practiceAttemptRepository.findAllByUserId(userId)).thenReturn(List.of(before1, before2, exactlyAtCutoff, after));
 
         FlFeatureVector vector = service.extract(userId, asOf);
@@ -124,7 +123,7 @@ class FlFeatureExtractionServiceTest {
         return resume;
     }
 
-    // createdAt is @CreationTimestamp-managed (only set by Hibernate on persist); these entities are never persisted in this unit test, so it's set via reflection instead.
+    // createdAt is normally set by Hibernate on persist, so set it by reflection.
     private void setCreatedAt(Object entity, Instant createdAt) {
         try {
             java.lang.reflect.Field field = entity.getClass().getDeclaredField("createdAt");

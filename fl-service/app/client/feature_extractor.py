@@ -76,7 +76,7 @@ class ClientDataset:
     interview_rounds: tuple[InterviewRoundRecord, ...] = ()
 
 def _before_cutoff(items: Iterable[T], as_of: datetime, timestamp: Callable[[T], datetime | None]) -> list[T]:
-    """The single choke point every record passes through before it can influence a feature."""
+    """Keeps only records known at the cutoff."""
     kept = []
     for item in items:
         ts = timestamp(item)

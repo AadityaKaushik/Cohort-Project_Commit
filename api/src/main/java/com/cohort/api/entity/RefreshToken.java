@@ -39,7 +39,6 @@ public class RefreshToken {
     private Instant createdAt;
 
     protected RefreshToken() {
-        // JPA
     }
 
     public RefreshToken(User user, String tokenHash, Instant expiresAt) {

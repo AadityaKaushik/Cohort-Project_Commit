@@ -57,7 +57,6 @@ public class PreparationTask {
     private Instant updatedAt;
 
     protected PreparationTask() {
-        // JPA
     }
 
     public PreparationTask(UUID userId, UUID topicId, String title) {

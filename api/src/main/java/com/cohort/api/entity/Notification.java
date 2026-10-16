@@ -60,7 +60,6 @@ public class Notification {
     private Instant createdAt;
 
     protected Notification() {
-        // JPA
     }
 
     public void markRead(Instant when) {

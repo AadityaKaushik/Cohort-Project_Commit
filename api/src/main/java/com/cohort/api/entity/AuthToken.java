@@ -47,7 +47,6 @@ public class AuthToken {
     private Instant createdAt;
 
     protected AuthToken() {
-        // JPA
     }
 
     public AuthToken(User user, Purpose purpose, String tokenHash, Instant expiresAt) {

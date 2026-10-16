@@ -4,10 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-/**
- * The community fields describe the role family with the most contributors. They stay null until that family has
- * communityMinContributors distinct contributors. communitySummaries has the same figures per role family.
- */
+/** Community fields cover the role family with the most contributors and stay null until it reaches communityMinContributors. */
 public record DirectoryCompanyDetail(
         String slug,
         String name,
