@@ -228,7 +228,20 @@ html.theme-transition *::after {
         stroke 220ms ease !important;
 }
 
+/* The theme switch grows the new theme out from the clicked button (ThemeToggle). */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
 @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+
     *,
     ::before,
     ::after {
