@@ -78,11 +78,21 @@ export const mobileNavItems: NavItem[] = ['/', '/applications', '/interviews', '
   (path) => primaryNavItems.find((item) => item.path === path)!,
 )
 
-export function isNavItemActive(pathname: string, itemPath: string): boolean {
+function matchesPath(pathname: string, itemPath: string): boolean {
   if (itemPath === '/') {
     return pathname === '/'
   }
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
+}
+
+// A nested item such as /prep/mock-interview wins over its parent /prep.
+export function isNavItemActive(pathname: string, itemPath: string): boolean {
+  if (!matchesPath(pathname, itemPath)) {
+    return false
+  }
+  return ![...primaryNavItems, ...secondaryNavItems].some(
+    (other) => other.path.startsWith(`${itemPath}/`) && matchesPath(pathname, other.path),
+  )
 }
 
 export const secondaryNavItems: NavItem[] = [
