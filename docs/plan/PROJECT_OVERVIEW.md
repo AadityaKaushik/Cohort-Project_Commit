@@ -1,18 +1,18 @@
-# Cohort — Project Overview
+# Cohort: Project Overview
 
-**A plain-language guide to what the project is, why it exists and how it is built.** The other documents (`PROJECT_PLAN.md`, `ARCHITECTURE_REVISION_JAVA.md`, `BUILD_PHASES_JAVA.md`) cover specific parts in more depth. This one describes the whole project and is intended for every team member.
+A plain-language guide to what the project is, why it exists and how it is built. The other documents (`PROJECT_PLAN.md`, `ARCHITECTURE_REVISION_JAVA.md`, `BUILD_PHASES_JAVA.md`) cover specific parts in more depth. This one describes the whole project and is intended for every team member.
 
 ---
 
-## 1. What is Cohort, in one paragraph
+## 1. What Cohort is
 
-Cohort is a web application that helps students and job seekers manage a job search (every application, interview, contact, offer and resume version) in one place, and turns what they learn from each interview into targeted preparation. Its main technical feature is **Federated Learning**: the app learns from many users' preparation patterns without collecting anyone's data on a server. Each user's data is used for training privately, and only a small, noised summary is shared.
+Cohort is a web application that helps students and job seekers manage a job search (every application, interview, contact, offer and resume version) in one place, and turns what they learn from each interview into targeted preparation. Its main technical feature is Federated Learning: the app learns from many users' preparation patterns without collecting anyone's data on a server. Each user's data is used for training privately, and only a small, noised summary is shared.
 
 This summary is expanded in the sections below.
 
 ---
 
-## 2. The problem, in plain terms
+## 2. The problem
 
 A typical job search has three problems:
 
@@ -24,7 +24,7 @@ Spreadsheets and generic trackers handle the first problem as a status board and
 
 ---
 
-## 3. What the app does — every feature, explained
+## 3. What the app does
 
 ### 3.1 Accounts and authentication
 A user registers with an email and password, or signs in with Google or GitHub. Passwords are hashed with Argon2id, a slow, memory-hard algorithm, so a stolen database cannot practically be cracked. Login issues a short-lived access token and a longer-lived refresh token that can be revoked, so logging out on a shared computer ends the session. Users can reset a forgotten password, verify their email, change their password, export all their data and delete their account.
@@ -42,7 +42,7 @@ Users keep multiple resume versions, edit their sections (experience, projects, 
 After an interview, a short guided flow (designed to take under 3 minutes) captures what was asked, how it went and what the user would do differently. Everything in preparation builds on this data.
 
 ### 3.6 Interview preparation
-A question bank of original interview problems across every topic, plus the user's own questions; practice logging with a confidence rating; and a **topic mastery score** that decays when the user stops practising. Topics have prerequisite relationships (shortest-path algorithms need graph traversal first), so a struggle with an advanced topic points to the root gap. A daily spaced-review queue resurfaces topics as they fade, and each application shows how ready the user is for that job.
+A question bank of original interview problems across every topic, plus the user's own questions; practice logging with a confidence rating; and a topic mastery score that decays when the user stops practising. Topics have prerequisite relationships (shortest-path algorithms need graph traversal first), so a struggle with an advanced topic points to the root gap. A daily spaced-review queue resurfaces topics as they fade, and each application shows how ready the user is for that job.
 
 ### 3.7 Analytics
 A funnel showing where applications go (applied → screening → interview → final round → offer), conversion rates between stages, activity over time and resume performance. Every number shows its sample size and is flagged as low-confidence when it rests on too little data.
@@ -60,25 +60,25 @@ An in-app notification centre: a notice when an application stalls, when an inte
 Applications and an analytics summary can be exported as PDF or CSV, for a mentor, a career advisor or an offline record. Exports reuse the in-app formulas, so the numbers match.
 
 ### 3.12 AI assistance
-An AI coach that answers questions from the user's own data, a job-posting parser that fills in a new application, debrief notes turned into tagged interview questions, resume and job-description matching, mock interviews that record graded practice, a STAR story bank, one-page interview prep packs, follow-up and negotiation email drafts (never sent automatically), and a weekly review. AI runs on a **local model by default**, so data stays on the server; a hosted provider is optional and disclosed when active.
+An AI coach that answers questions from the user's own data, a job-posting parser that fills in a new application, debrief notes turned into tagged interview questions, resume and job-description matching, mock interviews that record graded practice, a STAR story bank, one-page interview prep packs, follow-up and negotiation email drafts (never sent automatically), and a weekly review. AI runs on a local model by default, so data stays on the server; a hosted provider is optional and disclosed when active.
 
 ### 3.13 First run and help
 Onboarding asks for the user's target role and date and builds a starter plan. Users can load sample data (clearly marked) and take a short guided tour. Error, missing-page, offline and expired-session states have their own screens. Privacy, AI disclosure and help pages explain how the app uses data.
 
 ---
 
-## 4. What sets the design apart
+## 4. Main design decisions
 
-- **Federated Learning runs on isolated data.** The FL server has no database credentials for any user's content.
-- **Privacy Ledger.** Each user can inspect exactly what was sent on their behalf.
-- **Recommendations carry their uncertainty.** A test fails the build if the wording presents a correlation as a cause.
-- **Analytics show their sample size.**
-- **AI is grounded and private.** It answers from the user's own data on a local model.
-- **The dashboard suggests next actions** as well as reporting past activity.
+- Federated Learning runs on isolated data. The FL server has no database credentials for any user's content.
+- Privacy Ledger. Each user can inspect exactly what was sent on their behalf.
+- Recommendations carry their uncertainty. A test fails the build if the wording presents a correlation as a cause.
+- Analytics show their sample size.
+- AI is grounded and private. It answers from the user's own data on a local model.
+- The dashboard suggests next actions as well as reporting past activity.
 
 ---
 
-## 5. The Federated Learning idea, explained without jargon
+## 5. Federated learning without jargon
 
 Take five friends who each want to improve their fitness. They do not want to share their diaries, but as a group they would like to know whether eating breakfast seems to help.
 
@@ -94,29 +94,29 @@ That is federated learning. In Cohort:
 
 This repeats in rounds, each making the shared model slightly better, with nobody's job-search history leaving their own data partition.
 
-**What is learned:** whether a user is likely to feel confident (self-rated 4–5 out of 5) after an interview round, based on their preparation beforehand. The model does not predict whether the user will get the job, because the data does not support that claim.
+What is learned: whether a user is likely to feel confident (self-rated 4-5 out of 5) after an interview round, based on their preparation beforehand. The model does not predict whether the user will get the job, because the data does not support that claim.
 
 ---
 
-## 6. Technology stack — what is used, and why
+## 6. Technology stack
 
 | Layer | Technology | Why |
 |---|---|---|
 | Frontend | React 19 + TypeScript + Vite + Tailwind CSS + shadcn/ui + TanStack Query + Recharts | Component-based UI for a data-heavy dashboard; TypeScript catches mismatches at build time; shadcn gives accessible components |
-| Main backend | **Java 21 + Spring Boot 3** | Owns everything user-facing: auth, applications, resumes, interviews, prep, analytics, recommendations, notifications, reports, AI features. Spring Security ships Argon2id, JWT and OAuth2 sign-in support |
+| Main backend | Java 21 + Spring Boot 3 | Owns everything user-facing: auth, applications, resumes, interviews, prep, analytics, recommendations, notifications, reports, AI features. Spring Security ships Argon2id, JWT and OAuth2 sign-in support |
 | Database | PostgreSQL 16 + Spring Data JPA/Hibernate | A relational domain (users own applications own interviews own questions); Postgres roles make the FL data-isolation guarantee real |
 | Migrations | Flyway | Versioned, reversible database changes |
-| Federated learning | **Python + Flower + scikit-learn**, the *only* Python part of the backend | Flower has no Java equivalent; the Python service is limited to the FL client and server |
+| Federated learning | Python + Flower + scikit-learn, the *only* Python part of the backend | Flower has no Java equivalent; the Python service is limited to the FL client and server |
 | AI | Ollama (local model) by default; Google Gemini optional | Keeps user data on the server unless a hosted provider is explicitly enabled and disclosed |
 | Resilience | Resilience4j (circuit breaker) | If the FL service is slow or down, recommendations fall back to local-only instead of the page breaking |
 | Testing | JUnit 5, MockMvc, Testcontainers (Java) · pytest (Python) · React Testing Library + Vitest (frontend) | |
 | DevOps | Docker Compose, GitHub Actions CI | One-command local start-up; automated build, test and coverage gate on every pull request |
 
-**Why two languages:** almost the entire application is plain Java. The only part that has to be Python is the Flower client and server, because that library has no Java equivalent. Java for everything else is a team choice (tooling comfort, Spring Security's built-in features), not a technical requirement.
+Why two languages: almost the entire application is plain Java. The only part that has to be Python is the Flower client and server, because that library has no Java equivalent. Java for everything else is a team choice (tooling comfort, Spring Security's built-in features), not a technical requirement.
 
 ---
 
-## 7. How it is built — architecture in plain terms
+## 7. Architecture in plain terms
 
 ```
    Browser (React app)
@@ -127,31 +127,31 @@ This repeats in rounds, each making the shared model slightly better, with nobod
    everything)
           │
           │  (only this one call: "start a round,
-          │   give me a status") — protected by a
+          │   give me a status"), protected by a
           │   circuit breaker so a slow/dead FL
           │   service never breaks the main app
           ▼
    fl-service (Python)  ──►  Its own small slice of Postgres,
-   Flower client + server     with credentials that CANNOT
+   Flower client + server     with credentials that cannot
                                read applications, resumes,
-                               interviews, or notes — only
+                               interviews, or notes, only
                                3 bookkeeping tables
 ```
 
-The Java side uses the usual layers (controllers handle HTTP, services hold business logic, repositories talk to the database), and a handful of **design patterns** are used deliberately, each solving a specific problem:
+The Java side uses the usual layers (controllers handle HTTP, services hold business logic, repositories talk to the database), and a handful of design patterns are used deliberately, each solving a specific problem:
 
-- **State** for application status: each status knows its own legal next steps, so an invalid transition is structurally impossible; the Kanban board relies on it.
-- **Chain of Responsibility** for file-upload validation (extension → file type → file signature) and the recommendation pipeline (generate candidates → tier by evidence → score → rank).
-- **Strategy** for swappable pieces: file storage, notification channel, evidence-tier scoring, mail sender, and the AI provider (local model or hosted).
-- **Observer** for notifications: the code that detects "this application stalled" announces it, and whoever is listening reacts.
-- **Template Method** for analytics: every metric follows the same "compute → check sample size → flag if too little data" skeleton, so a new metric cannot forget the sample-size rule.
-- **Adapter** for the Java↔Python boundary: one class knows how to talk to the FL service.
+- State for application status: each status knows its own legal next steps, so an invalid transition is structurally impossible; the Kanban board relies on it.
+- Chain of Responsibility for file-upload validation (extension → file type → file signature) and the recommendation pipeline (generate candidates → tier by evidence → score → rank).
+- Strategy for swappable pieces: file storage, notification channel, evidence-tier scoring, mail sender, and the AI provider (local model or hosted).
+- Observer for notifications: the code that detects "this application stalled" announces it, and whoever is listening reacts.
+- Template Method for analytics: every metric follows the same "compute → check sample size → flag if too little data" skeleton, so a new metric cannot forget the sample-size rule.
+- Adapter for the Java↔Python boundary: one class knows how to talk to the FL service.
 
 Plain CRUD controllers and services stay plain; no pattern is forced onto code that is already simple. That restraint is a design decision.
 
 ---
 
-## 8. Privacy and security, in one place
+## 8. Privacy and security
 
 - Every database query is scoped to the logged-in user at the code level; it is not something a developer has to remember each time.
 - Requesting someone else's data returns "not found", not "forbidden", so nobody can confirm another user's record exists.
@@ -165,25 +165,25 @@ Plain CRUD controllers and services stay plain; no pattern is forced onto code t
 
 ## 9. Scope
 
-**In the build:** everything in §3 above.
+In the build: everything in §3 above.
 
-**Out of scope:** multi-factor authentication, native mobile apps (the web app is fully responsive), a browser extension, job-board scraping or auto-apply, two-way calendar or email sync, a calendar view or .ics export, CSV import, tag management and bulk updates, recruiter feedback capture, email notifications, an admin console, sharing between users, a production deployment profile, and secure aggregation (a more advanced cryptographic privacy technique). `PROJECT_PLAN.md` §31.2 has the full list.
+Out of scope: multi-factor authentication, native mobile apps (the web app is fully responsive), a browser extension, job-board scraping or auto-apply, two-way calendar or email sync, a calendar view or .ics export, CSV import, tag management and bulk updates, recruiter feedback capture, email notifications, an admin console, sharing between users, a production deployment profile, and secure aggregation (a more advanced cryptographic privacy technique). `PROJECT_PLAN.md` §31.2 has the full list.
 
 ---
 
-## 10. The nine sprints, at a glance
+## 10. The nine sprints
 
 | Sprint | Focus |
 |---|---|
-| 1 | Foundation — accounts, application tracking, the dev environment everyone can run |
+| 1 | Foundation: accounts, application tracking, the dev environment everyone can run |
 | 2 | Resumes and interview capture, including the debrief flow |
-| 3 | Preparation and analytics — question bank and content, topic mastery, analytics, the dashboard |
-| 4 | Recommendations and federated learning — the highest-risk, highest-payoff sprint |
+| 3 | Preparation and analytics: question bank and content, topic mastery, analytics, the dashboard |
+| 4 | Recommendations and federated learning (the highest-risk sprint) |
 | 5 | Notifications, reports and account self-service |
-| 6 | Experience and core gaps — design system, board view, onboarding, social sign-in, security headers |
-| 7 | Job-search workflow — contacts, company pages, offers, goals, global search, resume editor |
-| 8 | AI and intelligence — AI assistance, prep intelligence, cohort benchmarks, privacy budget |
-| 9 | Hardening and delivery — sample data and tour, error screens, privacy pages, security and accessibility verification |
+| 6 | Experience and core gaps: design system, board view, onboarding, social sign-in, security headers |
+| 7 | Job-search workflow: contacts, company pages, offers, goals, global search, resume editor |
+| 8 | AI and intelligence: AI assistance, prep intelligence, cohort benchmarks, privacy budget |
+| 9 | Hardening and delivery: sample data and tour, error screens, privacy pages, security and accessibility verification |
 
 110 phases across a 10-person team in three departments (Backend, Frontend, AI/ML); see `BUILD_PHASES_JAVA.md` for the team and every phase.
 
@@ -194,10 +194,10 @@ Plain CRUD controllers and services stay plain; no pattern is forced onto code t
 | Question | Document |
 |---|---|
 | "What exactly does requirement FR-XX say?" | `PROJECT_PLAN.md` |
-| "Which user stories are in which epic and sprint?" | `PROJECT_PLAN.md`, §9–§12 |
+| "Which user stories are in which epic and sprint?" | `PROJECT_PLAN.md`, §9-§12 |
 | "Why was this database table designed this way?" | `PROJECT_PLAN.md`, §17 |
 | "What does the Java/Python split look like in code?" | `ARCHITECTURE_REVISION_JAVA.md` |
 | "Which design pattern goes where, and why?" | `ARCHITECTURE_REVISION_JAVA.md`, §4 |
 | "What is the exact build sequence, phase by phase, and who owns it?" | `BUILD_PHASES_JAVA.md` |
 
-**Every team member should be able to explain** what federated learning does in this project and why it is not pooled data under another name (see §5).
+Every team member should be able to explain what federated learning does in this project and why it is not pooled data under another name (see §5).

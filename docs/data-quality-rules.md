@@ -4,18 +4,16 @@ Cohort stores things users type: company names, job titles, links, salaries, dat
 
 The rules are plain code. There is no model call and no word list that grows over time. Clear junk is rejected with a field-level message. Doubtful input is saved if the user confirms, and the form shows a warning first.
 
-## What the job trackers and experience sites do
+## Prior art
 
-Job trackers keep the application form small and mostly optional. Huntr's job card has company, job title, post URL, location, salary, deadline and description, and its help article says not every field is required. Simplify asks for company and position when a CSV is imported and treats location as optional. Neither documents character limits or formats, so the limits below are Cohort's own choices.
-
-Experience sites put their effort into moderation after posting, and into templates before it. Glassdoor removes content that breaks its community guidelines and says it only acts as a fact-checker when something is clearly false. Blind's policies ban spam, off-topic posts in the wrong channel, claims without first-hand knowledge, and naming or exposing individuals. LeetCode's search-result summaries describe a structure for experience posts (company, role, date, result, then the process of each round), which is the kind of prompt that keeps posts on topic. None of the pages read describe an automatic gibberish or minimum-length check, so the text rules here come from the common failure cases below, not from a copied implementation.
+Job trackers keep the application form small and mostly optional, and experience sites rely on moderation after posting. None of the pages we looked at describe an automatic gibberish or minimum-length check, so the text rules here come from the common failure cases below. The limits are our own choices.
 
 ## Data problems seen in this domain
 
 - Paste accidents: whole job posts or page titles ("Careers | Acme - Apply now") in the title field.
 - Placeholders and test input: "test", "asdf", "n/a", "xxx".
 - Keyboard mash and repeated characters in free-text fields, often from a user who just wants to get past a required field.
-- Off-topic text in an experience field, for example a comment about the canteen. It is honest text, but it does not describe the interview or company.
+- Off-topic text in an experience field, for example a comment about the canteen. It is real text, but it does not describe the interview or company.
 - Unusable numbers: a salary of 5 with no currency, a minimum above the maximum, 120000 typed as a monthly figure.
 - Impossible dates: year 0001 from a bad date picker, or a date years ahead.
 - Personal details of other people (an interviewer's email or phone number) copied into notes.
@@ -59,7 +57,7 @@ Soft warnings (saved if the user chooses to keep the text):
 - `CONTAINS_CONTACT_DETAILS`: an email address or phone-like number in the text.
 - `STOPWORDS_ONLY`: 3 or more words and every one is an English function word ("this is the and it").
 
-Short honest answers pass: "Rejected after round 2", "No feedback yet", "Offer accepted".
+Short real answers pass: "Rejected after round 2", "No feedback yet", "Offer accepted".
 
 ## Limits and false-positive risks
 

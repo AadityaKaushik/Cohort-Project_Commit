@@ -19,19 +19,19 @@ Examples:
 
 Any commit that adds or changes a pattern-bearing class (see
 `docs/plan/ARCHITECTURE_REVISION_JAVA.md` §4) must say, in one sentence in the PR description,
-which pattern it implements or extends. This is part of the Definition of Done and lets a reviewer tell intended design from accidental complexity.
+which pattern it implements or extends. This is part of the Definition of Done.
 
 ## Tests
 
-- Every phase that adds backend logic ships tests in the **same commit**: JUnit 5 for units/slices,
+- Every phase that adds backend logic ships tests in the same commit: JUnit 5 for units/slices,
   MockMvc for controller tests, Testcontainers for anything touching real Postgres.
 - Every phase touching user-owned data includes the cross-user isolation test for any new
-  endpoint (expect 404, never 403, on foreign access — see FR-95).
+  endpoint (expect 404, never 403, on foreign access; see FR-95).
 - Run `mvn test` (in `api/`) or `pytest` (in `fl-service/`) before every commit. Never commit a
   red suite.
 
 ## Process
 
-- One phase from the build-phases document per commit — phases are not merged together, even
+- One phase from the build-phases document per commit. Phases are not merged together, even
   when a phase is small.
 - No phase starts before its listed dependency has landed.

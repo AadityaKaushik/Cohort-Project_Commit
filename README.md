@@ -1,8 +1,8 @@
 # Cohort
 
 Cohort is a job-search campaign manager: applications, resumes, interview debriefs, and
-preparation tracking in one place, with a **Federated Learning** layer that lets the app
-learn from users' preparation patterns without centralising anyone's data.
+preparation tracking in one place, with a federated learning part: a shared model
+learns from users' preparation patterns without collecting their data.
 
 Plain-language overview: [`docs/plan/PROJECT_OVERVIEW.md`](docs/plan/PROJECT_OVERVIEW.md).
 Requirements, backlog and design: [`docs/plan/PROJECT_PLAN.md`](docs/plan/PROJECT_PLAN.md)
@@ -16,7 +16,7 @@ Build sequencing: [`docs/plan/BUILD_PHASES_JAVA.md`](docs/plan/BUILD_PHASES_JAVA
 | Frontend | React + TypeScript + Tailwind CSS + shadcn/ui + Recharts |
 | Main backend | Java 21 + Spring Boot 3 (auth, applications, resumes, interviews, prep, analytics, recommendations, notifications, reports) |
 | Database | PostgreSQL 16 + Spring Data JPA/Hibernate, versioned with Flyway |
-| Federated Learning | Python + Flower + scikit-learn — isolated to `fl-service/`, the only Python in the system |
+| Federated Learning | Python + Flower + scikit-learn, isolated to `fl-service/`, the only Python in the system |
 | Resilience | Resilience4j circuit breaker around the Java → FL boundary |
 | Testing | JUnit 5, MockMvc, Testcontainers · Pytest · React Testing Library |
 
