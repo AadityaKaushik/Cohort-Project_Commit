@@ -1,8 +1,11 @@
 import { afterEach } from 'vitest'
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 
-// Vitest doesn't auto-detect RTL's cleanup hook unless `test.globals` is on (we deliberately keep explicit imports instead of globals), so it's wired up here: otherwise each test file's DOM nodes pile up across tests.
+// findBy and waitFor give up after 1s by default, which is too short for a full parallel run.
+configure({ asyncUtilTimeout: 5000 })
+
+// Without test.globals, RTL's cleanup has to be registered by hand.
 afterEach(() => {
   cleanup()
   window.localStorage.clear()
