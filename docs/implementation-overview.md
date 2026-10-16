@@ -2,7 +2,7 @@
 
 Cohort is a web application for running a job search in one place: applications, interviews, resume versions, contacts and offers, with interview debriefs feeding a personal preparation plan.
 
-Status: Sprints 1 to 7 are built. Sprint 8 is built for P89, P94, P95, P98, P99 and P103, with the other ten phases deferred. Sprint 9 is built for P105 to P108 and P110; P109 is verified at the final test run. The phase-by-phase plan is in `docs/plan/BUILD_PHASES_JAVA.md`.
+Status: Sprints 1 to 7 are built. Sprint 8 is built for P89, P94, P95, P98, P99 and P103, with the other ten phases deferred. Sprint 9 is built for P105 to P110. The phase-by-phase plan is in `docs/plan/BUILD_PHASES_JAVA.md`.
 
 ## 1. Purpose
 
@@ -32,7 +32,7 @@ Nine sprints, 110 phases. Each phase is one commit with its tests.
 | 6 | Experience and core gaps | P69-P81 | Built |
 | 7 | Job-search workflow | P82-P88 | Built |
 | 8 | AI and intelligence | P89-P104 | Built: P89, P94, P95, P98, P99, P103; 10 deferred |
-| 9 | Hardening and delivery | P105-P110 | Built: P105-P108, P110; P109 verified at the final test run |
+| 9 | Hardening and delivery | P105-P110 | Built |
 
 Working rules:
 
@@ -47,7 +47,7 @@ Working rules:
 - Applications: CRUD, status workflow with history, filters, list and board views, tags.
 - Resumes: versions, file upload with type checks, cloning, linking to applications.
 - Interviews: rounds, questions, feedback and a quick debrief.
-- Preparation: topic graph, question bank, practice attempts, mastery with decay, preparation tasks.
+- Preparation: topic graph, a question bank of six original questions per topic, practice attempts, mastery with decay, preparation tasks.
 - Analytics: funnel, conversion rates, timeline, rejection distribution, dwell times, stall detection, dashboard action queue.
 - Recommendations: generator chain, evidence tiers, accept, snooze and dismiss, federated lift view.
 - Federated learning: feature schema, local training, clipping and noise, server with minimum cohort, poisoning filter, privacy ledger.
@@ -86,7 +86,7 @@ PostgreSQL 16 (Flyway)     fl-service (Flower + scikit-learn)
 | Federated learning | Python, Flower, scikit-learn, FastAPI | Flower has no Java equivalent |
 | Resilience | Resilience4j | Circuit breaker around the FL service |
 | Tests | JUnit 5, MockMvc, Testcontainers, Vitest, React Testing Library, pytest | Backend tests run against real PostgreSQL |
-| CI | GitHub Actions | Build, tests, coverage gate, secret scan |
+| CI | GitHub Actions | Build, tests, coverage gate, secret scan, check for string-built SQL |
 
 Python is used only for federated learning.
 
@@ -184,7 +184,7 @@ Configuration comes from environment variables; see `.env.example`.
 ## 13. Limitations
 
 - Ten Sprint 8 phases are deferred and not built.
-- The full security suite (P109) and the axe-core check run at the final test, not per commit.
+- The axe-core check runs at the final test, not per commit.
 - The login rate limiter and file storage are single-instance.
 - No load testing has been done.
 
