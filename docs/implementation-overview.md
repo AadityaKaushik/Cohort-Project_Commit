@@ -46,11 +46,12 @@ Working rules:
 - Accounts: register, login, refresh, logout, password change and reset, email verification, Google and GitHub sign-in, data export, account deletion.
 - Applications: CRUD, status workflow with history, filters, list and board views, tags.
 - Resumes: versions, file upload with type checks, cloning, linking to applications.
-- Interviews: rounds, questions, feedback and a quick debrief.
-- Preparation: topic graph, a question bank of six original questions per topic, practice attempts, mastery with decay, preparation tasks.
+- Interviews: rounds, questions, feedback and a quick debrief. A question asked in an interview can be saved into the question bank.
+- Behavioural prep: a STAR story bank with competency tags, linkable to an interview.
+- Preparation: topic graph, a question bank of six original questions per topic, practice attempts, mastery with decay, preparation tasks, and a self-graded mock interview built from the weakest topics.
 - Analytics: funnel, conversion rates, timeline, rejection distribution, dwell times, stall detection, dashboard action queue.
 - Recommendations: generator chain, evidence tiers, accept, snooze and dismiss, federated lift view.
-- Federated learning: feature schema, local training, clipping and noise, server with minimum cohort, poisoning filter, privacy ledger.
+- Federated learning: feature schema, local training, clipping and noise, server with minimum cohort, poisoning filter, privacy ledger. A manual demo command runs a round with synthetic clients (see `fl-service/README.md`).
 - Notifications and reports: in-app notifications from domain events, PDF and CSV exports.
 - Job-search workflow: contacts and referrals with cold-contact nudges, company pages, offers with a deadline countdown, weekly goals with an activity heatmap, global search in the command palette, and a structured resume section editor with PDF export.
 - Everyday interaction: keyboard shortcuts, undo on delete, unsaved-changes warning and kept drafts, remembered list filters, quick status menu, form defaults and company autocomplete, duplicate application, one-tap debrief, CSV import of applications.
@@ -118,6 +119,7 @@ Python is used only for federated learning.
 | `recommendations`, `recommendation_evidence` | Recommendations |
 | `notifications`, `report_exports` | Notifications and exports |
 | `contacts`, `company_notes`, `offers`, `goals` | Job-search workflow |
+| `stories` | STAR stories |
 | `fl.fl_rounds`, `fl.privacy_ledger_entries` | Federated learning |
 
 An application moves through Saved, Applied, OA, Interview, Final round, then Offer or Rejected, then Accepted, Declined or Withdrawn. Terminal states have no further moves. Each move is validated by the State pattern and written to the history table.
@@ -183,7 +185,9 @@ Configuration comes from environment variables; see `.env.example`.
 
 ## 13. Limitations
 
-- Ten Sprint 8 phases are deferred and not built.
+- Ten Sprint 8 phases are deferred and not built. P97 (story bank) was later built without AI.
+- The federated round clips and noises the exported features but does not train or publish a model, so `/fl/model` stays at version 0. A separate in-process round would also be refused, because the poisoning filter runs after noise is added and drops every honest update. Fixing this needs a change to the privacy design.
+- `FL_MIN_COHORT_SIZE`, `FL_CLIPPING_NORM` and `FL_NOISE_MULTIPLIER` in `docker-compose.fl.yml` are not read by fl-service; it uses the same values as fixed defaults.
 - The axe-core check runs at the final test, not per commit.
 - The login rate limiter and file storage are single-instance.
 - No load testing has been done.

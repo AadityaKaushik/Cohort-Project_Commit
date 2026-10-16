@@ -1,5 +1,7 @@
 # Cohort
 
+[![CI](https://github.com/AadityaKaushik/Cohort-Project_Commit/actions/workflows/ci.yml/badge.svg)](https://github.com/AadityaKaushik/Cohort-Project_Commit/actions/workflows/ci.yml)
+
 Cohort is a job-search campaign manager: applications, resumes, interview debriefs, and
 preparation tracking in one place, with a federated learning part: a shared model
 learns from users' preparation patterns without collecting their data.
@@ -38,6 +40,7 @@ scripts/        CI helper scripts
 
 The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one commit per phase.
 `docs/implementation-overview.md` summarises the build and `docs/poster.html` is the project poster.
+`docs/evidence.md` lists the test behind each check in the plan.
 
 | Sprint | Goal | Phases | Built | Still to do |
 |---|---|---|---|---|
@@ -50,6 +53,7 @@ The plan has nine sprints and 110 phases (`docs/plan/BUILD_PHASES_JAVA.md`), one
 | 7 | Job-search workflow | P82-P88 | All | None |
 | 8 | AI and intelligence | P89-P104 | P89, P94, P95, P98, P99, P103 | Nothing; P90-P93, P96, P97, P100-P102 and P104 are deferred by the plan |
 | 9 | Hardening and delivery | P105-P110 | All | Two full demo rehearsals, the 375 px check, axe-core with zero critical issues in both themes |
+| After 9 | Extra features | Not numbered | Save interview questions to the bank, mock interview, STAR story bank, FL demo round | None |
 
 ## Running locally
 
