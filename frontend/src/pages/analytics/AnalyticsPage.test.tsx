@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -64,6 +64,11 @@ function renderPage() {
 }
 
 describe('AnalyticsPage', () => {
+  // The charts are lazy-loaded; loading the chunk first keeps the 1s findBy wait meaningful.
+  beforeAll(async () => {
+    await import('@/components/analytics/AnalyticsCharts')
+  })
+
   beforeEach(() => {
     vi.mocked(getFunnel).mockReset()
     vi.mocked(getConversionRates).mockReset()

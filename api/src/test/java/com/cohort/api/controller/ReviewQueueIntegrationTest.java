@@ -36,13 +36,17 @@ class ReviewQueueIntegrationTest extends AbstractIntegrationTest {
     @Test
     void topicPractisedLongAgoShowsUpAndAFreshAttemptClearsIt() throws Exception {
         String token = register("review-flow@example.com");
-        String questionId = firstQuestionId(token);
+        JsonNode question = firstQuestion(token);
+        String questionId = question.get("id").asText();
 
         attempt(token, questionId, 2, "2026-01-01T10:00:00Z");
         JsonNode queue = queue(token);
         assertThat(queue.get("items")).hasSize(1);
-        assertThat(queue.get("items").get(0).get("question_id").asText()).isEqualTo(questionId);
-        assertThat(queue.get("items").get(0).get("reason").asText()).startsWith("Last practised ");
+        JsonNode item = queue.get("items").get(0);
+        assertThat(item.get("topic_id").asText()).isEqualTo(question.get("topic_id").asText());
+        // The queue suggests the topic's least recently practised question, not the one just answered.
+        assertThat(item.get("question_id").asText()).isNotEqualTo(questionId);
+        assertThat(item.get("reason").asText()).startsWith("Last practised ");
 
         attempt(token, questionId, 5, java.time.Instant.now().toString());
         assertThat(queue(token).get("items")).isEmpty();
@@ -53,7 +57,7 @@ class ReviewQueueIntegrationTest extends AbstractIntegrationTest {
         String owner = register("review-owner@example.com");
         String other = register("review-other@example.com");
 
-        attempt(owner, firstQuestionId(owner), 2, "2026-01-01T10:00:00Z");
+        attempt(owner, firstQuestion(owner).get("id").asText(), 2, "2026-01-01T10:00:00Z");
 
         assertThat(queue(owner).get("items")).hasSize(1);
         assertThat(queue(other).get("items")).isEmpty();
@@ -65,11 +69,11 @@ class ReviewQueueIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
     }
 
-    private String firstQuestionId(String token) throws Exception {
+    private JsonNode firstQuestion(String token) throws Exception {
         return objectMapper.readTree(mockMvc.perform(get("/api/v1/questions?size=1")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString())
-                .get("items").get(0).get("id").asText();
+                .get("items").get(0);
     }
 
     private void attempt(String token, String questionId, int confidence, String attemptedAt) throws Exception {

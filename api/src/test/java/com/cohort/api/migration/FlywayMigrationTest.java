@@ -96,12 +96,15 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
             var versions = new ArrayList<String>();
             while (rs.next()) {
                 assertThat(rs.getBoolean("success")).isTrue();
-                versions.add(rs.getString("version"));
+                if (rs.getString("version") != null) {
+                    versions.add(rs.getString("version"));
+                }
             }
             assertThat(versions)
                     .containsExactly(
                             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                            "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29");
+                            "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
+                            "70", "71", "72", "73", "74", "75", "76", "77", "78", "90", "100");
         }
     }
 

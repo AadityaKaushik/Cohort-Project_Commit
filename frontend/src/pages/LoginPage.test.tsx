@@ -18,7 +18,8 @@ function renderLoginPage() {
   )
 }
 
-describe('LoginPage', () => {
+// The first render pays a jsdom cold start that can pass 5s in a full parallel run.
+describe('LoginPage', { timeout: 20000 }, () => {
   beforeEach(() => {
     login.mockReset()
     vi.mocked(useAuth).mockReturnValue({

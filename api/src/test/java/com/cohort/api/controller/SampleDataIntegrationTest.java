@@ -74,7 +74,7 @@ class SampleDataIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(post("/api/v1/applications").header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"company_name": "My Own Company", "job_title": "Real Role", "date_applied": "%s"}
+                                {"company_name": "My Own Company", "job_title": "Real Role", "date_applied": "%s", "status": "APPLIED"}
                                 """.formatted(java.time.LocalDate.now().minusDays(1))))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/v1/sample-data").header("Authorization", "Bearer " + token)).andExpect(status().isOk());

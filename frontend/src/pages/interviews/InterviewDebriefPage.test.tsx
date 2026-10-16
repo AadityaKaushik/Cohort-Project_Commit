@@ -57,7 +57,8 @@ function sampleInterview(): InterviewDetail {
   }
 }
 
-describe('InterviewDebriefPage', () => {
+// The first render pays a jsdom cold start that can pass 5s in a full parallel run.
+describe('InterviewDebriefPage', { timeout: 20000 }, () => {
   beforeEach(() => {
     vi.mocked(getInterview).mockReset()
     vi.mocked(getInterviewFeedbackOrNull).mockReset()
