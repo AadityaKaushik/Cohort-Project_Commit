@@ -13,6 +13,7 @@ import com.cohort.api.AbstractIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,11 @@ class SearchIntegrationTest extends AbstractIntegrationTest {
         Session owner = register("search-questions@example.com");
         String seeded = jdbcTemplate.queryForObject(
                 "SELECT question_text FROM questions WHERE is_system = true ORDER BY question_text LIMIT 1", String.class);
-        String word = seeded.split("\\s+")[0].replaceAll("[^A-Za-z]", "");
+        String word = Arrays.stream(seeded.split("\\s+"))
+                .map(token -> token.replaceAll("[^A-Za-z]", ""))
+                .filter(token -> token.length() >= 4)
+                .findFirst()
+                .orElseThrow();
 
         mockMvc.perform(get("/api/v1/search?q=" + word).header("Authorization", "Bearer " + owner.token()))
                 .andExpect(status().isOk())
