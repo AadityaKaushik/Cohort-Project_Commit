@@ -2,6 +2,11 @@
 #   docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d
 # fl-service gets no main-database credentials; scripts/verify-fl-db-isolation.sh checks this.
 services:
+  api:
+    environment:
+      # Container name, not the service name: `docker compose run fl-service` would share the service alias.
+      APP_FL_SERVICE_BASE_URL: http://cohort-fl-service:8000
+
   fl-service:
     build:
       context: ./fl-service

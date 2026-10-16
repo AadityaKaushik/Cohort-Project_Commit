@@ -29,6 +29,11 @@ public final class StubFlServiceServer implements AutoCloseable {
             exchange.getResponseBody().write(body);
             exchange.close();
         });
+        server.createContext("/fl/client-features", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+        });
         server.setExecutor(null);
         server.start();
     }

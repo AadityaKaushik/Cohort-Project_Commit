@@ -143,6 +143,14 @@ class PrivacyLedgerIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void theDevRoundTriggerDoesNotExistOutsideTheDevProfile() throws Exception {
+        String token = registerAndGetAccessToken("ledger-no-dev@example.com", "NoDev");
+
+        mockMvc.perform(post("/api/v1/dev/fl/round").header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
     private void optIn(String token) throws Exception {
         mockMvc.perform(post("/api/v1/fl/opt-in").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
     }

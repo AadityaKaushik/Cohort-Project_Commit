@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.common.schema import FEATURE_BOUNDS, FEATURE_COUNT
 from app.control.client_store import ClientFeatureStore
+from app.demo.synthetic import is_synthetic
 from app.server.model_registry import ModelRegistry
 from app.server.round_orchestrator import RoundOutcome, run_privacy_round
 
@@ -90,7 +91,8 @@ def create_app(
         stored = store.all()
         if request.client_ids is not None:
             wanted = set(request.client_ids)
-            stored = {cid: rec for cid, rec in stored.items() if cid in wanted}
+            # Synthetic clients only exist after someone runs app.demo.simulate by hand.
+            stored = {cid: rec for cid, rec in stored.items() if cid in wanted or is_synthetic(cid)}
         features_by_client = {cid: (rec.schema_version, rec.features) for cid, rec in stored.items()}
         outcome = run_privacy_round(features_by_client, round_number=request.round_number, rng=noise_rng)
         return _serialise_round(outcome)
