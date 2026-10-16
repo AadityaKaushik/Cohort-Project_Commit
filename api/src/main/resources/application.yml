@@ -134,6 +134,11 @@ resilience4j:
         record-exceptions:
           - com.cohort.api.service.fl.FlServiceUnavailableException
 
+# P109: the OpenAPI document is only for the security suite, never served in a running app.
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:false}
+
 cohort:
   contributions:
     salt: ${CONTRIBUTION_SALT:local-development-salt}
