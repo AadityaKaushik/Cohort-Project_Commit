@@ -35,6 +35,7 @@ import { DetailList, type DetailItem } from '@/components/shared/DetailList'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PageSkeleton } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
+import { SaveToBankControl } from '@/components/interviews/SaveToBankControl'
 import { OutcomeBadge, ToneBadge } from '@/components/shared/ToneBadge'
 
 const OUTCOMES: InterviewOutcome[] = ['pending', 'passed', 'failed', 'unknown']
@@ -278,6 +279,9 @@ export function InterviewDetailPage() {
                       <ToneBadge tone="neutral">{formatLabel(question.category)}</ToneBadge>
                       {question.difficulty && <ToneBadge tone="info">{formatLabel(question.difficulty)}</ToneBadge>}
                       {question.self_rating && <ToneBadge tone="primary">Self-rating {question.self_rating}/5</ToneBadge>}
+                    </div>
+                    <div className="mt-2">
+                      <SaveToBankControl question={question} interviewId={data.id} />
                     </div>
                   </div>
                   <Button variant="ghost" size="icon-sm" onClick={() => deleteQuestionMutation.mutate(question.id)} aria-label="Delete question">

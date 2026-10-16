@@ -20,9 +20,11 @@ import com.cohort.api.entity.PracticeAttempt;
 import com.cohort.api.entity.PreparationTask;
 import com.cohort.api.entity.Question;
 import com.cohort.api.entity.Topic;
+import com.cohort.api.exception.InterviewQuestionNotFoundException;
 import com.cohort.api.exception.PreparationTaskNotFoundException;
 import com.cohort.api.exception.QuestionNotFoundException;
 import com.cohort.api.exception.TopicNotFoundException;
+import com.cohort.api.exception.TopicRequiredException;
 import com.cohort.api.mapper.PreparationMapper;
 import com.cohort.api.repository.InterviewQuestionRepository;
 import com.cohort.api.repository.PracticeAttemptRepository;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -114,6 +117,44 @@ public class PreparationService {
         question.setDifficulty(request.difficulty());
         question = questionRepository.save(question);
         return mapper.toResponse(question, topic.getName());
+    }
+
+    /** Copies a question asked in a real interview into the user's own bank. Calling it again returns the same copy. */
+    @Transactional
+    public SavedQuestion saveInterviewQuestionToBank(UUID userId, UUID interviewQuestionId, UUID requestedTopicId) {
+        InterviewQuestion asked = interviewQuestionRepository.findByIdAndUserId(interviewQuestionId, userId)
+                .orElseThrow(InterviewQuestionNotFoundException::new);
+
+        if (asked.getLinkedQuestionId() != null) {
+            Optional<Question> existing = questionRepository.findById(asked.getLinkedQuestionId())
+                    .filter(question -> userId.equals(question.getUserId()));
+            if (existing.isPresent()) {
+                return new SavedQuestion(mapper.toResponse(existing.get(), topicName(existing.get().getTopicId())), false);
+            }
+        }
+
+        UUID topicId = requestedTopicId != null ? requestedTopicId : asked.getTopicId();
+        if (topicId == null) {
+            throw new TopicRequiredException();
+        }
+        Topic topic = topicRepository.findById(topicId).orElseThrow(TopicNotFoundException::new);
+
+        Question copy = Question.ownedByUser(
+                userId, topic.getId(), asked.getQuestionText(), Question.Category.valueOf(asked.getCategory().name()));
+        if (asked.getDifficulty() != null) {
+            copy.setDifficulty(Difficulty.valueOf(asked.getDifficulty().name()));
+        }
+        copy = questionRepository.save(copy);
+
+        asked.setLinkedQuestionId(copy.getId());
+        if (asked.getTopicId() == null) {
+            asked.setTopicId(topic.getId());
+        }
+        interviewQuestionRepository.save(asked);
+        return new SavedQuestion(mapper.toResponse(copy, topic.getName()), true);
+    }
+
+    public record SavedQuestion(QuestionResponse question, boolean created) {
     }
 
     @Transactional

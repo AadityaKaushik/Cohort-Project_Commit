@@ -1,5 +1,6 @@
 import { apiFetch, ApiError } from '@/lib/api-client'
 import type { CompanySummary, PagedResponse } from '@/lib/applications-api'
+import type { QuestionBankItem } from '@/lib/prep-api'
 
 export type InterviewRoundType = 'OA' | 'PHONE_SCREEN' | 'TECHNICAL' | 'SYSTEM_DESIGN' | 'BEHAVIOURAL' | 'HR' | 'FINAL'
 
@@ -156,6 +157,13 @@ export function addInterviewQuestion(interviewId: string, input: InterviewQuesti
 
 export function deleteInterviewQuestion(questionId: string) {
   return apiFetch<void>(`/interview-questions/${questionId}`, { method: 'DELETE' })
+}
+
+export function saveInterviewQuestionToBank(questionId: string, topicId: string | null) {
+  return apiFetch<QuestionBankItem>(`/interview-questions/${questionId}/save-to-bank`, {
+    method: 'POST',
+    body: topicId ? { topic_id: topicId } : {},
+  })
 }
 
 export async function getInterviewFeedbackOrNull(interviewId: string): Promise<InterviewFeedback | null> {

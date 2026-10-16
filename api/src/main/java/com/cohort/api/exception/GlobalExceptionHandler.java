@@ -168,6 +168,12 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("DUPLICATE_ROUND_NUMBER", ex.getMessage()));
     }
 
+    @ExceptionHandler(TopicRequiredException.class)
+    public ResponseEntity<ApiError> handleTopicRequired(TopicRequiredException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of("VALIDATION_ERROR", "One or more fields are invalid.", Map.of("topicId", ex.getMessage())));
+    }
+
     @ExceptionHandler(TopicNotFoundException.class)
     public ResponseEntity<ApiError> handleTopicNotFound(TopicNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("TOPIC_NOT_FOUND", ex.getMessage()));
