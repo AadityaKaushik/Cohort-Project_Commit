@@ -158,7 +158,7 @@
              (JDK 25) bytecode, which this environment's JVM emits for
              runtime-generated classes (Hibernate proxies, Mockito's
              ByteBuddy agent) even though the project still targets/compiles
-             to Java 21 — the agent instruments the running JVM's classes,
+             to Java 21. The agent instruments the running JVM's classes,
              not just this module's own compiled output. 0.8.15 adds
              support for newer class file versions. -->
         <version>0.8.15</version>

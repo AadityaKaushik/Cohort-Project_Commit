@@ -19,7 +19,7 @@ Build sequencing: [`docs/plan/BUILD_PHASES_JAVA.md`](docs/plan/BUILD_PHASES_JAVA
 | Main backend | Java 21 + Spring Boot 3 (auth, applications, resumes, interviews, prep, analytics, recommendations, notifications, reports) |
 | Database | PostgreSQL 16 + Spring Data JPA/Hibernate, versioned with Flyway |
 | Federated Learning | Python + Flower + scikit-learn, isolated to `fl-service/`, the only Python in the system |
-| Resilience | Resilience4j circuit breaker around the Java → FL boundary |
+| Resilience | Resilience4j circuit breaker on calls from the API to the FL service |
 | Testing | JUnit 5, MockMvc, Testcontainers · Pytest · React Testing Library |
 
 ## Repository layout
