@@ -66,7 +66,7 @@ class RecommendationScorerTest {
     @Test
     void aCandidateWithNoDatedEvidenceScoresZeroUnderTheWeightedStrategies() {
         RecommendationCandidate candidate = RecommendationCandidate.stalledApplication(
-                UUID.randomUUID(), "Acme Corp — Backend Engineer", 0.5, 5, List.of());
+                UUID.randomUUID(), "Acme Corp, Backend Engineer", 0.5, 5, List.of());
 
         RecommendationScorer.ScoredCandidate result = scorer.score(candidate, Instant.now());
 

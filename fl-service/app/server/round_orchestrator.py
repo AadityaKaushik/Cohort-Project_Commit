@@ -59,8 +59,8 @@ def run_privacy_round(
         if accepted
         else (
             f"round {round_number} refused: {cohort_size} participant(s) is below the "
-            f"minimum cohort size of {min_cohort} -- averaging over a cohort this small "
-            "would not provide anonymity"
+            f"minimum cohort size of {min_cohort}. A cohort this small "
+            "would not keep anyone anonymous"
         )
     )
     return RoundOutcome(round_number=round_number, accepted=accepted, reason=reason, cohort_size=cohort_size, entries=entries)

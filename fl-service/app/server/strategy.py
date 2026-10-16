@@ -70,8 +70,8 @@ class MinCohortFedAvg(Strategy):
         if participant_count < self.min_cohort:
             reason = (
                 f"round {server_round} refused: {participant_count} participant(s) "
-                f"is below the minimum cohort size of {self.min_cohort} -- "
-                "averaging over a cohort this small would not provide anonymity"
+                f"is below the minimum cohort size of {self.min_cohort}. "
+                "A cohort this small would not keep anyone anonymous"
             )
             logger.warning(reason)
             return None, {
@@ -88,7 +88,7 @@ class MinCohortFedAvg(Strategy):
             if norm > threshold:
                 logger.warning(
                     "round %d: dropping client %s's update: norm %.4f exceeds poisoning "
-                    "threshold %.4f (S=%.4f * tau=%.4f) -- an honestly clipped update "
+                    "threshold %.4f (S=%.4f * tau=%.4f). A clipped update "
                     "should never exceed S",
                     server_round,
                     client_proxy.cid,
@@ -103,7 +103,7 @@ class MinCohortFedAvg(Strategy):
         if not deltas:
             reason = (
                 f"round {server_round} refused: all {participant_count} participant update(s) "
-                f"were filtered as anomalous (norm above {threshold:.4f}) -- nothing left to aggregate"
+                f"were filtered as anomalous (norm above {threshold:.4f}), so there is nothing to aggregate"
             )
             logger.warning(reason)
             return None, {

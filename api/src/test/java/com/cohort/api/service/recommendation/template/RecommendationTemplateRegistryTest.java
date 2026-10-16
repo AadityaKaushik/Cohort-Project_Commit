@@ -56,9 +56,9 @@ class RecommendationTemplateRegistryTest {
                 .contains("Graph Traversal (BFS/DFS) (30% mastery)");
 
         RecommendationCandidate stalled = RecommendationCandidate.stalledApplication(
-                UUID.randomUUID(), "Acme Corp — Backend Engineer", 0.4, 4, List.of(new EvidenceItem("Days in stage", "20 days", null)));
+                UUID.randomUUID(), "Acme Corp, Backend Engineer", 0.4, 4, List.of(new EvidenceItem("Days in stage", "20 days", null)));
         RenderedRecommendationCopy stalledCopy = registry.render(stalled, EvidenceTier.B);
-        assertThat(stalledCopy.headline() + stalledCopy.explanation()).contains("Acme Corp — Backend Engineer");
+        assertThat(stalledCopy.headline() + stalledCopy.explanation()).contains("Acme Corp, Backend Engineer");
 
         RecommendationCandidate baseline = RecommendationCandidate.baseline(1, List.of());
         RenderedRecommendationCopy baselineCopy = registry.render(baseline, EvidenceTier.D);
@@ -84,7 +84,7 @@ class RecommendationTemplateRegistryTest {
         RecommendationCandidate prerequisiteGap = weakTopic.routedTo(
                 rootSnapshot, List.of(), List.of("Sliding Window (46% mastery)", "Two Pointers (18% mastery)"));
         RecommendationCandidate stalled = RecommendationCandidate.stalledApplication(
-                UUID.randomUUID(), "Acme Corp — Backend Engineer", 0.4, 4, List.of());
+                UUID.randomUUID(), "Acme Corp, Backend Engineer", 0.4, 4, List.of());
         RecommendationCandidate baseline = RecommendationCandidate.baseline(1, List.of());
 
         return List.of(weakTopic, decay, prerequisiteGap, stalled, baseline);

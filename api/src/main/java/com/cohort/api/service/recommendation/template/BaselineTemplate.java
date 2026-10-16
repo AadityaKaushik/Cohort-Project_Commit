@@ -15,7 +15,7 @@ public class BaselineTemplate implements RecommendationTemplate {
     @Override
     public RenderedRecommendationCopy render(RecommendationCandidate candidate, EvidenceTier tier) {
         String headline = "Start with a broad baseline";
-        String explanation = "You have %d interview%s logged so far — not enough yet to point at a specific weak topic. This is a general heuristic, not evidence-based guidance; more targeted recommendations will appear once you log a few interviews.".formatted(
+        String explanation = "You have %d interview%s logged so far, which is not enough to point at a weak topic. This is a general suggestion, not based on your data. More specific ones appear once you log a few interviews.".formatted(
                 candidate.observationCount(), candidate.observationCount() == 1 ? "" : "s");
         return new RenderedRecommendationCopy(headline, explanation);
     }

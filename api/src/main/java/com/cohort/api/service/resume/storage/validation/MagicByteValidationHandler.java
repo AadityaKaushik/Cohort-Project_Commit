@@ -15,9 +15,7 @@ public class MagicByteValidationHandler extends UploadValidationHandler {
         byte[] content = upload.content();
         if (!startsWith(content, PDF_SIGNATURE) && !startsWith(content, ZIP_SIGNATURE) && !startsWith(content, OLE2_SIGNATURE)) {
             throw new InvalidFileException(
-                    "File content does not match any supported resume format (PDF, DOC, DOCX) — "
-                            + "the file's actual bytes were inspected and matched none of the expected signatures, "
-                            + "regardless of its extension or declared content type.");
+                    "The file is not a PDF, DOC or DOCX. Its contents were checked, not just its name.");
         }
     }
 

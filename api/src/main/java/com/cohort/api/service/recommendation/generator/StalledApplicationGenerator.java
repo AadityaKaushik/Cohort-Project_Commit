@@ -19,7 +19,7 @@ public class StalledApplicationGenerator extends RecommendationGenerator {
         double severity = evaluation.thresholdDays() <= 0
                 ? 1.0
                 : (evaluation.daysInStage() / evaluation.thresholdDays()) - 1.0;
-        String label = stalled.companyName() + " — " + stalled.jobTitle();
+        String label = stalled.companyName() + ", " + stalled.jobTitle();
         List<EvidenceItem> evidence = List.of(new EvidenceItem(
                 "Days in stage",
                 "%s has been in %s for %.0f days (threshold %.0f days, %s basis)".formatted(
