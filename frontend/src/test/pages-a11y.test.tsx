@@ -87,7 +87,7 @@ const PAGES: [string, ComponentType, string][] = [
   ['interviews', InterviewsListPage, 'Northwind Labs'],
   ['prep', PrepPage, 'Practise sliding windows'],
   ['analytics', AnalyticsPage, 'Applied → OA'],
-  ['recommendations', RecommendationsPage, 'Nothing to recommend right now'],
+  ['recommendations', RecommendationsPage, 'No recommendations yet'],
   ['reports', ReportsPage, 'No exports yet'],
   ['notifications', NotificationsPage, 'Interview tomorrow'],
   ['privacy', PrivacyPage, 'mastery_mean'],

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertCircleIcon, SparklesIcon } from 'lucide-react'
+import { AlertCircleIcon, ListChecksIcon } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   acceptRecommendation,
@@ -92,7 +92,7 @@ export function RecommendationsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Recommendations"
-        description="Ranked suggestions for what to work on next, each with the evidence behind it and how confident it is."
+        description="Suggestions with their evidence."
         actions={
           <>
             <PageGuide guideId="recommendations" />
@@ -109,9 +109,9 @@ export function RecommendationsPage() {
 
       {recommendationsQuery.data && recommendationsQuery.data.length === 0 && (
         <EmptyState
-          icon={SparklesIcon}
-          title="Nothing to recommend right now"
-          description="Log some practice attempts or interview feedback, and targeted recommendations will start showing up here."
+          icon={ListChecksIcon}
+          title="No recommendations yet"
+          description="Log practice or interview feedback."
           quote={0}
           action={
             <Button asChild>
@@ -138,7 +138,7 @@ export function RecommendationsPage() {
         )}
 
       {recommendationsQuery.data && recommendationsQuery.data.length > 0 && (
-        <div data-guide="cards" className="stagger space-y-4">
+        <div data-guide="cards" className="space-y-4">
           {recommendationsQuery.data.map((recommendation) => (
             <RecommendationCard
               key={recommendation.id}

@@ -38,7 +38,7 @@ export function OnboardingPage() {
       await queryClient.invalidateQueries({ queryKey: ['me'] })
       queryClient.invalidateQueries({ queryKey: ['preparation-tasks'] })
       toast({
-        title: result.tasks_created > 0 ? 'Your starter plan is ready' : 'You are all set',
+        title: result.tasks_created > 0 ? 'Plan created' : 'Saved',
         description: result.tasks_created > 0 ? `${result.tasks_created} preparation tasks were added.` : undefined,
       })
       navigate('/', { replace: true })
@@ -70,10 +70,10 @@ export function OnboardingPage() {
     <AuthFrame>
       <AuthIntro
         eyebrow="Getting started"
-        title={`Welcome${user?.display_name ? `, ${user.display_name}` : ''}`}
-        subtitle="Tell us what you are aiming for and we will set up a starter preparation plan, spread across the time you have."
+        title="Set up your plan"
+        subtitle="Target role and date. A preparation plan is created from them."
       />
-      <form onSubmit={handleSubmit} className="stagger space-y-5" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <FormField id="targetRole" label="Target role" error={errors.targetRole}>
           <Input id="targetRole" className="h-10" placeholder="Backend engineer" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
         </FormField>

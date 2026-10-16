@@ -29,7 +29,7 @@ export function CategoryProgressBar({ progress }: { progress: CategoryProgress }
         aria-label={`${CATEGORY_LABELS[progress.category]} task completion: ${completionPercent}%`}
         className="h-2 w-full overflow-hidden rounded-full bg-muted"
       >
-        <div className="animate-grow-x h-full origin-left rounded-full bg-primary" style={{ width: `${completionPercent}%` }} />
+        <div className="h-full rounded-full bg-primary" style={{ width: `${completionPercent}%` }} />
       </div>
     </div>
   )

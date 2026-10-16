@@ -102,7 +102,7 @@ export function PageGuide({ guideId }: { guideId: GuideId }) {
       {offered && !open && createPortal(
         <section
           aria-label="Page guide offer"
-          className="surface-raised fixed right-4 bottom-20 z-40 w-[min(20rem,calc(100vw-2rem))] space-y-3 rounded-xl border p-4 shadow-lg md:bottom-6 md:right-6"
+          className="bg-popover text-popover-foreground fixed right-4 bottom-20 z-40 w-[min(20rem,calc(100vw-2rem))] space-y-3 rounded-md border p-4 shadow-sm md:bottom-6 md:right-6"
         >
           <p className="text-sm font-medium">This page has a few features worth a quick look.</p>
           <div className="flex flex-wrap gap-2">
@@ -136,7 +136,7 @@ export function PageGuide({ guideId }: { guideId: GuideId }) {
             tabIndex={-1}
             style={cardStyle}
             className={
-              'surface-raised fixed z-50 space-y-3 rounded-xl border p-4 shadow-lg outline-none ' +
+              'bg-popover text-popover-foreground fixed z-50 space-y-3 rounded-md border p-4 shadow-sm outline-none ' +
               (placement ? '' : 'top-1/2 left-1/2 w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2')
             }
           >

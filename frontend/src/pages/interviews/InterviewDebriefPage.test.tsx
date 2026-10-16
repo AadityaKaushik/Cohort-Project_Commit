@@ -80,7 +80,7 @@ describe('InterviewDebriefPage', { timeout: 20000 }, () => {
     expect(screen.queryByText('Draft in progress')).not.toBeInTheDocument()
   })
 
-  it('completing it in one pass rates, writes one note, and submits — the whole flow is a handful of clicks', async () => {
+  it('completing it in one pass rates, writes one note, and submits', async () => {
     vi.mocked(getInterview).mockResolvedValue(sampleInterview())
     vi.mocked(getInterviewFeedbackOrNull).mockResolvedValue(null)
     vi.mocked(upsertInterviewFeedback).mockResolvedValue({

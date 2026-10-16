@@ -12,7 +12,7 @@ const RATE_LABELS: { key: keyof ConversionRates; label: string }[] = [
 
 export function ConversionCards({ rates }: { rates: ConversionRates }) {
   return (
-    <div className="stagger grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {RATE_LABELS.map(({ key, label }) => (
         <ConversionCard key={key} label={label} rate={rates[key]} />
       ))}
@@ -28,10 +28,10 @@ function ConversionCard({ label, rate }: { label: string; rate: ConversionRate }
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
       </div>
       <p className={cn('text-2xl font-semibold tracking-tight tabular-nums', !rate.sufficient_data && 'text-muted-foreground')}>
-        {rate.sufficient_data ? rate.formatted : '—'}
+        {rate.sufficient_data ? rate.formatted : '-'}
       </p>
       <div aria-hidden className="h-1 overflow-hidden rounded-full bg-muted">
-        <span className="animate-grow-x block h-full origin-left rounded-full bg-primary" style={{ width: `${percent}%` }} />
+        <span className="block h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="tabular-nums">

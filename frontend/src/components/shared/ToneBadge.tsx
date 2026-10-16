@@ -42,7 +42,7 @@ const PRIORITY_TONES: Record<string, { label: string; tone: Tone }> = {
 
 export function PriorityBadge({ priority }: { priority: string | null }) {
   if (!priority) {
-    return <span className="text-muted-foreground">—</span>
+    return <span className="text-muted-foreground">-</span>
   }
   const meta = PRIORITY_TONES[priority] ?? { label: priority, tone: 'neutral' as Tone }
   return (

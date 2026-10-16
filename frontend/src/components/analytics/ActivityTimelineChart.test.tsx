@@ -7,7 +7,7 @@ describe('ActivityTimelineChart', () => {
   it('renders the empty state when there is no activity in range', () => {
     render(<ActivityTimelineChart timeline={{ buckets: [], sample_size: 0 }} />)
 
-    expect(screen.getByText(/no activity in this range yet/i)).toBeInTheDocument()
+    expect(screen.getByText(/no activity in this range/i)).toBeInTheDocument()
     expect(screen.queryByTestId('activity-timeline-chart')).not.toBeInTheDocument()
   })
 

@@ -206,7 +206,7 @@ export function CompanyDetailPage() {
               compact
               icon={StickyNoteIcon}
               title="No notes yet"
-              description="Keep what you learn about this company in one place."
+              description="Notes about this company."
             />
           ) : (
             <ul className="space-y-2">

@@ -20,7 +20,7 @@ const VALUE_OVERRIDES: Record<string, string> = {
 
 export function formatLabel(value: string | null | undefined): string {
   if (value === null || value === undefined || value === '') {
-    return '—'
+    return '-'
   }
   const override = VALUE_OVERRIDES[value.toLowerCase()]
   if (override) {

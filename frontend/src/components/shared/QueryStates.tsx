@@ -31,7 +31,7 @@ export function ErrorState({
     <div
       role="alert"
       className={cn(
-        'animate-enter flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:gap-4',
+        'flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:gap-4',
         className,
       )}
     >

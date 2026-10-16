@@ -19,7 +19,7 @@ export function PrivacyLedgerTable({ entries, featureNames }: PrivacyLedgerTable
 
   if (isMobile) {
     return (
-      <ul className="stagger space-y-2" data-testid="ledger-cards">
+      <ul className="space-y-2" data-testid="ledger-cards">
         {entries.map((entry) => {
           const expanded = expandedId === entry.id
           return (

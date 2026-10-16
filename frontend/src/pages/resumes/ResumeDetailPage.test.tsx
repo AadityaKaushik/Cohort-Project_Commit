@@ -111,7 +111,7 @@ describe('ResumeDetailPage', () => {
     expect(uploadedFile.name).toBe('resume.pdf')
 
     // The interceptor must not force a JSON Content-Type onto a multipart
-    // body — the browser needs to set its own boundary.
+    // body. The browser needs to set its own boundary.
     const headers = init?.headers as Record<string, string> | undefined
     expect(headers?.['Content-Type']).toBeUndefined()
   })

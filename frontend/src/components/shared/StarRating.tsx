@@ -22,7 +22,7 @@ export function StarRating({ value, onChange, label, disabled = false }: StarRat
             aria-label={`${star} out of 5`}
             disabled={disabled}
             onClick={() => onChange(star)}
-            className={cn('rounded-md p-1 transition-transform duration-150 disabled:cursor-not-allowed', !disabled && 'hover:scale-110 active:scale-95')}
+            className={cn('rounded-md p-1 disabled:cursor-not-allowed')}
           >
             <StarIcon
               className={cn(

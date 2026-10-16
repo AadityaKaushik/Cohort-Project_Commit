@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
-import { PrinterIcon, SearchXIcon, SparklesIcon } from 'lucide-react'
+import { PrinterIcon, SearchXIcon, FileTextIcon } from 'lucide-react'
 import { aiKeys, createPrepSummary, getPrepPack } from '@/lib/ai-api'
 import { formatLabel } from '@/lib/labels'
 import { AiDisclosure } from '@/components/ai/AiDisclosure'
@@ -69,7 +69,7 @@ export function InterviewPrepPage() {
       <SectionCard title="Summary" description="A short paragraph written from the facts on this page. You can edit it.">
         <div className="space-y-3">
           <Button type="button" variant="outline" size="sm" className="print:hidden" disabled={summary.isPending} onClick={() => summary.mutate()}>
-            <SparklesIcon aria-hidden />
+            <FileTextIcon aria-hidden />
             {summary.isPending ? 'Writing…' : summary.data ? 'Write again' : 'Write a summary'}
           </Button>
           {summary.isError && <p role="alert" className="text-sm text-destructive">Could not create a summary. Try again later.</p>}

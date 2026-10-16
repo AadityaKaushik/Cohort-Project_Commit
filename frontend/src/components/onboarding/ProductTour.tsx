@@ -61,7 +61,7 @@ export function ProductTour() {
     <aside
       role="complementary"
       aria-label="Product tour"
-      className="surface-raised fixed right-4 bottom-20 z-40 w-[min(22rem,calc(100vw-2rem))] space-y-3 rounded-xl border p-4 shadow-lg md:bottom-6 md:right-6"
+      className="bg-popover text-popover-foreground fixed right-4 bottom-20 z-40 w-[min(22rem,calc(100vw-2rem))] space-y-3 rounded-md border p-4 shadow-sm md:bottom-6 md:right-6"
     >
       <div className="flex items-start justify-between gap-2">
         <div>

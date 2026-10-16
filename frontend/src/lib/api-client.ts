@@ -52,7 +52,7 @@ async function refreshAccessToken(): Promise<string | null> {
 interface ApiFetchOptions extends Omit<RequestInit, 'body' | 'headers'> {
   body?: unknown
   headers?: Record<string, string>
-  // Set on calls the interceptor must never try to refresh/retry for — register, login, and refresh itself.
+  // Set on calls the interceptor must never try to refresh or retry: register, login and refresh itself.
   skipAuth?: boolean
   // Internal: prevents an infinite retry loop after one refresh attempt.
   _retried?: boolean

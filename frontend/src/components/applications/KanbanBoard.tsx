@@ -127,7 +127,7 @@ const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStar
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        'surface-raised lift cursor-grab rounded-lg border p-3 text-sm hover:border-primary/30 active:cursor-grabbing',
+        'surface-raised cursor-grab rounded-lg border p-3 text-sm hover:border-primary/30 active:cursor-grabbing',
         isDragged && 'opacity-40',
       )}
     >

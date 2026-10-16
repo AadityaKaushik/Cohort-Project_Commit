@@ -499,7 +499,7 @@ export function ApplicationFormPage() {
             </FormField>
           </FormSection>
 
-          <FormSection title="Notes and documents" description="Anything worth remembering before the next round." columns={1}>
+          <FormSection title="Notes and documents" description="Notes." columns={1}>
             <FormField id="jobDescription" label="Job description" hint={suggestedHint('jobDescription')}>
               <Textarea id="jobDescription" value={form.jobDescription} onChange={(e) => set('jobDescription', e.target.value)} rows={4} />
             </FormField>

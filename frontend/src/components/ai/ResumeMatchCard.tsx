@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { SaveIcon, SparklesIcon } from 'lucide-react'
+import { SaveIcon, FileTextIcon } from 'lucide-react'
 import { ApiError } from '@/lib/api-client'
 import { updateApplication } from '@/lib/applications-api'
 import { aiKeys, createCoverLetterDraft, getResumeMatch } from '@/lib/ai-api'
@@ -94,7 +94,7 @@ export function ResumeMatchCard({ applicationId }: { applicationId: string }) {
 
         <div className="space-y-3 border-t pt-4">
           <Button type="button" variant="outline" size="sm" disabled={letter.isPending} onClick={() => letter.mutate()}>
-            <SparklesIcon aria-hidden />
+            <FileTextIcon aria-hidden />
             {letter.isPending ? 'Drafting…' : letter.data ? 'Draft again' : 'Draft a cover letter'}
           </Button>
           {failure && <p role="alert" className="text-sm text-destructive">{failure}</p>}

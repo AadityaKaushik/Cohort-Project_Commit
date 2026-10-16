@@ -17,7 +17,7 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
         compact
         icon={HistoryIcon}
         title="No history yet"
-        description="Once this application's status changes, every change will show up here."
+        description="No status changes yet."
       />
     )
   }

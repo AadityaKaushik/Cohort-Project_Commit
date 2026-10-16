@@ -12,7 +12,7 @@ export function ApplicationsImportPage() {
       <PageHeader
         back={{ to: '/applications', label: 'Applications' }}
         title="Import applications"
-        description="Bring in a spreadsheet you already keep. You see a preview before anything is saved."
+        description="Import applications from a CSV file. A preview is shown before saving."
       />
       <SectionCard>
         <CsvImport onImported={() => navigate('/applications')} />

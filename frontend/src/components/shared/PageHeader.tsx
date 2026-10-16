@@ -29,7 +29,7 @@ export function PageHeader({ title, description, eyebrow, back, actions, meta, c
           </Link>
         )}
         {eyebrow && !back && <p className="eyebrow">{eyebrow}</p>}
-        <Heading className="text-display text-[1.75rem] text-balance break-words sm:text-[2rem]">{title}</Heading>
+        <Heading className="text-[1.75rem] text-balance break-words sm:text-[2rem]">{title}</Heading>
         {description && (
           <p className="max-w-2xl text-sm text-pretty text-muted-foreground">
             {description}

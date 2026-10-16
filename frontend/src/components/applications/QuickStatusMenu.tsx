@@ -25,7 +25,7 @@ export function QuickStatusMenu({ application }: { application: ApplicationSumma
   })
 
   if (application.allowed_next_statuses.length === 0) {
-    return <span className="text-muted-foreground">—</span>
+    return <span className="text-muted-foreground">-</span>
   }
 
   return (

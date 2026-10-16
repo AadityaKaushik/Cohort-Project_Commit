@@ -129,8 +129,8 @@ export function InterviewDetailPage() {
   const details: DetailItem[] = [
     { label: 'Scheduled', value: data.scheduled_at ? format(new Date(data.scheduled_at), 'EEE d MMM yyyy, p') : 'Not scheduled' },
     { label: 'Mode', value: formatLabel(data.mode) },
-    { label: 'Duration', value: data.duration_minutes ? `${data.duration_minutes} min` : '—' },
-    { label: 'Interviewer', value: data.interviewer_name ?? '—' },
+    { label: 'Duration', value: data.duration_minutes ? `${data.duration_minutes} min` : '-' },
+    { label: 'Interviewer', value: data.interviewer_name ?? '-' },
   ]
   if (data.notes) details.push({ label: 'Notes', value: data.notes, wide: true })
 
@@ -209,7 +209,7 @@ export function InterviewDetailPage() {
         }
       />
 
-      <div className="stagger grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <SectionCard title="Details" className="lg:col-span-2">
           <DetailList items={details} />
         </SectionCard>

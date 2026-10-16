@@ -212,7 +212,7 @@ export function QuestionBankPage() {
         />
       )}
 
-      <ul className="stagger space-y-2">
+      <ul className="space-y-2">
         {questionsQuery.data?.items.map((question) => (
           <li key={question.id} className="surface-raised rounded-xl border p-4 transition-colors hover:border-primary/25">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -280,7 +280,7 @@ function AttemptHistory({ questionId }: { questionId: string }) {
     return <p className="mt-3 text-sm text-muted-foreground">No attempts yet.</p>
   }
   return (
-    <ul className="animate-enter mt-3 divide-y rounded-lg border bg-surface-2/50 text-sm">
+    <ul className="mt-3 divide-y rounded-lg border bg-surface-2/50 text-sm">
       {data.map((attempt) => (
         <li key={attempt.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
           <span>{formatLabel(attempt.status)}</span>

@@ -118,7 +118,7 @@ export function CsvImport({ onImported }: { onImported?: (created: number) => vo
                 {visibleRows.map((row) => (
                   <li key={row.line} className="space-y-1 rounded-lg border p-3 text-sm">
                     <p className="font-medium">
-                      {row.company || '—'} · {row.role || '—'}
+                      {row.company || '-'} · {row.role || '-'}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Row {row.line} · {OUTCOME_LABELS[row.outcome]}
@@ -145,8 +145,8 @@ export function CsvImport({ onImported }: { onImported?: (created: number) => vo
                     {visibleRows.map((row) => (
                       <tr key={row.line} className="border-t align-top">
                         <td className="px-3 py-2 tabular-nums">{row.line}</td>
-                        <td className="px-3 py-2">{row.company || '—'}</td>
-                        <td className="px-3 py-2">{row.role || '—'}</td>
+                        <td className="px-3 py-2">{row.company || '-'}</td>
+                        <td className="px-3 py-2">{row.role || '-'}</td>
                         <td className="px-3 py-2">
                           {OUTCOME_LABELS[row.outcome]}
                           {row.status && row.outcome === 'import' ? ` as ${formatLabel(row.status)}` : ''}

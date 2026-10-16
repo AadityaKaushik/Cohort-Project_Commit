@@ -18,7 +18,7 @@ describe('formatLabel', () => {
   })
 
   it('shows a dash for missing values', () => {
-    expect(formatLabel(null)).toBe('—')
-    expect(formatLabel(undefined)).toBe('—')
+    expect(formatLabel(null)).toBe('-')
+    expect(formatLabel(undefined)).toBe('-')
   })
 })

@@ -6,7 +6,7 @@ interface VectorInspectorProps {
 export function VectorInspector({ vector, featureNames }: VectorInspectorProps) {
   const labels = featureNames && featureNames.length === vector.length ? featureNames : null
   return (
-    <div className="animate-enter rounded-lg border border-dashed bg-card p-3">
+    <div className="rounded-lg border border-dashed bg-card p-3">
       <p className="eyebrow mb-2">
         Transmitted vector ({vector.length} value{vector.length === 1 ? '' : 's'})
       </p>

@@ -37,7 +37,7 @@ export function DataTable<T>({ columns, data, getRowId, onRowClick, rowLabel, so
 
   if (isMobile) {
     return (
-      <ul className="stagger space-y-2" data-testid="data-cards">
+      <ul className="space-y-2" data-testid="data-cards">
         {data.map((row) => (
           <li
             key={getRowId(row)}
@@ -45,7 +45,7 @@ export function DataTable<T>({ columns, data, getRowId, onRowClick, rowLabel, so
             aria-label={onRowClick && rowLabel ? rowLabel(row) : undefined}
             className={cn(
               'surface-raised rounded-xl border p-4 text-sm',
-              onRowClick && 'lift cursor-pointer hover:border-primary/30 focus-visible:outline-2 focus-visible:outline-ring',
+              onRowClick && 'cursor-pointer hover:border-primary/30 focus-visible:outline-2 focus-visible:outline-ring',
             )}
             onClick={() => onRowClick?.(row)}
             onKeyDown={(event) => activateOnKey(event, row, onRowClick)}
@@ -111,13 +111,12 @@ export function DataTable<T>({ columns, data, getRowId, onRowClick, rowLabel, so
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, index) => (
+          {data.map((row) => (
             <TableRow
               key={getRowId(row)}
               tabIndex={onRowClick ? 0 : undefined}
               aria-label={onRowClick && rowLabel ? rowLabel(row) : undefined}
-              className={cn('animate-enter hover:bg-transparent', onRowClick && 'row-interactive cursor-pointer')}
-              style={{ animationDelay: `${Math.min(index, 12) * 25}ms` }}
+              className={cn('hover:bg-transparent', onRowClick && 'row-interactive cursor-pointer')}
               onClick={() => onRowClick?.(row)}
               onKeyDown={(event) => activateOnKey(event, row, onRowClick)}
             >

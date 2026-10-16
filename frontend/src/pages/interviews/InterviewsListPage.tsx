@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { CalendarClockIcon, ClockIcon, MessagesSquareIcon, NotebookPenIcon, PlusIcon, TrophyIcon, type LucideIcon } from 'lucide-react'
+import { CalendarClockIcon, ClockIcon, MessagesSquareIcon, NotebookPenIcon, PlusIcon, CheckIcon, type LucideIcon } from 'lucide-react'
 import { listInterviews, type InterviewSummary } from '@/lib/interviews-api'
 import { Button } from '@/components/ui/button'
 import { CalendarDownloadButton } from '@/components/shared/CalendarDownloadButton'
@@ -184,7 +184,7 @@ export function InterviewsListPage() {
       <StatGrid>
         <StatTile label="Upcoming" icon={CalendarClockIcon} tone="info" value={upcomingQuery.data?.total ?? null} loading={upcomingQuery.isLoading} hint="Scheduled from today on" />
         <StatTile label="Completed" icon={MessagesSquareIcon} value={pastQuery.data?.total ?? null} loading={pastQuery.isLoading} hint="Rounds already sat" />
-        <StatTile label="Passed" icon={TrophyIcon} tone="success" value={passed} loading={pastQuery.isLoading} hint="Moved on to the next round" />
+        <StatTile label="Passed" icon={CheckIcon} tone="success" value={passed} loading={pastQuery.isLoading} hint="Moved on to the next round" />
         <StatTile
           label="Debriefs due"
           icon={NotebookPenIcon}
@@ -200,7 +200,7 @@ export function InterviewsListPage() {
         description="Soonest first"
         icon={ClockIcon}
         emptyTitle="No upcoming interviews"
-        emptyDescription="Interviews you schedule for a future date will show up here."
+        emptyDescription="No upcoming interviews."
         emptyActionLabel="Schedule an interview"
         upcoming={true}
       />
@@ -210,7 +210,7 @@ export function InterviewsListPage() {
         description="Most recent first"
         icon={MessagesSquareIcon}
         emptyTitle="No past interviews yet"
-        emptyDescription="Once an interview's date has passed, it moves here — with a prompt to debrief if you haven't yet."
+        emptyDescription="Past interviews. Debrief any that have none."
         emptyActionLabel="Log an interview"
         upcoming={false}
       />

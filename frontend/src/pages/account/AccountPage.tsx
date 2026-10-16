@@ -59,7 +59,7 @@ export function AccountPage() {
         }
       />
 
-      <div className="stagger space-y-6">
+      <div className="space-y-6">
         <ProfileForm />
 
         <SectionCard title="Change password" description="You will be signed out everywhere and asked to sign in again.">

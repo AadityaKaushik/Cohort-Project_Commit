@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { BriefcaseIcon, MessagesSquareIcon, PercentIcon, TrophyIcon } from 'lucide-react'
+import { BriefcaseIcon, MessagesSquareIcon, PercentIcon, CheckIcon } from 'lucide-react'
 import { getConversionRates, getFunnel, getRejectionDistribution, getTimeline, type RejectionDistribution } from '@/lib/analytics-api'
 import { formatLabel } from '@/lib/labels'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -28,7 +28,7 @@ export function AnalyticsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Analytics"
-        description="Every number here shows how much data it's based on — small samples are flagged, never hidden."
+        description="Each figure shows its sample size."
       />
 
       <StatGrid>
@@ -41,7 +41,7 @@ export function AnalyticsPage() {
           loading={funnelQuery.isLoading}
           hint="At least one interview round"
         />
-        <StatTile label="Offers" icon={TrophyIcon} tone="success" value={funnel?.reached_offer ?? null} loading={funnelQuery.isLoading} hint="Ever reached the offer stage" />
+        <StatTile label="Offers" icon={CheckIcon} tone="success" value={funnel?.reached_offer ?? null} loading={funnelQuery.isLoading} hint="Ever reached the offer stage" />
         <StatTile
           label="Success rate"
           icon={PercentIcon}
@@ -122,7 +122,7 @@ function RejectionDistributionList({ distribution }: { distribution: RejectionDi
 
   return (
     <ul className="space-y-4">
-      {rows.map((row, index) => (
+      {rows.map((row) => (
         <li key={row.key} className="space-y-1.5">
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted-foreground">{row.label}</span>
@@ -130,8 +130,8 @@ function RejectionDistributionList({ distribution }: { distribution: RejectionDi
           </div>
           <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-muted">
             <span
-              className={cn('animate-grow-x block h-full origin-left rounded-full', row.muted ? 'bg-muted-foreground/50' : 'bg-primary')}
-              style={{ width: `${(row.count / peak) * 100}%`, animationDelay: `${index * 60}ms` }}
+              className={cn('block h-full rounded-full', row.muted ? 'bg-muted-foreground/50' : 'bg-primary')}
+              style={{ width: `${(row.count / peak) * 100}%` }}
             />
           </div>
         </li>

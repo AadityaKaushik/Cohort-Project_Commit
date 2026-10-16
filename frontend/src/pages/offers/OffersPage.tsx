@@ -29,7 +29,7 @@ import {
 
 function money(value: number | null, currency: string) {
   if (value === null) {
-    return '—'
+    return '-'
   }
   return new Intl.NumberFormat('en', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value)
 }
@@ -229,9 +229,9 @@ function CompareTable({ offers }: { offers: Offer[] }) {
     { label: 'Equity per year', value: (offer) => money(offer.equity_value, offer.currency) },
     { label: 'Signing bonus', value: (offer) => money(offer.signing_bonus, offer.currency) },
     { label: 'First year total', value: (offer) => money(offer.first_year_total, offer.currency) },
-    { label: 'Location', value: (offer) => offer.location ?? '—' },
-    { label: 'Work mode', value: (offer) => (offer.work_mode ? formatLabel(offer.work_mode) : '—') },
-    { label: 'Start date', value: (offer) => offer.start_date ?? '—' },
+    { label: 'Location', value: (offer) => offer.location ?? '-' },
+    { label: 'Work mode', value: (offer) => (offer.work_mode ? formatLabel(offer.work_mode) : '-') },
+    { label: 'Start date', value: (offer) => offer.start_date ?? '-' },
     { label: 'Reply', value: (offer) => countdownLabel(offer) },
   ]
   return (

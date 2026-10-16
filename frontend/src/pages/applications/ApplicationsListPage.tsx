@@ -204,11 +204,11 @@ export function ApplicationsListPage() {
   if (isEmpty && !filtered) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Applications" description="Every role you are pursuing, with its status, stage and history." />
+        <PageHeader title="Applications" description="Your applications." />
         <EmptyState
           icon={BriefcaseIcon}
           title="No applications yet"
-          description="Track every job you apply to in one place: status, timeline, and all."
+          description="Applications and their status."
           quote={1}
           action={
             <Button asChild>
@@ -232,7 +232,7 @@ export function ApplicationsListPage() {
     <div className="space-y-5">
       <PageHeader
         title="Applications"
-        description={data ? `${data.total} ${filtered ? 'matching your filters' : 'tracked in total'}` : 'Every role you are pursuing, in one list.'}
+        description={data ? `${data.total} ${filtered ? 'matching your filters' : 'tracked in total'}` : 'Your applications.'}
         actions={
           <>
             <PageGuide guideId="applications" />

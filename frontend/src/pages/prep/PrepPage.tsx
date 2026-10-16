@@ -239,7 +239,7 @@ export function PrepPage() {
         {progressQuery.isLoading && <Skeleton className="h-40 w-full rounded-lg" />}
         {progressQuery.data && <TopicGrid topics={progressQuery.data.topics} onSelectTopic={setSelectedTopic} />}
         {selectedTopic && (
-          <p className="animate-enter mt-4 flex flex-wrap items-center gap-x-2 rounded-lg bg-surface-2/60 px-3 py-2 text-sm text-muted-foreground">
+          <p className="mt-4 flex flex-wrap items-center gap-x-2 rounded-lg bg-surface-2/60 px-3 py-2 text-sm text-muted-foreground">
             <span>
               <span className="font-medium text-foreground">{selectedTopic.topic_name}</span>: {selectedTopic.observation_count} observation
               {selectedTopic.observation_count === 1 ? '' : 's'} so far.

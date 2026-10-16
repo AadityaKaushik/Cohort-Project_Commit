@@ -140,20 +140,20 @@ export function ApplicationDetailPage() {
   const salary =
     data.salary_min !== null || data.salary_max !== null
       ? `${data.salary_min ?? '?'} to ${data.salary_max ?? '?'} ${data.salary_currency ?? ''}`.trim()
-      : '—'
+      : '-'
   const details: DetailItem[] = [
     { label: 'Date applied', value: format(new Date(data.date_applied), 'MMM d, yyyy') },
     { label: 'Current stage', value: formatLabel(data.current_stage) },
     { label: 'Days in stage', value: String(data.days_in_stage) },
     { label: 'Priority', value: <PriorityBadge priority={data.priority} /> },
-    { label: 'Location', value: data.location ?? '—' },
+    { label: 'Location', value: data.location ?? '-' },
     { label: 'Work mode', value: formatLabel(data.work_mode) },
     { label: 'Job type', value: formatLabel(data.job_type) },
     { label: 'Salary', value: salary },
-    { label: 'Source', value: data.source ?? '—' },
+    { label: 'Source', value: data.source ?? '-' },
     { label: 'Referral', value: data.is_referral ? 'Yes' : 'No' },
-    { label: 'Deadline', value: data.deadline ? format(new Date(data.deadline), 'MMM d, yyyy') : '—' },
-    { label: 'Recruiter', value: [data.recruiter_name, data.recruiter_email].filter(Boolean).join(' · ') || '—' },
+    { label: 'Deadline', value: data.deadline ? format(new Date(data.deadline), 'MMM d, yyyy') : '-' },
+    { label: 'Recruiter', value: [data.recruiter_name, data.recruiter_email].filter(Boolean).join(' · ') || '-' },
   ]
   if (data.job_url) {
     details.push({
@@ -234,7 +234,7 @@ export function ApplicationDetailPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="stagger min-w-0 space-y-6 lg:col-span-2">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
           <SectionCard title="Details">
             <DetailList items={details} />
           </SectionCard>
@@ -260,7 +260,7 @@ export function ApplicationDetailPage() {
                   <li key={interview.id}>
                     <Link
                       to={`/interviews/${interview.id}`}
-                      className="lift flex items-center justify-between gap-3 rounded-lg border bg-card p-3 text-sm hover:border-primary/30"
+                      className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3 text-sm hover:border-primary/30"
                     >
                       <span className="font-medium">
                         Round {interview.round_number} · {formatLabel(interview.round_type)}
@@ -280,7 +280,7 @@ export function ApplicationDetailPage() {
           </div>
         </div>
 
-        <div className="stagger min-w-0 space-y-6">
+        <div className="min-w-0 space-y-6">
           <div data-guide="status">
           <SectionCard title="Change status" description="Only moves the pipeline allows are offered.">
             <div className="space-y-3">

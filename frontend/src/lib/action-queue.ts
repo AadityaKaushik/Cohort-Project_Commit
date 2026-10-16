@@ -29,7 +29,7 @@ export function buildActionQueue(input: ActionQueueInput): ActionItem[] {
       id: `stalled-${app.application_id}`,
       type: 'stalled',
       title: `Follow up: ${app.company_name}`,
-      subtitle: `Stalled at ${formatStage(app.current_stage)} — ${Math.round(app.days_in_stage)} days (threshold ${Math.round(app.threshold_days)})`,
+      subtitle: `Stalled at ${formatStage(app.current_stage)} for ${Math.round(app.days_in_stage)} days (threshold ${Math.round(app.threshold_days)})`,
       href: `/applications/${app.application_id}`,
     }))
 
@@ -48,8 +48,8 @@ export function buildActionQueue(input: ActionQueueInput): ActionItem[] {
     .map((interview) => ({
       id: `debrief-${interview.id}`,
       type: 'missing_debrief',
-      title: `How did it go? ${interview.company_name} interview`,
-      subtitle: interview.scheduled_at ? `Happened ${formatDate(interview.scheduled_at)} — no debrief yet` : 'No debrief yet',
+      title: `Debrief: ${interview.company_name} interview`,
+      subtitle: interview.scheduled_at ? `Happened ${formatDate(interview.scheduled_at)}, no debrief yet` : 'No debrief yet',
       href: `/interviews/${interview.id}/debrief`,
     }))
 
@@ -59,7 +59,7 @@ export function buildActionQueue(input: ActionQueueInput): ActionItem[] {
       id: `task-${task.id}`,
       type: 'due_task',
       title: task.title,
-      subtitle: task.due_date ? `Due ${formatDate(task.due_date)} — ${task.topic_name ?? 'Prep task'}` : task.topic_name ?? 'Prep task',
+      subtitle: task.due_date ? `Due ${formatDate(task.due_date)}, ${task.topic_name ?? 'Prep task'}` : task.topic_name ?? 'Prep task',
       href: '/prep',
     }))
 

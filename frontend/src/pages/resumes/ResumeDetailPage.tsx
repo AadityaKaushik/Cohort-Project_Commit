@@ -33,7 +33,7 @@ import { SectionCard } from '@/components/shared/SectionCard'
 import { ToneBadge } from '@/components/shared/ToneBadge'
 
 function formatBytes(bytes: number | null): string {
-  if (bytes === null) return '—'
+  if (bytes === null) return '-'
   if (bytes < 1024) return `${bytes} B`
   return `${(bytes / 1024).toFixed(1)} KB`
 }
@@ -120,8 +120,8 @@ export function ResumeDetailPage() {
   }
 
   const details: DetailItem[] = [
-    { label: 'Version', value: data.version_label ?? '—' },
-    { label: 'Target role', value: data.target_role ?? '—' },
+    { label: 'Version', value: data.version_label ?? '-' },
+    { label: 'Target role', value: data.target_role ?? '-' },
     { label: 'Created', value: format(new Date(data.created_at), 'MMM d, yyyy') },
     { label: 'Default', value: data.is_default ? 'Yes, attached to new applications first' : 'No' },
   ]
@@ -174,7 +174,7 @@ export function ResumeDetailPage() {
         }
       />
 
-      <div className="stagger grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <SectionCard title="Details" className="lg:col-span-2">
           <DetailList items={details} />
         </SectionCard>

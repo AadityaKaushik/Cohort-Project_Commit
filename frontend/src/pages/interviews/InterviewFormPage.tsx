@@ -162,7 +162,7 @@ export function InterviewFormPage() {
                   <SelectContent>
                     {applicationsQuery.data?.items.map((application) => (
                       <SelectItem key={application.id} value={application.id}>
-                        {application.company.name} — {application.job_title}
+                        {application.company.name}, {application.job_title}
                       </SelectItem>
                     ))}
                   </SelectContent>

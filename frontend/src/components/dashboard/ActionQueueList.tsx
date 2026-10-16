@@ -25,17 +25,17 @@ export function ActionQueueList({ items, label = 'Next actions' }: { items: Acti
         compact
         icon={CheckCircle2Icon}
         title="Nothing needs attention right now"
-        description="Stalled applications, missing debriefs, upcoming interviews, and overdue prep tasks will show up here."
+        description="No stalled applications, missing debriefs or overdue tasks."
       />
     )
   }
 
   return (
     <ul aria-label={label} className="divide-y overflow-hidden rounded-xl border bg-card">
-      {items.map((item, index) => {
+      {items.map((item) => {
         const Icon = ICONS[item.type]
         return (
-          <li key={item.id} className="animate-enter" style={{ animationDelay: `${index * 45}ms` }}>
+          <li key={item.id}>
             <Link to={item.href} className="group/row flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-accent">
               <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', TONES[item.type])}>
                 <Icon aria-hidden className="size-4" />

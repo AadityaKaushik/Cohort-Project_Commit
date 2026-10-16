@@ -9,7 +9,7 @@ export function SessionExpiredScreen({ from }: { from: Location }) {
       icon={TimerOffIcon}
       eyebrow="Signed out"
       title="Your session has ended"
-      description="You were signed out to keep your account safe. Sign in again and you will come back to this page."
+      description="Your session expired. Log in again."
       actions={
         <Button asChild>
           <Link to="/login" state={{ from }}>

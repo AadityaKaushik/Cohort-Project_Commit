@@ -85,7 +85,7 @@ describe('RecommendationsPage', () => {
 
     renderPage()
 
-    expect(await screen.findByText(/nothing to recommend right now/i)).toBeInTheDocument()
+    expect(await screen.findByText(/no recommendations yet/i)).toBeInTheDocument()
   })
 
   it('renders each recommendation card with its tier, headline, and evidence', async () => {

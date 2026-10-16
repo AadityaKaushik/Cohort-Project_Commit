@@ -210,7 +210,7 @@ function QuestionStep({
         </FormField>
 
         <div role="group" aria-label="Rate your answer" className="space-y-2">
-          <p className="text-sm font-medium">How did it go?</p>
+          <p className="text-sm font-medium">Outcome</p>
           <div className="flex flex-wrap gap-2">
             {RATINGS.map((option) => (
               <Button

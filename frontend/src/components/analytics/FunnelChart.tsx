@@ -9,7 +9,7 @@ const HEIGHT = 248
 
 export function FunnelChart({ funnel }: { funnel: Funnel }) {
   if (funnel.sample_size === 0) {
-    return <ChartEmpty icon={<FunnelIcon aria-hidden className="size-4" />} message="No applications yet — once you log one, your funnel appears here." height={HEIGHT} />
+    return <ChartEmpty icon={<FunnelIcon aria-hidden className="size-4" />} message="No applications yet." height={HEIGHT} />
   }
 
   const data = [

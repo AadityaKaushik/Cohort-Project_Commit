@@ -123,7 +123,7 @@ export function ReportsPage() {
           ) : reports.length === 0 ? (
             <EmptyState compact icon={FileTextIcon} title="No exports yet" description="Generate one and it will be listed here until it expires." />
           ) : (
-            <ul className="stagger space-y-2">
+            <ul className="space-y-2">
               {reports.map((report) => (
                 <li key={report.id} className="surface-raised flex items-center justify-between gap-3 rounded-xl border p-3">
                   <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-info/10 text-info">

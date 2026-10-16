@@ -31,7 +31,7 @@ export function SampleDataBanner() {
       className="flex flex-col gap-2 rounded-xl border border-dashed bg-surface-2/50 p-3 sm:flex-row sm:items-center sm:justify-between"
     >
       <p className="text-sm text-muted-foreground">
-        You are looking at sample data. It is marked [Sample] and only you can see it.
+        This is sample data, marked [Sample]. Only you can see it.
       </p>
       <Button type="button" variant="outline" size="sm" onClick={() => setConfirmOpen(true)}>
         Remove sample data

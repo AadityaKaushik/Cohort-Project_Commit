@@ -15,7 +15,7 @@ import {
   Timer,
   UsersRound,
   ShieldCheck,
-  Sparkles,
+  ListChecks,
   UserRound,
   type LucideIcon,
 } from 'lucide-react'
@@ -24,7 +24,7 @@ export interface NavItem {
   label: string
   path: string
   icon: LucideIcon
-  // Live counts (open applications, upcoming interviews, ...) are wired up once the relevant feature ships — a badge that never changes is decoration, not information (PROJECT_PLAN.md §20.2).
+  // Live counts (open applications, upcoming interviews, ...) are wired up once the relevant feature ships.
   count?: number
 }
 
@@ -60,7 +60,7 @@ export const navGroups: NavGroup[] = [
     label: 'Insights',
     items: [
       { label: 'Analytics', path: '/analytics', icon: BarChart3 },
-      { label: 'Recommendations', path: '/recommendations', icon: Sparkles },
+      { label: 'Recommendations', path: '/recommendations', icon: ListChecks },
       { label: 'Goals', path: '/goals', icon: Target },
     ],
   },

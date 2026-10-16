@@ -107,7 +107,7 @@ describe('buildActionQueue', () => {
     expect(queue.find((item) => item.type === 'stalled')?.href).toBe('/applications/app-1')
     expect(queue.find((item) => item.type === 'upcoming_interview')?.href).toBe('/interviews/up-1')
     expect(queue.find((item) => item.type === 'missing_debrief')?.href).toBe('/interviews/db-1/debrief')
-    expect(queue.find((item) => item.type === 'missing_debrief')?.title).toBe('How did it go? Acme interview')
+    expect(queue.find((item) => item.type === 'missing_debrief')?.title).toBe('Debrief: Acme interview')
     expect(queue.find((item) => item.type === 'due_task')?.href).toBe('/prep')
   })
 })

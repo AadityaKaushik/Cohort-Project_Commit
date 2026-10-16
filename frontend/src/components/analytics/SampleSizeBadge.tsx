@@ -12,7 +12,7 @@ export function SampleSizeBadge({ sampleSize, sufficientData, className }: Sampl
       <ToneBadge
         tone="neutral"
         className={className}
-        title={`Only ${sampleSize} observation${sampleSize === 1 ? '' : 's'} so far — at least 5 are needed for a confident number.`}
+        title={`Only ${sampleSize} observation${sampleSize === 1 ? '' : 's'}. At least 5 are needed.`}
       >
         Low confidence · n={sampleSize}
       </ToneBadge>

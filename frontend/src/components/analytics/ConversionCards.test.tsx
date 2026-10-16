@@ -29,7 +29,7 @@ describe('ConversionCards', () => {
     const heading = screen.getByText('Interview → Final Round')
     const card = heading.closest('[data-slot="card"]') ?? heading.parentElement!.parentElement!
     expect(within(card as HTMLElement).getByText('1 / 2')).toBeInTheDocument()
-    expect(within(card as HTMLElement).getByText('—')).toBeInTheDocument()
+    expect(within(card as HTMLElement).getByText('-')).toBeInTheDocument()
     expect(within(card as HTMLElement).queryByText(/%/)).not.toBeInTheDocument()
     expect(within(card as HTMLElement).getByText('Low confidence · n=2')).toBeInTheDocument()
   })

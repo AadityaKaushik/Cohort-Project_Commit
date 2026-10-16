@@ -193,7 +193,7 @@ export function InterviewDebriefPage() {
         <EmptyState
           icon={CheckCircle2Icon}
           title="Debrief saved"
-          description="Your notes are captured while they're still fresh — you can always come back and edit them."
+          description="Notes can be edited later."
           quote={2}
           action={
             <Button asChild>
@@ -236,11 +236,11 @@ export function InterviewDebriefPage() {
         <Alert>
           <NotebookPenIcon className="h-4 w-4" />
           <AlertTitle>Draft in progress</AlertTitle>
-          <AlertDescription>You started this debrief earlier — pick up where you left off.</AlertDescription>
+          <AlertDescription>You started this debrief earlier. Your draft is restored.</AlertDescription>
         </Alert>
       )}
 
-      <SectionCard title="How did it go?" description="One tap is enough. The date, round and company are already filled in.">
+      <SectionCard title="Outcome" description="The date, round and company are already filled in.">
         <div className="space-y-4">
           <div role="group" aria-label="Outcome" data-guide="outcome" className="flex flex-wrap gap-2">
             {OUTCOME_CHIPS.map((chip) => (
@@ -273,7 +273,7 @@ export function InterviewDebriefPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Add more detail" description="All optional. A few words now beat a perfect write-up later.">
+      <SectionCard title="Details" description="All optional.">
         <div data-guide="detail" className="space-y-5">
           <StarRating value={selfRating} onChange={setSelfRating} label="Overall self-rating" />
           <FormField id="whatWentWell" label="What went well?" error={fieldErrors.whatWentWell}>

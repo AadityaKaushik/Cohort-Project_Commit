@@ -8,10 +8,10 @@ import { FormField } from '@/components/shared/Form'
 import { ToneBadge, type Tone } from '@/components/shared/ToneBadge'
 
 const TIER_LABEL: Record<Recommendation['tier'], string> = {
-  A: 'Tier A — your data',
-  B: 'Tier B — thin evidence',
-  C: 'Tier C — federated',
-  D: 'Tier D — heuristic',
+  A: 'Tier A: your data',
+  B: 'Tier B: thin evidence',
+  C: 'Tier C: federated',
+  D: 'Tier D: heuristic',
 }
 
 const TIER_TONE: Record<Recommendation['tier'], Tone> = {
@@ -104,7 +104,7 @@ export function RecommendationCard({
         )}
 
         {dismissing && (
-          <form onSubmit={handleDismissSubmit} className="animate-enter flex flex-col gap-3 sm:flex-row sm:items-end">
+          <form onSubmit={handleDismissSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <FormField
                 id={`dismiss-reason-${recommendation.id}`}

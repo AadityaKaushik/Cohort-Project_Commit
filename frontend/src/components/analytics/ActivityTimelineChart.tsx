@@ -22,7 +22,7 @@ export function ActivityTimelineChart({ timeline }: { timeline: Timeline }) {
     return (
       <ChartEmpty
         icon={<ActivityIcon aria-hidden className="size-4" />}
-        message="No activity in this range yet — applications and interviews you log will show up here."
+        message="No activity in this range."
         height={HEIGHT}
       />
     )

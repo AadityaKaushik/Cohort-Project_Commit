@@ -61,8 +61,8 @@ export function ResumesListPage() {
         </span>
       ),
     },
-    { key: 'version_label', header: 'Version', render: (row) => row.version_label ?? <span className="text-muted-foreground">—</span> },
-    { key: 'target_role', header: 'Target role', render: (row) => row.target_role ?? <span className="text-muted-foreground">—</span> },
+    { key: 'version_label', header: 'Version', render: (row) => row.version_label ?? <span className="text-muted-foreground">-</span> },
+    { key: 'target_role', header: 'Target role', render: (row) => row.target_role ?? <span className="text-muted-foreground">-</span> },
     {
       key: 'has_file',
       header: 'File',

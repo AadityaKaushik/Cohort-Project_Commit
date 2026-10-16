@@ -17,7 +17,7 @@ describe('ActionQueueList', () => {
 
   it('renders each item as a link straight to its action', () => {
     const items: ActionItem[] = [
-      { id: 'a', type: 'stalled', title: 'Follow up: Acme', subtitle: 'Stalled at Applied — 20 days', href: '/applications/1' },
+      { id: 'a', type: 'stalled', title: 'Follow up: Acme', subtitle: 'Stalled at Applied for 20 days', href: '/applications/1' },
       { id: 'b', type: 'due_task', title: 'Practice arrays', subtitle: 'Due Jan 1', href: '/prep' },
     ]
 

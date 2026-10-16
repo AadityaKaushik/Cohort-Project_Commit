@@ -98,7 +98,7 @@ export function ResumeFormPage() {
       />
       <SectionCard>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-          <FormSection title="Version" description="How you will recognise it when attaching it to an application.">
+          <FormSection title="Version" description="Name for this version.">
             <FormField id="name" label="Name" error={fieldErrors.name} className="sm:col-span-2">
               <Input id="name" value={name} onChange={(event) => setName(event.target.value)} required />
             </FormField>

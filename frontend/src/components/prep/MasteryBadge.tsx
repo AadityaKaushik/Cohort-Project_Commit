@@ -23,7 +23,7 @@ export function MasteryBadge({ masteryScore, sufficientEvidence, observationCoun
       <ToneBadge
         tone="neutral"
         className={className}
-        title={`Only ${observationCount} observation${observationCount === 1 ? '' : 's'} so far — at least 2 are needed before mastery is reported.`}
+        title={`Only ${observationCount} observation${observationCount === 1 ? '' : 's'}. At least 2 are needed.`}
       >
         Insufficient data
       </ToneBadge>

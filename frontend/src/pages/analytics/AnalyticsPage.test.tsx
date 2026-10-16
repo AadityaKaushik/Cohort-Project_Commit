@@ -114,7 +114,7 @@ describe('AnalyticsPage', () => {
     renderPage()
 
     expect(await screen.findByText(/no applications yet/i)).toBeInTheDocument()
-    expect(await screen.findByText(/no activity in this range yet/i)).toBeInTheDocument()
+    expect(await screen.findByText(/no activity in this range/i)).toBeInTheDocument()
     expect(screen.getByText(/no rejections recorded yet/i)).toBeInTheDocument()
   })
 })

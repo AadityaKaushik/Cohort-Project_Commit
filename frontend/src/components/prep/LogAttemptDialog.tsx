@@ -72,7 +72,7 @@ export function LogAttemptDialog({ question, isSaving, onSubmit, onClose }: LogA
             <DialogDescription>{question?.question_text}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="attempt-status">How did it go?</Label>
+            <Label htmlFor="attempt-status">Outcome</Label>
             <NativeSelect id="attempt-status" value={status} onChange={(e) => setStatus(e.target.value as PracticeAttemptStatus)}>
               {STATUSES.map((option) => (
                 <option key={option} value={option}>

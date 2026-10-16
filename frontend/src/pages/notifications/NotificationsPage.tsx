@@ -116,7 +116,7 @@ export function NotificationsPage() {
         />
       ) : (
         <div className="surface-raised overflow-hidden rounded-xl border p-1.5">
-          <ul className="stagger divide-y">
+          <ul className="divide-y">
             {items.map((notification) => (
               <li key={notification.id} className="py-0.5">
                 <NotificationItem notification={notification} onOpen={handleOpen} expanded />

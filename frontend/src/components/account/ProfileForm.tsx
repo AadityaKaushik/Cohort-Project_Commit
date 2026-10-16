@@ -71,7 +71,7 @@ export function ProfileForm() {
   }
 
   return (
-    <SectionCard title="Profile" description="This shapes your starter plan and how Cohort addresses you.">
+    <SectionCard title="Profile" description="Used for your starter plan and display name.">
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField id="profile-display-name" label="Display name" error={errors.displayName}>

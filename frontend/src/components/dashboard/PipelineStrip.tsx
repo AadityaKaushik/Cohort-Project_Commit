@@ -26,7 +26,7 @@ export function PipelineStrip({ applications }: { applications: ApplicationSumma
           <Link
             key={status}
             to="/applications"
-            className="lift group/stage relative flex flex-col gap-3 rounded-xl border bg-card p-3.5 hover:border-primary/30"
+            className="group/stage relative flex flex-col gap-3 rounded-xl border bg-card p-3.5 hover:border-primary/30"
           >
             <span className="flex items-center justify-between text-xs text-muted-foreground">
               {label}
@@ -35,8 +35,8 @@ export function PipelineStrip({ applications }: { applications: ApplicationSumma
             <span className="text-3xl font-semibold tracking-tight tabular-nums">{count}</span>
             <span className="h-1 overflow-hidden rounded-full bg-muted" aria-hidden>
               <span
-                className={`animate-grow-x block h-full origin-left rounded-full ${status === 'OFFER' ? 'bg-success' : 'bg-primary'}`}
-                style={{ width: `${(count / largest) * 100}%`, animationDelay: `${index * 60}ms` }}
+                className={`block h-full rounded-full ${status === 'OFFER' ? 'bg-success' : 'bg-primary'}`}
+                style={{ width: `${(count / largest) * 100}%` }}
               />
             </span>
           </Link>
