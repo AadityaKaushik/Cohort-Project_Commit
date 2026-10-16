@@ -40,10 +40,10 @@ export function UserMenu() {
           <span className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <span className="block truncate font-medium">{name}</span>
             {user?.email && user.display_name && (
-              <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className="block truncate text-xs text-sidebar-muted-foreground">{user.email}</span>
             )}
           </span>
-          <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" />
+          <ChevronsUpDown className="size-4 shrink-0 text-sidebar-muted-foreground group-data-[collapsible=icon]:hidden" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top" className="w-60">

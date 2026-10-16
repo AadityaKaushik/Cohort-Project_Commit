@@ -1,28 +1,31 @@
 import type { ApplicationStatusValue } from '@/lib/applications-api'
-import { ToneBadge, type Tone } from '@/components/shared/ToneBadge'
+import { LINE_BG, STATUS_LINE } from '@/lib/stage-lines'
+import { cn } from '@/lib/utils'
 
-/**
- * Status is never conveyed by colour alone (NFR-47), so the label text is
- * always present, colour is a secondary reinforcement only.
- */
-const STATUS_META: Record<ApplicationStatusValue, { label: string; tone: Tone }> = {
-  SAVED: { label: 'Saved', tone: 'neutral' },
-  APPLIED: { label: 'Applied', tone: 'primary' },
-  OA: { label: 'OA', tone: 'primary' },
-  INTERVIEW: { label: 'Interview', tone: 'info' },
-  FINAL_ROUND: { label: 'Final Round', tone: 'info' },
-  OFFER: { label: 'Offer', tone: 'success' },
-  REJECTED: { label: 'Rejected', tone: 'danger' },
-  WITHDRAWN: { label: 'Withdrawn', tone: 'neutral' },
-  ACCEPTED: { label: 'Accepted', tone: 'success' },
-  DECLINED: { label: 'Declined', tone: 'warning' },
+/** The label is always shown; the line colour only backs it up (NFR-47). */
+const STATUS_LABEL: Record<ApplicationStatusValue, string> = {
+  SAVED: 'Saved',
+  APPLIED: 'Applied',
+  OA: 'OA',
+  INTERVIEW: 'Interview',
+  FINAL_ROUND: 'Final Round',
+  OFFER: 'Offer',
+  REJECTED: 'Rejected',
+  WITHDRAWN: 'Withdrawn',
+  ACCEPTED: 'Accepted',
+  DECLINED: 'Declined',
 }
 
 export function StatusBadge({ status, className }: { status: ApplicationStatusValue; className?: string }) {
-  const meta = STATUS_META[status]
   return (
-    <ToneBadge tone={meta.tone} dot className={className}>
-      {meta.label}
-    </ToneBadge>
+    <span
+      className={cn(
+        'board-label inline-flex h-5 w-fit shrink-0 items-center gap-1.5 rounded-[3px] border border-border bg-card px-1.5 text-[10.5px] whitespace-nowrap text-foreground',
+        className,
+      )}
+    >
+      <span aria-hidden className={cn('size-2 rounded-[1px]', LINE_BG[STATUS_LINE[status]])} />
+      {STATUS_LABEL[status]}
+    </span>
   )
 }

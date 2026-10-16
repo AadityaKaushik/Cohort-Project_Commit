@@ -53,7 +53,7 @@ describe('auth pages', () => {
       expect(document.documentElement.classList.contains('dark')).toBe(theme === 'dark')
       expect(screen.getByRole('heading', { level: 1, name: heading })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: 'Cohort home' })).toHaveAttribute('href', '/')
-      expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+      expect(screen.getByRole('complementary')).toBeInTheDocument()
       expect(screen.getByRole('main')).toBeInTheDocument()
       expect(screen.queryByRole('link', { name: /continue with/i })).not.toBeInTheDocument()
       expect(await criticalViolations(container)).toEqual([])

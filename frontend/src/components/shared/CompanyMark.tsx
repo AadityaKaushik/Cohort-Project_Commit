@@ -9,7 +9,7 @@ export function CompanyMark({ name, className }: { name: string; className?: str
     <span
       aria-hidden
       className={cn(
-        'flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-heading text-sm font-semibold text-primary ring-1 ring-primary/15 ring-inset',
+        'text-display flex size-8 shrink-0 items-center justify-center rounded-[3px] bg-foreground text-base text-background',
         className,
       )}
     >

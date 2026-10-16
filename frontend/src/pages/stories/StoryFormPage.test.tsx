@@ -44,7 +44,8 @@ function renderPage() {
   )
 }
 
-describe('StoryFormPage', () => {
+// Typing four long STAR paragraphs keystroke by keystroke is slow in a full parallel run.
+describe('StoryFormPage', { timeout: 40000 }, () => {
   beforeEach(() => {
     vi.mocked(createStory).mockReset()
   })

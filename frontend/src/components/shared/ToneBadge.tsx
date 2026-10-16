@@ -24,7 +24,7 @@ export function ToneBadge({ tone, dot = false, className, children, ...props }: 
     <Badge variant="outline" className={cn('border-transparent font-medium ring-1 ring-inset', TONE_CLASSES[tone], className)} {...props}>
       {dot ? (
         <>
-          <span aria-hidden className="size-1.5 rounded-full bg-current" />
+          <span aria-hidden className="size-1.5 rounded-[1px] bg-current" />
           {children}
         </>
       ) : (

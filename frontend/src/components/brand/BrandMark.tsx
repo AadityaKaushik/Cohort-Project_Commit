@@ -9,7 +9,7 @@ export function BrandGlyph({ className }: GlyphProps) {
     <span
       aria-hidden
       className={cn(
-        'inline-flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground',
+        'inline-flex size-8 shrink-0 items-center justify-center rounded-[3px] bg-signal text-signal-foreground',
         className,
       )}
     >
@@ -37,7 +37,7 @@ export function BrandMark({ className, glyphClassName, wordmarkClassName }: Bran
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
       <BrandGlyph className={glyphClassName} />
-      <span className={cn('font-heading text-[19px] font-semibold tracking-[-0.03em]', wordmarkClassName)}>Cohort</span>
+      <span className={cn('text-display text-[22px] tracking-[0.01em]', wordmarkClassName)}>Cohort</span>
     </span>
   )
 }

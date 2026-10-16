@@ -32,13 +32,13 @@ function NavList({ items }: { items: NavItem[] }) {
             <span
               aria-hidden
               data-active={active}
-              className="absolute top-1.5 bottom-1.5 -left-2 w-[3px] origin-center scale-y-0 rounded-r-full bg-primary opacity-0 transition-[transform,opacity] duration-300 ease-out data-[active=true]:scale-y-100 data-[active=true]:opacity-100 group-data-[collapsible=icon]:-left-2"
+              className="absolute top-1.5 bottom-1.5 -left-2 w-[3px] origin-center scale-y-0 rounded-r-full bg-sidebar-primary opacity-0 transition-[transform,opacity] duration-300 ease-out data-[active=true]:scale-y-100 data-[active=true]:opacity-100 group-data-[collapsible=icon]:-left-2"
             />
             <SidebarMenuButton
               asChild
               isActive={active}
               tooltip={item.label}
-              className="h-9 transition-colors duration-150 data-active:text-sidebar-accent-foreground [&_svg]:text-muted-foreground data-active:[&_svg]:text-primary"
+              className="h-9 transition-colors duration-150 data-active:font-semibold data-active:text-sidebar-primary [&_svg]:text-sidebar-muted-foreground data-active:[&_svg]:text-sidebar-primary"
             >
               <Link
                 to={item.path}
@@ -64,7 +64,7 @@ function CollapsedGroup({ label, items }: { label: string; items: NavItem[] }) {
   return (
     <SidebarGroup className="py-1.5">
       <details open={hasActive} className="group/more">
-        <summary className="flex h-7 cursor-pointer items-center px-2 text-[11px] tracking-[0.06em] text-sidebar-foreground/70 uppercase group-data-[collapsible=icon]:hidden">
+        <summary className="board-label flex h-7 cursor-pointer items-center px-2 text-sidebar-muted-foreground group-data-[collapsible=icon]:hidden">
           {label}
         </summary>
         <SidebarGroupContent>
@@ -92,7 +92,7 @@ export function AppSidebar() {
               <CollapsedGroup key={group.label} label={group.label} items={group.items} />
             ) : (
               <SidebarGroup key={group.label} className="py-1.5">
-                <SidebarGroupLabel className="h-7 text-[11px] tracking-[0.06em] uppercase">{group.label}</SidebarGroupLabel>
+                <SidebarGroupLabel className="board-label h-7 text-sidebar-muted-foreground">{group.label}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <NavList items={group.items} />
                 </SidebarGroupContent>

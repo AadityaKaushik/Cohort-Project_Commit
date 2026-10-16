@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom'
 import type { ApplicationStatusValue, ApplicationSummary } from '@/lib/applications-api'
 import { formatLabel } from '@/lib/labels'
 import { cn } from '@/lib/utils'
-import { CompanyMark } from '@/components/shared/CompanyMark'
-import { StatusBadge } from '@/components/shared/StatusBadge'
+import { LINE_BORDER_LEFT, LINE_BORDER_TOP, STATUS_LINE } from '@/lib/stage-lines'
 
 export const BOARD_COLUMNS: ApplicationStatusValue[] = [
   'SAVED',
@@ -72,21 +71,20 @@ export function KanbanBoard({ applications, onMove }: KanbanBoardProps) {
             onDragLeave={() => setOverColumn((current) => (current === column ? null : current))}
             onDrop={(event) => handleDrop(event, column)}
             className={cn(
-              'flex w-[17rem] shrink-0 snap-start flex-col rounded-xl border bg-surface-2/70 p-2 transition-[background-color,border-color,opacity] duration-150',
-              dragged && droppable && 'border-dashed border-primary/50',
-              dragged && !droppable && dragged.status !== column && 'opacity-50',
-              overColumn === column && droppable && 'bg-primary/8',
+              'flex w-[17rem] shrink-0 snap-start flex-col rounded-md border border-t-[6px] bg-surface-2 p-2 transition-[background-color,border-color,opacity] duration-150',
+              LINE_BORDER_TOP[STATUS_LINE[column]],
+              dragged && droppable && 'border-dashed border-x-foreground/50 border-b-foreground/50',
+              dragged && !droppable && dragged.status !== column && 'opacity-40',
+              overColumn === column && droppable && 'bg-accent',
             )}
           >
-            <h3 className="flex items-center justify-between px-1.5 pt-1 pb-2.5">
-              <StatusBadge status={column} />
-              <span className="rounded-full bg-card px-2 py-0.5 text-xs font-medium text-muted-foreground tabular-nums ring-1 ring-border">
-                {cards.length}
-              </span>
+            <h3 className="flex items-baseline justify-between px-1.5 pt-1.5 pb-3">
+              <span className="text-display text-xl">{formatLabel(column)}</span>
+              <span className="tabular text-sm font-semibold">{cards.length}</span>
             </h3>
             <ul className="flex min-h-20 flex-1 flex-col gap-2">
               {cards.length === 0 && (
-                <li className="flex flex-1 items-center justify-center rounded-lg border border-dashed px-3 py-6 text-center text-xs text-muted-foreground">
+                <li className="board-label flex flex-1 items-center justify-center rounded-[3px] border border-dashed px-3 py-6 text-center text-muted-foreground">
                   Nothing here yet
                 </li>
               )}
@@ -127,14 +125,17 @@ const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStar
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        'surface-raised cursor-grab rounded-lg border p-3 text-sm hover:border-primary/30 active:cursor-grabbing',
+        'cursor-grab rounded-[3px] border border-l-4 bg-card p-3 text-sm transition-colors hover:border-foreground/40 active:cursor-grabbing',
+        LINE_BORDER_LEFT[STATUS_LINE[application.status]],
         isDragged && 'opacity-40',
       )}
     >
       <div className="flex items-start gap-2.5">
-        <CompanyMark name={application.company.name} className="size-7 text-xs" />
         <div className="min-w-0">
-          <Link to={`/applications/${application.id}`} className="block truncate font-medium hover:text-primary">
+          <Link
+            to={`/applications/${application.id}`}
+            className="text-display block truncate text-lg hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-2"
+          >
             {application.company.name}
           </Link>
           <p className="truncate text-xs text-muted-foreground">{application.job_title}</p>
@@ -142,13 +143,13 @@ const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStar
         <Link
           to={`/applications/new?from=${application.id}`}
           aria-label={`Duplicate ${application.company.name}, ${application.job_title}`}
-          className="ml-auto shrink-0 text-xs text-muted-foreground hover:text-primary"
+          className="board-label ml-auto shrink-0 pt-1 text-[10px] text-muted-foreground hover:text-foreground"
         >
           Duplicate
         </Link>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2 border-t pt-2.5 text-xs text-muted-foreground">
-        <span className="tabular-nums">{application.days_in_stage}d in stage</span>
+        <span className="tabular">{application.days_in_stage}d in stage</span>
         <label className="sr-only" htmlFor={`move-${application.id}`}>
           Move {application.company.name} to
         </label>
@@ -160,7 +161,7 @@ const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStar
               onMove(application, event.target.value as ApplicationStatusValue)
             }
           }}
-          className="h-6 max-w-[7.5rem] rounded-md border bg-card px-1.5 text-xs text-foreground transition-colors hover:border-primary/40"
+          className="h-6 max-w-[7.5rem] rounded-[3px] border bg-card px-1.5 text-xs text-foreground transition-colors hover:border-foreground"
         >
           <option value="">Move to</option>
           {application.allowed_next_statuses.map((status) => (

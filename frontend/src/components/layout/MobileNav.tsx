@@ -22,7 +22,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Quick navigation"
-      className="fixed print:hidden bg-background inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)]"
+      className="fixed print:hidden inset-x-0 bottom-0 z-40 bg-sidebar pb-[env(safe-area-inset-bottom)] text-sidebar-foreground"
     >
       <ul className="grid grid-cols-5">
         {mobileNavItems.map((item) => {
@@ -33,8 +33,10 @@ export function MobileNav() {
                 to={item.path}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors',
-                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+                  'relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors',
+                  active
+                    ? 'text-sidebar-primary before:absolute before:inset-x-3 before:top-0 before:h-[3px] before:bg-sidebar-primary'
+                    : 'text-sidebar-muted-foreground hover:text-sidebar-foreground',
                 )}
               >
                 <item.icon aria-hidden className={cn('size-5 transition-transform duration-200', active && 'scale-110')} />
@@ -47,7 +49,7 @@ export function MobileNav() {
           <button
             type="button"
             onClick={() => setOpenMobile(true)}
-            className="flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+            className="flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-sidebar-muted-foreground hover:text-sidebar-foreground"
           >
             <Menu aria-hidden className="size-5" />
             More
