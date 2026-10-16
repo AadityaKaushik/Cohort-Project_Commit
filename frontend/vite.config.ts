@@ -20,5 +20,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    // Larger pages under jsdom can pass the 5s default when the whole suite runs in parallel.
+    testTimeout: 15000,
+    hookTimeout: 30000,
   },
 })

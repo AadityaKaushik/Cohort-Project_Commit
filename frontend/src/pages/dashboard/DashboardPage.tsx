@@ -283,7 +283,7 @@ function UpcomingInterviews({ interviews }: { interviews: InterviewSummary[] }) 
               className="flex items-center gap-3 rounded-lg border bg-card p-3 hover:bg-muted/50"
             >
               <span className="flex w-12 shrink-0 flex-col items-center rounded-lg border bg-surface-2 py-1.5 leading-none">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase">{date ? format(date, 'MMM') : '—'}</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">{date ? format(date, 'MMM') : '-'}</span>
                 <span className="mt-1 text-lg font-semibold tabular-nums">{date ? format(date, 'd') : '?'}</span>
               </span>
               <span className="min-w-0 flex-1">

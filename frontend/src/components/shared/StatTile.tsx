@@ -39,7 +39,7 @@ export function StatTile({ label, value, decimals = 0, suffix, hint, icon: Icon,
         <Skeleton className="h-9 w-20" />
       ) : (
         <p className={cn('text-3xl font-semibold tracking-tight', muted && 'text-muted-foreground')}>
-          {value === null ? '—' : `${value.toFixed(decimals)}${suffix ?? ''}`}
+          {value === null ? '-' : `${value.toFixed(decimals)}${suffix ?? ''}`}
         </p>
       )}
       {hint && <div className="text-xs text-pretty text-muted-foreground">{hint}</div>}
@@ -48,5 +48,5 @@ export function StatTile({ label, value, decimals = 0, suffix, hint, icon: Icon,
 }
 
 export function StatGrid({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('stagger grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4', className)}>{children}</div>
+  return <div className={cn('grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4', className)}>{children}</div>
 }
