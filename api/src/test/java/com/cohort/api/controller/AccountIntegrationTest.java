@@ -114,6 +114,7 @@ class AccountIntegrationTest extends AbstractIntegrationTest {
         assertThat(export.get("companies").get(0).get("name").asText()).isEqualTo("Acme Export Co");
         assertThat(export.get("resumes")).hasSize(1);
         assertThat(export.get("interviews")).hasSize(1);
+        assertThat(export.get("stories")).hasSize(1);
         assertThat(export.get("notifications")).hasSize(1);
         assertThat(export.get("privacy_ledger_entries")).hasSize(1);
         assertThat(export.get("resume_files")).hasSize(1);
@@ -134,7 +135,7 @@ class AccountIntegrationTest extends AbstractIntegrationTest {
 
         List<String> populatedBefore = tablesReferencing(doomedId);
         assertThat(populatedBefore).contains(
-                "applications", "companies", "resumes", "interviews", "notifications",
+                "applications", "companies", "resumes", "interviews", "stories", "notifications",
                 "report_exports", "refresh_tokens", "privacy_ledger_entries");
         assertThat(filesUnder(resumeDir, doomedId)).isNotEmpty();
         assertThat(filesUnder(reportDir, doomedId)).isNotEmpty();
@@ -211,6 +212,10 @@ class AccountIntegrationTest extends AbstractIntegrationTest {
                         .content("""
                                 {"application_id": "%s", "round_number": 1, "round_type": "TECHNICAL", "scheduled_at": "%s"}
                                 """.formatted(applicationId, Instant.now().plusSeconds(86_400 * 5))))
+                .andExpect(status().isCreated());
+
+        postJson(account.token(), "/api/v1/stories",
+                "{\"title\": \"Story for " + companyName + "\", \"competencies\": [\"leadership\"]}")
                 .andExpect(status().isCreated());
 
         String resumeId = objectMapper.readTree(mockMvc.perform(post("/api/v1/resumes")

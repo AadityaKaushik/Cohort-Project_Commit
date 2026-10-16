@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BookMarked,
+  BookOpenText,
   CircleHelp,
   Briefcase,
   Building2,
@@ -50,6 +51,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
       { label: 'Interview Prep', path: '/prep', icon: PencilLine },
       { label: 'Mock interview', path: '/prep/mock-interview', icon: Timer },
+      { label: 'Stories', path: '/stories', icon: BookOpenText },
       { label: 'Resumes', path: '/resumes', icon: FileText },
       { label: 'Company directory', path: '/directory', icon: BookMarked },
     ],
@@ -110,6 +112,7 @@ const SECTION_LABELS: Record<string, string> = {
   resumes: 'Resumes',
   interviews: 'Interviews',
   contacts: 'Contacts',
+  stories: 'Stories',
   offers: 'Offers',
   goals: 'Goals',
   companies: 'Companies',
@@ -156,6 +159,7 @@ const RECORD_NOUNS: Record<string, string> = {
   applications: 'application',
   resumes: 'resume',
   interviews: 'interview',
+  stories: 'story',
 }
 
 const PAGE_TITLES: Record<string, string> = {

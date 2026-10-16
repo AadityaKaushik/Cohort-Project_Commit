@@ -30,6 +30,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { formatLabel } from '@/lib/labels'
+import { listStories, storyKeys } from '@/lib/stories-api'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { DetailList, type DetailItem } from '@/components/shared/DetailList'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -58,6 +59,9 @@ export function InterviewDetailPage() {
     queryFn: () => listInterviewQuestions(id!),
     enabled: Boolean(id),
   })
+
+  const storiesQuery = useQuery({ queryKey: storyKeys.all, queryFn: () => listStories(), enabled: Boolean(id) })
+  const linkedStories = storiesQuery.data?.filter((story) => story.interview_id === id) ?? []
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [questionText, setQuestionText] = useState('')
@@ -225,6 +229,30 @@ export function InterviewDetailPage() {
           </Select>
         </SectionCard>
       </div>
+
+      <SectionCard title="Stories" description="STAR stories linked to this round.">
+        <div className="space-y-3">
+          {linkedStories.length > 0 ? (
+            <ul className="divide-y rounded-lg border">
+              {linkedStories.map((story) => (
+                <li key={story.id} className="p-3 text-sm">
+                  <Link to={`/stories/${story.id}`} className="font-medium underline-offset-4 hover:underline">
+                    {story.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground">No stories linked yet.</p>
+          )}
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/stories/new?interview_id=${data.id}`}>
+              <PlusIcon aria-hidden />
+              Add a story
+            </Link>
+          </Button>
+        </div>
+      </SectionCard>
 
       <SectionCard title="Questions asked" description="Log them inline; they feed your prep recommendations.">
         <div className="space-y-4">

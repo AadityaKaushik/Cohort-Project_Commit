@@ -201,6 +201,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("CONTACT_NOT_FOUND", ex.getMessage()));
     }
 
+    @ExceptionHandler(StoryNotFoundException.class)
+    public ResponseEntity<ApiError> handleStoryNotFound(StoryNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("STORY_NOT_FOUND", ex.getMessage()));
+    }
+
     @ExceptionHandler(OfferNotFoundException.class)
     public ResponseEntity<ApiError> handleOfferNotFound(OfferNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("OFFER_NOT_FOUND", ex.getMessage()));

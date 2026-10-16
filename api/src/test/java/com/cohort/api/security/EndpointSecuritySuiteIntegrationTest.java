@@ -165,7 +165,11 @@ class EndpointSecuritySuiteIntegrationTest extends AbstractIntegrationTest {
         String offerId = create(ownerToken, "/api/v1/offers", """
                 {"application_id": "%s", "base_salary": 1200000, "currency": "INR"}
                 """.formatted(applicationId));
+        String storyId = create(ownerToken, "/api/v1/stories", """
+                {"title": "Migrated the billing service"}
+                """);
         return Map.of(
+                "/api/v1/stories", storyId,
                 "/api/v1/applications", applicationId,
                 "/api/v1/interviews", interviewId,
                 "/api/v1/resumes", resumeId,

@@ -23,6 +23,9 @@ const InterviewDetailPage = lazy(() => import('@/pages/interviews/InterviewDetai
 const InterviewPrepPage = lazy(() => import('@/pages/interviews/InterviewPrepPage').then((module) => ({ default: module.InterviewPrepPage })))
 const InterviewFormPage = lazy(() => import('@/pages/interviews/InterviewFormPage').then((module) => ({ default: module.InterviewFormPage })))
 const InterviewsListPage = lazy(() => import('@/pages/interviews/InterviewsListPage').then((module) => ({ default: module.InterviewsListPage })))
+const StoriesListPage = lazy(() => import('@/pages/stories/StoriesListPage').then((module) => ({ default: module.StoriesListPage })))
+const StoryDetailPage = lazy(() => import('@/pages/stories/StoryDetailPage').then((module) => ({ default: module.StoryDetailPage })))
+const StoryFormPage = lazy(() => import('@/pages/stories/StoryFormPage').then((module) => ({ default: module.StoryFormPage })))
 const ContactsPage = lazy(() => import('@/pages/contacts/ContactsPage').then((module) => ({ default: module.ContactsPage })))
 const OffersPage = lazy(() => import('@/pages/offers/OffersPage').then((module) => ({ default: module.OffersPage })))
 const GoalsPage = lazy(() => import('@/pages/goals/GoalsPage').then((module) => ({ default: module.GoalsPage })))
@@ -122,6 +125,12 @@ function App() {
             <Route path=":id/edit" element={<InterviewFormPage />} />
             <Route path=":id/debrief" element={<InterviewDebriefPage />} />
             <Route path=":id/prep" element={<InterviewPrepPage />} />
+          </Route>
+          <Route path="stories">
+            <Route index element={<StoriesListPage />} />
+            <Route path="new" element={<StoryFormPage />} />
+            <Route path=":id" element={<StoryDetailPage />} />
+            <Route path=":id/edit" element={<StoryFormPage />} />
           </Route>
           <Route path="contacts" element={<ContactsPage />} />
           <Route path="offers" element={<OffersPage />} />

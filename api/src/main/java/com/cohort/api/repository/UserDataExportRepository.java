@@ -61,6 +61,7 @@ public class UserDataExportRepository {
         queries.put("recommendations", "SELECT to_jsonb(t)::text FROM recommendations t WHERE user_id = ?");
         queries.put("recommendation_evidence",
                 "SELECT to_jsonb(t)::text FROM recommendation_evidence t WHERE recommendation_id IN " + OWNED_RECOMMENDATIONS);
+        queries.put("stories", "SELECT to_jsonb(t)::text FROM stories t WHERE user_id = ?");
         queries.put("notifications", "SELECT to_jsonb(t)::text FROM notifications t WHERE user_id = ?");
         queries.put("report_exports", "SELECT (to_jsonb(t) - 'file_path')::text FROM report_exports t WHERE user_id = ?");
         queries.put("privacy_ledger_entries", "SELECT to_jsonb(t)::text FROM fl.privacy_ledger_entries t WHERE user_id = ?");
