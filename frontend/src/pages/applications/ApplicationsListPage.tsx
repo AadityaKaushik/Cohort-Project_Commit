@@ -209,7 +209,6 @@ export function ApplicationsListPage() {
           icon={BriefcaseIcon}
           title="No applications yet"
           description="Applications and their status."
-          quote={1}
           action={
             <Button asChild>
               <Link to="/applications/new">

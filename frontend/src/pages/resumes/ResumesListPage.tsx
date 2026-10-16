@@ -119,7 +119,6 @@ export function ResumesListPage() {
           icon={FileTextIcon}
           title="No resumes yet"
           description="Keep multiple versions and attach the right one to each application."
-          quote={4}
           action={
             <Button asChild>
               <Link to="/resumes/new">

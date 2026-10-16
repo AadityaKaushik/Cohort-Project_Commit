@@ -112,7 +112,6 @@ export function RecommendationsPage() {
           icon={ListChecksIcon}
           title="No recommendations yet"
           description="Log practice or interview feedback."
-          quote={0}
           action={
             <Button asChild>
               <Link to="/prep/questions">Practise a question</Link>

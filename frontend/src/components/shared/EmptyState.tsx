@@ -1,6 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { RotatingQuote } from '@/components/shared/RotatingQuote'
 import { cn } from '@/lib/utils'
 
 interface EmptyStateProps {
@@ -10,24 +9,20 @@ interface EmptyStateProps {
   action?: ReactNode
   secondaryAction?: ReactNode
   compact?: boolean
-  quote?: number
 }
 
-export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false, quote }: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, action, secondaryAction, compact = false }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        'animate-enter relative isolate flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-dashed bg-surface-2/60 text-center',
-        compact ? 'px-6 py-8' : 'min-h-[22rem] px-6 py-12 sm:min-h-[26rem]',
+        'flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed text-center',
+        compact ? 'px-6 py-8' : 'min-h-64 px-6 py-12',
       )}
     >
-      {!compact && <div aria-hidden className="hero-glow absolute inset-x-0 top-0 -z-10 h-48 opacity-70" />}
-      <div className="relative flex size-12 items-center justify-center rounded-2xl border bg-card text-primary shadow-[var(--elevation)]">
-        <Icon aria-hidden className="size-5" />
-      </div>
+      <Icon aria-hidden className="size-6 text-muted-foreground" />
       <div className="space-y-1.5">
-        <h2 className="font-heading text-base font-semibold tracking-tight">{title}</h2>
-        <p className="max-w-sm text-sm text-pretty text-muted-foreground">
+        <h2 className="text-base font-semibold">{title}</h2>
+        <p className="max-w-sm text-sm text-muted-foreground">
           {description}
         </p>
       </div>
@@ -37,7 +32,6 @@ export function EmptyState({ icon: Icon, title, description, action, secondaryAc
           {secondaryAction}
         </div>
       )}
-      {quote !== undefined && <RotatingQuote rotate={false} offset={quote} className="mt-2 max-w-xs text-left text-xs" />}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
-import { CheckIcon, Loader2 } from 'lucide-react'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuth } from '@/hooks/use-auth'
@@ -8,8 +8,6 @@ import { ApiError } from '@/lib/api-client'
 import { email as emailRule, hasErrors, minLength, required, validate } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
 import { FormError, FormField } from '@/components/shared/Form'
-import { TransitionLink } from '@/components/motion/TransitionLink'
-import { finishSignIn } from '@/lib/route-transition'
 import { prefetchRoute } from '@/lib/route-chunks'
 import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
@@ -24,8 +22,6 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [signedIn, setSignedIn] = useState(false)
-  const [errorCount, setErrorCount] = useState(0)
   const [signingIn, setSigningIn] = useState(false)
 
   useEffect(() => {
@@ -56,11 +52,9 @@ export function RegisterPage() {
     setSigningIn(true)
     try {
       await register(email, password, displayName)
-      setSignedIn(true)
-      finishSignIn(() => navigate('/', { replace: true }))
+      navigate('/', { replace: true })
     } catch (err) {
       setSigningIn(false)
-      setErrorCount((count) => count + 1)
       if (err instanceof ApiError) {
         setError(err.message)
         setFieldErrors(err.fieldErrors ?? {})
@@ -91,7 +85,7 @@ export function RegisterPage() {
 
   return (
     <AuthFrame>
-      <AuthIntro title="Create your Cohort account" subtitle="Free to use. Your data stays private to you, always." />
+      <AuthIntro title="Create your Cohort account" />
       <OAuthButtons />
       <form onSubmit={handleSubmit} className="space-y-5" noValidate aria-busy={isSubmitting}>
         <FormField id="displayName" label="Display name" error={fieldErrors.displayName}>
@@ -129,33 +123,28 @@ export function RegisterPage() {
             required
           />
         </FormField>
-        {error && (
-          <div key={errorCount} className="animate-shake">
-            <FormError>{error}</FormError>
-          </div>
-        )}
-        <Button type="submit" size="xl" variant={signedIn ? 'cta' : 'default'} className="w-full" disabled={isSubmitting || signedIn}>
+        {error && <FormError>{error}</FormError>}
+        <Button type="submit" size="xl" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 aria-hidden className="animate-spin" />}
-          {signedIn && <CheckIcon aria-hidden className="animate-enter" />}
-          {signedIn ? 'Account created' : isSubmitting ? 'Creating account…' : 'Create account'}
+          {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
       <p className="mt-6 text-center text-xs text-muted-foreground">
         Before you sign up, read the{' '}
-        <TransitionLink to="/privacy-policy" className="rounded underline underline-offset-4 hover:text-foreground">
+        <Link to="/privacy-policy" className="rounded underline underline-offset-4 hover:text-foreground">
           privacy policy
-        </TransitionLink>{' '}
+        </Link>{' '}
         or visit{' '}
-        <TransitionLink to="/help" className="rounded underline underline-offset-4 hover:text-foreground">
+        <Link to="/help" className="rounded underline underline-offset-4 hover:text-foreground">
           help
-        </TransitionLink>
+        </Link>
         .
       </p>
       <p className="mt-4 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <TransitionLink to="/login" className="rounded font-medium text-primary underline-offset-4 hover:underline">
+        <Link to="/login" className="rounded font-medium text-primary underline-offset-4 hover:underline">
           Log in
-        </TransitionLink>
+        </Link>
       </p>
     </AuthFrame>
   )

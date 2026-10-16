@@ -22,7 +22,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Quick navigation"
-      className="frosted fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)]"
+      className="fixed print:hidden bg-background inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="grid grid-cols-5">
         {mobileNavItems.map((item) => {

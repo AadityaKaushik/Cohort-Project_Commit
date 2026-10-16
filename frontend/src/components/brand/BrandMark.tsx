@@ -2,15 +2,14 @@ import { cn } from '@/lib/utils'
 
 interface GlyphProps {
   className?: string
-  animated?: boolean
 }
 
-export function BrandGlyph({ className, animated = false }: GlyphProps) {
+export function BrandGlyph({ className }: GlyphProps) {
   return (
     <span
       aria-hidden
       className={cn(
-        'inline-flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground shadow-[inset_0_1px_0_oklch(1_0_0/0.25)]',
+        'inline-flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground',
         className,
       )}
     >
@@ -19,7 +18,7 @@ export function BrandGlyph({ className, animated = false }: GlyphProps) {
         fill="none"
         stroke="currentColor"
         strokeLinecap="round"
-        className={cn('size-[64%]', animated && 'animate-mark')}
+        className="size-[64%]"
       >
         <path d="M18.4 6.6A8.5 8.5 0 1 0 18.4 17.4" strokeWidth="2.2" />
         <path d="M15.2 9.3A4.3 4.3 0 1 0 15.2 14.7" strokeWidth="2.2" />
@@ -34,10 +33,10 @@ interface BrandMarkProps extends GlyphProps {
   wordmarkClassName?: string
 }
 
-export function BrandMark({ className, glyphClassName, wordmarkClassName, animated }: BrandMarkProps) {
+export function BrandMark({ className, glyphClassName, wordmarkClassName }: BrandMarkProps) {
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
-      <BrandGlyph className={glyphClassName} animated={animated} />
+      <BrandGlyph className={glyphClassName} />
       <span className={cn('font-heading text-[19px] font-semibold tracking-[-0.03em]', wordmarkClassName)}>Cohort</span>
     </span>
   )

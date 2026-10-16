@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams, type Location } from 'react-router-dom'
-import { AlertCircle, CheckIcon, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuth } from '@/hooks/use-auth'
@@ -12,8 +12,6 @@ import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FieldMessage, FormError, FormField } from '@/components/shared/Form'
-import { TransitionLink } from '@/components/motion/TransitionLink'
-import { finishSignIn } from '@/lib/route-transition'
 import { prefetchRoute } from '@/lib/route-chunks'
 
 export function LoginPage() {
@@ -28,8 +26,6 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<'email' | 'password'>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [signedIn, setSignedIn] = useState(false)
-  const [errorCount, setErrorCount] = useState(0)
   const [signingIn, setSigningIn] = useState(false)
 
   useEffect(() => {
@@ -59,12 +55,10 @@ export function LoginPage() {
     setSigningIn(true)
     try {
       await login(email, password)
-      setSignedIn(true)
-      finishSignIn(() => navigate(redirectTo, { replace: true }))
+      navigate(redirectTo, { replace: true })
     } catch (err) {
       setSigningIn(false)
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
-      setErrorCount((count) => count + 1)
     } finally {
       setIsSubmitting(false)
     }
@@ -78,7 +72,7 @@ export function LoginPage() {
 
   return (
     <AuthFrame>
-      <AuthIntro title="Log in to Cohort" subtitle="Welcome back. Pick up where you left off." />
+      <AuthIntro title="Log in to Cohort" />
       {sessionMessage && (
         <Alert variant="destructive" className="mb-5">
           <AlertCircle className="h-4 w-4" />
@@ -133,22 +127,17 @@ export function LoginPage() {
           />
           {fieldErrors.password && <FieldMessage id="password-error">{fieldErrors.password}</FieldMessage>}
         </div>
-        {error && (
-          <div key={errorCount} className="animate-shake">
-            <FormError>{error}</FormError>
-          </div>
-        )}
-        <Button type="submit" size="xl" variant={signedIn ? 'cta' : 'default'} className="w-full" disabled={isSubmitting || signedIn}>
+        {error && <FormError>{error}</FormError>}
+        <Button type="submit" size="xl" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 aria-hidden className="animate-spin" />}
-          {signedIn && <CheckIcon aria-hidden className="animate-enter" />}
-          {signedIn ? 'Signed in' : isSubmitting ? 'Logging in…' : 'Log in'}
+          {isSubmitting ? 'Logging in…' : 'Log in'}
         </Button>
       </form>
       <p className="mt-8 text-center text-sm text-muted-foreground">
         New to Cohort?{' '}
-        <TransitionLink to="/register" className="rounded font-medium text-primary underline-offset-4 hover:underline">
+        <Link to="/register" className="rounded font-medium text-primary underline-offset-4 hover:underline">
           Create account
-        </TransitionLink>
+        </Link>
       </p>
     </AuthFrame>
   )

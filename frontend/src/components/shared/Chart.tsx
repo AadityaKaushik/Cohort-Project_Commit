@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { useInView, useReducedMotion } from '@/hooks/use-motion'
 import { cn } from '@/lib/utils'
 
 interface ChartFrameProps {
@@ -7,15 +6,13 @@ interface ChartFrameProps {
   testId?: string
   className?: string
   label: string
-  children: (animate: boolean) => ReactNode
+  children: ReactNode
 }
 
 export function ChartFrame({ height, testId, className, label, children }: ChartFrameProps) {
-  const [ref, inView] = useInView<HTMLDivElement>()
-  const reduced = useReducedMotion()
   return (
-    <div ref={ref} role="img" aria-label={label} data-testid={testId} className={cn('w-full', className)} style={{ height }}>
-      {inView && children(!reduced)}
+    <div role="img" aria-label={label} data-testid={testId} className={cn('w-full', className)} style={{ height }}>
+      {children}
     </div>
   )
 }

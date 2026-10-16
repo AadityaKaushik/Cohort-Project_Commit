@@ -46,13 +46,14 @@ describe('auth pages', () => {
   })
 
   describe.each(['light', 'dark'] as const)('in the %s theme', (theme) => {
-    it.each(PAGES)('renders the %s form, brand panel and no critical a11y issues', async (_name, Page, heading) => {
+    it.each(PAGES)('renders the %s form, brand link and no critical a11y issues', async (_name, Page, heading) => {
       localStorage.setItem(THEME_STORAGE_KEY, theme)
       const { container } = renderPage(Page)
 
       expect(document.documentElement.classList.contains('dark')).toBe(theme === 'dark')
       expect(screen.getByRole('heading', { level: 1, name: heading })).toBeInTheDocument()
-      expect(screen.getByRole('complementary', { name: 'About Cohort' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Cohort home' })).toHaveAttribute('href', '/')
+      expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
       expect(screen.getByRole('main')).toBeInTheDocument()
       expect(screen.queryByRole('link', { name: /continue with/i })).not.toBeInTheDocument()
       expect(await criticalViolations(container)).toEqual([])

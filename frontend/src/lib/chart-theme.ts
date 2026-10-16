@@ -1,7 +1,5 @@
 export const SERIES_COLORS = ['var(--color-series-1)', 'var(--color-series-2)'] as const
 
-export const CHART_ANIMATION_MS = 900
-
 export const axisProps = {
   stroke: 'var(--color-border)',
   tick: { fill: 'var(--color-muted-foreground)', fontSize: 12 },

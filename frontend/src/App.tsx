@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react'
 import { Outlet, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AuthFrameSkeleton } from '@/components/layout/AuthFrame'
-import { RouteProgress } from '@/components/motion/RouteProgress'
 import { loadDashboardPage, loadLoginPage, loadRegisterPage } from '@/lib/route-chunks'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -51,27 +50,23 @@ const OAuthCallbackPage = lazy(() => import('@/pages/auth/OAuthCallbackPage').th
 const VerifyEmailPage = lazy(() => import('@/pages/auth/VerifyEmailPage').then((module) => ({ default: module.VerifyEmailPage })))
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage').then((module) => ({ default: module.LandingPage })))
 
+function PageLoading() {
+  return (
+    <div role="status" className="min-h-screen bg-background p-6 text-sm text-muted-foreground">
+      Loading
+    </div>
+  )
+}
+
 const landing = (
-  <Suspense
-    fallback={
-      <div className="min-h-screen bg-background">
-        <RouteProgress />
-      </div>
-    }
-  >
+  <Suspense fallback={<PageLoading />}>
     <LandingPage />
   </Suspense>
 )
 
 function SignedInShell() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background">
-          <RouteProgress />
-        </div>
-      }
-    >
+    <Suspense fallback={<PageLoading />}>
       <AppShell />
     </Suspense>
   )

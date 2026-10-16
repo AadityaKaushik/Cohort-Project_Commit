@@ -15,7 +15,6 @@ import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
-import { RouteProgress } from '@/components/motion/RouteProgress'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { breadcrumbsFor, pageTitleFor } from '@/lib/navigation'
 
@@ -82,7 +81,7 @@ export function AppShell() {
       </a>
       <AppSidebar />
       <SidebarInset className="min-w-0">
-        <header className="frosted sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
+        <header className="sticky print:hidden bg-background top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
           <SidebarTrigger className="hidden md:inline-flex" aria-label="Toggle sidebar" />
           <Link to="/" aria-label="Cohort dashboard" className="rounded-lg md:hidden">
             <BrandGlyph className="size-7" />
@@ -108,7 +107,7 @@ export function AppShell() {
           </div>
         </header>
         <main id="main" tabIndex={-1} className="flex-1 px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-8 outline-none lg:px-8">
-          <div key={pathname} className="animate-route mx-auto w-full max-w-7xl">
+          <div className="mx-auto w-full max-w-7xl">
             <ErrorBoundary variant="inline" resetKey={pathname}>
               <Suspense fallback={<PageFallback />}>
                 <Outlet />
@@ -128,7 +127,6 @@ export function AppShell() {
 function PageFallback() {
   return (
     <div role="status" aria-label="Loading page" className="space-y-6">
-      <RouteProgress />
       <div className="space-y-2">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-96 max-w-full" />

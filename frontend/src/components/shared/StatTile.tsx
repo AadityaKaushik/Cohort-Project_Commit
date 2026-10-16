@@ -1,6 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { CountUp } from '@/components/motion/Reveal'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
@@ -40,7 +39,7 @@ export function StatTile({ label, value, decimals = 0, suffix, hint, icon: Icon,
         <Skeleton className="h-9 w-20" />
       ) : (
         <p className={cn('text-3xl font-semibold tracking-tight', muted && 'text-muted-foreground')}>
-          {value === null ? '—' : <CountUp value={value} decimals={decimals} suffix={suffix} />}
+          {value === null ? '—' : `${value.toFixed(decimals)}${suffix ?? ''}`}
         </p>
       )}
       {hint && <div className="text-xs text-pretty text-muted-foreground">{hint}</div>}

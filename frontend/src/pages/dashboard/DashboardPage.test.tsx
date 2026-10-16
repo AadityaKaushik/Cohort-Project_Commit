@@ -137,9 +137,10 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByTestId('pipeline-strip')).toBeInTheDocument()
     expect(screen.getByText(/nothing needs attention/i)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /, jane\./i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /schedule an interview/i })).toHaveAttribute('href', '/interviews/new')
     expect(screen.getByText(/start a streak/i)).toBeInTheDocument()
+    expect(screen.getByText('Active days in a row: 0')).toBeInTheDocument()
   })
 
   it('caps the rendered action queue at 7 items even with far more than 7 actionable items across every source', async () => {
