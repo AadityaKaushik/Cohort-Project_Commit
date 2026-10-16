@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   MessagesSquare,
   PencilLine,
+  Timer,
   UsersRound,
   ShieldCheck,
   Sparkles,
@@ -48,6 +49,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: 'Interviews', path: '/interviews', icon: MessagesSquare },
       { label: 'Interview Prep', path: '/prep', icon: PencilLine },
+      { label: 'Mock interview', path: '/prep/mock-interview', icon: Timer },
       { label: 'Resumes', path: '/resumes', icon: FileText },
       { label: 'Company directory', path: '/directory', icon: BookMarked },
     ],
@@ -114,6 +116,7 @@ const ACTION_LABELS: Record<string, string> = {
   new: 'New',
   board: 'Board',
   questions: 'Question bank',
+  'mock-interview': 'Mock interview',
   edit: 'Edit',
   debrief: 'Debrief',
 }

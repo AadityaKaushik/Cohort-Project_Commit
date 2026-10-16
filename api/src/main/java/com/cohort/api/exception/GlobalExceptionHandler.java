@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of("VALIDATION_ERROR", "One or more fields are invalid.", fieldErrors));
     }
 
+    @ExceptionHandler(InvalidMockInterviewCountException.class)
+    public ResponseEntity<ApiError> handleInvalidMockInterviewCount(InvalidMockInterviewCountException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of("VALIDATION_ERROR", "One or more fields are invalid.", Map.of("count", ex.getMessage())));
+    }
+
     @ExceptionHandler(WeakPasswordException.class)
     public ResponseEntity<ApiError> handleWeakPassword(WeakPasswordException ex) {
         return ResponseEntity.badRequest().body(ApiError.of("WEAK_PASSWORD", ex.getMessage()));

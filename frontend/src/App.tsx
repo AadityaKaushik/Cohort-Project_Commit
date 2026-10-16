@@ -31,6 +31,7 @@ const DirectoryPage = lazy(() => import('@/pages/directory/DirectoryPage').then(
 const DirectoryProfilePage = lazy(() => import('@/pages/directory/DirectoryProfilePage').then((module) => ({ default: module.DirectoryProfilePage })))
 const CompanyDetailPage = lazy(() => import('@/pages/companies/CompanyDetailPage').then((module) => ({ default: module.CompanyDetailPage })))
 const PrepPage = lazy(() => import('@/pages/prep/PrepPage').then((module) => ({ default: module.PrepPage })))
+const MockInterviewPage = lazy(() => import('@/pages/prep/MockInterviewPage').then((module) => ({ default: module.MockInterviewPage })))
 const QuestionBankPage = lazy(() => import('@/pages/prep/QuestionBankPage').then((module) => ({ default: module.QuestionBankPage })))
 const AnalyticsPage = lazy(() => import('@/pages/analytics/AnalyticsPage').then((module) => ({ default: module.AnalyticsPage })))
 const RecommendationsPage = lazy(() => import('@/pages/recommendations/RecommendationsPage').then((module) => ({ default: module.RecommendationsPage })))
@@ -136,6 +137,7 @@ function App() {
           <Route path="prep">
             <Route index element={<PrepPage />} />
             <Route path="questions" element={<QuestionBankPage />} />
+            <Route path="mock-interview" element={<MockInterviewPage />} />
           </Route>
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="recommendations" element={<RecommendationsPage />} />

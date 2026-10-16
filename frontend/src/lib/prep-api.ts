@@ -201,6 +201,20 @@ export function getReviewQueue() {
   return apiFetch<ReviewQueue>('/prep/review-queue')
 }
 
+export interface MockInterviewQuestion {
+  question_id: string
+  question_text: string
+  topic_id: string
+  topic_name: string
+  difficulty: Difficulty | null
+  mastery_score: number | null
+  reason: string
+}
+
+export function getMockInterview(count: number) {
+  return apiFetch<{ questions: MockInterviewQuestion[] }>(`/prep/mock-interview?count=${count}`)
+}
+
 export function getQuestion(id: string) {
   return apiFetch<QuestionBankItem>(`/questions/${id}`)
 }

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlarmClockIcon, CheckCircle2Icon, CircleIcon, LibraryIcon, ListTodoIcon, PencilLineIcon, PlusIcon, TargetIcon, Trash2Icon } from 'lucide-react'
+import { AlarmClockIcon, CheckCircle2Icon, CircleIcon, LibraryIcon, ListTodoIcon, PencilLineIcon, PlusIcon, TargetIcon, TimerIcon, Trash2Icon } from 'lucide-react'
 import { format, isPast } from 'date-fns'
 import {
   createPreparationTask,
@@ -90,6 +90,12 @@ export function PrepPage() {
         actions={
           <>
             <PageGuide guideId="prep" />
+            <Button asChild variant="outline">
+              <Link to="/prep/mock-interview">
+                <TimerIcon aria-hidden />
+                Mock interview
+              </Link>
+            </Button>
             <Button asChild>
               <Link to="/prep/questions">
                 <LibraryIcon aria-hidden />
