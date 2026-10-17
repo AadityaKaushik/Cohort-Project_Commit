@@ -19,6 +19,15 @@ describe('OAuthButtons', () => {
     expect(screen.queryByRole('link', { name: 'Continue with Google' })).not.toBeInTheDocument()
   })
 
+  it('offers LinkedIn when the server has it configured', async () => {
+    vi.mocked(authApi.listOAuthProviders).mockResolvedValue(['github', 'linkedin'])
+    render(<OAuthButtons />)
+
+    const link = await screen.findByRole('link', { name: 'Continue with LinkedIn' })
+    expect(link).toHaveAttribute('href', expect.stringContaining('/oauth2/authorization/linkedin'))
+    expect(screen.getByRole('link', { name: 'Continue with GitHub' })).toBeInTheDocument()
+  })
+
   it('renders nothing when no provider is configured', async () => {
     vi.mocked(authApi.listOAuthProviders).mockResolvedValue([])
     const { container } = render(<OAuthButtons />)

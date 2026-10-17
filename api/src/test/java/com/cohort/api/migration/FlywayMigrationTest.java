@@ -1,6 +1,7 @@
 package com.cohort.api.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.cohort.api.AbstractIntegrationTest;
 import java.sql.Connection;
@@ -88,6 +89,18 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void oauthIdentitiesAcceptLinkedinButNoUnknownProvider() throws Exception {
+        try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+            statement.execute("INSERT INTO users (id, email, password_hash) VALUES ('6c1b0f1e-0000-4000-8000-000000000103', 'linkedin-check@example.com', 'x')");
+            statement.execute("INSERT INTO oauth_identities (user_id, provider, subject, email) VALUES "
+                    + "('6c1b0f1e-0000-4000-8000-000000000103', 'linkedin', 'li-check', 'linkedin-check@example.com')");
+            assertThatThrownBy(() -> statement.execute("INSERT INTO oauth_identities (user_id, provider, subject, email) VALUES "
+                    + "('6c1b0f1e-0000-4000-8000-000000000103', 'myspace', 'ms-check', 'linkedin-check@example.com')"))
+                    .isInstanceOf(java.sql.SQLException.class);
+        }
+    }
+
+    @Test
     void flywaySchemaHistoryRecordsEveryMigrationAsSuccessful() throws Exception {
         try (Connection connection = dataSource.getConnection();
              var statement = connection.createStatement();
@@ -104,7 +117,7 @@ class FlywayMigrationTest extends AbstractIntegrationTest {
                     .containsExactly(
                             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
                             "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
-                            "70", "71", "72", "73", "74", "75", "76", "77", "78", "90", "100", "101", "102");
+                            "70", "71", "72", "73", "74", "75", "76", "77", "78", "90", "100", "101", "102", "103");
         }
     }
 

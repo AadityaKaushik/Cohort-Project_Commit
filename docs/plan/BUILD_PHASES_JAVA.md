@@ -284,6 +284,7 @@ These came after the planned phases and are not numbered phases. Each has its ow
 | Self-graded mock interview from the weakest topics; answers are saved as practice attempts | `feat(prep): self-graded mock interview from the weakest topics` |
 | STAR story bank with competency tags, linkable to an interview (part of the deferred P97, without AI) | `feat(stories): STAR story bank with competency tags` |
 | Manual demo command that runs a federated round with synthetic clients, so the Privacy Ledger can be shown with few real users | `feat(fl): demo command that runs a round with synthetic clients` |
+| LinkedIn sign-in next to Google and GitHub, with the same verified-email linking rule (ADR-012) | `feat(auth): LinkedIn sign-in` |
 | Plain one-line descriptions for the 48 seeded topics | `feat(prep): real descriptions for the seeded topics` |
 | Plainer interface: the landing page, sign-in pages and dashboard no longer use typed text, rotating quotes or decorative motion, and the accent colour is blue instead of indigo. This replaces those parts of P69 and P79. | `refactor(frontend): plain landing, auth and dashboard without decorative motion`, `refactor(frontend): plain wording, icons and styling in the app pages` |
 

@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 public class ConfiguredClientRegistrations implements ClientRegistrationRepository {
     private final Map<String, ClientRegistration> registrations;
@@ -27,8 +29,30 @@ public class ConfiguredClientRegistrations implements ClientRegistrationReposito
                     .scope("read:user", "user:email")
                     .build());
         }
+        if (properties.linkedin().isConfigured()) {
+            configured.add(linkedin(properties.linkedin()));
+        }
         this.registrations = configured.stream()
                 .collect(Collectors.toUnmodifiableMap(ClientRegistration::getRegistrationId, registration -> registration));
+    }
+
+    // Spring has no built-in LinkedIn provider. LinkedIn uses OpenID Connect and wants the secret in the token request body.
+    static ClientRegistration linkedin(OAuthProviderProperties.Credentials credentials) {
+        return ClientRegistration.withRegistrationId("linkedin")
+                .clientId(credentials.clientId())
+                .clientSecret(credentials.clientSecret())
+                .clientName("LinkedIn")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+                .scope("openid", "profile", "email")
+                .authorizationUri("https://www.linkedin.com/oauth/v2/authorization")
+                .tokenUri("https://www.linkedin.com/oauth/v2/accessToken")
+                .userInfoUri("https://api.linkedin.com/v2/userinfo")
+                .jwkSetUri("https://www.linkedin.com/oauth/openid/jwks")
+                .issuerUri("https://www.linkedin.com/oauth")
+                .userNameAttributeName("sub")
+                .build();
     }
 
     @Override

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 const PROVIDER_LABELS: Record<OAuthProvider, string> = {
   google: 'Continue with Google',
   github: 'Continue with GitHub',
+  linkedin: 'Continue with LinkedIn',
 }
 
 function ProviderIcon({ provider }: { provider: OAuthProvider }) {
@@ -16,6 +17,17 @@ function ProviderIcon({ provider }: { provider: OAuthProvider }) {
         <path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z" />
         <path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9l3.7-2.8z" />
         <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z" />
+      </svg>
+    )
+  }
+  if (provider === 'linkedin') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden className="size-4">
+        <rect width="24" height="24" rx="3" fill="#0A66C2" />
+        <path
+          fill="#fff"
+          d="M7.1 9.5h-2.6V19h2.6V9.5zM5.8 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM19.5 13.5c0-2.6-1.4-4.2-3.7-4.2-1.3 0-2.2.7-2.6 1.4V9.5h-2.5V19h2.6v-5c0-1.3.6-2.2 1.7-2.2s1.6.8 1.6 2.2v5h2.6l.3-5.5z"
+        />
       </svg>
     )
   }

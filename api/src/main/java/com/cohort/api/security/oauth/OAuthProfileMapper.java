@@ -17,6 +17,7 @@ public class OAuthProfileMapper {
     public OAuthProfile map(String registrationId, OAuth2User user, String accessToken) {
         return switch (registrationId) {
             case "google" -> google(user);
+            case "linkedin" -> linkedin(user);
             case "github" -> github(user, accessToken);
             default -> throw new IllegalArgumentException("Unsupported provider " + registrationId);
         };
@@ -26,6 +27,16 @@ public class OAuthProfileMapper {
         Object verified = user.getAttribute("email_verified");
         return new OAuthProfile(
                 "google",
+                String.valueOf((Object) user.getAttribute("sub")),
+                user.getAttribute("email"),
+                Boolean.TRUE.equals(verified) || "true".equalsIgnoreCase(String.valueOf(verified)),
+                user.getAttribute("name"));
+    }
+
+    OAuthProfile linkedin(OAuth2User user) {
+        Object verified = user.getAttribute("email_verified");
+        return new OAuthProfile(
+                "linkedin",
                 String.valueOf((Object) user.getAttribute("sub")),
                 user.getAttribute("email"),
                 Boolean.TRUE.equals(verified) || "true".equalsIgnoreCase(String.valueOf(verified)),
