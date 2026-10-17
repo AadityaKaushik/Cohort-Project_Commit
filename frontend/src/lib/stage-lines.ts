@@ -2,7 +2,7 @@ import type { ApplicationStatusValue } from '@/lib/applications-api'
 
 export type LineColour = 'saved' | 'applied' | 'oa' | 'interview' | 'final' | 'offer' | 'closed'
 
-/** Each pipeline stage is a station with its own line colour, used on the route, the board and status badges. */
+/** Each pipeline stage has its own colour, darker the further along it is, used on the dashboard steps, the board and status badges. */
 export const STATUS_LINE: Record<ApplicationStatusValue, LineColour> = {
   SAVED: 'saved',
   APPLIED: 'applied',

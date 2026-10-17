@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -117,6 +117,18 @@ describe('PrepPage', () => {
     expect(screen.getByRole('button', { name: /Arrays/ })).toBeInTheDocument()
     expect(screen.getByTitle('62% mastery from 4 observations')).toBeInTheDocument()
     expect(screen.getByText('Insufficient data')).toBeInTheDocument()
+  })
+
+  it('counts topics on each readiness step', async () => {
+    vi.mocked(getPreparationProgress).mockResolvedValue(sampleProgress())
+    vi.mocked(listPreparationTasks).mockResolvedValue([])
+    vi.mocked(listTopics).mockResolvedValue([sampleTopic()])
+
+    renderPage()
+
+    const readiness = await screen.findByRole('region', { name: 'Readiness' })
+    const [steps] = within(readiness).getAllByRole('list', { name: 'Pipeline' })
+    expect(within(steps).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['1No data yet', '0Needs work', '1Developing', '0Strong'])
   })
 
   it('shows an empty state and lets the user add a task', async () => {

@@ -13,7 +13,7 @@ import { ErrorState } from '@/components/shared/QueryStates'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ReviewTodayCard } from '@/components/prep/ReviewTodayCard'
-import { RouteLine, type RouteStation } from '@/components/board/RouteLine'
+import { Ascent, type AscentStage } from '@/components/board/Ascent'
 import { FlapText } from '@/components/board/FlapText'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { STATUS_LINE } from '@/lib/stage-lines'
@@ -35,7 +35,7 @@ const PIPELINE_STAGES: { status: ApplicationStatusValue; label: string }[] = [
   { status: 'OFFER', label: 'Offer' },
 ]
 
-function stationsFor(applications: ApplicationSummary[]): RouteStation[] {
+function stagesFor(applications: ApplicationSummary[]): AscentStage[] {
   return PIPELINE_STAGES.map(({ status, label }) => ({
     key: status,
     label,
@@ -124,7 +124,7 @@ export function DashboardPage() {
 
       {!isLoading && !hasError && applications.length === 0 && (
         <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-foreground/30 p-5">
-          <p className="text-display text-xl">The line is empty</p>
+          <p className="text-display text-xl">Nothing on the climb yet</p>
           <p className="text-sm text-muted-foreground">
             Log your first application, or fill the app with sample data to look around. Sample rows are marked and can be removed in one click.
           </p>
@@ -134,24 +134,24 @@ export function DashboardPage() {
 
       <section aria-labelledby="line-heading" className="space-y-4">
         <BoardHeading id="line-heading" action={<PanelLink to="/applications/board">Open board</PanelLink>}>
-          Your line
+          Where you stand
         </BoardHeading>
         {applicationsQuery.isLoading && <Skeleton className="h-28 w-full" data-testid="pipeline-loading" />}
         {applicationsQuery.isError && <ErrorState title="Could not load data." description="Try again in a moment." />}
         {applicationsQuery.data && (
-          <div data-testid="pipeline-strip" className="rounded-md border bg-card px-4 py-6 sm:px-6">
-            <RouteLine stations={stationsFor(applications)} />
+          <div data-testid="pipeline-strip" className="rounded-md border bg-card px-4 pt-6 pb-4 sm:px-6">
+            <Ascent stages={stagesFor(applications)} />
           </div>
         )}
       </section>
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <section aria-labelledby="departures-heading" className="min-w-0">
-          <div className="flex items-center justify-between gap-3 rounded-t-md bg-primary px-4 py-2.5 text-primary-foreground">
-            <h3 id="departures-heading" className="text-display text-2xl">
+        <section aria-labelledby="interviews-heading" className="min-w-0">
+          <div className="flex items-center justify-between gap-3 rounded-t-md bg-brand px-4 py-2.5 text-brand-foreground">
+            <h3 id="interviews-heading" className="text-display text-2xl">
               Next interviews
             </h3>
-            <Link to="/interviews" className="board-label inline-flex items-center gap-1 hover:underline">
+            <Link to="/interviews" className="board-label inline-flex items-center gap-1 hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-4">
               All interviews
               <ArrowRightIcon aria-hidden className="size-3.5" />
             </Link>
@@ -276,7 +276,7 @@ function ActivityStrip({ activity }: { activity: ActivitySummary }) {
           <span
             key={day.date}
             title={`${day.date}: ${day.count}`}
-            className={cn('flex-1 rounded-[1px]', day.count > 0 ? 'bg-signal' : 'bg-muted')}
+            className={cn('flex-1 rounded-[1px]', day.count > 0 ? 'bg-primary' : 'bg-muted')}
             style={{ height: `${day.count > 0 ? 25 + (day.count / peak) * 75 : 10}%` }}
           />
         ))}
@@ -338,7 +338,7 @@ function UpcomingInterviews({ interviews }: { interviews: InterviewSummary[] }) 
               <FlapText value={date ? format(date, 'dd MMM').toUpperCase() : 'TBC'} className="text-sm font-semibold" />
               <span className="tabular hidden text-sm text-muted-foreground sm:block">{date ? format(date, 'HH:mm') : '--:--'}</span>
               <Link to={`/interviews/${interview.id}`} className="min-w-0">
-                <span className="text-display block truncate text-xl">{interview.company_name}</span>
+                <span className="block truncate text-[15px] font-semibold">{interview.company_name}</span>
                 <span className="block truncate text-xs text-muted-foreground sm:hidden">
                   Round {interview.round_number} · {formatLabel(interview.round_type)}
                   {date ? ` · ${format(date, 'HH:mm')}` : ''}
@@ -349,7 +349,7 @@ function UpcomingInterviews({ interviews }: { interviews: InterviewSummary[] }) 
               </span>
               <Link
                 to={`/interviews/${interview.id}/prep`}
-                className="board-label justify-self-end rounded-[3px] bg-signal px-2 py-1 text-signal-foreground hover:bg-[color-mix(in_oklch,var(--signal),black_8%)]"
+                className="board-label justify-self-end rounded-sm border border-foreground/25 px-2 py-1 hover:border-foreground hover:bg-signal hover:text-signal-foreground"
               >
                 Prep pack
               </Link>

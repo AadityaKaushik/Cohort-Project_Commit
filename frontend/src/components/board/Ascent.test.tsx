@@ -1,32 +1,35 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { RouteLine, type RouteStation } from '@/components/board/RouteLine'
+import { Ascent, type AscentStage } from '@/components/board/Ascent'
 import { FlapText } from '@/components/board/FlapText'
 
-const STATIONS: RouteStation[] = [
+const STAGES: AscentStage[] = [
   { key: 'SAVED', label: 'Saved', count: 4, line: 'saved', to: '/applications/board' },
   { key: 'APPLIED', label: 'Applied', count: 6, line: 'applied', to: '/applications/board' },
   { key: 'OFFER', label: 'Offer', count: 1, line: 'offer' },
 ]
 
-describe('RouteLine', () => {
-  it('shows every station with its label and count, in order', () => {
+describe('Ascent', () => {
+  it('shows every stage with its count and label, in order, one step higher each time', () => {
     render(
       <MemoryRouter>
-        <RouteLine stations={STATIONS} />
+        <Ascent stages={STAGES} />
       </MemoryRouter>,
     )
 
     const [wide] = screen.getAllByRole('list', { name: 'Pipeline' })
     const items = within(wide).getAllByRole('listitem')
     expect(items.map((item) => item.textContent)).toEqual(['4Saved', '6Applied', '1Offer'])
+    const heights = items.map((item) => parseFloat((item.querySelector('[data-step]') as HTMLElement).style.height))
+    expect(heights).toEqual([...heights].sort((a, b) => a - b))
+    expect(new Set(heights).size).toBe(heights.length)
   })
 
-  it('links a station when it has a target and names the link with the count', () => {
+  it('links a stage when it has a target and names the link with the count', () => {
     render(
       <MemoryRouter>
-        <RouteLine stations={STATIONS} />
+        <Ascent stages={STAGES} />
       </MemoryRouter>,
     )
 
@@ -41,5 +44,18 @@ describe('FlapText', () => {
 
     expect(screen.getByText('17 OCT')).toBeInTheDocument()
     expect(screen.getByLabelText('17 OCT')).toBeInTheDocument()
+  })
+})
+
+describe('Ascent counts', () => {
+  it('can hide the counts for the sign-in panel', () => {
+    render(
+      <MemoryRouter>
+        <Ascent stages={STAGES} inverse showCounts={false} />
+      </MemoryRouter>,
+    )
+
+    const [wide] = screen.getAllByRole('list', { name: 'Pipeline' })
+    expect(within(wide).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['Saved', 'Applied', 'Offer'])
   })
 })

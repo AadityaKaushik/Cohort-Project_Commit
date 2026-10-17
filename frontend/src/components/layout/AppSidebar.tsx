@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { ChevronDownIcon } from 'lucide-react'
 import { BrandGlyph, BrandMark } from '@/components/brand/BrandMark'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { isNavItemActive, navGroups, secondaryNavItems, type NavItem } from '@/lib/navigation'
@@ -64,8 +65,9 @@ function CollapsedGroup({ label, items }: { label: string; items: NavItem[] }) {
   return (
     <SidebarGroup className="py-1.5">
       <details open={hasActive} className="group/more">
-        <summary className="board-label flex h-7 cursor-pointer items-center px-2 text-sidebar-muted-foreground group-data-[collapsible=icon]:hidden">
+        <summary className="board-label flex h-7 cursor-pointer list-none items-center justify-between rounded-sm px-2 text-sidebar-muted-foreground hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden [&::-webkit-details-marker]:hidden">
           {label}
+          <ChevronDownIcon aria-hidden className="size-3.5 transition-transform duration-200 group-open/more:rotate-180" />
         </summary>
         <SidebarGroupContent>
           <NavList items={items} />

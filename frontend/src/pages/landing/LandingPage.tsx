@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { ArrowRightIcon } from 'lucide-react'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { FlapText } from '@/components/board/FlapText'
-import { RouteLine, type RouteStation } from '@/components/board/RouteLine'
+import { Ascent, type AscentStage } from '@/components/board/Ascent'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
 
-const EXAMPLE_ROUTE: RouteStation[] = [
+const EXAMPLE_STAGES: AscentStage[] = [
   { key: 'saved', label: 'Saved', count: 9, line: 'saved' },
   { key: 'applied', label: 'Applied', count: 14, line: 'applied' },
   { key: 'oa', label: 'OA', count: 6, line: 'oa' },
@@ -71,16 +71,18 @@ export function LandingPage() {
       </header>
 
       <main id="main" className="flex-1">
-        <section className="bg-primary text-primary-foreground">
+        <section className="bg-brand text-brand-foreground">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center lg:py-20">
             <div>
               <p className="board-label opacity-80">Job application tracker with interview preparation</p>
-              <h1 className="text-display mt-4 text-[3.4rem] sm:text-[5.2rem] lg:text-[6rem]">Every application on one line.</h1>
+              <h1 className="text-display mt-4 text-[3.4rem] sm:text-[5.2rem] lg:text-[6rem]">
+                From saved <span className="text-signal">to signed.</span>
+              </h1>
               <p className="mt-6 max-w-xl text-base/relaxed opacity-90 sm:text-lg/relaxed">
                 Cohort follows each application from saved to offer, flags the ones that stall, and turns every interview into practice for the next one.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button variant="cta" size="xl" asChild className="dark:bg-primary-foreground dark:text-primary dark:hover:bg-primary-foreground/85">
+                <Button variant="cta" size="xl" asChild>
                   <Link to="/register">
                     Create account
                     <ArrowRightIcon aria-hidden />
@@ -97,7 +99,7 @@ export function LandingPage() {
               </div>
             </div>
 
-            <figure aria-label="Example of the interview board" className="rounded-md border-2 border-current/25 bg-background text-foreground">
+            <figure aria-label="Example of the interview list" className="rounded-md bg-background text-foreground">
               <div className="flex items-center justify-between border-b px-4 py-2.5">
                 <span className="text-display text-xl">Next interviews</span>
                 <span className="board-label text-muted-foreground">Example</span>
@@ -108,7 +110,7 @@ export function LandingPage() {
                     <FlapText value={row.date} className="text-sm font-semibold" />
                     <FlapText value={row.time} className="text-sm text-muted-foreground" />
                     <span className="min-w-0">
-                      <span className="text-display block truncate text-lg">{row.company}</span>
+                      <span className="block truncate font-semibold">{row.company}</span>
                       <span className="block truncate text-xs text-muted-foreground">{row.round}</span>
                     </span>
                   </li>
@@ -121,14 +123,14 @@ export function LandingPage() {
         <section aria-labelledby="route-heading" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <div className="flex flex-col gap-2 border-b-2 border-rule pb-4 sm:flex-row sm:items-end sm:justify-between">
             <h2 id="route-heading" className="text-display text-4xl">
-              The line
+              The climb
             </h2>
             <p className="max-w-md text-sm text-muted-foreground">
-              Six stations, one colour each. Every application sits on one of them, and the counts tell you where your search stands.
+              Six stages, each one a step up from the last. Every application stands on one of them, and the counts show where your search is.
             </p>
           </div>
-          <div className="mt-8 rounded-md border bg-card px-4 py-8 sm:px-8">
-            <RouteLine stations={EXAMPLE_ROUTE} />
+          <div className="mt-8 rounded-md border bg-card px-4 pt-8 pb-5 sm:px-8">
+            <Ascent stages={EXAMPLE_STAGES} />
           </div>
         </section>
 
@@ -140,7 +142,7 @@ export function LandingPage() {
             {TIMETABLE.map((row, index) => (
               <li key={row.code} className="grid gap-2 border-b py-6 sm:grid-cols-[3rem_9rem_minmax(0,1fr)] sm:gap-6">
                 <span className="tabular text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-                <span className="board-label self-start justify-self-start rounded-[3px] bg-signal px-2 py-1 text-signal-foreground">{row.code}</span>
+                <span className="board-label self-start justify-self-start rounded-sm border border-foreground/30 px-2 py-1">{row.code}</span>
                 <div>
                   <h3 className="text-display text-2xl">{row.title}</h3>
                   <p className="mt-2 max-w-2xl text-sm/relaxed text-muted-foreground">{row.text}</p>

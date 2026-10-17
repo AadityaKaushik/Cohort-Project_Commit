@@ -2,47 +2,37 @@ import { useEffect, useState } from 'react'
 import { prefersReducedMotion } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
-const GLYPHS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const TICK_MS = 40
-
-function scramble(value: string, settled: number): string {
-  return value
-    .split('')
-    .map((char, index) => (index < settled || char === ' ' || char === ':' ? char : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]))
-    .join('')
-}
+const COUNT_MS = 650
 
 /**
- * Text that settles one character at a time, like a split-flap departure board.
+ * Numbers count up to their value and text rises into place, once, when it first appears.
  * Screen readers get the final value straight away; reduced-motion users see no animation.
  */
 export function FlapText({ value, className }: { value: string | number; className?: string }) {
   const text = String(value)
   const [shown, setShown] = useState(text)
+  const isCount = typeof value === 'number' && Number.isInteger(value) && value > 0
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    if (!isCount || prefersReducedMotion()) {
       setShown(text)
       return
     }
-    let tick = 0
-    const settleEvery = 3
-    const total = text.length * settleEvery + 4
-    setShown(scramble(text, 0))
-    const timer = window.setInterval(() => {
-      tick += 1
-      if (tick >= total) {
-        window.clearInterval(timer)
-        setShown(text)
-        return
-      }
-      setShown(scramble(text, Math.floor((tick - 4) / settleEvery)))
-    }, TICK_MS)
-    return () => window.clearInterval(timer)
-  }, [text])
+    const target = value as number
+    const start = performance.now()
+    let frame = 0
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - start) / COUNT_MS)
+      const eased = 1 - (1 - progress) ** 3
+      setShown(String(Math.round(target * eased)))
+      if (progress < 1) frame = requestAnimationFrame(step)
+    }
+    frame = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(frame)
+  }, [isCount, text, value])
 
   return (
-    <span className={cn('tabular', className)} aria-label={text} role="text">
+    <span className={cn('tabular inline-block', !isCount && 'motion-safe:animate-[rise-in_420ms_ease-out_both]', className)} aria-label={text} role="text">
       <span aria-hidden>{shown}</span>
     </span>
   )

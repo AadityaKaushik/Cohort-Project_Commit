@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils'
 import type { ActionItem, ActionItemType } from '@/lib/action-queue'
 import { EmptyState } from '@/components/shared/EmptyState'
 
-// Board status codes, so each row says what kind of nudge it is before you read it.
+// A short code per row, so you can tell what kind of nudge it is before reading it.
 const CODES: Record<ActionItemType, { label: string; className: string }> = {
-  stalled: { label: 'Delayed', className: 'bg-destructive text-white dark:text-black' },
-  upcoming_interview: { label: 'Boarding', className: 'bg-signal text-signal-foreground' },
-  missing_debrief: { label: 'Debrief', className: 'bg-line-applied text-white dark:text-black' },
+  stalled: { label: 'Stalled', className: 'bg-destructive text-white dark:text-black' },
+  upcoming_interview: { label: 'Interview', className: 'bg-signal text-signal-foreground' },
+  missing_debrief: { label: 'Debrief', className: 'bg-line-interview text-white dark:text-black' },
   due_task: { label: 'Prep due', className: 'bg-foreground text-background' },
 }
 

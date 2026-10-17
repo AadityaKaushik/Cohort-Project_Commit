@@ -134,7 +134,7 @@ const KanbanCard = memo(function KanbanCard({ application, isDragged, onDragStar
         <div className="min-w-0">
           <Link
             to={`/applications/${application.id}`}
-            className="text-display block truncate text-lg hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-2"
+            className="block truncate text-[15px] font-semibold hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-2"
           >
             {application.company.name}
           </Link>

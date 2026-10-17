@@ -13,7 +13,7 @@ export function TopicGrid({ topics, onSelectTopic }: { topics: TopicMasteryView[
           key={topic.topic_id}
           type="button"
           onClick={() => onSelectTopic?.(topic)}
-          className="flex flex-col items-start justify-between gap-2.5 rounded-lg border bg-card p-3 text-left hover:border-primary/30"
+          className="flex flex-col items-start justify-between gap-2.5 rounded-md border bg-card p-3 text-left transition-colors hover:border-foreground/40"
         >
           <span className="text-sm font-medium leading-tight">{topic.topic_name}</span>
           <MasteryBadge

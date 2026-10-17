@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { BrandMark } from '@/components/brand/BrandMark'
-import { RouteLine, type RouteStation } from '@/components/board/RouteLine'
+import { Ascent, type AscentStage } from '@/components/board/Ascent'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const STATIONS: RouteStation[] = [
+const STAGES: AscentStage[] = [
   { key: 'saved', label: 'Saved', count: 0, line: 'saved' },
   { key: 'applied', label: 'Applied', count: 0, line: 'applied' },
   { key: 'interview', label: 'Interview', count: 0, line: 'interview' },
@@ -15,14 +15,16 @@ const STATIONS: RouteStation[] = [
 export function AuthFrame({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-      <aside className="flex flex-col justify-between gap-8 bg-primary px-6 py-6 text-primary-foreground sm:px-10 lg:py-10">
+      <aside className="flex flex-col justify-between gap-8 bg-brand px-6 py-6 text-brand-foreground sm:px-10 lg:py-10">
         <Link to="/" aria-label="Cohort home" className="w-fit rounded-sm">
-          <BrandMark wordmarkClassName="text-[26px]" glyphClassName="bg-primary-foreground text-primary" />
+          <BrandMark wordmarkClassName="text-[26px]" />
         </Link>
         <div className="hidden lg:block">
-          <p className="text-display text-[4.5rem] xl:text-[5.5rem]">Every application on one line.</p>
-          <div className="mt-10 max-w-md [&_.tabular]:hidden">
-            <RouteLine stations={STATIONS} />
+          <p className="text-display text-[4.5rem] xl:text-[5.5rem]">
+            From saved <span className="text-signal">to signed.</span>
+          </p>
+          <div className="mt-10 max-w-md">
+            <Ascent stages={STAGES} inverse showCounts={false} />
           </div>
         </div>
         <p className="board-label hidden opacity-75 lg:block">Job application tracker with interview preparation</p>

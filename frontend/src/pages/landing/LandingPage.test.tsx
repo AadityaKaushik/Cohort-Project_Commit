@@ -26,7 +26,7 @@ describe('LandingPage', () => {
     const { container } = renderLanding()
 
     expect(document.documentElement.classList.contains('dark')).toBe(theme === 'dark')
-    expect(screen.getByRole('heading', { level: 1, name: 'Every application on one line.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'From saved to signed.' })).toBeInTheDocument()
     expect(screen.getByText('Job application tracker with interview preparation')).toBeInTheDocument()
     const logins = screen.getAllByRole('link', { name: 'Log in' })
     expect(logins.length).toBeGreaterThan(0)

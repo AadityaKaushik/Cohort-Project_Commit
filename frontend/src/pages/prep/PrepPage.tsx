@@ -27,6 +27,9 @@ import { PageGuide } from '@/components/onboarding/PageGuide'
 import { ErrorState, LoadingCards, LoadingRows } from '@/components/shared/QueryStates'
 import { SectionCard } from '@/components/shared/SectionCard'
 import { StatGrid, StatTile } from '@/components/shared/StatTile'
+import { Ascent, type AscentStage } from '@/components/board/Ascent'
+import { READINESS_LABELS, readinessLevel, type ReadinessLevel } from '@/lib/readiness'
+import type { LineColour } from '@/lib/stage-lines'
 import { ToneBadge } from '@/components/shared/ToneBadge'
 import { cn } from '@/lib/utils'
 
@@ -119,6 +122,18 @@ export function PrepPage() {
         />
         <StatTile label="Strong topics" icon={TargetIcon} tone="info" value={progressQuery.data ? strongTopics : null} loading={progressQuery.isLoading} hint={`of ${topics.length} tracked topics`} />
       </StatGrid>
+
+      {progressQuery.data && topics.length > 0 && (
+        <section aria-labelledby="readiness-heading" className="rounded-md border bg-card px-4 pt-5 pb-4 sm:px-6">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-1 border-b-2 border-rule pb-3">
+            <h2 id="readiness-heading" className="text-display text-2xl">
+              Readiness
+            </h2>
+            <p className="text-sm text-muted-foreground">How many of your {topics.length} topics sit at each level. Practice moves a topic up a step.</p>
+          </div>
+          <Ascent stages={readinessStages(topics)} />
+        </section>
+      )}
 
       <div data-guide="review">
         <ReviewTodayCard limit={20} />
@@ -253,4 +268,15 @@ export function PrepPage() {
       </div>
     </div>
   )
+}
+
+const READINESS_LINES: Record<ReadinessLevel, LineColour> = { 0: 'saved', 1: 'applied', 2: 'interview', 3: 'offer' }
+
+function readinessStages(topics: { mastery_score: number; sufficient_evidence: boolean }[]): AscentStage[] {
+  return ([0, 1, 2, 3] as const).map((level) => ({
+    key: String(level),
+    label: READINESS_LABELS[level],
+    count: topics.filter((topic) => readinessLevel(topic.mastery_score, topic.sufficient_evidence) === level).length,
+    line: READINESS_LINES[level],
+  }))
 }
