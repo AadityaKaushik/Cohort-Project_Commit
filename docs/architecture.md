@@ -146,7 +146,7 @@ Plain CRUD services (applications, resumes, interviews, contacts, offers) stay p
 
 | Area | Tables |
 |---|---|
-| Accounts | `users`, `refresh_tokens`, `auth_tokens` (password reset and email verification), `oauth_identities` |
+| Accounts | `users`, `refresh_tokens`, `auth_tokens` (emailed codes for password reset and email verification), `oauth_identities` |
 | Applications | `companies`, `applications`, `application_status_history`, `tags`, `application_tags` |
 | Resumes | `resumes`, `resume_sections` |
 | Interviews | `interviews`, `interview_questions`, `interview_feedback` |
@@ -287,7 +287,7 @@ Calendar. Each interview can be downloaded as an `.ics` event, and `/calendar/up
 | Passwords | Argon2id (64 MiB memory, 3 iterations), rehashed on login if the parameters change; length policy with a blocklist |
 | Sessions | Access tokens last 15 minutes. Refresh tokens last 7 days, are stored as hashes, rotate on use and are revoked on logout; a password change revokes other sessions |
 | Login | Rate limited per email; register, login and password reset give the same answer and similar timing whether or not the email exists |
-| Account recovery | Password reset and email verification tokens are single-use and expire |
+| Email codes | Six-digit codes for email verification and password reset, stored salted and hashed, single-use, valid 10 minutes, dead after 5 wrong guesses, one new code per 60 seconds. Password sign-in is refused (403 `EMAIL_NOT_VERIFIED`) until the email is confirmed, checked only after the password matches |
 | Social sign-in | Google, GitHub and LinkedIn issue an identity only; the app then issues its own tokens. An existing account is linked only when the provider marks the email verified |
 | Authorisation | Repository-level user scoping; 404 on foreign resources |
 | Input | Bean Validation with unknown fields rejected; length caps; text-quality checks on free text; server rules are the authority |
@@ -320,7 +320,9 @@ Configuration comes from the environment (`.env`, based on `.env.example`):
 | `APP_FRONTEND_BASE_URL`, `APP_CORS_ALLOWED_ORIGINS` | Frontend origin |
 | `AI_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `GEMINI_API_KEY` | AI provider |
 | `APP_FL_SERVICE_BASE_URL`, `APP_FL_EXPORT_CRON`, `APP_FL_ROUND_CRON` | FL service address and schedule (export every 6 hours, round 30 minutes later) |
-| `APP_MAIL_SENDER`, `RESUME_STORAGE_DIR`, `REPORT_STORAGE_DIR` | Mail and file storage |
+| `APP_MAIL_SENDER` (`log` or `smtp`), `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_HOST`, `MAIL_PORT` | Email. `log` writes emails to the API log; `smtp` sends through Gmail (an app password) or any SMTP provider |
+| `EMAIL_VERIFICATION_REQUIRED` | Password sign-in waits for a confirmed email (default `true`) |
+| `RESUME_STORAGE_DIR`, `REPORT_STORAGE_DIR` | File storage |
 
 The OAuth redirect address for each provider is `http://localhost:8080/login/oauth2/code/{google|github|linkedin}` in local development.
 

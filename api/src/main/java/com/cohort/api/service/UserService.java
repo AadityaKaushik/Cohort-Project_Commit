@@ -12,9 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final AccountRecoveryService accountRecoveryService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AccountRecoveryService accountRecoveryService) {
         this.userRepository = userRepository;
+        this.accountRecoveryService = accountRecoveryService;
     }
 
     @Transactional(readOnly = true)
@@ -31,6 +33,7 @@ public class UserService {
                 throw new EmailAlreadyInUseException();
             }
             user.setEmail(request.email());
+            accountRecoveryService.sendVerificationToNewAddress(user);
         }
         if (request.displayName() != null) {
             user.setDisplayName(request.displayName());

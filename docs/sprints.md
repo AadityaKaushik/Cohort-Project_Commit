@@ -215,9 +215,9 @@ Stories: US-06, US-07, US-08, US-76 to US-80, US-92.
 | P66 | Backend | P20, P65 | Report export endpoints and page, with owner-only expiring downloads | - | Another user's download returns 404 |
 | P67 | Backend | P05, P06 | Change password, data export, account deletion | - | No orphan rows after deletion |
 | P68 | Backend | P05 | Argon2id at 64 MiB and 3 iterations with rehash on login; refresh tokens of at most 7 days | - | Hash parameters and token lifetimes asserted |
-| P69 | Backend | P05, P68 | Password reset and email verification with single-use expiring tokens | Strategy (mail sender) | Reused and expired tokens rejected; no email enumeration |
+| P69 | Backend | P05, P68 | Email verification and password reset with 6-digit emailed codes, sign-in blocked until the email is confirmed, Gmail SMTP or log mail sender | Strategy (mail sender) | Codes single-use, expiring, hashed and limited to 5 guesses; unconfirmed log-in refused only after the right password; no email enumeration |
 
-Sprint 5 DoD: notifications and reports work end to end; account deletion leaves no orphan rows; Argon2id parameters and token lifetimes are asserted; reset and verification tokens are single-use and expiring; no email enumeration.
+Sprint 5 DoD: notifications and reports work end to end; account deletion leaves no orphan rows; Argon2id parameters and token lifetimes are asserted; reset and verification codes are single-use, expiring and limited to 5 guesses; password sign-in waits for a confirmed email; no email enumeration.
 
 ---
 

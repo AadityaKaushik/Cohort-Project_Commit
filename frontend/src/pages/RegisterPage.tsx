@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { FormError, FormField } from '@/components/shared/Form'
 import { prefetchRoute } from '@/lib/route-chunks'
 import { AuthFrame, AuthIntro } from '@/components/layout/AuthFrame'
+import type { VerifyEmailState } from '@/pages/auth/VerifyEmailPage'
 import { Input } from '@/components/ui/input'
 
 export function RegisterPage() {
@@ -51,7 +52,11 @@ export function RegisterPage() {
     setIsSubmitting(true)
     setSigningIn(true)
     try {
-      await register(email, password, displayName)
+      const { verificationRequired } = await register(email, password, displayName)
+      if (verificationRequired) {
+        navigate('/verify-email', { state: { email } satisfies VerifyEmailState })
+        return
+      }
       navigate('/', { replace: true })
     } catch (err) {
       setSigningIn(false)

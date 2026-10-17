@@ -31,6 +31,7 @@ describe('ProductTour', () => {
       sessionMessage: null,
       login: vi.fn(),
       register: vi.fn(),
+      confirmEmail: vi.fn(),
       logout: vi.fn(),
     } as unknown as ReturnType<typeof useAuth>)
   })

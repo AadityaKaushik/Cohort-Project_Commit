@@ -13,6 +13,7 @@ import com.cohort.api.dto.LoginRequest;
 import com.cohort.api.dto.RegisterRequest;
 import com.cohort.api.entity.User;
 import com.cohort.api.exception.EmailAlreadyRegisteredException;
+import com.cohort.api.exception.EmailNotVerifiedException;
 import com.cohort.api.exception.InvalidCredentialsException;
 import com.cohort.api.exception.WeakPasswordException;
 import com.cohort.api.repository.UserRepository;
@@ -46,7 +47,7 @@ class AuthServiceTest {
 
         authService = new AuthService(
                 userRepository, passwordEncoder, passwordPolicyValidator, tokenService, loginRateLimiter,
-                mock(AccountRecoveryService.class));
+                mock(AccountRecoveryService.class), false);
     }
 
     @Test
@@ -144,5 +145,43 @@ class AuthServiceTest {
 
         org.assertj.core.api.Assertions.assertThat(user.getPasswordHash()).isEqualTo("new-hash");
         org.mockito.Mockito.verify(userRepository).save(user);
+    }
+
+    private AuthService requiringVerification() {
+        return new AuthService(
+                userRepository, passwordEncoder, passwordPolicyValidator, tokenService, loginRateLimiter,
+                mock(AccountRecoveryService.class), true);
+    }
+
+    @Test
+    void registerWithVerificationRequiredReturnsNoTokens() {
+        when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+        when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var response = requiringVerification()
+                .register(new RegisterRequest("new@example.com", "a-fine-password", "New User"));
+
+        assertThat(response.verificationRequired()).isTrue();
+        assertThat(response.accessToken()).isNull();
+        assertThat(response.refreshToken()).isNull();
+        verify(tokenService, never()).issueAccessToken(any());
+    }
+
+    @Test
+    void loginRefusesAnUnconfirmedEmailOnlyAfterTheRightPassword() {
+        User user = new User("unconfirmed@example.com", "stored-hash", "Unconfirmed");
+        when(userRepository.findByEmail("unconfirmed@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("correct-password", "stored-hash")).thenReturn(true);
+        when(passwordEncoder.matches("wrong-password", "stored-hash")).thenReturn(false);
+        AuthService service = requiringVerification();
+
+        assertThatThrownBy(() -> service.login(new LoginRequest("unconfirmed@example.com", "wrong-password")))
+                .isInstanceOf(InvalidCredentialsException.class);
+        assertThatThrownBy(() -> service.login(new LoginRequest("unconfirmed@example.com", "correct-password")))
+                .isInstanceOf(EmailNotVerifiedException.class);
+
+        user.markEmailVerified();
+        assertThat(service.login(new LoginRequest("unconfirmed@example.com", "correct-password")).accessToken())
+                .isEqualTo("access-token");
     }
 }

@@ -6,8 +6,10 @@ import { ProfileForm } from '@/components/account/ProfileForm'
 import { useAuth } from '@/hooks/use-auth'
 import * as usersApi from '@/lib/users-api'
 
+const toast = vi.fn()
 vi.mock('@/hooks/use-auth')
 vi.mock('@/lib/users-api')
+vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast }) }))
 
 describe('ProfileForm', () => {
   beforeEach(() => {
@@ -28,6 +30,7 @@ describe('ProfileForm', () => {
       sessionMessage: null,
       login: vi.fn(),
       register: vi.fn(),
+      confirmEmail: vi.fn(),
       logout: vi.fn(),
     })
   })
@@ -65,5 +68,20 @@ describe('ProfileForm', () => {
 
     expect(await screen.findByText(/valid email address/i)).toBeInTheDocument()
     expect(usersApi.updateMyProfile).not.toHaveBeenCalled()
+  })
+
+  it('says a code went to the new address after an email change', async () => {
+    toast.mockReset()
+    vi.mocked(usersApi.updateMyProfile).mockResolvedValue({} as usersApi.UserProfile)
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.clear(screen.getByLabelText('Email'))
+    await user.type(screen.getByLabelText('Email'), 'nina.new@example.com')
+    await user.click(screen.getByRole('button', { name: 'Save profile' }))
+
+    await waitFor(() =>
+      expect(toast).toHaveBeenCalledWith(expect.objectContaining({ description: expect.stringContaining('nina.new@example.com') })),
+    )
   })
 })

@@ -105,6 +105,7 @@ describe.each(['light', 'dark'] as const)('inner pages in the %s theme', (theme)
       sessionMessage: null,
       login: vi.fn(),
       register: vi.fn(),
+      confirmEmail: vi.fn(),
       logout: vi.fn(),
     } as unknown as ReturnType<typeof useAuth>)
   })

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { SESSION_EXPIRED_EVENT } from '@/lib/api-client'
-import { loginRequest, logoutRequest, registerRequest } from '@/lib/auth-api'
+import { confirmEmailVerification, loginRequest, logoutRequest, registerRequest, type AuthResponse } from '@/lib/auth-api'
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '@/lib/auth-storage'
 import { getMyProfile, type UserProfile } from '@/lib/users-api'
 
@@ -11,7 +11,9 @@ interface AuthContextValue {
   isAuthenticated: boolean
   sessionMessage: string | null
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, displayName: string) => Promise<void>
+  /** Resolves to true when the account must confirm its email before it is signed in. */
+  register: (email: string, password: string, displayName: string) => Promise<{ verificationRequired: boolean }>
+  confirmEmail: (email: string, code: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -39,18 +41,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired)
   }, [queryClient])
 
-  async function login(email: string, password: string) {
-    const response = await loginRequest({ email, password })
+  function signIn(response: AuthResponse) {
+    if (!response.access_token || !response.refresh_token) {
+      return false
+    }
     setTokens(response.access_token, response.refresh_token)
     setSessionMessage(null)
     setHasToken(true)
+    return true
+  }
+
+  async function login(email: string, password: string) {
+    signIn(await loginRequest({ email, password }))
   }
 
   async function register(email: string, password: string, displayName: string) {
     const response = await registerRequest({ email, password, display_name: displayName })
-    setTokens(response.access_token, response.refresh_token)
-    setSessionMessage(null)
-    setHasToken(true)
+    return { verificationRequired: !signIn(response) }
+  }
+
+  async function confirmEmail(email: string, code: string) {
+    signIn(await confirmEmailVerification({ email, code }))
   }
 
   async function logout() {
@@ -70,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionMessage,
     login,
     register,
+    confirmEmail,
     logout,
   }
 

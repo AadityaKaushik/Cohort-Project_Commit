@@ -100,7 +100,7 @@ Java paths are relative to `api/src/test/java/com/cohort/api/`.
 | Argon2id parameters and token lifetimes | `security/PasswordEncoderConfigTest`, `service/TokenServiceTest` |
 | Account deletion leaves no orphan rows | `controller/AccountIntegrationTest` |
 | Login does not reveal whether an email exists | `service/AuthServiceTest` |
-| Reset and verification tokens are single use | `controller/AccountRecoveryIntegrationTest` |
+| Email codes are single use, expire, are stored hashed and die after 5 wrong guesses; sign-in waits for a confirmed email | `controller/EmailCodeIntegrationTest`, `service/AuthServiceTest`, `service/mail/SmtpMailSenderTest` |
 
 ### Sprint 6
 

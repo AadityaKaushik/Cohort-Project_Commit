@@ -4,7 +4,7 @@
 -- 1) Demo user. Password is "SeedDemo123!", hashed with the encoder from PasswordEncoderConfig.
 INSERT INTO users (
     id, email, password_hash, display_name, target_role, graduation_year, timezone,
-    role, is_active, fl_opt_in, fl_privacy_posture, epsilon_spent, created_at, updated_at
+    role, is_active, fl_opt_in, fl_privacy_posture, epsilon_spent, email_verified_at, created_at, updated_at
 ) VALUES (
     'deadbeef-0001-4000-8000-000000000001',
     'seed.demo.user@example.com',
@@ -14,7 +14,7 @@ INSERT INTO users (
     2026,
     'Asia/Kolkata',
     'user', true, false, 'balanced', 0,
-    now(), now()
+    now(), now(), now()
 )
 ON CONFLICT (id) DO NOTHING;
 

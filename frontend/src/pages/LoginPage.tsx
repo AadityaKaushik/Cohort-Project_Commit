@@ -5,6 +5,8 @@ import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError } from '@/lib/api-client'
+import { EMAIL_NOT_VERIFIED } from '@/lib/auth-api'
+import type { VerifyEmailState } from '@/pages/auth/VerifyEmailPage'
 import { email as emailRule, hasErrors, required, validate, type FieldErrors } from '@/lib/validation'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -58,6 +60,10 @@ export function LoginPage() {
       navigate(redirectTo, { replace: true })
     } catch (err) {
       setSigningIn(false)
+      if (err instanceof ApiError && err.code === EMAIL_NOT_VERIFIED) {
+        navigate('/verify-email', { state: { email, sendCode: true } satisfies VerifyEmailState })
+        return
+      }
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setIsSubmitting(false)

@@ -33,7 +33,7 @@ IT314 Software Engineering project.
 
 **Account**
 - Email and password (Argon2id), or Google, GitHub or LinkedIn sign-in
-- Password reset, email verification, data export and account deletion
+- Email confirmation and password reset with 6-digit emailed codes, data export and account deletion
 - Light and dark themes, responsive down to phone width, onboarding, sample data and a guided tour
 
 | | |
@@ -68,6 +68,14 @@ docker compose up --build
 - Postgres: host port 5433
 
 The `dev` profile loads demo data. Sign in with `seed.demo.user@example.com` / `SeedDemo123!`.
+
+New accounts confirm their email with a 6-digit code. By default the code is written to the API log (`docker logs cohort-api`). To send real email through Gmail, turn on 2-step verification for the sending account, create an app password at https://myaccount.google.com/apppasswords, and set in `.env`:
+
+```
+APP_MAIL_SENDER=smtp
+MAIL_USERNAME=your.sender@gmail.com
+MAIL_PASSWORD=your-app-password
+```
 
 With the federated learning service as well:
 

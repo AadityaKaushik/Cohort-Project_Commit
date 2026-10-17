@@ -171,6 +171,8 @@ Priority: M = Must, S = Should, C = Could, Out = outside the product scope (sect
 | FR-09 | The system shall allow a user to permanently delete their account and all associated data, including stored FL client state. | S |
 | FR-10 | The system shall allow a user to export all of their own data as JSON. | S |
 | FR-11 | An administrator role able to disable accounts and view system health. | Out |
+| FR-105 | The system shall confirm a new account's email with a 6-digit emailed code before allowing password sign-in. | S |
+| FR-106 | The system shall let a user reset a forgotten password with a 6-digit emailed code. | S |
 
 ### 5.2 Job application tracking
 
@@ -547,8 +549,11 @@ US-91, Onboarding and starter plan · Should · 5 points
 - I can import an existing tracker from CSV, including LinkedIn's "Job Applications.csv" export and Google Sheets or Notion layouts, with a preview before anything is saved; unknown statuses map to Saved with a warning.
 
 US-92, Password reset and email verification · Should · 5 points
-> As a job seeker, I want to reset a forgotten password and verify my email, so that I can recover my account and prove the address is mine.
-- Reset and verification tokens are single-use and expire; a reused or expired token is rejected; the reset request gives the same response whether or not the email exists.
+> As a job seeker, I want to confirm my email with a code and reset a forgotten password the same way, so that only real addresses get accounts and I can recover mine.
+- A new account gets a 6-digit code by email and cannot sign in with its password until the code is entered; the correct code signs the user in.
+- Reset and verification codes are stored hashed, expire after 10 minutes, work once, and stop working after 5 wrong guesses; a new code can be requested after 60 seconds and replaces the old one.
+- Reset and verification requests give the same response whether or not the email exists; a wrong password on an unconfirmed account gives the usual wrong-password error.
+- Changing the account email sends a code to the new address. Accounts signed in through Google, GitHub or LinkedIn are confirmed by the provider.
 
 US-93, Sign in with Google, GitHub or LinkedIn · Could · 5 points
 > As a job seeker, I want to sign in with Google, GitHub or LinkedIn, so that I do not need another password.

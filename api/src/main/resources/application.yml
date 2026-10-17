@@ -20,6 +20,18 @@ spring:
     placeholders:
       # Password for the cohort_fl role created in V19. Same env var as docker-compose.fl.yml.
       flPassword: ${FL_POSTGRES_PASSWORD:change_me_too}
+  mail:
+    # Gmail SMTP with an app password by default; any SMTP provider works by changing these.
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
   servlet:
     multipart:
       # Above the 5 MB resume cap (FR-30), so the size check in ValidatingFileStorage gives the error.
@@ -46,10 +58,16 @@ app:
       client-id: ${LINKEDIN_CLIENT_ID:}
       client-secret: ${LINKEDIN_CLIENT_SECRET:}
   mail:
+    # log writes emails to the server log; smtp sends them through spring.mail.
     sender: ${APP_MAIL_SENDER:log}
+    from-name: Cohort
   auth:
-    password-reset-ttl-minutes: 60
-    email-verification-ttl-hours: 24
+    # Password sign-in is refused until the email is confirmed with a code.
+    email-verification-required: ${EMAIL_VERIFICATION_REQUIRED:true}
+    code:
+      ttl-minutes: 10
+      max-attempts: 5
+      resend-cooldown-seconds: 60
     login-rate-limit:
       max-attempts: 10
       window-minutes: 15

@@ -11,7 +11,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface AuthTokenRepository extends JpaRepository<AuthToken, UUID> {
 
-    Optional<AuthToken> findByTokenHashAndPurpose(String tokenHash, AuthToken.Purpose purpose);
+    Optional<AuthToken> findFirstByUser_IdAndPurposeAndUsedAtIsNullOrderByCreatedAtDesc(
+            UUID userId, AuthToken.Purpose purpose);
+
+    Optional<AuthToken> findFirstByUser_IdAndPurposeOrderByCreatedAtDesc(UUID userId, AuthToken.Purpose purpose);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update AuthToken t set t.usedAt = :now "

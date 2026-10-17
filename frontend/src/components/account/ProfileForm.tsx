@@ -36,9 +36,14 @@ export function ProfileForm() {
 
   const mutation = useMutation({
     mutationFn: (input: Parameters<typeof updateMyProfile>[0]) => updateMyProfile(input),
-    onSuccess: () => {
+    onSuccess: (_saved, input) => {
+      const emailChanged = Boolean(user) && input.email?.toLowerCase() !== user?.email.toLowerCase()
       queryClient.invalidateQueries({ queryKey: ['me'] })
-      toast({ title: 'Profile saved' })
+      toast(
+        emailChanged
+          ? { title: 'Profile saved', description: `We sent a code to ${input.email}. Next time you log in with your password, enter it to confirm the new address.` }
+          : { title: 'Profile saved' },
+      )
     },
     onError: (error: unknown) => {
       setServerError(error instanceof ApiError ? error.message : 'Could not save your profile.')

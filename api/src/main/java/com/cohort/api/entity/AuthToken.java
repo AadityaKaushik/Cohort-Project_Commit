@@ -42,6 +42,9 @@ public class AuthToken {
     @Column(name = "used_at")
     private Instant usedAt;
 
+    @Column(name = "failed_attempts", nullable = false)
+    private int failedAttempts;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -78,5 +81,21 @@ public class AuthToken {
 
     public void markUsed(Instant now) {
         this.usedAt = now;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getTokenHash() {
+        return tokenHash;
+    }
+
+    /** A wrong guess; after the last allowed one the code stops working. */
+    public void recordFailedAttempt(int maxAttempts, Instant now) {
+        failedAttempts++;
+        if (failedAttempts >= maxAttempts) {
+            usedAt = now;
+        }
     }
 }
