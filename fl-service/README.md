@@ -1,7 +1,7 @@
 # fl-service
 
 Python side of the federated-learning slice (Flower + scikit-learn). Spring Boot owns the rest of the
-application (see `docs/adr/ADR-010-java-spring-boot-main-api.md`); this directory holds only the
+application (see `docs/architecture.md`); this directory holds only the
 client/server training code and a small FastAPI wrapper.
 
 ## Layout
@@ -10,7 +10,7 @@ client/server training code and a small FastAPI wrapper.
 - `app/client/` feature extraction, local `SGDClassifier` training, L2 clipping and Gaussian noise.
 - `app/server/` FedAvg strategy over deltas, minimum-cohort refusal, poisoning filter, round orchestration, append-only model registry.
 - `app/control/` FastAPI endpoints the Java API calls (`app.main:app`).
-- `spike/` the Sprint 3 FedAvg spike; findings are in `docs/adr/ADR-011-fl-spike-findings.md`. Not on the production path.
+- `spike/` a standalone two-client FedAvg experiment that checks Flower's aggregation against scikit-learn models (see `docs/recommendations-and-fl.md`). Not on the production path.
 
 The service holds no database credentials. Rounds and the model ledger are persisted by the Java API.
 

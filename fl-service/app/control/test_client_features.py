@@ -1,4 +1,4 @@
-"""P52 (US-58): `PUT /fl/client-features/{client_id}` accepts exactly 24 floats matching the schema."""
+"""US-58: `PUT /fl/client-features/{client_id}` accepts exactly 24 floats matching the schema."""
 
 from __future__ import annotations
 

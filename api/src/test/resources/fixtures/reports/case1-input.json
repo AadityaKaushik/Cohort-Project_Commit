@@ -1,5 +1,5 @@
 {
-  "_comment": "P63 golden fixture for ReportBuilder. Seven applications covering: a referral, a comma and a double quote in text fields (CSV quoting), a formula-injection company name, closed applications (rejected, withdrawn), an offer, and a long-open application that lands in the 'no response' bucket. Every history step happens at 10:00Z; the report is generated at 2026-09-25T12:00:00Z.",
+  "_comment": "Golden fixture for ReportBuilder. Seven applications covering: a referral, a comma and a double quote in text fields (CSV quoting), a formula-injection company name, closed applications (rejected, withdrawn), an offer, and a long-open application that lands in the 'no response' bucket. Every history step happens at 10:00Z; the report is generated at 2026-09-25T12:00:00Z.",
   "generatedAt": "2026-09-25T12:00:00Z",
   "owner": "Asha Rao",
   "applications": [

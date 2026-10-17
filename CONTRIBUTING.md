@@ -1,37 +1,32 @@
 # Contributing
 
-## Branching
+## Branches
 
-Branch names follow `feature/US-XX-short-description` (or `chore/`, `fix/` for non-story work),
-referencing the user story or phase ID from `docs/plan/BUILD_PHASES_JAVA.md`.
+Each story or phase gets its own branch off `main`: `feature/US-XX-short-description`, or `fix/` and `chore/` for work that is not a story. Phases and their stories are listed in [`docs/sprints.md`](docs/sprints.md).
 
-## Commit conventions
+## Commits
 
-Conventional commits: `type(scope): description (US-XX)`.
+Conventional commits with the story id: `type(scope): description (US-XX)`.
 
 Types: `feat`, `fix`, `test`, `docs`, `chore`, `refactor`.
 
-Examples:
-- `feat(auth): Spring Security + JWT + Argon2id (US-01,02,03,04)`
-- `fix(applications): reject backward status transition without note (US-21)`
+```
+feat(auth): Spring Security + JWT + Argon2id (US-01,02,03,04)
+fix(applications): reject a backward status change without a note (US-14)
+```
 
-## Design patterns
+One phase is one commit. Two phases never share a commit, even small ones, and a phase starts only after the phases it depends on are in.
 
-Any commit that adds or changes a pattern-bearing class (see
-`docs/plan/ARCHITECTURE_REVISION_JAVA.md` §4) must say, in one sentence in the PR description,
-which pattern it implements or extends. This is part of the Definition of Done.
+## Pull requests
+
+- Every pull request is reviewed and approved by someone other than its author before it is merged.
+- A change to a class that carries a design pattern (State, Strategy, Decorator, Chain of Responsibility, Template Method, Observer, Builder, Facade, Adapter, Circuit Breaker) says in one sentence which pattern it implements or extends. The patterns and where they live are in [`docs/architecture.md`](docs/architecture.md).
+- UI changes include screenshots at phone and desktop width.
 
 ## Tests
 
-- Every phase that adds backend logic ships tests in the same commit: JUnit 5 for units/slices,
-  MockMvc for controller tests, Testcontainers for anything touching real Postgres.
-- Every phase touching user-owned data includes the cross-user isolation test for any new
-  endpoint (expect 404, never 403, on foreign access; see FR-95).
-- Run `mvn test` (in `api/`) or `pytest` (in `fl-service/`) before every commit. Never commit a
-  red suite.
+- Tests ship in the same commit as the code: JUnit 5 for units, MockMvc for controllers, Testcontainers for anything that touches Postgres, React Testing Library for components, pytest for fl-service.
+- Every endpoint on user-owned data has a cross-user isolation test: another user's id returns 404, never 403.
+- Run the suites before every commit (`mvn test` in `api/`, `npm test` in `frontend/`, `pytest` in `fl-service/`). A failing suite is never committed, and a test is never weakened to make it pass.
 
-## Process
-
-- One phase from the build-phases document per commit. Phases are not merged together, even
-  when a phase is small.
-- No phase starts before its listed dependency has landed.
+How the suites are organised and what each one proves is in [`docs/testing.md`](docs/testing.md).

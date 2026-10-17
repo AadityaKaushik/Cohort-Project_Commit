@@ -67,12 +67,11 @@
       <version>1.80</version>
     </dependency>
     <dependency>
-      <!-- P53: Circuit Breaker pattern around FlowerServiceAdapter
-           (ARCHITECTURE_REVISION_JAVA.md, section 4.1), used programmatically
-           (CircuitBreakerRegistry + CircuitBreaker.decorateSupplier) rather
-           than via @CircuitBreaker annotations, so the fallback-to-local-only
-           behaviour is explicit, readable in one place, and testable without
-           relying on Spring AOP self-invocation proxying. -->
+      <!-- Circuit Breaker around FlowerServiceAdapter (docs/architecture.md).
+           Used programmatically (CircuitBreakerRegistry +
+           CircuitBreaker.decorateSupplier) rather than through annotations,
+           so the fallback to local-only ranking sits in one place and can be
+           tested without Spring AOP self-invocation proxying. -->
       <groupId>io.github.resilience4j</groupId>
       <artifactId>resilience4j-circuitbreaker</artifactId>
       <version>2.4.0</version>
@@ -83,14 +82,14 @@
       <version>2.4.0</version>
     </dependency>
     <dependency>
-      <!-- P109: the security suite reads every endpoint from the OpenAPI
+      <!-- The endpoint security suite reads every endpoint from the OpenAPI
            document. Off by default; tests switch it on. -->
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
       <version>2.8.9</version>
     </dependency>
     <dependency>
-      <!-- P63 (US-80, FR-102/103): PDF rendering for report exports.
+      <!-- US-80, FR-102/103: PDF rendering for report exports.
            OpenPDF is the LGPL/MPL-licensed fork of iText 4, so it carries no
            AGPL obligations, and needs no native dependencies. -->
       <groupId>com.github.librepdf</groupId>
@@ -147,20 +146,16 @@
         </configuration>
       </plugin>
       <plugin>
-        <!-- NFR-37 / Sprint 1 DoD: backend line coverage >= 70%. The
+        <!-- NFR-37: backend line coverage >= 70%. The
              `check` execution is bound to `verify`, not `test`, so a plain
              `mvn test` (the fast local loop) is unaffected; CI and anyone
              running `mvn verify` gets the gate enforced. -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <!-- Bumped from 0.8.12 (env fix, not a Sprint 2 feature change):
-             0.8.12's bundled ASM cannot parse class file major version 69
-             (JDK 25) bytecode, which this environment's JVM emits for
-             runtime-generated classes (Hibernate proxies, Mockito's
-             ByteBuddy agent) even though the project still targets/compiles
-             to Java 21. The agent instruments the running JVM's classes,
-             not just this module's own compiled output. 0.8.15 adds
-             support for newer class file versions. -->
+        <!-- 0.8.15 is needed when tests run on JDK 25: older JaCoCo
+             versions cannot parse class file version 69, which the JVM emits
+             for runtime-generated classes (Hibernate proxies, Mockito's
+             ByteBuddy agent) even though the project compiles to Java 21. -->
         <version>0.8.15</version>
         <executions>
           <execution>

@@ -1,7 +1,7 @@
-"""Synthetic, non-IID data for two clients, for the P33 spike.
+"""Synthetic, non-IID data for two clients, for the FedAvg experiment.
 
 The shards differ in class balance and label noise, since an IID split would hide
-the problems this spike is meant to find.
+the problems the experiment is meant to show.
 """
 
 from __future__ import annotations

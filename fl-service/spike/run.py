@@ -1,8 +1,8 @@
-"""P33 spike: a two-client FedAvg round with scikit-learn models and Flower's own aggregation code.
+"""A two-client FedAvg round with scikit-learn models and Flower's own aggregation code.
 
 It calls `FedAvg.aggregate_fit` and the parameter conversion helpers directly, in
 process, instead of going through Flower's client/server runtime. The reasons are
-in docs/adr/ADR-011-fl-spike-findings.md.
+in docs/recommendations-and-fl.md.
 
 It shows that:
 1. Two locally trained models serialise through `Parameters`/`FitRes` and back to ndarrays.

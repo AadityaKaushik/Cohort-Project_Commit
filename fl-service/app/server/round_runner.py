@@ -40,7 +40,7 @@ class RoundResult:
     parameters: list[np.ndarray]  # the active global model after this round
     reason: str | None
     participant_count: int
-    filtered_count: int = 0  # how many participants' updates were dropped as anomalous (P48)
+    filtered_count: int = 0  # how many participants' updates were dropped as anomalous
 
 def run_round(
     strategy: MinCohortFedAvg,

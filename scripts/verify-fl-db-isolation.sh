@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks the fl-service DB role cannot read user tables (P50, US-61).
+# Checks the fl-service DB role cannot read user tables (US-61).
 # Run against a live compose stack:
 #   docker compose -f docker-compose.yml -f docker-compose.fl.yml up -d --build db api fl-service
 # FlSchemaIsolationIntegrationTest checks the same grants on Testcontainers.

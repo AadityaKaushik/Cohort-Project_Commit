@@ -1,4 +1,4 @@
-"""P33: the spike runs and its FedAvg round beats the local-only models."""
+"""The experiment runs and its FedAvg round beats the local-only models."""
 
 from spike.run import run_spike
 

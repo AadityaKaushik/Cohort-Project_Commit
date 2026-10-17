@@ -1,4 +1,4 @@
-"""P55 (US-57): `GET /fl/schema` returns the allow-list as it is, so the consent screen can show what is sent."""
+"""US-57: `GET /fl/schema` returns the allow-list as it is, so the consent screen can show what is sent."""
 
 from __future__ import annotations
 

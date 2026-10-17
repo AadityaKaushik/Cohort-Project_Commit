@@ -28,7 +28,7 @@ Job trackers keep the application form small and mostly optional, and experience
 | Source | Optional, up to 100 characters, same character rules | Free label like "LinkedIn" or "Referral" |
 | Whitespace | Trimmed, runs of spaces and tabs collapsed to one space on single-line fields | Duplicate-detection and company grouping depend on it |
 | Job URL | Optional, up to 2048 characters, must parse as http or https with a host | A link without a host or with another scheme (javascript:, file:) is not a job link |
-| Date applied | Not before 2000-01-01, not in the future | Existing rule was no future date; the lower bound catches year 0001 and 1900 |
+| Date applied | Not before 2000-01-01, not in the future | The lower bound catches typos such as year 0001 or 1900 |
 | Deadline | Not before 2000-01-01, not more than one year ahead | A deadline is a future date, but a year is the practical limit |
 | Interview times | Not before 2000, not more than one year ahead | Same reasoning |
 | Salary min and max | 0 to 100,000,000 each, min not above max | Catches typos by an order of magnitude without guessing the currency |

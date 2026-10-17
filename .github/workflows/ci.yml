@@ -8,7 +8,7 @@ on:
 
 jobs:
   security-gates:
-    name: Security gates: secret scan, string-built SQL (P81)
+    name: Security gates: secret scan, string-built SQL
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository with full history
@@ -58,7 +58,7 @@ jobs:
           retention-days: 14
 
   fl-db-isolation:
-    name: fl-service: DB credential isolation (P50, US-61)
+    name: fl-service: DB credential isolation
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

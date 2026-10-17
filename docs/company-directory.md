@@ -1,6 +1,6 @@
 # Company directory
 
-Part of the company pages (US-96, P84). Sourced reference data in `company_profiles` and `company_role_patterns`, seeded by migrations V71, V72 and V75 to V78, read through `GET /api/v1/directory/companies` and `/{slug}`. A signed-in user is required. Candidates can add anonymous experience contributions on top, described under Experience contributions.
+Part of the company pages (US-96). Sourced reference data in `company_profiles` and `company_role_patterns`, seeded by migrations V71, V72 and V75 to V78, read through `GET /api/v1/directory/companies` and `/{slug}`. A signed-in user is required. Candidates can add anonymous experience contributions on top, described under Experience contributions.
 
 ## Sourcing rules
 

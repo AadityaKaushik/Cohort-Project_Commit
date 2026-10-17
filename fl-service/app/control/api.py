@@ -82,7 +82,7 @@ def create_app(
 
     @app.delete("/fl/client-features/{client_id}", status_code=204)
     def delete_client_features(client_id: str) -> Response:
-        """US-08 (P66): account deletion removes this client's exported state."""
+        """US-08: account deletion removes this client's exported state."""
         store.delete(client_id)
         return Response(status_code=204)
 

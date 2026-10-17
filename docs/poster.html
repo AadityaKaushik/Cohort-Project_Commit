@@ -6,11 +6,12 @@
 <title>Cohort poster</title>
 <style>
   @page { size: A2; margin: 0; }
-  :root { --ink: #1f2933; --muted: #52606d; --line: #d9dee3; --accent: #3b4cca; --bg: #ffffff; --panel: #f5f7f9; }
+  :root { --ink: #16302B; --muted: #4f6560; --line: #ddd6c8; --accent: #F08A4B; --pine: #1d3d36; --bg: #F6F1E7; --panel: #fbf8f2; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--ink); font-family: system-ui, "Segoe UI", Arial, sans-serif; line-height: 1.45; }
   .sheet { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: grid; gap: 24px; }
-  header { border-bottom: 3px solid var(--accent); padding-bottom: 16px; }
+  header { background: var(--pine); color: var(--bg); border-radius: 6px; padding: 24px; border-bottom: 6px solid var(--accent); }
+  header p { color: #dfe7e2 !important; }
   h1 { font-size: 44px; }
   header p { color: var(--muted); font-size: 18px; margin-top: 4px; }
   h2 { font-size: 20px; margin-bottom: 10px; }
@@ -23,7 +24,6 @@
   th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; }
   pre { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 12px; font-size: 13px; overflow-x: auto; }
-  .status { font-size: 14px; color: var(--muted); font-weight: 400; margin-left: 8px; }
   footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
   @media (max-width: 800px) { .two, .three { grid-template-columns: 1fr; } }
 </style>
@@ -53,6 +53,7 @@
         <li>Records interviews, questions and a short debrief.</li>
         <li>Scores topic mastery and recommends what to practise next, with the evidence shown.</li>
         <li>Trains a shared model by federated learning: only clipped, noised updates leave a user's partition, and a privacy ledger lists them.</li>
+        <li>Helps with the writing around a search on a local AI model: resume and job description match, interview prep packs and email drafts.</li>
       </ul>
     </section>
   </div>
@@ -79,6 +80,7 @@
         <tr><td>Stall detection</td><td>Uses the user's own median time in a stage.</td></tr>
         <tr><td>Recommendations</td><td>Each one has an evidence tier and a reason.</td></tr>
         <tr><td>Privacy ledger</td><td>Lists every federated round the user took part in.</td></tr>
+        <tr><td>Practice</td><td>Question bank, spaced review queue, mock interviews and a STAR story bank.</td></tr>
       </table>
     </section>
     <section>
@@ -110,22 +112,22 @@ PostgreSQL 16     FL gateway
   </div>
 
   <section>
-    <h2>Plan <span class="status">9 sprints, 110 phases. Sprints 1 to 7 are built. Sprint 8 is built for six phases. Sprint 9 is built for P105 to P108 and P110, with P109 verified at the final test run.</span></h2>
+    <h2>Sprints</h2>
     <table>
-      <tr><th>Sprint</th><th>Theme</th><th>Phases</th><th>Content</th><th>Status</th></tr>
-      <tr><td>1</td><td>Foundation</td><td>P01-P15</td><td>Auth, applications, status history, frontend shell, CI, Docker</td><td>Built</td></tr>
-      <tr><td>2</td><td>Resumes and interviews</td><td>P16-P26</td><td>Resume versions and upload, interviews, questions, debrief</td><td>Built</td></tr>
-      <tr><td>3</td><td>Preparation and analytics</td><td>P27-P38</td><td>Question bank, mastery, funnel and stage analytics, dashboard</td><td>Built</td></tr>
-      <tr><td>4</td><td>Recommendations and federated learning</td><td>P39-P58</td><td>Recommendation chain, FL client and server, privacy ledger</td><td>Built</td></tr>
-      <tr><td>5</td><td>Notifications, reports, account</td><td>P59-P68</td><td>Notifications, PDF and CSV reports, password reset, verification</td><td>Built</td></tr>
-      <tr><td>6</td><td>Experience and core gaps</td><td>P69-P81</td><td>Design system, board, filters, onboarding, social sign-in, security headers</td><td>Built</td></tr>
-      <tr><td>7</td><td>Job-search workflow</td><td>P82-P88</td><td>Contacts, company pages, offers, goals, search, resume editor</td><td>Built</td></tr>
-      <tr><td>8</td><td>AI and intelligence</td><td>P89-P104</td><td>AI provider, readiness score, resume match, prep pack, email drafts, spaced review (ten phases deferred)</td><td>Built: P89, P94, P95, P98, P99, P103</td></tr>
-      <tr><td>9</td><td>Hardening and delivery</td><td>P105-P110</td><td>Sample data, error screens, help pages, security and accessibility pass</td><td>Built: P105-P108, P110. P109 verified at the final test run</td></tr>
+      <tr><th>Sprint</th><th>Theme</th><th>What it delivers</th></tr>
+      <tr><td>1</td><td>Foundation</td><td>Auth, applications, status history, frontend shell, CI, Docker</td></tr>
+      <tr><td>2</td><td>Resumes and interviews</td><td>Resume versions and upload, interviews, questions, debrief</td></tr>
+      <tr><td>3</td><td>Preparation and analytics</td><td>Question bank, mastery, funnel and stage analytics, dashboard</td></tr>
+      <tr><td>4</td><td>Recommendations and federated learning</td><td>Recommendation chain, FL client and server, privacy ledger</td></tr>
+      <tr><td>5</td><td>Notifications, reports, account</td><td>Notifications, PDF and CSV reports, password reset, verification</td></tr>
+      <tr><td>6</td><td>Experience</td><td>Design system, board, filters, onboarding, social sign-in, security headers</td></tr>
+      <tr><td>7</td><td>Job-search workflow</td><td>Contacts, company pages, offers, goals, search, resume editor</td></tr>
+      <tr><td>8</td><td>AI and practice</td><td>AI provider, readiness score, resume match, prep pack, email drafts, spaced review, mock interview, STAR stories</td></tr>
+      <tr><td>9</td><td>Hardening and delivery</td><td>Sample data, guided tour, error screens, help pages, security and accessibility pass</td></tr>
     </table>
   </section>
 
-  <footer>Full phase list: docs/plan/BUILD_PHASES_JAVA.md</footer>
+  <footer>Sprint and phase details: docs/sprints.md</footer>
 </div>
 </body>
 </html>

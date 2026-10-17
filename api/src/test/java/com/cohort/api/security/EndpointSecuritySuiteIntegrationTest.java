@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-/** P109 (US-73): every endpoint in the OpenAPI document, checked for 401 without a token and 404 on other users' ids. */
+/** US-73: every endpoint in the OpenAPI document, checked for 401 without a token and 404 on other users' ids. */
 @SpringBootTest(properties = "springdoc.api-docs.enabled=true")
 @AutoConfigureMockMvc
 @Import(AbstractIntegrationTest.ContainerConfig.class)

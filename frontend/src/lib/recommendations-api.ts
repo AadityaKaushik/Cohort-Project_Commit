@@ -28,7 +28,7 @@ export interface Recommendation {
   dismissed_reason: string | null
   accepted_task_id: string | null
   generated_at: string
-  // US-65: whether a federated model signal was actually folded into this ranking (P53's circuit breaker falls back to false, never an error).
+  // US-65: whether a federated model signal was actually folded into this ranking (the circuit breaker falls back to false, never an error).
   federated_applied: boolean
   rank_delta: number
   suppressed_until: string | null
