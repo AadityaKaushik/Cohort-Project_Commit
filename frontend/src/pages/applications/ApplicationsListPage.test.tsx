@@ -117,6 +117,19 @@ describe('ApplicationsListPage', () => {
     expect(await screen.findByText('board view')).toBeInTheDocument()
   })
 
+  it('still opens the board when list filters are also remembered', async () => {
+    window.localStorage.setItem('cohort:pref:applications-view', JSON.stringify('board'))
+    window.localStorage.setItem(
+      'cohort:pref:applications-list',
+      JSON.stringify({ sort: 'date_applied', direction: 'desc', filters: { q: '', status: '', priority: '', work_mode: '', date_from: '', date_to: '' } }),
+    )
+    vi.mocked(listApplications).mockResolvedValue({ items: [sampleApplication()], total: 1, page: 0, size: 25 })
+
+    renderPage()
+
+    expect(await screen.findByText('board view')).toBeInTheDocument()
+  })
+
   it('shows relative dates with the exact date on hover and flags stalled rows', async () => {
     vi.mocked(listApplications).mockResolvedValue({ items: [sampleApplication()], total: 1, page: 0, size: 25 })
     vi.mocked(listStalledApplications).mockResolvedValue([

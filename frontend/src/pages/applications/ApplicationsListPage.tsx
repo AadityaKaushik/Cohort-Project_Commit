@@ -82,6 +82,8 @@ export function ApplicationsListPage() {
   const wantsBoard = remembered.view === 'board' && !searchParams.has('view')
 
   useEffect(() => {
+    // Restoring would overwrite the redirect to the board and leave this page rendering nothing.
+    if (wantsBoard) return
     const onlyView = [...searchParams.keys()].every((key) => key === 'view')
     if (remembered.list && onlyView) {
       const next = new URLSearchParams(searchParams)
