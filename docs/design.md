@@ -37,9 +37,10 @@ Tokens live in `frontend/src/index.css`, light theme under `:root` and dark unde
 
 ## Signature components
 
-- `Ascent` (`components/board/Ascent.tsx`): stages drawn as a staircase with the count on each step. Used for the pipeline on the dashboard and landing page, the sign-in panel (ivory steps on pine) and the readiness levels on the prep page. On phones it turns into rows whose bar grows one step per stage.
+- `Ascent` (`components/board/Ascent.tsx`): stages drawn as a staircase with the count on each step. Used for the pipeline on the dashboard, the sign-in panel (ivory steps on pine) and the readiness levels on the prep page. On phones it turns into rows whose bar grows one step per stage.
 - `ReadinessSteps` (`components/prep/MasteryBadge.tsx`): a three-step glyph next to each topic's mastery, filled to its level; a strong topic reaches the top step in apricot.
 - The logo: a three-step stair in an apricot square.
+- The landing page (`components/landing/`): an example application climbing the stages with what Cohort does at each one, three problems each paired with a small live example of the fix, a stage picker, a picture of federated learning, and a FAQ.
 - Status chips: a square in the stage colour and the stage name in mono capitals.
 
 ## Motion
@@ -49,6 +50,7 @@ Motion is used only where it explains something:
 - Switching theme grows the new theme out from the clicked button.
 - The steps rise once, one after another, when the dashboard loads, and lift slightly on hover.
 - Counts run up to their value on load; dates and times rise into place (`FlapText`).
+- On the landing page, sections rise in as they scroll into view, the hero example steps through the stages (it pauses on hover), and summaries travel to the shared model in the privacy picture.
 - Rows get an apricot edge marker on hover and focus.
 
 Every animation is skipped when the user prefers reduced motion.

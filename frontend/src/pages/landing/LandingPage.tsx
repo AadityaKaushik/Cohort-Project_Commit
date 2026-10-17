@@ -1,49 +1,39 @@
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRightIcon } from 'lucide-react'
 import { BrandMark } from '@/components/brand/BrandMark'
-import { FlapText } from '@/components/board/FlapText'
-import { Ascent, type AscentStage } from '@/components/board/Ascent'
+import { ClimbDemo } from '@/components/landing/ClimbDemo'
+import { Faq } from '@/components/landing/Faq'
+import { PrivacyFlow } from '@/components/landing/PrivacyFlow'
+import { ProblemShowcase } from '@/components/landing/ProblemShowcase'
+import { StageExplorer } from '@/components/landing/StageExplorer'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
+import { useInView } from '@/lib/use-in-view'
+import { cn } from '@/lib/utils'
 
-const EXAMPLE_STAGES: AscentStage[] = [
-  { key: 'saved', label: 'Saved', count: 9, line: 'saved' },
-  { key: 'applied', label: 'Applied', count: 14, line: 'applied' },
-  { key: 'oa', label: 'OA', count: 6, line: 'oa' },
-  { key: 'interview', label: 'Interview', count: 4, line: 'interview' },
-  { key: 'final', label: 'Final', count: 2, line: 'final' },
-  { key: 'offer', label: 'Offer', count: 1, line: 'offer' },
+const SECTIONS = [
+  { id: 'problems', label: 'Problems' },
+  { id: 'how', label: 'How it works' },
+  { id: 'privacy', label: 'Privacy' },
+  { id: 'faq', label: 'FAQ' },
 ]
 
-const EXAMPLE_DEPARTURES = [
-  { date: '17 OCT', time: '10:30', company: 'Kestrel Labs', round: 'Technical, R2' },
-  { date: '18 OCT', time: '14:00', company: 'Northwind', round: 'HR, R1' },
-  { date: '21 OCT', time: '11:15', company: 'Arcadia Bank', round: 'Final' },
+const FIGURES = [
+  { value: '6', label: 'stages, Saved to Offer' },
+  { value: '288', label: 'original questions' },
+  { value: '48', label: 'topics with mastery that fades' },
+  { value: '3 min', label: 'to debrief a round' },
 ]
 
-const TIMETABLE = [
-  {
-    code: 'Track',
-    title: 'Every application on a board',
-    text: 'Log a role in seconds, drag it between stages, and see which applications have gone quiet for longer than your usual.',
-  },
-  {
-    code: 'Prepare',
-    title: 'Practice that keeps score',
-    text: 'Questions by topic, with mastery that fades if you stop. A review queue tells you what to revisit, and a timed mock interview uses your weakest topics.',
-  },
-  {
-    code: 'Debrief',
-    title: 'Three minutes after each round',
-    text: 'Record the outcome and what you were asked while it is fresh. Any question can go straight into your own question bank.',
-  },
-  {
-    code: 'Review',
-    title: 'Numbers that show their sample size',
-    text: 'Funnel, conversion and rejection figures, flagged when there is not enough data yet, and suggestions that show the evidence behind them.',
-  },
+const PRIVACY_POINTS = [
+  'Your applications, notes and resumes never go to the shared model.',
+  'Each round sends 24 numbers, clipped and noised first.',
+  'Rounds with fewer than 3 people are refused.',
+  'The Privacy page lists every round you took part in and what was sent.',
 ]
+
+const NAV_LINK = 'hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-4'
 
 export function LandingPage() {
   useEffect(() => {
@@ -52,18 +42,17 @@ export function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="border-b-2 border-rule">
+      <header className="sticky top-0 z-30 border-b-2 border-rule bg-background">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <BrandMark />
-          <nav aria-label="Site" className="ml-auto hidden items-center gap-5 text-sm font-semibold sm:flex">
-            <Link to="/help" className="hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-4">
-              Help
-            </Link>
-            <Link to="/privacy-policy" className="hover:underline hover:decoration-signal hover:decoration-2 hover:underline-offset-4">
-              Privacy
-            </Link>
+          <nav aria-label="Sections" className="ml-auto hidden items-center gap-5 text-sm font-semibold md:flex">
+            {SECTIONS.map((section) => (
+              <a key={section.id} href={`#${section.id}`} className={NAV_LINK}>
+                {section.label}
+              </a>
+            ))}
           </nav>
-          <ThemeToggle className="ml-auto sm:ml-2" />
+          <ThemeToggle className="ml-auto md:ml-2" />
           <Button variant="outline" asChild className="hidden sm:inline-flex">
             <Link to="/login">Log in</Link>
           </Button>
@@ -71,9 +60,9 @@ export function LandingPage() {
       </header>
 
       <main id="main" className="flex-1">
-        <section className="bg-brand text-brand-foreground">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center lg:py-20">
-            <div>
+        <section className="overflow-hidden bg-brand text-brand-foreground">
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:py-20">
+            <div className="motion-safe:animate-[rise-in_600ms_ease-out_both]">
               <p className="board-label opacity-80">Job application tracker with interview preparation</p>
               <h1 className="text-display mt-4 text-[3.4rem] sm:text-[5.2rem] lg:text-[6rem]">
                 From saved <span className="text-signal">to signed.</span>
@@ -88,77 +77,73 @@ export function LandingPage() {
                     <ArrowRightIcon aria-hidden />
                   </Link>
                 </Button>
-                <Button
-                  size="xl"
-                  variant="outline"
-                  asChild
-                  className="border-current/40 text-current hover:border-current hover:text-current sm:hidden"
-                >
-                  <Link to="/login">Log in</Link>
+                <Button size="xl" variant="outline" asChild className="border-current/40 text-current hover:border-current hover:text-current">
+                  <a href="#problems">See what it fixes</a>
                 </Button>
               </div>
             </div>
+            <div className="motion-safe:animate-[rise-in_700ms_ease-out_150ms_both]">
+              <ClimbDemo />
+            </div>
+          </div>
+          <div className="border-t border-brand-foreground/15">
+            <dl className="mx-auto grid max-w-6xl grid-cols-2 px-4 sm:px-6 md:grid-cols-4">
+              {FIGURES.map((figure, index) => (
+                <div key={figure.label} className={cn('flex flex-col-reverse py-5 pr-4', index > 0 && 'md:border-l md:border-brand-foreground/15 md:pl-6')}>
+                  <dt className="mt-1 text-xs opacity-80">{figure.label}</dt>
+                  <dd className="text-display text-4xl text-signal">{figure.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
 
-            <figure aria-label="Example of the interview list" className="rounded-md bg-background text-foreground">
-              <div className="flex items-center justify-between border-b px-4 py-2.5">
-                <span className="text-display text-xl">Next interviews</span>
-                <span className="board-label text-muted-foreground">Example</span>
-              </div>
-              <ul className="divide-y">
-                {EXAMPLE_DEPARTURES.map((row) => (
-                  <li key={row.company} className="grid grid-cols-[4.2rem_3.2rem_minmax(0,1fr)] items-center gap-3 px-4 py-3">
-                    <FlapText value={row.date} className="text-sm font-semibold" />
-                    <FlapText value={row.time} className="text-sm text-muted-foreground" />
-                    <span className="min-w-0">
-                      <span className="block truncate font-semibold">{row.company}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{row.round}</span>
-                    </span>
+        <Section
+          id="problems"
+          eyebrow="The problem"
+          title="Three things go wrong in every job search"
+          intro="A tracker that is only a status board fixes none of them. Each one below has a part of Cohort built for it."
+        >
+          <ProblemShowcase />
+        </Section>
+
+        <Section
+          id="how"
+          eyebrow="How it works"
+          title="Every stage is a step up"
+          intro="Pick a stage to see what Cohort does there. The same steps appear on your dashboard, filled with your own applications."
+        >
+          <StageExplorer />
+        </Section>
+
+        <section id="privacy" aria-labelledby="privacy-heading" className="scroll-mt-16 bg-brand text-brand-foreground">
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:py-20">
+            <div>
+              <p className="board-label opacity-80">Privacy</p>
+              <h2 id="privacy-heading" className="text-display mt-3 text-4xl sm:text-5xl">
+                Learns from everyone. <span className="text-signal">Sees no one.</span>
+              </h2>
+              <p className="mt-5 text-sm/relaxed opacity-90">
+                The shared model gets better from many people's preparation without anyone's applications leaving their account. It is off until you turn it on.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm">
+                {PRIVACY_POINTS.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span aria-hidden className="mt-1.5 size-2 shrink-0 rounded-[1px] bg-signal" />
+                    {point}
                   </li>
                 ))}
               </ul>
-            </figure>
+            </div>
+            <PrivacyFlow />
           </div>
         </section>
 
-        <section aria-labelledby="route-heading" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="flex flex-col gap-2 border-b-2 border-rule pb-4 sm:flex-row sm:items-end sm:justify-between">
-            <h2 id="route-heading" className="text-display text-4xl">
-              The climb
-            </h2>
-            <p className="max-w-md text-sm text-muted-foreground">
-              Six stages, each one a step up from the last. Every application stands on one of them, and the counts show where your search is.
-            </p>
-          </div>
-          <div className="mt-8 rounded-md border bg-card px-4 pt-8 pb-5 sm:px-8">
-            <Ascent stages={EXAMPLE_STAGES} />
-          </div>
-        </section>
+        <Section id="faq" eyebrow="Questions" title="Asked before signing up">
+          <Faq />
+        </Section>
 
-        <section aria-labelledby="timetable-heading" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <h2 id="timetable-heading" className="text-display border-b-2 border-rule pb-4 text-4xl">
-            What you do in Cohort
-          </h2>
-          <ol>
-            {TIMETABLE.map((row, index) => (
-              <li key={row.code} className="grid gap-2 border-b py-6 sm:grid-cols-[3rem_9rem_minmax(0,1fr)] sm:gap-6">
-                <span className="tabular text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-                <span className="board-label self-start justify-self-start rounded-sm border border-foreground/30 px-2 py-1">{row.code}</span>
-                <div>
-                  <h3 className="text-display text-2xl">{row.title}</h3>
-                  <p className="mt-2 max-w-2xl text-sm/relaxed text-muted-foreground">{row.text}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-8 max-w-2xl text-sm/relaxed text-muted-foreground">
-            Your records stay in your account and nobody else can see them. The optional shared model only receives clipped, noised numbers, and every round
-            is listed on your Privacy page. Read the{' '}
-            <Link to="/privacy-policy" className="font-semibold text-foreground underline decoration-signal decoration-2 underline-offset-4">
-              privacy policy
-            </Link>
-            .
-          </p>
-        </section>
+        <ClosingCall />
       </main>
 
       <footer className="border-t-2 border-rule">
@@ -178,5 +163,54 @@ export function LandingPage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+function Section({ id, eyebrow, title, intro, children }: { id: string; eyebrow: string; title: string; intro?: string; children: ReactNode }) {
+  const { ref, inView } = useInView<HTMLDivElement>(0.1)
+  return (
+    <section id={id} aria-labelledby={`${id}-heading`} className="mx-auto w-full max-w-6xl scroll-mt-16 px-4 py-16 sm:px-6 lg:py-20">
+      <div
+        ref={ref}
+        className={cn('transition-[opacity,translate] duration-700 ease-out', inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0')}
+      >
+        <div className="mb-10 flex flex-col gap-3 border-b-2 border-rule pb-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="board-label text-muted-foreground">{eyebrow}</p>
+            <h2 id={`${id}-heading`} className="text-display mt-2 text-4xl sm:text-5xl">
+              {title}
+            </h2>
+          </div>
+          {intro && <p className="max-w-md text-sm text-muted-foreground">{intro}</p>}
+        </div>
+        {children}
+      </div>
+    </section>
+  )
+}
+
+function ClosingCall() {
+  return (
+    <section aria-labelledby="start-heading" className="border-t-2 border-rule bg-signal text-signal-foreground">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 id="start-heading" className="text-display text-5xl sm:text-6xl">
+            Start the climb.
+          </h2>
+          <p className="mt-3 max-w-lg text-sm/relaxed">Log your first application in under a minute, or load sample data and look around first.</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button size="xl" asChild className="bg-signal-foreground text-signal hover:bg-signal-foreground/90">
+            <Link to="/register">
+              Create an account
+              <ArrowRightIcon aria-hidden />
+            </Link>
+          </Button>
+          <Button size="xl" variant="outline" asChild className="border-signal-foreground/40 text-signal-foreground hover:border-signal-foreground hover:text-signal-foreground">
+            <Link to="/login">Log in</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
   )
 }
