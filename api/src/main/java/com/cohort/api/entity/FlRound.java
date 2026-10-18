@@ -29,6 +29,18 @@ public class FlRound {
     @Column(name = "cohort_size", nullable = false)
     private int cohortSize;
 
+    @Column(name = "sat_out_count", nullable = false)
+    private int satOutCount;
+
+    @Column(name = "model_version")
+    private Integer modelVersion;
+
+    @Column(name = "check_accuracy")
+    private Double checkAccuracy;
+
+    @Column(name = "noise_multiplier")
+    private Double noiseMultiplier;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -41,6 +53,31 @@ public class FlRound {
         this.accepted = accepted;
         this.reason = reason;
         this.cohortSize = cohortSize;
+    }
+
+    public FlRound(int roundNumber, boolean accepted, String reason, int cohortSize,
+                   int satOutCount, Integer modelVersion, Double checkAccuracy, Double noiseMultiplier) {
+        this(roundNumber, accepted, reason, cohortSize);
+        this.satOutCount = satOutCount;
+        this.modelVersion = modelVersion;
+        this.checkAccuracy = checkAccuracy;
+        this.noiseMultiplier = noiseMultiplier;
+    }
+
+    public int getSatOutCount() {
+        return satOutCount;
+    }
+
+    public Integer getModelVersion() {
+        return modelVersion;
+    }
+
+    public Double getCheckAccuracy() {
+        return checkAccuracy;
+    }
+
+    public Double getNoiseMultiplier() {
+        return noiseMultiplier;
     }
 
     public UUID getId() {

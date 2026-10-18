@@ -13,9 +13,8 @@ services:
     container_name: cohort-fl-service
     restart: unless-stopped
     environment:
-      FL_MIN_COHORT_SIZE: ${FL_MIN_COHORT_SIZE:-3}
-      FL_CLIPPING_NORM: ${FL_CLIPPING_NORM:-1.0}
-      FL_NOISE_MULTIPLIER: ${FL_NOISE_MULTIPLIER:-1.0}
+      # Synthetic clients, model reset and lower demo noise. The API side of the demo only exists under the dev profile.
+      FL_DEMO_ENABLED: ${FL_DEMO_ENABLED:-true}
       FL_POSTGRES_USER: ${FL_POSTGRES_USER:-cohort_fl}
       FL_POSTGRES_PASSWORD: ${FL_POSTGRES_PASSWORD:-change_me_too}
       FL_POSTGRES_SCHEMA: ${FL_POSTGRES_SCHEMA:-fl}

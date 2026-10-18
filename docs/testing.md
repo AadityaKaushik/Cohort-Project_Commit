@@ -87,7 +87,8 @@ Java paths are relative to `api/src/test/java/com/cohort/api/`.
 | fl-service down: recommendations still return 200 | `controller/RecommendationFederatedFaultInjectionIntegrationTest` |
 | The ledger stores the real sent vector | `service/fl/PrivacyLedgerServiceTest`, `controller/PrivacyLedgerIntegrationTest` |
 | Federated Lift stays within 0.75 to 1.25 | `service/fl/FederatedLiftCalculatorTest` |
-| Demo round with synthetic clients fills the ledger | `fl-service/app/demo/test_synthetic.py`, `test_simulate.py`, `controller/DevFlRoundIntegrationTest` |
+| Rounds train the shared model, publish a new version and get better on the check set | `fl-service/app/server/test_round_orchestrator.py`, `app/control/test_round_endpoint.py` |
+| Demo with synthetic clients fills the ledger, and the demo page shows the model, its history and every round | `fl-service/app/demo/test_simulate.py`, `controller/DevFlRoundIntegrationTest`, `pages/privacy/FederatedLearningDemoPage.test.tsx` |
 
 ### Sprint 5
 
@@ -167,6 +168,6 @@ Java paths are relative to `api/src/test/java/com/cohort/api/`.
 - [ ] A debrief from the dashboard prompt takes under three minutes.
 - [ ] axe-core reports no critical issues on the main pages in light and dark themes.
 - [ ] Every page works at 375 px with no horizontal scroll, and looks right at 1440 px.
-- [ ] With the FL profile running, a demo round adds a Privacy Ledger entry (see "Demo round with synthetic clients" in `fl-service/README.md`).
+- [ ] With the FL profile running, the Federated learning page (`/privacy/federated-learning`) runs rounds, the model version and weights change, and a Privacy Ledger entry appears.
 - [ ] Each sign-in provider that is configured in `.env` completes a sign-in.
 - [ ] The full demo runs end to end from a fresh clone with seed data.

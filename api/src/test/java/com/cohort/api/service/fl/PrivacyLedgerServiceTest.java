@@ -44,7 +44,7 @@ class PrivacyLedgerServiceTest {
                 List.of(new FlLedgerEntryData(userId.toString(), 1, 1.4, 1.0, 1.0, 1.0, realTransmittedVector)));
         when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(user(userId)));
         when(roundRepository.count()).thenReturn(0L);
-        when(gateway.runRound(1, List.of(userId.toString()))).thenReturn(outcome);
+        when(gateway.runRound(1, List.of(userId.toString()), null)).thenReturn(outcome);
         FlRound savedRound = new FlRound(1, true, null, 3);
         setRoundId(savedRound, UUID.randomUUID());
         when(roundRepository.save(any())).thenReturn(savedRound);
@@ -68,7 +68,7 @@ class PrivacyLedgerServiceTest {
         when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(user(UUID.randomUUID())));
         when(roundRepository.count()).thenReturn(4L);
         FlRoundOutcome outcome = new FlRoundOutcome(5, false, "too few participants", 1, List.of());
-        when(gateway.runRound(anyInt(), anyList())).thenReturn(outcome);
+        when(gateway.runRound(anyInt(), anyList(), org.mockito.ArgumentMatchers.isNull())).thenReturn(outcome);
         when(roundRepository.save(any())).thenReturn(new FlRound(5, false, "too few participants", 1));
 
         Optional<FlRound> result = service.runNextRoundAndPersist();
@@ -83,7 +83,7 @@ class PrivacyLedgerServiceTest {
         PrivacyLedgerService service = new PrivacyLedgerService(gateway, roundRepository, ledgerRepository, userRepository);
         when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(user(UUID.randomUUID())));
         when(roundRepository.count()).thenReturn(0L);
-        when(gateway.runRound(anyInt(), anyList())).thenThrow(new FlServiceUnavailableException("down", null));
+        when(gateway.runRound(anyInt(), anyList(), org.mockito.ArgumentMatchers.isNull())).thenThrow(new FlServiceUnavailableException("down", null));
 
         Optional<FlRound> result = service.runNextRoundAndPersist();
 
@@ -108,7 +108,7 @@ class PrivacyLedgerServiceTest {
         UUID withdrawn = UUID.randomUUID();
         when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(user(participant)));
         when(roundRepository.count()).thenReturn(0L);
-        when(gateway.runRound(1, List.of(participant.toString()))).thenReturn(new FlRoundOutcome(1, true, null, 2, List.of(
+        when(gateway.runRound(1, List.of(participant.toString()), null)).thenReturn(new FlRoundOutcome(1, true, null, 2, List.of(
                 new FlLedgerEntryData(participant.toString(), 1, 1.0, 1.0, 1.0, 1.0, List.of(0.1)),
                 new FlLedgerEntryData(withdrawn.toString(), 1, 1.0, 1.0, 1.0, 1.0, List.of(0.2)),
                 new FlLedgerEntryData("not-a-uuid", 1, 1.0, 1.0, 1.0, 1.0, List.of(0.3)))));
@@ -143,5 +143,24 @@ class PrivacyLedgerServiceTest {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    void storesTheTrainingResultAndPassesTheDemoNoiseLevelThrough() {
+        UUID userId = UUID.randomUUID();
+        PrivacyLedgerService service = new PrivacyLedgerService(gateway, roundRepository, ledgerRepository, userRepository);
+        when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(user(userId)));
+        when(roundRepository.count()).thenReturn(0L);
+        when(roundRepository.save(org.mockito.ArgumentMatchers.any(FlRound.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        FlRoundOutcome outcome = new FlRoundOutcome(1, true, null, 9, List.of(
+                new FlLedgerEntryData(userId.toString(), 1, 2.0, 1.0, 0.5, 2.0, List.of(0.1, 0.2))), 1, 4, 0.61);
+        when(gateway.runRound(1, List.of(userId.toString()), 0.5)).thenReturn(outcome);
+
+        FlRound round = service.runNextRoundAndPersist(0.5).orElseThrow();
+
+        assertThat(round.getModelVersion()).isEqualTo(4);
+        assertThat(round.getSatOutCount()).isEqualTo(1);
+        assertThat(round.getCheckAccuracy()).isEqualTo(0.61);
+        assertThat(round.getNoiseMultiplier()).isEqualTo(0.5);
     }
 }

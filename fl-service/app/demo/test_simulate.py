@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.common.parameters import zero_parameters
+from app.common.parameters import PARAMETER_COUNT
 from app.common.schema import FEATURE_COUNT
 from app.control.api import create_app
 from app.control.client_store import ClientFeatureStore
@@ -41,7 +42,8 @@ class FakeStack:
 
     def _java_round(self) -> dict:
         for user_id in self.opted_in:
-            self.store.put(user_id, 1, np.full(FEATURE_COUNT, 0.5))
+            rated_rounds = np.random.default_rng(1).uniform(size=(8, FEATURE_COUNT))
+            self.store.put(user_id, 1, np.full(FEATURE_COUNT, 0.5), rated_rounds, np.array([1, 0, 1, 1, 0, 0, 1, 0]))
         if not self.opted_in:
             return {"exported_users": 0, "export_failures": 0, "round_ran": False}
         round_number = len(self.round_responses) + 1
@@ -56,6 +58,7 @@ class FakeStack:
             "accepted": body["accepted"],
             "reason": body["reason"],
             "cohort_size": body["cohort_size"],
+            "model_version": body["model_version"],
         }
 
 def _run(stack: FakeStack, clients: int, rounds: int = 1) -> list[dict]:
@@ -70,7 +73,8 @@ def test_round_with_enough_synthetic_clients_is_accepted_and_the_real_user_gets_
     assert [r["cohort_size"] for r in results] == [9, 9]
     assert len(stack.ledger) == 2
     assert all(entry["client_id"] == REAL_USER for entry in stack.ledger)
-    assert all(len(entry["transmitted_vector"]) == FEATURE_COUNT for entry in stack.ledger)
+    assert all(len(entry["transmitted_vector"]) == PARAMETER_COUNT for entry in stack.ledger)
+    assert [r["model_version"] for r in results] == [1, 2]
 
 def test_round_below_the_minimum_cohort_is_still_refused() -> None:
     stack = FakeStack(opted_in=[REAL_USER])
@@ -108,8 +112,10 @@ def test_no_round_runs_when_nobody_is_opted_in() -> None:
 
 def test_scheduled_rounds_without_the_demo_ignore_nothing_new() -> None:
     stack = FakeStack(opted_in=[REAL_USER])
-    stack.store.put("another-real-user", 1, np.zeros(FEATURE_COUNT))
-    stack.store.put(REAL_USER, 1, np.zeros(FEATURE_COUNT))
+    rated = np.random.default_rng(2).uniform(size=(6, FEATURE_COUNT))
+    labels = np.array([1, 0, 1, 0, 1, 0])
+    stack.store.put("another-real-user", 1, np.zeros(FEATURE_COUNT), rated, labels)
+    stack.store.put(REAL_USER, 1, np.zeros(FEATURE_COUNT), rated, labels)
 
     body = stack.fl.post("/fl/round", json={"round_number": 1, "client_ids": [REAL_USER]}).json()
 

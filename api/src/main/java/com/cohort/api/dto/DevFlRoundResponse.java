@@ -7,5 +7,8 @@ public record DevFlRoundResponse(
         Integer roundNumber,
         Boolean accepted,
         String reason,
-        Integer cohortSize) {
+        Integer cohortSize,
+        Integer satOutCount,
+        Integer modelVersion,
+        Double checkAccuracy) {
 }

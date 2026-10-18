@@ -1,5 +1,6 @@
 package com.cohort.api.service.fl;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,12 +14,15 @@ public class FlExportClient {
         this.flServiceRestClient = flServiceRestClient;
     }
 
-    public void export(UUID userId, FlFeatureVector vector) {
+    public void export(UUID userId, FlFeatureVector vector, List<FlTrainingExample> examples) {
+        List<ExportExample> labelled = examples.stream()
+                .map(example -> new ExportExample(example.features().toOrderedArray(), example.confident() ? 1 : 0))
+                .toList();
         flServiceRestClient
                 .put()
                 .uri("/fl/client-features/{clientId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ExportRequest(1, vector.toOrderedArray()))
+                .body(new ExportRequest(1, vector.toOrderedArray(), labelled))
                 .retrieve()
                 .toBodilessEntity();
     }
@@ -31,6 +35,9 @@ public class FlExportClient {
                 .toBodilessEntity();
     }
 
-    private record ExportRequest(int schemaVersion, double[] features) {
+    private record ExportRequest(int schemaVersion, double[] features, List<ExportExample> examples) {
+    }
+
+    private record ExportExample(double[] features, int label) {
     }
 }

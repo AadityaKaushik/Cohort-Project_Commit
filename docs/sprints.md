@@ -185,14 +185,14 @@ Stories: US-51 to US-65, US-84.
 | P49 | AI/ML | P48 | Norm-based poisoning filter | - | A crafted over-norm update is dropped |
 | P50 | AI/ML | P48 | Model versions and the `/fl/model` endpoint | - | A failed round leaves the previous model servable |
 | P51 | AI/ML | P02, P50 | Compose profile for the FL service with its own schema and role | - | CI shows fl-service has no credentials for user tables |
-| P52 | Backend | P31, P44, P51 | Export of the 24 allow-listed features for opted-in users | - | Payload matches the allow-list, no free text |
+| P52 | Backend | P31, P44, P51 | Export of the 24 allow-listed features and one labelled example per rated debrief for opted-in users | - | Payload matches the allow-list, no free text |
 | P53 | Backend | P50, P52 | `FederatedLearningGateway` and `FlowerServiceAdapter` | Adapter | Contract test against a stubbed fl-service |
 | P54 | Backend | P53 | Resilience4j circuit breaker with a local-only fallback | Circuit Breaker | fl-service stopped mid-request: 200 with local results |
 | P55 | Backend | P06, P44 | FL opt-in and opt-out endpoints and the consent screen | - | Default off; an opted-out user sends nothing |
 | P56 | Backend | P51, P53 | Privacy Ledger: round metadata and the vector each user sent | - | The real sent vector is stored per user per round |
 | P57 | Frontend | P56 | Privacy Ledger page with a vector inspector | - | RTL tests |
-| P58 | Frontend | P43, P54 | Federated Lift viewer showing how the shared model moves the ranking | - | Adjustment stays within 0.75 to 1.25 |
-| P59 | AI/ML | P48, P56 | Demo command that runs a federated round with synthetic clients, so the Privacy Ledger can be shown with few real users | - | Synthetic clients are deterministic; the round writes ledger entries |
+| P58 | Frontend | P43, P54 | Federated Lift viewer: the shared model predicts the user's confidence and nudges the ranking | - | Adjustment stays within 0.75 to 1.25; a zero model changes nothing |
+| P59 | AI/ML | P48, P56 | Demo page and command that train the shared model with synthetic clients, showing its weights, accuracy per version and every round | - | Synthetic clients are deterministic; the round writes ledger entries |
 
 Sprint 4 DoD: the payload schema test passes; a two-client round is refused; CI shows fl-service has no credentials for user tables; the phrasing linter passes; the circuit-breaker fault-injection test passes; a Privacy Ledger entry shows a real sent vector, and the demo round fills the ledger on a fresh database.
 

@@ -48,7 +48,7 @@ def test_an_update_exactly_at_the_threshold_is_kept() -> None:
     strategy = MinCohortFedAvg(
         min_cohort=3, clip_norm=DEFAULT_CLIP_NORM, poisoning_norm_multiplier=DEFAULT_POISONING_NORM_MULTIPLIER
     )
-    threshold = DEFAULT_CLIP_NORM * DEFAULT_POISONING_NORM_MULTIPLIER
+    threshold = strategy.poisoning_threshold
     at_threshold = np.zeros(25)
     at_threshold[0] = threshold  # L2 norm exactly == threshold
 
@@ -66,7 +66,7 @@ def test_an_update_just_above_the_threshold_is_filtered() -> None:
     strategy = MinCohortFedAvg(
         min_cohort=3, clip_norm=DEFAULT_CLIP_NORM, poisoning_norm_multiplier=DEFAULT_POISONING_NORM_MULTIPLIER
     )
-    threshold = DEFAULT_CLIP_NORM * DEFAULT_POISONING_NORM_MULTIPLIER
+    threshold = strategy.poisoning_threshold
     just_over = np.zeros(25)
     just_over[0] = threshold * 1.01
 
@@ -100,3 +100,22 @@ def test_min_cohort_check_runs_before_poisoning_filter_uses_raw_count() -> None:
     assert result.participant_count == 2
     assert "refused" in (result.reason or "").lower()
     assert "below the minimum cohort" in (result.reason or "")
+
+
+def test_an_honest_clipped_and_noised_update_is_kept() -> None:
+    from app.client.privacy import privatize_update
+
+    strategy = MinCohortFedAvg(min_cohort=3)
+    rng = np.random.default_rng(42)
+    updates = [(f"honest-{i}", privatize_update(np.full(25, 5.0), rng), 5) for i in range(200)]
+
+    result = run_round(strategy, 1, zero_parameters(), updates)
+
+    assert result.accepted is True
+    assert result.filtered_count == 0
+
+
+def test_threshold_allows_for_the_noise_but_not_for_an_unclipped_update() -> None:
+    strategy = MinCohortFedAvg()
+    assert strategy.poisoning_threshold > 5.1
+    assert np.linalg.norm(np.full(25, 3.0)) > strategy.poisoning_threshold

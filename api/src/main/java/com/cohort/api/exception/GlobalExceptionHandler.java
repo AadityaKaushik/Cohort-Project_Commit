@@ -1,5 +1,6 @@
 package com.cohort.api.exception;
 
+import com.cohort.api.service.fl.FlServiceUnavailableException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<ApiError> handleEmailNotVerified(EmailNotVerifiedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiError.of("EMAIL_NOT_VERIFIED", ex.getMessage()));
+    }
+
+    @ExceptionHandler(FlServiceUnavailableException.class)
+    public ResponseEntity<ApiError> handleFlUnavailable(FlServiceUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiError.of("FL_UNAVAILABLE", "The federated learning service is not running."));
     }
 
     @ExceptionHandler(MailDeliveryException.class)

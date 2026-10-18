@@ -18,7 +18,7 @@ def test_put_client_features_accepts_exactly_24_floats() -> None:
     client = _client()
     response = client.put("/fl/client-features/user-1", json={"schema_version": 1, "features": [0.1] * FEATURE_COUNT})
     assert response.status_code == 200
-    assert response.json() == {"client_id": "user-1", "schema_version": 1, "feature_count": FEATURE_COUNT}
+    assert response.json() == {"client_id": "user-1", "schema_version": 1, "feature_count": FEATURE_COUNT, "example_count": 0}
 
 def test_put_client_features_rejects_wrong_length() -> None:
     client = _client()
@@ -76,3 +76,27 @@ def test_a_deleted_client_is_excluded_from_the_next_round() -> None:
     assert store.delete("gone") is True
     assert store.delete("gone") is False
     assert "gone" not in store.all()
+
+
+def test_put_client_features_stores_labelled_examples() -> None:
+    store = ClientFeatureStore()
+    client = TestClient(create_app(ModelRegistry(zero_parameters()), store))
+    examples = [{"features": [0.2] * FEATURE_COUNT, "label": 1}, {"features": [0.7] * FEATURE_COUNT, "label": 0}]
+
+    response = client.put("/fl/client-features/user-1", json={"schema_version": 1, "features": [0.1] * FEATURE_COUNT, "examples": examples})
+
+    assert response.json()["example_count"] == 2
+    record = store.get("user-1")
+    assert record is not None
+    assert record.examples_y.tolist() == [1, 0]
+    assert record.examples_x.shape == (2, FEATURE_COUNT)
+
+
+def test_an_example_label_must_be_zero_or_one() -> None:
+    client = TestClient(create_app(ModelRegistry(zero_parameters())))
+    bad = [{"features": [0.2] * FEATURE_COUNT, "label": 4}]
+
+    response = client.put("/fl/client-features/user-1", json={"schema_version": 1, "features": [0.1] * FEATURE_COUNT, "examples": bad})
+
+    assert response.status_code == 422
+

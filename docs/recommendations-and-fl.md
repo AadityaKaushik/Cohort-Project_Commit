@@ -107,7 +107,7 @@ actionability = how specific the action is (a named topic scores higher than a b
 
 Each tier has its own scoring Strategy class.
 
-Federated adjustment. When the user turns on "Local + Federated", the API fetches the current global model through the circuit breaker and gives each candidate a multiplier of `1 + mean(model parameters) * (severity - 0.5)`, clamped to [0.75, 1.25]. The shared model can reorder suggestions but never create or hide one, and the user's own evidence always dominates. The page shows how far each item moved. If the FL service is unreachable, the ranking stays local-only and the page still loads.
+Federated adjustment. When the user turns on "Local + Federated", the API fetches the current global model through the circuit breaker and uses it to predict `p`, the chance the user rates their next round 4 or 5 for confidence, from the user's own current 24 features. Each candidate then gets a multiplier of `1 + (0.5 - p) * severity`, clamped to [0.75, 1.25]: below an even chance, more severe items move up; above it, they move down a little. A zero model predicts exactly 0.5, so it changes nothing. The shared model can reorder suggestions but never create or hide one, and the user's own evidence always dominates. The page shows how far each item moved. If the FL service is unreachable, the ranking stays local-only and the page still loads.
 
 ### 2.6 Wording rules
 
@@ -125,7 +125,7 @@ The task is whether a user is likely to rate an interview round 4 or 5 out of 5 
 
 ### 3.2 Feature schema v1
 
-Everything that leaves a user's data is a fixed vector of 24 bounded floats, defined once in `fl-service/app/common/schema.py`, mirrored in `FlFeatureSchema` on the Java side, published at `/api/v1/fl/schema` and shown on the opt-in screen.
+Every number Cohort computes for federated learning is one of 24 bounded floats, defined once in `fl-service/app/common/schema.py`, mirrored in `FlFeatureSchema` on the Java side, published at `/api/v1/fl/schema` and shown on the opt-in screen. A training example is one past interview round: these 24 features as they were one second before the round, labelled 1 if the user rated the round 4 or 5 for confidence and 0 otherwise.
 
 | # | Feature | Definition | Range |
 |---:|---|---|---|
@@ -156,7 +156,7 @@ Never included: free text, names, company names, job titles, dates, interviewer 
 ### 3.3 Isolation
 
 - Participation is opt-in and off by default. Opting out stops the user's features from being exported for the next round.
-- The Java API is the only process that reads user content. Every 6 hours `FlFeatureExportJob` computes the 24 features for each opted-in user and sends them to the FL service, keyed by the user's random UUID. Nothing else is sent.
+- The Java API is the only process that reads user content. Every 6 hours `FlFeatureExportJob` computes, for each opted-in user, the current 24 features and one labelled example per rated debrief, and sends them to the client side of the FL service, keyed by the user's random UUID. Nothing else is sent. The server side of a round only ever sees each client's clipped, noised model update.
 - The fl-service container has no database credentials. A CI job starts the stack and fails if any main-database credential is present in its environment. The database role `cohort_fl` exists with `USAGE` on the `fl` schema only, `SELECT` and `INSERT` on the two FL tables, and no rights on any user table; an integration test checks these grants.
 - Round results and ledger entries are written by the Java API into the `fl` schema.
 - Deleting an account also deletes that user's exported features in the FL service.
@@ -165,29 +165,38 @@ Never included: free text, names, company names, job titles, dates, interviewer 
 
 Thirty minutes after each export, `PrivacyLedgerRoundJob` asks the FL service to run a round for the opted-in users. For each participant the service:
 
-1. measures the norm of the exported vector,
-2. clips it to an L2 norm of at most S = 1.0,
-3. adds Gaussian noise `N(0, (sigma * S)^2 I)` with sigma = 1.0,
-4. records the norms before and after clipping, the noise multiplier, an approximate epsilon and the exact noised vector.
+1. checks it has at least 5 labelled rounds; a client with fewer sits the round out and sends nothing,
+2. trains the current global model on that client's own examples only,
+3. takes the change it made to the 25 model parameters (24 weights and an intercept),
+4. clips that change to an L2 norm of at most S = 1.0,
+5. adds Gaussian noise `N(0, (sigma * S)^2 I)` with sigma = 1.0,
+6. records the norms before and after clipping, the noise multiplier, an approximate epsilon and the exact noised update.
 
-If fewer than k = 3 clients take part, the round is refused and the reason is recorded: averaging over a smaller group would not hide anyone. The API saves the round and one Privacy Ledger entry per real participant.
+The server side then refuses the round if fewer than k = 3 clients sent an update, because averaging over a smaller group would not hide anyone. Otherwise it drops oversized updates, averages the rest, adds the average to the global model and publishes the result as a new version. The API saves the round (how many trained, how many sat out, the new model version and its check-set accuracy) and one Privacy Ledger entry per real participant.
 
 ### 3.5 Training and aggregation
 
-The training and aggregation code lives in the same service:
+- Local trainer: `SGDClassifier(loss="log_loss")`, a logistic regression, with a constant learning rate of 0.1 and 5 passes over the client's examples in a seeded order. Its parameters are 24 coefficients and one intercept, a flat fixed-length array, which is what FedAvg averages. Training is deterministic under a fixed seed.
+- Privacy: each client sends only its clipped, noised change to the global model.
+- Strategy: `MinCohortFedAvg`, a Flower `Strategy`. It refuses a round below the minimum cohort and averages the surviving updates with equal weight per client; no client sends its sample count.
+- Poisoning filter: an honest update is clipped to S and then noised, so its norm is about `S * sqrt(1 + sigma^2 * 25)`, about 5.1 with the defaults. Updates more than tau = 1.5 times that are dropped. A crafted or unclipped update is far above it.
+- Model registry: append-only versions kept in the FL service's memory, so restarting the service starts again from version 0. A refused round leaves the previous version active. `/fl/model` returns the current version and `/fl/models` the full history.
+- Utility: with sigma = 1 each update carries a lot of noise, so the model learns slowly. On the synthetic check set, 40 clients take about 20 rounds to go from 52% to about 62% accuracy, against 74% for one model trained on all the data in one place. Halving the noise reaches about 66% in the same number of rounds. This is the privacy cost, measured rather than hidden.
 
-- Local trainer: `SGDClassifier(loss="log_loss")`, a logistic regression. Its parameters are 24 coefficients and one intercept, a flat fixed-length array, which is what FedAvg averages. Training is deterministic under a fixed seed. A client with fewer than 5 examples sits the round out.
-- Privacy: each client computes its update as the difference from the current global model, clips it to S and adds noise, the same functions as above.
-- Strategy: `MinCohortFedAvg`, a Flower `Strategy`. It refuses a round below the minimum cohort, drops any update whose norm is above `S * tau` with tau = 3 (a clipped update can never be that large, so this catches tampered or poisoned updates), and averages the rest with equal weight per client. No client sends its sample count.
-- Model registry: append-only versions. A refused round leaves the previous version active. `/fl/model` on the FL service returns the current version and its parameters; the service starts from a zero model as version 0. With a zero model the federated multiplier in section 2.5 is exactly 1.0, so rankings move only once a trained version is published.
+### 3.6 Demo with synthetic clients
 
-### 3.6 Demo round with synthetic clients
+A cohort of 3 is hard to reach with one or two real users, so the demo fills the cohort with synthetic clients (`synthetic-client-01`, ...). Each one has 6 to 15 labelled rounds from a seeded generator that stays inside the schema bounds. Their labels follow a hidden rule (higher coverage, mastery, consistency, self-rating and prep lead time make a confident round more likely; a high share of hard questions makes it less likely), so there is something to learn. A fixed check set of 2,000 examples from the same rule, which no client trains on, scores each published version. Synthetic clients exist only in the FL service's memory, are never written to a user table, and the API drops their ledger entries.
 
-A cohort of 3 is hard to reach with one or two real users, so `python -m app.demo.simulate` fills the cohort with synthetic clients (`synthetic-client-01`, ...). Their features come from a seeded generator that stays inside the schema bounds. They exist only in the FL service's memory, are never written to a user table and are removed when the command ends. Each demo round calls `POST /api/v1/dev/fl/round`, which exists only under the `dev` profile and runs the normal export and round. Clipping, noise, the minimum cohort and the poisoning filter are unchanged; the API drops ledger entries for synthetic clients. Running it with one client shows the refusal path.
+There are two ways to run it, both only under the `dev` profile:
+
+- The page `/privacy/federated-learning`, linked from the Privacy page. Pick how many synthetic people join and the noise level (1.0, or 0.5 and 0.25 for the demo only), run one round or five, and see the model version, its 24 weights, check-set accuracy per version, every stored round and the user's own predicted confidence. "Reset to version 0" removes the synthetic clients and the trained versions.
+- `python -m app.demo.simulate`, which does the same from a terminal.
+
+Results produced with synthetic clients check that the mechanism works. They are not evidence about real job seekers.
 
 ### 3.7 Privacy Ledger
 
-The Privacy page lists every round the user's client took part in: round number, time, feature schema version, the norm before and after clipping, the noise multiplier, the cohort size, the approximate epsilon and a list of what was not sent. Each entry expands to show the exact noised vector. Entries are append-only and visible only to their owner (404 for anyone else); account deletion removes them.
+The Privacy page lists every round the user's client took part in: round number, time, feature schema version, the norm before and after clipping, the noise multiplier, the cohort size, the approximate epsilon and a list of what was not sent. Each entry expands to show the exact noised model update that was sent: one change per feature weight and one for the intercept. Entries are append-only and visible only to their owner (404 for anyone else); account deletion removes them.
 
 ## 4. Threat model
 
@@ -222,11 +231,12 @@ The behaviour above is pinned by automated tests:
 | Export payload | Matches the allow-list exactly, no free text |
 | Clipping and noise | The sent vector differs from the raw one and the clipped norm is at most S |
 | Minimum cohort | A 2-client round is refused and logged |
-| Poisoning filter | A crafted over-norm update is dropped |
+| Poisoning filter | A crafted over-norm update is dropped; an honest clipped and noised update is kept |
+| Training round | The sent update is exactly the trained change, clipped and noised; a client with too few rounds sits out; an accepted round publishes a new version |
+| Learning | Over 12 rounds with 40 synthetic clients the check-set accuracy rises by more than 5 points |
+| Labelled examples | One example per rated debrief, labelled by its rating, built only from data before that round |
 | Model registry | A refused round leaves the previous model servable |
 | Determinism | Local training gives identical results under a fixed seed |
 | Credential isolation | CI checks the running fl-service container and the `cohort_fl` grants |
 | Ledger | A real noised vector is stored per participant per round, and only its owner can read it |
-| Demo command | Synthetic clients stay in bounds, are removed afterwards and never reach the ledger |
-
-Results produced with synthetic clients check that the mechanism works. They are not evidence about real job seekers.
+| Demo | Synthetic clients stay in bounds, never reach the ledger, and the demo endpoints are off unless enabled |

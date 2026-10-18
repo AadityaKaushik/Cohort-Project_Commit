@@ -37,10 +37,24 @@ class FlFeatureExportJobTest {
 
         FlFeatureExportJob.ExportSummary summary = job.runExport();
 
-        verify(exportClient, times(1)).export(org.mockito.ArgumentMatchers.eq(optedIn.getId()), any());
+        verify(exportClient, times(1)).export(org.mockito.ArgumentMatchers.eq(optedIn.getId()), any(), any());
         assertThat(summary.eligible()).isEqualTo(1);
         assertThat(summary.succeeded()).isEqualTo(1);
         assertThat(summary.failed()).isEqualTo(0);
+    }
+
+    @Test
+    void sendsTheUsersLabelledRoundsAlongWithTheCurrentVector() {
+        job = new FlFeatureExportJob(userRepository, extractionService, exportClient);
+        User optedIn = user();
+        List<FlTrainingExample> rated = List.of(new FlTrainingExample(zeroVector(), true), new FlTrainingExample(zeroVector(), false));
+        when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(optedIn));
+        when(extractionService.extract(org.mockito.ArgumentMatchers.eq(optedIn.getId()), any())).thenReturn(zeroVector());
+        when(extractionService.trainingExamples(optedIn.getId())).thenReturn(rated);
+
+        job.runExport();
+
+        verify(exportClient).export(optedIn.getId(), zeroVector(), rated);
     }
 
     @Test
@@ -52,7 +66,7 @@ class FlFeatureExportJobTest {
         FlFeatureExportJob.ExportSummary summary = job.runExport();
 
         verify(extractionService, never()).extract(any(), any());
-        verify(exportClient, never()).export(any(), any());
+        verify(exportClient, never()).export(any(), any(), any());
         assertThat(summary.eligible()).isEqualTo(0);
     }
 
@@ -63,11 +77,11 @@ class FlFeatureExportJobTest {
         User succeeding = user();
         when(userRepository.findAllByFlOptInTrue()).thenReturn(List.of(failing, succeeding));
         when(extractionService.extract(any(), any())).thenReturn(zeroVector());
-        doThrow(new RuntimeException("fl-service unreachable")).when(exportClient).export(org.mockito.ArgumentMatchers.eq(failing.getId()), any());
+        doThrow(new RuntimeException("fl-service unreachable")).when(exportClient).export(org.mockito.ArgumentMatchers.eq(failing.getId()), any(), any());
 
         FlFeatureExportJob.ExportSummary summary = job.runExport();
 
-        verify(exportClient).export(org.mockito.ArgumentMatchers.eq(succeeding.getId()), any());
+        verify(exportClient).export(org.mockito.ArgumentMatchers.eq(succeeding.getId()), any(), any());
         assertThat(summary.eligible()).isEqualTo(2);
         assertThat(summary.succeeded()).isEqualTo(1);
         assertThat(summary.failed()).isEqualTo(1);

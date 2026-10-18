@@ -36,7 +36,7 @@ public class FlFeatureExportJob {
         for (User user : optedIn) {
             try {
                 FlFeatureVector vector = extractionService.extract(user.getId(), asOf);
-                exportClient.export(user.getId(), vector);
+                exportClient.export(user.getId(), vector, extractionService.trainingExamples(user.getId()));
                 succeeded++;
             } catch (RuntimeException ex) {
                 failed++;

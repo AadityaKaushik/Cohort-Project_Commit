@@ -13,6 +13,7 @@ import com.cohort.api.repository.RecommendationRepository;
 import com.cohort.api.repository.TopicRepository;
 import com.cohort.api.service.application.StallDetectionService;
 import com.cohort.api.service.fl.FederatedLiftCalculator;
+import com.cohort.api.service.fl.FlFeatureExtractionService;
 import com.cohort.api.service.fl.FlCircuitBreakerGateway;
 import com.cohort.api.service.fl.FlModelInfo;
 import com.cohort.api.service.recommendation.generator.BaselineGenerator;
@@ -62,6 +63,7 @@ public class RecommendationFacade {
     private final RecommendationMapper mapper;
     private final FlCircuitBreakerGateway flGateway;
     private final FederatedLiftCalculator liftCalculator;
+    private final FlFeatureExtractionService featureExtractionService;
 
     public RecommendationFacade(
             TopicMasteryLoader topicMasteryLoader,
@@ -80,7 +82,8 @@ public class RecommendationFacade {
             PreparationTaskRepository preparationTaskRepository,
             RecommendationMapper mapper,
             FlCircuitBreakerGateway flGateway,
-            FederatedLiftCalculator liftCalculator) {
+            FederatedLiftCalculator liftCalculator,
+            FlFeatureExtractionService featureExtractionService) {
         this.topicMasteryLoader = topicMasteryLoader;
         this.topicRepository = topicRepository;
         this.stallDetectionService = stallDetectionService;
@@ -96,6 +99,7 @@ public class RecommendationFacade {
         this.mapper = mapper;
         this.flGateway = flGateway;
         this.liftCalculator = liftCalculator;
+        this.featureExtractionService = featureExtractionService;
     }
 
     @Transactional
@@ -120,7 +124,10 @@ public class RecommendationFacade {
         Optional<FlModelInfo> model = federated ? flGateway.fetchCurrentModelSafely() : Optional.empty();
         boolean federatedApplied = model.isPresent();
 
-        List<IndexedScoredCandidate> finalOrder = applyFederatedLift(localRanked, model, federatedApplied);
+        double predictedConfidence = model
+                .map(current -> liftCalculator.predictedConfidence(current, featureExtractionService.extract(userId, asOf)))
+                .orElse(FederatedLiftCalculator.NEUTRAL_CONFIDENCE);
+        List<IndexedScoredCandidate> finalOrder = applyFederatedLift(localRanked, predictedConfidence, federatedApplied);
 
         List<CardWithLift> cards = finalOrder.stream()
                 .map(indexed -> new CardWithLift(
@@ -138,17 +145,16 @@ public class RecommendationFacade {
     }
 
     private List<IndexedScoredCandidate> applyFederatedLift(
-            List<RecommendationScorer.ScoredCandidate> localRanked, Optional<FlModelInfo> model, boolean federatedApplied) {
+            List<RecommendationScorer.ScoredCandidate> localRanked, double predictedConfidence, boolean federatedApplied) {
         if (!federatedApplied) {
             return java.util.stream.IntStream.range(0, localRanked.size())
                     .mapToObj(i -> new IndexedScoredCandidate(localRanked.get(i), 0))
                     .toList();
         }
-        FlModelInfo currentModel = model.orElseThrow();
         List<ScoredWithMultiplier> withMultiplier = java.util.stream.IntStream.range(0, localRanked.size())
                 .mapToObj(i -> new ScoredWithMultiplier(
                         i, localRanked.get(i),
-                        liftCalculator.adjustmentMultiplier(currentModel, localRanked.get(i).candidate().severity())))
+                        liftCalculator.adjustmentMultiplier(predictedConfidence, localRanked.get(i).candidate().severity())))
                 .toList();
         List<ScoredWithMultiplier> federatedOrder = withMultiplier.stream()
                 .sorted(Comparator.comparingDouble((ScoredWithMultiplier s) -> s.scored().score() * s.multiplier()).reversed())

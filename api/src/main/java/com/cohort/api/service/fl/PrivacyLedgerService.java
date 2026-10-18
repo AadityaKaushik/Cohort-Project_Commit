@@ -41,6 +41,12 @@ public class PrivacyLedgerService {
 
     @Transactional
     public Optional<FlRound> runNextRoundAndPersist() {
+        return runNextRoundAndPersist(null);
+    }
+
+    /** A non-null noise multiplier is the dev demo's lower-noise option; scheduled rounds pass null. */
+    @Transactional
+    public Optional<FlRound> runNextRoundAndPersist(Double noiseMultiplier) {
         Set<UUID> participants = userRepository.findAllByFlOptInTrue().stream()
                 .map(User::getId)
                 .collect(Collectors.toSet());
@@ -52,13 +58,16 @@ public class PrivacyLedgerService {
         int nextRoundNumber = (int) roundRepository.count() + 1;
         FlRoundOutcome outcome;
         try {
-            outcome = gateway.runRound(nextRoundNumber, participants.stream().map(UUID::toString).sorted().toList());
+            outcome = gateway.runRound(nextRoundNumber, participants.stream().map(UUID::toString).sorted().toList(), noiseMultiplier);
         } catch (RuntimeException ex) {
             log.warn("FL round {} could not be run: {}", nextRoundNumber, ex.getMessage());
             return Optional.empty();
         }
 
-        FlRound round = roundRepository.save(new FlRound(outcome.roundNumber(), outcome.accepted(), outcome.reason(), outcome.cohortSize()));
+        Double noiseUsed = outcome.entries().isEmpty() ? noiseMultiplier : Double.valueOf(outcome.entries().getFirst().noiseMultiplier());
+        FlRound round = roundRepository.save(new FlRound(
+                outcome.roundNumber(), outcome.accepted(), outcome.reason(), outcome.cohortSize(),
+                outcome.satOutCount(), outcome.modelVersion(), outcome.checkAccuracy(), noiseUsed));
         for (FlLedgerEntryData entry : outcome.entries()) {
             Optional<UUID> userId = parseUserId(entry.clientId());
             if (userId.isEmpty() || !participants.contains(userId.get())) {

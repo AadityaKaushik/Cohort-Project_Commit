@@ -15,12 +15,18 @@ class ModelVersion:
     round_number: int
     participant_count: int
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    check_accuracy: float | None = None  # accuracy on the synthetic check set, demo only
 
 class ModelRegistry:
-    def __init__(self, initial_parameters: list[np.ndarray]) -> None:
-        self._versions: list[ModelVersion] = [
-            ModelVersion(version=0, parameters=initial_parameters, round_number=0, participant_count=0)
-        ]
+    def __init__(self, initial_parameters: list[np.ndarray], initial_check_accuracy: float | None = None) -> None:
+        self._initial = ModelVersion(
+            version=0, parameters=initial_parameters, round_number=0, participant_count=0, check_accuracy=initial_check_accuracy
+        )
+        self._versions: list[ModelVersion] = [self._initial]
+
+    def reset(self) -> None:
+        """Back to version 0. Only the demo reset uses this."""
+        self._versions = [self._initial]
 
     @property
     def current(self) -> ModelVersion:
@@ -37,12 +43,19 @@ class ModelRegistry:
                 return model_version
         raise KeyError(f"no such model version: {version}")
 
-    def publish(self, parameters: list[np.ndarray], round_number: int, participant_count: int) -> ModelVersion:
+    def publish(
+        self,
+        parameters: list[np.ndarray],
+        round_number: int,
+        participant_count: int,
+        check_accuracy: float | None = None,
+    ) -> ModelVersion:
         new_version = ModelVersion(
             version=self.current.version + 1,
             parameters=parameters,
             round_number=round_number,
             participant_count=participant_count,
+            check_accuracy=check_accuracy,
         )
         self._versions.append(new_version)
         return new_version

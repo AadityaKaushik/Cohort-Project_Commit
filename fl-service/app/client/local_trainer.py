@@ -14,11 +14,18 @@ CLASSES = np.array([0, 1])
 
 MIN_LOCAL_EXAMPLES = 5
 
+# A small constant step with a few passes. The default "optimal" schedule takes very large first steps,
+# which makes each client's update mostly direction-free before clipping.
+LEARNING_RATE = 0.1
+LOCAL_EPOCHS = 5
+
 class InsufficientLocalDataError(RuntimeError):
     """Too few local examples: the client skips this round instead of failing."""
 
 def new_local_model(seed: int) -> SGDClassifier:
-    return SGDClassifier(loss="log_loss", random_state=seed, warm_start=True)
+    return SGDClassifier(
+        loss="log_loss", learning_rate="constant", eta0=LEARNING_RATE, alpha=1e-4, random_state=seed, warm_start=True
+    )
 
 def _prime(model: SGDClassifier) -> SGDClassifier:
     zeros = np.zeros((2, FEATURE_COUNT))
@@ -61,5 +68,8 @@ def train_local_round(
     model = new_local_model(seed)
     _prime(model)
     set_parameters(model, global_parameters)
-    model.partial_fit(x, y, classes=CLASSES)
+    order_rng = np.random.default_rng(seed)
+    for _ in range(LOCAL_EPOCHS):
+        order = order_rng.permutation(x.shape[0])
+        model.partial_fit(x[order], y[order], classes=CLASSES)
     return get_parameters(model)

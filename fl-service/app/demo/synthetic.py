@@ -47,3 +47,54 @@ def generate_synthetic_clients(count: int, seed: int) -> dict[str, FeatureVector
         raise ValueError(f"count must not be negative, got {count}")
     rng = np.random.default_rng(seed)
     return {synthetic_client_id(i): generate_feature_vector(rng) for i in range(1, count + 1)}
+
+# The hidden rule synthetic labels follow. Real users are not assumed to follow it; it only gives the
+# demo something learnable, so a check set can show the shared model getting better round by round.
+_TRUE_WEIGHTS = {
+    "coverage_ratio": 3.0,
+    "mastery_mean": 2.5,
+    "practice_consistency": 2.0,
+    "recent_self_rating": 2.0,
+    "prep_lead_time": 1.5,
+    "interview_experience": 1.0,
+    "hard_ratio": -1.5,
+}
+_TRUE_WEIGHT_VECTOR = np.array([_TRUE_WEIGHTS.get(name, 0.0) for name in FEATURE_NAMES])
+_TRUE_INTERCEPT = 0.6 - 0.5 * sum(w for w in _TRUE_WEIGHTS.values() if w > 0)
+
+MIN_SYNTHETIC_EXAMPLES = 6
+MAX_SYNTHETIC_EXAMPLES = 15
+CHECK_SET_SIZE = 2000
+CHECK_SET_SEED = 99
+
+
+def as_array(vector: FeatureVector) -> np.ndarray:
+    return np.array([float(getattr(vector, name)) for name in FEATURE_NAMES])
+
+
+def label_examples(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+    probability = 1.0 / (1.0 + np.exp(-(x @ _TRUE_WEIGHT_VECTOR + _TRUE_INTERCEPT)))
+    return (rng.uniform(size=x.shape[0]) < probability).astype(int)
+
+
+def generate_examples(rng: np.random.Generator, count: int) -> tuple[np.ndarray, np.ndarray]:
+    x = np.array([as_array(generate_feature_vector(rng)) for _ in range(count)]).reshape(-1, len(FEATURE_NAMES))
+    return x, label_examples(x, rng)
+
+
+def generate_synthetic_training_clients(count: int, seed: int) -> dict[str, tuple[FeatureVector, np.ndarray, np.ndarray]]:
+    """Each synthetic client gets a current vector plus 6 to 15 labelled past rounds."""
+    if count < 0:
+        raise ValueError(f"count must not be negative, got {count}")
+    rng = np.random.default_rng(seed)
+    clients: dict[str, tuple[FeatureVector, np.ndarray, np.ndarray]] = {}
+    for i in range(1, count + 1):
+        current = generate_feature_vector(rng)
+        x, y = generate_examples(rng, int(rng.integers(MIN_SYNTHETIC_EXAMPLES, MAX_SYNTHETIC_EXAMPLES + 1)))
+        clients[synthetic_client_id(i)] = (current, x, y)
+    return clients
+
+
+def check_set() -> tuple[np.ndarray, np.ndarray]:
+    """A fixed held-out set drawn from the same hidden rule, used only to score demo models."""
+    return generate_examples(np.random.default_rng(CHECK_SET_SEED), CHECK_SET_SIZE)

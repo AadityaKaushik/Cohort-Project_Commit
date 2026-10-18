@@ -40,6 +40,8 @@ public class FlFeatureExtractionService {
     private static final double APPLICATION_VOLUME_LOG_CAP = 300.0;
     private static final double PRACTICE_VOLUME_LOG_CAP = 500.0;
     private static final double INTERVIEW_EXPERIENCE_LOG_CAP = 50.0;
+    private static final int CONFIDENT_SELF_RATING = 4;
+    private static final int MAX_TRAINING_EXAMPLES = 500;
 
     private final PracticeAttemptRepository practiceAttemptRepository;
     private final QuestionRepository questionRepository;
@@ -200,6 +202,27 @@ public class FlFeatureExtractionService {
                 shareBehavioural, shareSystemDesign, taskCompletionRate, prepLeadTime, interviewExperience,
                 roundsPerApplication, recentSelfRating, coverageRatio, repeatTopicRatio, applicationVolume,
                 resumeVariantsFeature, roundTypeOrdinal);
+    }
+
+    /**
+     * Labelled examples for local training: for every rated debrief, the features as of one second before that
+     * round, so the round's own outcome never leaks into its inputs. Confident means a self-rating of 4 or 5.
+     */
+    public List<FlTrainingExample> trainingExamples(UUID userId) {
+        Map<UUID, Interview> interviewsById = new HashMap<>();
+        for (Interview interview : interviewRepository.findAllByUserId(userId)) {
+            interviewsById.put(interview.getId(), interview);
+        }
+        List<FlTrainingExample> examples = new ArrayList<>();
+        for (InterviewFeedback feedback : interviewFeedbackRepository.findAllByUserId(userId)) {
+            Interview interview = interviewsById.get(feedback.getInterviewId());
+            if (feedback.getSelfRating() == null || interview == null || examples.size() >= MAX_TRAINING_EXAMPLES) {
+                continue;
+            }
+            Instant justBefore = interviewOccurredAt(interview).minusSeconds(1);
+            examples.add(new FlTrainingExample(extract(userId, justBefore), feedback.getSelfRating() >= CONFIDENT_SELF_RATING));
+        }
+        return examples;
     }
 
     private Instant interviewOccurredAt(Interview interview) {

@@ -8,7 +8,7 @@ import urllib.request
 from typing import Callable, Protocol
 
 from app.common.schema import FEATURE_NAMES, FeatureVector
-from app.demo.synthetic import generate_synthetic_clients
+from app.demo.synthetic import generate_synthetic_training_clients
 
 DEFAULT_FL_URL = "http://cohort-fl-service:8000"
 DEFAULT_API_URL = "http://cohort-api:8080"
@@ -43,14 +43,19 @@ def run_demo(
     seed: int,
     log: Callable[[str], None] = print,
 ) -> list[dict]:
-    synthetic = generate_synthetic_clients(clients, seed)
+    synthetic = generate_synthetic_training_clients(clients, seed)
     login = http("POST", f"{api_url}/api/v1/auth/login", {"email": email, "password": password})
     token = login["access_token"]
 
     results: list[dict] = []
     try:
-        for client_id, vector in synthetic.items():
-            http("PUT", f"{fl_url}/fl/client-features/{client_id}", {"schema_version": 1, "features": feature_list(vector)})
+        for client_id, (vector, x, y) in synthetic.items():
+            examples = [{"features": [float(v) for v in row], "label": int(label)} for row, label in zip(x, y)]
+            http(
+                "PUT",
+                f"{fl_url}/fl/client-features/{client_id}",
+                {"schema_version": 1, "features": feature_list(vector), "examples": examples},
+            )
         log(f"added {len(synthetic)} synthetic clients to fl-service")
 
         for _ in range(rounds):
@@ -67,9 +72,10 @@ def _describe(result: dict) -> str:
     if not result.get("round_ran"):
         return "no round ran: no user is opted in to federated learning"
     status = "accepted" if result["accepted"] else f"refused ({result['reason']})"
+    model = f", model version {result['model_version']}" if result.get("model_version") is not None else ""
     return (
         f"round {result['round_number']}: {status}, cohort size {result['cohort_size']}, "
-        f"real users exported {result['exported_users']}"
+        f"real users exported {result['exported_users']}{model}"
     )
 
 def main(argv: list[str] | None = None) -> int:

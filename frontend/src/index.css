@@ -47,6 +47,8 @@
     --color-chart-5: var(--chart-5);
     --color-series-1: var(--series-1);
     --color-series-2: var(--series-2);
+    --color-chart-up: var(--chart-up);
+    --color-chart-down: var(--chart-down);
     --color-chart-4: var(--chart-4);
     --color-chart-3: var(--chart-3);
     --color-chart-2: var(--chart-2);
@@ -125,6 +127,9 @@
     --chart-5: oklch(0.55 0.09 140);
     --series-1: oklch(0.33 0.06 172);
     --series-2: oklch(0.6 0.16 46);
+    /* A diverging pair for signed values; checked for colour-blind separation against the card. */
+    --chart-up: #008a7b;
+    --chart-down: #d86a2d;
     --radius: 0.375rem;
     --sidebar: oklch(0.27 0.05 172);
     --sidebar-foreground: oklch(0.95 0.014 85);
@@ -185,6 +190,8 @@
     --chart-5: oklch(0.76 0.1 140);
     --series-1: oklch(0.94 0.014 85);
     --series-2: oklch(0.78 0.14 55);
+    --chart-up: #00a392;
+    --chart-down: #d8732b;
     --sidebar: oklch(0.14 0.018 172);
     --sidebar-foreground: oklch(0.93 0.012 85);
     --sidebar-primary: oklch(0.78 0.14 55);

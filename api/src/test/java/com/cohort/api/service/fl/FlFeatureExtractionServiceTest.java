@@ -104,6 +104,56 @@ class FlFeatureExtractionServiceTest {
         vector.toNamedMap().values().forEach(value -> assertThat(value).isEqualTo(0.0));
     }
 
+    @Test
+    void eachRatedDebriefBecomesOneExampleLabelledByItsRatingAndBuiltFromEarlierDataOnly() {
+        Instant firstRound = Instant.parse("2026-02-01T10:00:00Z");
+        Instant secondRound = Instant.parse("2026-03-01T10:00:00Z");
+        com.cohort.api.entity.Interview first = interview(firstRound);
+        com.cohort.api.entity.Interview second = interview(secondRound);
+        com.cohort.api.entity.Interview unrated = interview(secondRound.plusSeconds(86400));
+        when(interviewRepository.findAllByUserId(userId)).thenReturn(List.of(first, second, unrated));
+        when(interviewFeedbackRepository.findAllByUserId(userId)).thenReturn(List.of(
+                feedback(first, (short) 5, firstRound.plusSeconds(3600)),
+                feedback(second, (short) 2, secondRound.plusSeconds(3600)),
+                feedback(unrated, null, secondRound.plusSeconds(90000))));
+        when(practiceAttemptRepository.findAllByUserId(userId)).thenReturn(List.of(
+                attempt(firstRound.minus(2, ChronoUnit.DAYS)),
+                attempt(secondRound.minus(2, ChronoUnit.DAYS))));
+
+        List<FlTrainingExample> examples = service.trainingExamples(userId);
+
+        assertThat(examples).extracting(FlTrainingExample::confident).containsExactly(true, false);
+        assertThat(examples.get(0).features().practiceVolume()).isCloseTo(Math.log1p(1) / Math.log1p(500), org.assertj.core.data.Offset.offset(1e-9));
+        assertThat(examples.get(0).features().recentSelfRating()).isEqualTo(0.0);
+        assertThat(examples.get(1).features().practiceVolume()).isCloseTo(Math.log1p(2) / Math.log1p(500), org.assertj.core.data.Offset.offset(1e-9));
+        assertThat(examples.get(1).features().recentSelfRating()).isEqualTo(1.0);
+    }
+
+    private com.cohort.api.entity.Interview interview(Instant scheduledAt) {
+        com.cohort.api.entity.Interview interview = new com.cohort.api.entity.Interview(
+                UUID.randomUUID(), userId, (short) 1, com.cohort.api.entity.InterviewRoundType.values()[0]);
+        interview.setScheduledAt(scheduledAt);
+        setField(interview, "id", UUID.randomUUID());
+        return interview;
+    }
+
+    private com.cohort.api.entity.InterviewFeedback feedback(com.cohort.api.entity.Interview interview, Short rating, Instant submittedAt) {
+        com.cohort.api.entity.InterviewFeedback feedback = new com.cohort.api.entity.InterviewFeedback(interview.getId(), userId);
+        feedback.setSelfRating(rating);
+        feedback.setSubmittedAt(submittedAt);
+        return feedback;
+    }
+
+    private void setField(Object entity, String name, Object value) {
+        try {
+            java.lang.reflect.Field field = entity.getClass().getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(entity, value);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private PracticeAttempt attempt(Instant attemptedAt) {
         PracticeAttempt attempt = new PracticeAttempt(userId, UUID.randomUUID(), PracticeAttempt.Status.confident, attemptedAt);
         attempt.setConfidence((short) 7);

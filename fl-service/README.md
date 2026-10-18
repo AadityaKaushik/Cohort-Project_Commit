@@ -46,7 +46,9 @@ fills the cohort with synthetic clients and runs real rounds through the normal 
   the normal feature export for opted-in users and then the normal round job, so the API saves the round and one
   Privacy Ledger entry per real opted-in user. Entries for synthetic clients are dropped by the API.
 
-Before running it, log in as `seed.demo.user@example.com` and opt in on the Privacy page. Then, with the stack up:
+The easiest way is the app itself: with the API on the `dev` profile, open Privacy, then "Federated learning demo" (`/privacy/federated-learning`). It adds synthetic clients, runs rounds and shows the model's weights, accuracy per version and every round. The demo endpoints on this service only answer when `FL_DEMO_ENABLED=true`, which `docker-compose.fl.yml` sets.
+
+From a terminal instead: log in as `seed.demo.user@example.com`, opt in on the Privacy page, then with the stack up:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.fl.yml run --rm \

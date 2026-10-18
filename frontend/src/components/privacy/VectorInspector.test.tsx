@@ -23,9 +23,17 @@ describe('VectorInspector', () => {
   })
 
   it('falls back to indexes when the schema does not match the vector length', () => {
-    render(<VectorInspector vector={[0.1, 0.2]} featureNames={['only_one']} />)
+    render(<VectorInspector vector={[0.1, 0.2, 0.3]} featureNames={['only_one']} />)
 
     expect(screen.queryByText('only_one')).not.toBeInTheDocument()
     expect(screen.getByText('[1]')).toBeInTheDocument()
+  })
+
+  it('labels a model update as one change per feature weight plus the intercept', () => {
+    render(<VectorInspector vector={[0.1, -0.2, 0.3]} featureNames={['mastery_mean', 'coverage_ratio']} />)
+
+    expect(screen.getByText(/model update sent \(3 values\)/i)).toBeInTheDocument()
+    expect(screen.getByText('coverage_ratio weight')).toBeInTheDocument()
+    expect(screen.getByText('intercept')).toBeInTheDocument()
   })
 })

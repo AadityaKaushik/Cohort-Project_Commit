@@ -2,6 +2,7 @@ import { LockIcon, ScrollTextIcon, ShieldCheckIcon, ShieldOffIcon, DownloadIcon,
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getFlConsent, getFlSchema, listPrivacyLedger, optInFl, optOutFl } from '@/lib/fl-api'
+import { getFlDemoStatus } from '@/lib/fl-demo-api'
 import { PrivacyLedgerTable } from '@/components/privacy/PrivacyLedgerTable'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -46,6 +47,8 @@ export function PrivacyPage() {
   const isBusy = optInMutation.isPending || optOutMutation.isPending
 
   const optedIn = consentQuery.data?.opted_in ?? false
+  // The demo endpoints only exist under the dev profile, so the link only shows where they answer.
+  const demoQuery = useQuery({ queryKey: ['fl-demo-status'], queryFn: getFlDemoStatus, retry: false })
 
   return (
     <div className="space-y-6">
@@ -60,7 +63,16 @@ export function PrivacyPage() {
             .
           </>
         }
-        actions={<PageGuide guideId="privacy" />}
+        actions={
+          <>
+            {demoQuery.isSuccess && (
+              <Button variant="outline" asChild>
+                <Link to="/privacy/federated-learning">Federated learning demo</Link>
+              </Button>
+            )}
+            <PageGuide guideId="privacy" />
+          </>
+        }
       />
 
       <section aria-label="In plain language" className="grid gap-3 md:grid-cols-3">

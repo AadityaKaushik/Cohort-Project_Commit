@@ -132,6 +132,7 @@ const ACTION_LABELS: Record<string, string> = {
   'mock-interview': 'Mock interview',
   edit: 'Edit',
   debrief: 'Debrief',
+  'federated-learning': 'Federated learning',
 }
 
 export function breadcrumbsFor(pathname: string): Crumb[] {

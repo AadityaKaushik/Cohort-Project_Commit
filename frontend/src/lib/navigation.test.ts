@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isNavItemActive } from '@/lib/navigation'
+import { breadcrumbsFor, isNavItemActive } from '@/lib/navigation'
 
 describe('isNavItemActive', () => {
   it('matches the item and the pages under it', () => {
@@ -17,5 +17,14 @@ describe('isNavItemActive', () => {
     expect(isNavItemActive('/prep/mock-interview', '/prep/mock-interview')).toBe(true)
     expect(isNavItemActive('/prep/mock-interview', '/prep')).toBe(false)
     expect(isNavItemActive('/prep/questions', '/prep')).toBe(true)
+  })
+})
+
+describe('breadcrumbsFor', () => {
+  it('names the federated learning demo page under Privacy', () => {
+    expect(breadcrumbsFor('/privacy/federated-learning')).toEqual([
+      { label: 'Privacy / FL', path: '/privacy' },
+      { label: 'Federated learning' },
+    ])
   })
 })

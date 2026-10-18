@@ -80,9 +80,9 @@ class FlConsentIntegrationTest extends AbstractIntegrationTest {
 
         exportJob.runExport();
 
-        verify(exportClient, never()).export(eq(currentUserId(withdrawnToken)), any());
-        verify(exportClient, never()).export(eq(currentUserId(neverToken)), any());
-        verify(exportClient).export(eq(currentUserId(participantToken)), any());
+        verify(exportClient, never()).export(eq(currentUserId(withdrawnToken)), any(), any());
+        verify(exportClient, never()).export(eq(currentUserId(neverToken)), any(), any());
+        verify(exportClient).export(eq(currentUserId(participantToken)), any(), any());
     }
 
     @Test

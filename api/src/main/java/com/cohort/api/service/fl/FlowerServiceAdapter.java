@@ -1,5 +1,6 @@
 package com.cohort.api.service.fl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.http.MediaType;
@@ -36,12 +37,17 @@ public class FlowerServiceAdapter implements FederatedLearningGateway {
 
     @Override
     public FlRoundOutcome runRound(int roundNumber, List<String> clientIds) {
+        return runRound(roundNumber, clientIds, null);
+    }
+
+    @Override
+    public FlRoundOutcome runRound(int roundNumber, List<String> clientIds, Double noiseMultiplier) {
         try {
             RoundResponse response = flServiceRestClient
                     .post()
                     .uri("/fl/round")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new RoundRequest(roundNumber, List.copyOf(clientIds)))
+                    .body(new RoundRequest(roundNumber, List.copyOf(clientIds), noiseMultiplier))
                     .retrieve()
                     .body(RoundResponse.class);
             if (response == null) {
@@ -52,7 +58,9 @@ public class FlowerServiceAdapter implements FederatedLearningGateway {
                             e.clientId(), e.schemaVersion(), e.preClipNorm(), e.postClipNorm(),
                             e.noiseMultiplier(), e.epsilon(), e.transmittedVector()))
                     .toList();
-            return new FlRoundOutcome(response.roundNumber(), response.accepted(), response.reason(), response.cohortSize(), entries);
+            return new FlRoundOutcome(
+                    response.roundNumber(), response.accepted(), response.reason(), response.cohortSize(), entries,
+                    response.satOutCount() == null ? 0 : response.satOutCount(), response.modelVersion(), response.checkAccuracy());
         } catch (RestClientException ex) {
             throw new FlServiceUnavailableException("fl-service /fl/round call failed: " + ex.getMessage(), ex);
         }
@@ -61,10 +69,13 @@ public class FlowerServiceAdapter implements FederatedLearningGateway {
     private record ModelResponse(int version, int roundNumber, int participantCount, Instant createdAt, List<Double> parameters) {
     }
 
-    private record RoundRequest(int roundNumber, List<String> clientIds) {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private record RoundRequest(int roundNumber, List<String> clientIds, Double noiseMultiplier) {
     }
 
-    private record RoundResponse(int roundNumber, boolean accepted, String reason, int cohortSize, List<RoundEntry> entries) {
+    private record RoundResponse(
+            int roundNumber, boolean accepted, String reason, int cohortSize, List<RoundEntry> entries,
+            Integer satOutCount, Integer modelVersion, Double checkAccuracy) {
     }
 
     private record RoundEntry(

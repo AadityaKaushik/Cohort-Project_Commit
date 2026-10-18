@@ -9,14 +9,16 @@ from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy import Strategy
 
-from app.client.privacy import DEFAULT_CLIP_NORM
-from app.common.parameters import flatten, unflatten
+import math
+
+from app.client.privacy import DEFAULT_CLIP_NORM, DEFAULT_NOISE_MULTIPLIER
+from app.common.parameters import PARAMETER_COUNT, flatten, unflatten
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_MIN_COHORT = 3
 
-DEFAULT_POISONING_NORM_MULTIPLIER = 3.0
+DEFAULT_POISONING_NORM_MULTIPLIER = 1.5
 
 class MinCohortFedAvg(Strategy):
     def __init__(
@@ -24,11 +26,20 @@ class MinCohortFedAvg(Strategy):
         min_cohort: int = DEFAULT_MIN_COHORT,
         clip_norm: float = DEFAULT_CLIP_NORM,
         poisoning_norm_multiplier: float = DEFAULT_POISONING_NORM_MULTIPLIER,
+        noise_multiplier: float = DEFAULT_NOISE_MULTIPLIER,
     ) -> None:
         self.min_cohort = min_cohort
         self.clip_norm = clip_norm
         self.poisoning_norm_multiplier = poisoning_norm_multiplier
+        self.noise_multiplier = noise_multiplier
         self.previous_parameters: list[np.ndarray] | None = None
+
+    @property
+    def poisoning_threshold(self) -> float:
+        # Updates arrive clipped to S and then noised, so an honest update has norm about
+        # S * sqrt(1 + sigma^2 * d). Anything well above that was not clipped or was tampered with.
+        expected_honest_norm = self.clip_norm * math.sqrt(1.0 + self.noise_multiplier**2 * PARAMETER_COUNT)
+        return self.poisoning_norm_multiplier * expected_honest_norm
 
     def initialize_parameters(self, client_manager: ClientManager) -> Parameters | None:  # noqa: ARG002
         return None
@@ -80,22 +91,19 @@ class MinCohortFedAvg(Strategy):
                 "participant_count": participant_count,
             }
 
-        threshold = self.clip_norm * self.poisoning_norm_multiplier
+        threshold = self.poisoning_threshold
         deltas: list[np.ndarray] = []
         for client_proxy, fit_res in results:
             delta = flatten(parameters_to_ndarrays(fit_res.parameters))
             norm = float(np.linalg.norm(delta))
             if norm > threshold:
                 logger.warning(
-                    "round %d: dropping client %s's update: norm %.4f exceeds poisoning "
-                    "threshold %.4f (S=%.4f * tau=%.4f). A clipped update "
-                    "should never exceed S",
+                    "round %d: dropping client %s's update: norm %.4f exceeds the poisoning "
+                    "threshold %.4f. A clipped, noised update should stay well below it",
                     server_round,
                     client_proxy.cid,
                     norm,
                     threshold,
-                    self.clip_norm,
-                    self.poisoning_norm_multiplier,
                 )
                 continue
             deltas.append(delta)

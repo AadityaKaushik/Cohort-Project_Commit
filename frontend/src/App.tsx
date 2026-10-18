@@ -38,6 +38,9 @@ const QuestionBankPage = lazy(() => import('@/pages/prep/QuestionBankPage').then
 const AnalyticsPage = lazy(() => import('@/pages/analytics/AnalyticsPage').then((module) => ({ default: module.AnalyticsPage })))
 const RecommendationsPage = lazy(() => import('@/pages/recommendations/RecommendationsPage').then((module) => ({ default: module.RecommendationsPage })))
 const PrivacyPage = lazy(() => import('@/pages/privacy/PrivacyPage').then((module) => ({ default: module.PrivacyPage })))
+const FederatedLearningDemoPage = lazy(() =>
+  import('@/pages/privacy/FederatedLearningDemoPage').then((module) => ({ default: module.FederatedLearningDemoPage })),
+)
 const PrivacyPolicyPage = lazy(() => import('@/pages/privacy/PrivacyPolicyPage').then((module) => ({ default: module.PrivacyPolicyPage })))
 const HelpPage = lazy(() => import('@/pages/help/HelpPage').then((module) => ({ default: module.HelpPage })))
 const AccountPage = lazy(() => import('@/pages/account/AccountPage').then((module) => ({ default: module.AccountPage })))
@@ -145,7 +148,10 @@ function App() {
           </Route>
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="recommendations" element={<RecommendationsPage />} />
-          <Route path="privacy" element={<PrivacyPage />} />
+          <Route path="privacy">
+            <Route index element={<PrivacyPage />} />
+            <Route path="federated-learning" element={<FederatedLearningDemoPage />} />
+          </Route>
           <Route path="reports" element={<ReportsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="profile" element={<AccountPage />} />
